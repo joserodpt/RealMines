@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.libs.jline.internal.Log;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -65,7 +64,6 @@ public class PlayerInput implements Listener {
 			public void onPlayerChat(AsyncPlayerChatEvent event) {
 				MinePlayer p = PlayerManager.searchPlayer(event.getPlayer());
 				String input = event.getMessage();
-				Log.info(event.getMessage());
 				UUID uuid = p.player.getUniqueId();
 				if (inputs.containsKey(uuid)) {
 					PlayerInput current = inputs.get(uuid);

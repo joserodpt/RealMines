@@ -25,12 +25,12 @@ public class GUIManager {
 				Itens.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, ""));
 
 		inventory.addItem(new ClickRunnable() {
-			public void run(InventoryClickEvent e) {
-				target.closeInventory();
-				MineBlocksViewer v = new MineBlocksViewer(target, m);
-				v.openInventory(target);
-			}
-		}, Itens.createItemLore(Material.CHEST, 1, "§bBlocks", Arrays.asList("&fClick here to open this category.")),
+							  public void run(InventoryClickEvent e) {
+								  target.closeInventory();
+								  MineBlocksViewer v = new MineBlocksViewer(target, m);
+								  v.openInventory(target);
+							  }
+						  }, Itens.createItemLore(Material.CHEST, 1, "§bBlocks", Arrays.asList("&fClick here to open this category.")),
 				0);
 
 		inventory.addItem(new ClickRunnable() {
@@ -78,7 +78,7 @@ public class GUIManager {
 		inventory.addItem(new ClickRunnable() {
 			public void run(InventoryClickEvent e) {
 				m.clear();
-				target.sendMessage(RealMines.getPrefix() +Text.addColor("&fMine has been &acleared."));
+				target.sendMessage(RealMines.getPrefix() + Text.addColor("&fMine has been &acleared."));
 			}
 		}, Itens.createItemLore(Material.TNT, 1, "§6Clear", Arrays.asList("&fClick here to clear this mine.")), 5);
 
