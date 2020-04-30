@@ -3,7 +3,10 @@ package josegamerpt.realmines.classes;
 import java.util.ArrayList;
 import java.util.Random;
 
+import josegamerpt.realmines.RealMines;
+import josegamerpt.realmines.config.Config;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -152,10 +155,14 @@ public class Mine {
 	}
 
 	public void reset() {
-		kickPlayers(this.name + " &fis being &eresetted.");
+		kickPlayers(this.name + " &fis being &ereset.");
 		fillMine();
 		updateSigns();
-		Bukkit.broadcastMessage("§fMine §9" + this.name + " §fjust §aresetted.");
+		if(Config.file().getBoolean("RealMines.announceResets")) {
+			Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', Config.file().getString("RealMines.resetAnnouncement").replace("%mine%", this.name)));
+		}
+
+
 	}
 
 	public void addSign(Block block, String modif) {

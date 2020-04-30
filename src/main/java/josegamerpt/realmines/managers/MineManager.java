@@ -105,6 +105,7 @@ public class MineManager {
 				Mine m = new Mine(name, new ArrayList<MineBlock>(), new ArrayList<MineSign>(), p1, p2,
 						Material.DIAMOND_ORE, null, false, true, 20D, 60);
 				m.saveData(Data.INIT);
+
 				m.register();
 				m.addBlock(new MineBlock(Material.STONE, 100D));
 				m.reset();
@@ -118,7 +119,7 @@ public class MineManager {
 	}
 
 	public static void saveMine(Mine mine, Data t) {
-		if (t.equals(Data.ALL)) {
+		if (t.equals(Data.ALL) || t.equals(Data.INIT)) {
 			Mines.file().set(mine.name + ".World", mine.pos1.getWorld().getName());
 			Mines.file().set(mine.name + ".POS1.X", mine.pos1.getX());
 			Mines.file().set(mine.name + ".POS1.Y", mine.pos1.getY());
@@ -225,12 +226,14 @@ public class MineManager {
 		m.updateSigns();
 		if (m.resetByPercentage == true) {
 			if ((double) m.getRemainingBlocksPer() < m.resetByPercentageValue) {
-				m.kickPlayers("&6Warning &fThis mine is going to be resetted.");
+				m.kickPlayers("&6Warning &fThis mine is going to be reset.");
 				Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.pl, new Runnable() {
 					@Override
 					public void run() {
 						m.reset();
-						Bukkit.broadcastMessage("§fMine §9" + m.name + " §fjust §aresetted.");
+
+						//  The reset method above has the broadcast. this has been commented out as it seems like it would do double announcements
+						//Bukkit.broadcastMessage("&fMine ï¿½9" + m.name + " &fjust &aresetted.");
 					}
 				}, 10);
 			}

@@ -64,7 +64,7 @@ public class Itens {
 			} else {
 				lore = meta.getLore();
 			}
-			lore.add("§9");
+			lore.add("ï¿½9");
 			lore.addAll(Text.addColor(lor));
 			meta.setLore(lore);
 			is.setItemMeta(meta);
@@ -87,7 +87,7 @@ public class Itens {
 			List<String> lore;
 			lore = new ArrayList<String>();
 
-			lore.add("§9");
+			lore.add("ï¿½9");
 			lore.addAll(Text.addColor(lor));
 			meta.setLore(lore);
 			is.setItemMeta(meta);
