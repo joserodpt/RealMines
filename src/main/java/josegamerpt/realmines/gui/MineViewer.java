@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
@@ -47,7 +48,7 @@ public class MineViewer {
 
 	public MineViewer(Player as) {
 		this.uuid = as.getUniqueId();
-		inv = Bukkit.getServer().createInventory(null, 54, "§9Mines");
+		inv = Bukkit.getServer().createInventory(null, 54, ChatColor.translateAlternateColorCodes('&', "&9Mines"));
 
 		load();
 
