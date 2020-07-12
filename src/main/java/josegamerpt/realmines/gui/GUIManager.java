@@ -22,7 +22,7 @@ import josegamerpt.realmines.utils.PlayerInput.InputRunnable;
 public class GUIManager {
 
 	public static void openMine(Mine m, Player target) {
-		GUIBuilder inventory = new GUIBuilder(ChatColor.translateAlternateColorCodes('&', "&9"+m.name), 9, target.getUniqueId(),
+		GUIBuilder inventory = new GUIBuilder(Text.color(m.getName()), 9, target.getUniqueId(),
 				Itens.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, ""));
 
 		inventory.addItem(new ClickRunnable() {
@@ -31,7 +31,7 @@ public class GUIManager {
 								  MineBlocksViewer v = new MineBlocksViewer(target, m);
 								  v.openInventory(target);
 							  }
-						  }, Itens.createItemLore(Material.CHEST, 1, "&bBlocks", Arrays.asList("&fClick here to open this category.")),
+						  }, Itens.createItemLore(Material.CHEST, 1, "&9Blocks", Arrays.asList("&fClick here to open this category.")),
 				0);
 
 		inventory.addItem(new ClickRunnable() {
@@ -47,7 +47,7 @@ public class GUIManager {
 				target.closeInventory();
 				MineManager.teleport(target, m, false);
 			}
-		}, Itens.createItemLore(Material.ENDER_PEARL, 1, "&1Teleport",
+		}, Itens.createItemLore(Material.ENDER_PEARL, 1, "&5Teleport",
 				Arrays.asList("&fClick here to teleport to this mine.")), 2);
 
 		inventory.addItem(new ClickRunnable() {
@@ -56,12 +56,12 @@ public class GUIManager {
 				MaterialPicker s = new MaterialPicker(m, target, PickType.ICON);
 				s.openInventory(target);
 			}
-		}, Itens.createItemLore(m.icon, 1, "&bIcon", Arrays.asList("&fClick here to select a new icon.")), 3);
+		}, Itens.createItemLore(m.getIcon(), 1, "&bIcon", Arrays.asList("&fClick here to select a new icon.")), 3);
 
 		inventory.addItem(new ClickRunnable() {
 			public void run(InventoryClickEvent e) {
 				target.closeInventory();
-				new PlayerInput(PlayerManager.searchPlayer(target), new InputRunnable() {
+				new PlayerInput(PlayerManager.get(target), new InputRunnable() {
 					@Override
 					public void run(String s) {
 						m.setName(s);
@@ -74,16 +74,26 @@ public class GUIManager {
 					}
 				});
 			}
-		}, Itens.createItemLore(Material.PAPER, 1, "&bName", Arrays.asList("&fClick here to change the name.")), 4);
+		}, Itens.createItemLore(Material.PAPER, 1, "&aName", Arrays.asList("&fClick here to change the name.")), 4);
 
 		inventory.addItem(new ClickRunnable() {
 			public void run(InventoryClickEvent e) {
 				m.clear();
-				target.sendMessage(RealMines.getPrefix() + Text.addColor("&fMine has been &acleared."));
+				Text.send(target, "&fMine has been &acleared.");
 			}
-		}, Itens.createItemLore(Material.TNT, 1, "&6Clear", Arrays.asList("&fClick here to clear this mine.")), 5);
+		}, Itens.createItemLore(Material.TNT, 1, "&cClear", Arrays.asList("&fClick here to clear this mine.")), 5);
 
-		// close
+		inventory.addItem(new ClickRunnable() {
+			public void run(InventoryClickEvent e) {
+				m.reset();
+			}
+		}, Itens.createItemLore(Material.DROPPER, 1, "&4Reset", Arrays.asList("&fClick here to reset this mine.")), 6);
+
+		inventory.addItem(new ClickRunnable() {
+			public void run(InventoryClickEvent e) {
+				m.setHighlight(!m.isHighlighted());
+			}
+		}, Itens.createItemLore(Material.TORCH, 1, "&eBoundaries", Arrays.asList("&fClick to see the boundaries of the mine.")), 7);
 
 		inventory.addItem(new ClickRunnable() {
 			public void run(InventoryClickEvent e) {

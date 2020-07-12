@@ -2,6 +2,7 @@ package josegamerpt.realmines.classes;
 
 import java.util.Arrays;
 
+import josegamerpt.realmines.utils.Text;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -25,6 +26,6 @@ public class MineBlockIcon {
 	}
 
 	private void makeIcon() {
-		i = Itens.createItemLore(mb.material, 1, "§9" + mb.material.name(), Arrays.asList("§fPercentage: §b" + mb.getPercentage() + "%", "&fClick to edit the percentage.", "&f(Q) to remove this block."));
+		i = Itens.createItemLore(mb.material, 1, Text.color("&9" + mb.material.name()), Arrays.asList("&fPercentage: &b" + mb.getPercentage() + "%", "&fClick to edit the percentage.", "&f(Q) to remove this block."));
 	}
 }

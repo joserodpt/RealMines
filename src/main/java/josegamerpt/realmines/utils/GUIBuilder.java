@@ -34,7 +34,7 @@ public class GUIBuilder {
 	private UUID uuid;
 
 	public GUIBuilder(String name, int size, UUID uuid) {
-		this(Text.addColor(name), size, uuid, null);
+		this(Text.color(name), size, uuid, null);
 	}
 
 	public GUIBuilder(String name, int size, UUID uuid, ItemStack placeholder) {
@@ -42,7 +42,7 @@ public class GUIBuilder {
 		if (size == 0) {
 			return;
 		}
-		this.inv = Bukkit.createInventory(null, size, Text.addColor(name));
+		this.inv = Bukkit.createInventory(null, size, Text.color(name));
 		if (placeholder != null) {
 			for (int i = 0; i < size; i++) {
 				inv.setItem(i, placeholder);

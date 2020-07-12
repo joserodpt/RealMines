@@ -28,7 +28,7 @@ public class Itens {
 	public static ItemStack getHead(Player player, int quantidade, String name) {
 		ItemStack item = new ItemStack(Material.PLAYER_HEAD, quantidade);
 		SkullMeta skull = (SkullMeta) item.getItemMeta();
-		skull.setDisplayName(Text.addColor(name));
+		skull.setDisplayName(Text.color(name));
 		ArrayList<String> lore = new ArrayList<String>();
 		skull.setLore(lore);
 		skull.setOwningPlayer(Bukkit.getServer().getPlayer(player.getName()));
@@ -42,7 +42,7 @@ public class Itens {
 		skull.setDisplayName(player.getName());
 		ArrayList<String> lore = new ArrayList<String>();
 		lore.add("&fClick to Teleport");
-		skull.setLore(Text.addColor(lore));
+		skull.setLore(Text.color(lore));
 		skull.setOwningPlayer(Bukkit.getServer().getPlayer(player.getName()));
 		item.setItemMeta(skull);
 		return item;
@@ -64,8 +64,8 @@ public class Itens {
 			} else {
 				lore = meta.getLore();
 			}
-			lore.add("�9");
-			lore.addAll(Text.addColor(lor));
+			lore.add(Text.color("&9"));
+			lore.addAll(Text.color(lor));
 			meta.setLore(lore);
 			is.setItemMeta(meta);
 			return is;
@@ -87,8 +87,8 @@ public class Itens {
 			List<String> lore;
 			lore = new ArrayList<String>();
 
-			lore.add("�9");
-			lore.addAll(Text.addColor(lor));
+			lore.add(Text.color("&9"));
+			lore.addAll(Text.color(lor));
 			meta.setLore(lore);
 			is.setItemMeta(meta);
 			return is;
@@ -102,7 +102,7 @@ public class Itens {
 		ItemMeta meta = item.getItemMeta();
 		if (nome == null) {
 		} else {
-			meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', nome));
+			meta.setDisplayName(Text.color(nome));
 		}
 		item.setItemMeta(meta);
 		return item;
@@ -112,26 +112,16 @@ public class Itens {
 		ItemStack item = new ItemStack(material, quantidade);
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', nome));
-		meta.setLore(Text.addColor(desc));
+		meta.setLore(Text.color(desc));
 		item.setItemMeta(meta);
 		return item;
-	}
-
-	public static ItemStack removeLore(ItemStack item, String string) {
-		ItemStack i = item.clone();
-		ItemMeta meta = i.getItemMeta();
-		ArrayList<String> lore = new ArrayList<String>();
-		List<String> b = lore.stream().filter(x -> !x.toLowerCase().contains("&f")).collect(Collectors.toList());
-
-		meta.setLore(b);
-		return i;
 	}
 
 	public static ItemStack createItemLoreEnchanted(Material m, int i, String name, List<String> desc) {
 		ItemStack item = new ItemStack(m, i);
 		ItemMeta meta = item.getItemMeta();
 		meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', name));
-		meta.setLore(Text.addColor(desc));
+		meta.setLore(Text.color(desc));
 		meta.addEnchant(Enchantment.LUCK, 1, true);
 		meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
 		item.setItemMeta(meta);

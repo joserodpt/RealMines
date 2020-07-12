@@ -15,7 +15,7 @@ public class PlayerManager {
 		mp.save();
 	}
 
-	public static MinePlayer searchPlayer(Player player) {
+	public static MinePlayer get(Player player) {
 		for (MinePlayer p : players) {
 			if (p.player.equals(player))
 			{

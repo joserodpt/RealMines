@@ -1,5 +1,6 @@
 package josegamerpt.realmines;
 
+import josegamerpt.realmines.classes.MinePlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -23,6 +24,7 @@ import josegamerpt.realmines.utils.GUIBuilder;
 import josegamerpt.realmines.utils.Itens;
 import josegamerpt.realmines.utils.PlayerInput;
 import josegamerpt.realmines.utils.Text;
+import org.bukkit.scheduler.BukkitRunnable;
 
 public class RealMines extends JavaPlugin {
 
@@ -34,8 +36,6 @@ public class RealMines extends JavaPlugin {
 	public static String prefix;
 
 	static String name = "[RealMines] ";
-
-	public static String nmsver;
 
 	public void onEnable() {
 		pl = this;
@@ -66,10 +66,7 @@ public class RealMines extends JavaPlugin {
 		MineManager.loadMines();
 		log("Loaded " + MineManager.mines.size() + " mines and " + MineManager.getSigns().size() + " mine signs.");
 
-		nmsver = Bukkit.getServer().getClass().getPackage().getName();
-		nmsver = nmsver.substring(nmsver.lastIndexOf(".") + 1);
-
-		prefix = Text.addColor(Config.file().getString("RealMines.Prefix"));
+		prefix = Text.color(Config.file().getString("RealMines.Prefix"));
 
 		log("Plugin has been loaded.");
 		log("Author: JoseGamer_PT | " + this.getDescription().getWebsite());
@@ -78,6 +75,22 @@ public class RealMines extends JavaPlugin {
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			PlayerManager.loadPlayer(p);
 		}
+
+		new BukkitRunnable() {
+
+			@Override
+			public void run() {
+				for (MinePlayer player : PlayerManager.players) {
+					player.cb.getCube().forEach(location -> player.cb.spawnParticle(location));
+				}
+				MineManager.mines.forEach(mine -> mine.highlight());
+			}
+
+		}.runTaskTimer(this,0, 10);
+	}
+
+	public void onDisable() {
+		MineManager.clearMemory();
 	}
 
 	public static void log(String string) {

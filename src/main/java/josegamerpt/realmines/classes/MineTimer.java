@@ -13,7 +13,7 @@ public class MineTimer {
 	}
 
 	public void start() {
-		startTask(m.resetByTimeValue);
+		startTask(m.getResetValue(Enum.Reset.TIME));
 	}
 
 	private void startTask(int s) {
@@ -21,22 +21,22 @@ public class MineTimer {
 			//
 		}, () -> {
 			m.reset();
-			startTask(this.m.resetByTimeValue);
+			startTask(this.m.getResetValue(Enum.Reset.TIME));
 		}, (t) -> {
 			if (count.getSecondsLeft() == 30) {
-				m.broadcastMessage("&7[&6Warning&7] &r" + m.name + " &fwill reset in &9" + count.getSecondsLeft()
+				m.broadcastMessage("&7[&6Warning&7] &r" + m.getName() + " &fwill reset in &9" + count.getSecondsLeft()
 						+ " seconds.");
 			}
 			if (count.getSecondsLeft() == 20) {
-				m.broadcastMessage("&7[&6Warning&7] &r" + m.name + " &fwill reset in &9" + count.getSecondsLeft()
+				m.broadcastMessage("&7[&6Warning&7] &r" + m.getName() + " &fwill reset in &9" + count.getSecondsLeft()
 						+ " seconds.");
 			}
 			if (count.getSecondsLeft() == 10) {
-				m.broadcastMessage("&7[&6Warning&7] &r" + m.name + " &fwill reset in &9" + count.getSecondsLeft()
+				m.broadcastMessage("&7[&6Warning&7] &r" + m.getName() + " &fwill reset in &9" + count.getSecondsLeft()
 						+ " seconds.");
 			}
 			if (count.getSecondsLeft() <= 5) {
-				m.broadcastMessage("&7[&6Warning&7] &r" + m.name + " &fwill reset in &9" + count.getSecondsLeft()
+				m.broadcastMessage("&7[&6Warning&7] &r" + m.getName() + " &fwill reset in &9" + count.getSecondsLeft()
 						+ " seconds.");
 			}
 		});

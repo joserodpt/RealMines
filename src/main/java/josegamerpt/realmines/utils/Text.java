@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import josegamerpt.realmines.RealMines;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
@@ -13,7 +14,7 @@ import net.md_5.bungee.api.chat.TextComponent;
 
 public class Text {
 
-	public static String addColor(final String string) {
+	public static String color(final String string) {
 		return ChatColor.translateAlternateColorCodes('&', string);
 	}
 
@@ -34,33 +35,33 @@ public class Text {
 
 	public static void sendList(Player p, ArrayList<String> list) {
 		for (String s : list) {
-			p.sendMessage(addColor(s));
+			p.sendMessage(color(s));
 		}
 	}
 	
 	public static void sendList(Player p, ArrayList<String> list, Object var) {
 		for (String s : list) {
-			p.sendMessage(addColor(s).replace("%CAGES%", var + ""));
+			p.sendMessage(color(s).replace("%CAGES%", var + ""));
 		}
 	}
 	
 	public static void sendList(Player p, List<String> list) {
 		for (String s : list) {
-			p.sendMessage(addColor(s));
+			p.sendMessage(color(s));
 		}
 	}
 
 
-	public static ArrayList<String> addColor(List<?> list) {
+	public static ArrayList<String> color(List<?> list) {
 		ArrayList<String> color = new ArrayList<String>();
 		for (Object s : list) {
-			color.add(Text.addColor((String) s));
+			color.add(Text.color((String) s));
 		}
 		return color;
 	}
 
 	public static CharSequence makeSpace() {
-		return Text.addColor(randSp() + randSp() + randSp());
+		return Text.color(randSp() + randSp() + randSp());
 	}
 	
 	private static String randSp() 
@@ -71,11 +72,11 @@ public class Text {
     }
 
 	public static void send(Player p, String string) {
-		p.sendMessage(Text.addColor(string));
+		p.sendMessage(Text.color(RealMines.getPrefix() + string));
 	} 
 	
 	public static void sendActionBar(Player p, String s)
 	{
-		p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(addColor(s)));
+		p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(color(s)));
 	}
 }

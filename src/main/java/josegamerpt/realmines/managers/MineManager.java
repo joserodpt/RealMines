@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import josegamerpt.realmines.classes.Enum;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -43,7 +44,7 @@ public class MineManager {
 	}
 
 	public static void unregisterMine(Mine m) {
-		Mines.file().set(m.name, null);
+		Mines.file().set(m.getName(), null);
 		Mines.save();
 		MineManager.mines.remove(m);
 	}
@@ -80,7 +81,7 @@ public class MineManager {
 			Mine m = new Mine(s, blocks, signs, pos1, pos2, ic, tp,
 					Mines.file().getBoolean(s + ".Settings.Reset.ByPercentage"),
 					Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
-					Mines.file().getDouble(s + ".Settings.Reset.ByPercentageValue"),
+					Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
 					Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"));
 			m.register();
 		}
@@ -99,17 +100,18 @@ public class MineManager {
 
 	public static void createMine(MinePlayer p, String name) {
 		if (p.pos1 != null && p.pos2 != null) {
-			if (p.pos1.getLocation().getWorld().equals(p.pos2.getLocation().getWorld())) {
-				Location p1 = p.pos1.getLocation();
-				Location p2 = p.pos2.getLocation();
+			if (p.pos1.getWorld().equals(p.pos2.getWorld())) {
+				Location p1 = p.pos1;
+				Location p2 = p.pos2;
 				Mine m = new Mine(name, new ArrayList<MineBlock>(), new ArrayList<MineSign>(), p1, p2,
-						Material.DIAMOND_ORE, null, false, true, 20D, 60);
+						Material.DIAMOND_ORE, null, false, true, 20, 60);
 				m.saveData(Data.INIT);
 
 				m.register();
 				m.addBlock(new MineBlock(Material.STONE, 100D));
 				m.reset();
 				p.sendMessage("&fMine &acreated.");
+				p.clearSelection();
 			} else {
 				p.sendMessage("&cYou cant create multi-world mines.");
 			}
@@ -120,58 +122,58 @@ public class MineManager {
 
 	public static void saveMine(Mine mine, Data t) {
 		if (t.equals(Data.ALL) || t.equals(Data.INIT)) {
-			Mines.file().set(mine.name + ".World", mine.pos1.getWorld().getName());
-			Mines.file().set(mine.name + ".POS1.X", mine.pos1.getX());
-			Mines.file().set(mine.name + ".POS1.Y", mine.pos1.getY());
-			Mines.file().set(mine.name + ".POS1.Z", mine.pos1.getZ());
-			Mines.file().set(mine.name + ".POS2.X", mine.pos2.getX());
-			Mines.file().set(mine.name + ".POS2.Y", mine.pos2.getY());
-			Mines.file().set(mine.name + ".POS2.Z", mine.pos2.getZ());
-			Mines.file().set(mine.name + ".Icon", mine.icon.name());
-			Mines.file().set(mine.name + ".Signs", mine.getSignList());
-			Mines.file().set(mine.name + ".Blocks", mine.getBlockList());
-			Mines.file().set(mine.name + ".Settings.Reset.ByPercentage", mine.resetByPercentage);
-			Mines.file().set(mine.name + ".Settings.Reset.ByTime", mine.resetByTime);
-			Mines.file().set(mine.name + ".Settings.Reset.ByPercentageValue", mine.resetByPercentageValue);
-			Mines.file().set(mine.name + ".Settings.Reset.ByTimeValue", mine.resetByTimeValue);
+			Mines.file().set(mine.getName() + ".World", mine.getPosition(1).getWorld().getName());
+			Mines.file().set(mine.getName() + ".POS1.X", mine.getPosition(1).getX());
+			Mines.file().set(mine.getName() + ".POS1.Y", mine.getPosition(1).getY());
+			Mines.file().set(mine.getName() + ".POS1.Z", mine.getPosition(1).getZ());
+			Mines.file().set(mine.getName() + ".POS2.X", mine.getPosition(2).getX());
+			Mines.file().set(mine.getName() + ".POS2.Y", mine.getPosition(2).getY());
+			Mines.file().set(mine.getName() + ".POS2.Z", mine.getPosition(2).getZ());
+			Mines.file().set(mine.getName() + ".Icon", mine.getIcon().name());
+			Mines.file().set(mine.getName() + ".Signs", mine.getSignList());
+			Mines.file().set(mine.getName() + ".Blocks", mine.getBlockList());
+			Mines.file().set(mine.getName() + ".Settings.Reset.ByPercentage", mine.isResetBy(Enum.Reset.PERCENTAGE));
+			Mines.file().set(mine.getName() + ".Settings.Reset.ByTime", mine.isResetBy(Enum.Reset.TIME));
+			Mines.file().set(mine.getName() + ".Settings.Reset.ByPercentageValue", mine.getResetValue(Enum.Reset.PERCENTAGE));
+			Mines.file().set(mine.getName() + ".Settings.Reset.ByTimeValue", mine.getResetValue(Enum.Reset.TIME));
 		}
 		if (t.equals(Data.ICON)) {
-			Mines.file().set(mine.name + ".Icon", mine.icon.name());
+			Mines.file().set(mine.getName() + ".Icon", mine.getIcon().name());
 		}
 		if (t.equals(Data.OPTIONS)) {
-			Mines.file().set(mine.name + ".Settings.Reset.ByPercentage", mine.resetByPercentage);
-			Mines.file().set(mine.name + ".Settings.Reset.ByTime", mine.resetByTime);
-			Mines.file().set(mine.name + ".Settings.Reset.ByPercentageValue", mine.resetByPercentageValue);
-			Mines.file().set(mine.name + ".Settings.Reset.ByTimeValue", mine.resetByTimeValue);
+			Mines.file().set(mine.getName() + ".Settings.Reset.ByPercentage", mine.isResetBy(Enum.Reset.PERCENTAGE));
+			Mines.file().set(mine.getName() + ".Settings.Reset.ByTime", mine.isResetBy(Enum.Reset.TIME));
+			Mines.file().set(mine.getName() + ".Settings.Reset.ByPercentageValue", mine.getResetValue(Enum.Reset.PERCENTAGE));
+			Mines.file().set(mine.getName() + ".Settings.Reset.ByTimeValue", mine.getResetValue(Enum.Reset.TIME));
 		}
 		if (t.equals(Data.REGION)) {
-			Mines.file().set(mine.name + ".World", mine.pos1.getWorld().getName());
-			Mines.file().set(mine.name + ".POS1.X", mine.pos1.getX());
-			Mines.file().set(mine.name + ".POS1.Y", mine.pos1.getY());
-			Mines.file().set(mine.name + ".POS1.Z", mine.pos1.getZ());
-			Mines.file().set(mine.name + ".POS2.X", mine.pos2.getX());
-			Mines.file().set(mine.name + ".POS2.Y", mine.pos2.getY());
-			Mines.file().set(mine.name + ".POS2.Z", mine.pos2.getZ());
+			Mines.file().set(mine.getName() + ".World", mine.getPosition(1).getWorld().getName());
+			Mines.file().set(mine.getName() + ".POS1.X", mine.getPosition(1).getX());
+			Mines.file().set(mine.getName() + ".POS1.Y", mine.getPosition(1).getY());
+			Mines.file().set(mine.getName() + ".POS1.Z", mine.getPosition(1).getZ());
+			Mines.file().set(mine.getName() + ".POS2.X", mine.getPosition(2).getX());
+			Mines.file().set(mine.getName() + ".POS2.Y", mine.getPosition(2).getY());
+			Mines.file().set(mine.getName() + ".POS2.Z", mine.getPosition(2).getZ());
 		}
 		if (t.equals(Data.TELEPORT)) {
-			Mines.file().set(mine.name + ".Teleport.X", mine.teleport.getX());
-			Mines.file().set(mine.name + ".Teleport.Y", mine.teleport.getY());
-			Mines.file().set(mine.name + ".Teleport.Z", mine.teleport.getZ());
-			Mines.file().set(mine.name + ".Teleport.Yaw", mine.teleport.getYaw());
-			Mines.file().set(mine.name + ".Teleport.Pitch", mine.teleport.getPitch());
+			Mines.file().set(mine.getName() + ".Teleport.X", mine.getTeleport().getX());
+			Mines.file().set(mine.getName() + ".Teleport.Y", mine.getTeleport().getY());
+			Mines.file().set(mine.getName() + ".Teleport.Z", mine.getTeleport().getZ());
+			Mines.file().set(mine.getName() + ".Teleport.Yaw", mine.getTeleport().getYaw());
+			Mines.file().set(mine.getName() + ".Teleport.Pitch", mine.getTeleport().getPitch());
 		}
 		if (t.equals(Data.SIGNS)) {
-			Mines.file().set(mine.name + ".Signs", mine.getSignList());
+			Mines.file().set(mine.getName() + ".Signs", mine.getSignList());
 		}
 		if (t.equals(Data.BLOCKS)) {
-			Mines.file().set(mine.name + ".Blocks", mine.getBlockList());
+			Mines.file().set(mine.getName() + ".Blocks", mine.getBlockList());
 		}
 		Mines.save();
 	}
 
 	public static boolean exists(String name) {
 		for (Mine m : mines) {
-			if (ChatColor.stripColor(Text.addColor(m.name)).equalsIgnoreCase(name)) {
+			if (ChatColor.stripColor(Text.color(m.getName())).equalsIgnoreCase(name)) {
 				return true;
 			}
 		}
@@ -192,21 +194,21 @@ public class MineManager {
 	public static void teleport(Player target, Mine m, Boolean silent) {
 		if (silent == false) {
 			if (m.hasTP() == true) {
-				target.teleport(m.teleport);
-				target.sendMessage(RealMines.getPrefix() +Text.addColor("&fTeleported to mine &9" + m.name));
+				target.teleport(m.getTeleport());
+				target.sendMessage(RealMines.getPrefix() +Text.color("&fTeleported to mine &9" + m.getName()));
 			} else {
-				target.sendMessage(RealMines.getPrefix() +Text.addColor("&fThis mine &cdoesnt have a teleport location."));
+				target.sendMessage(RealMines.getPrefix() +Text.color("&fThis mine &cdoesnt have a teleport location."));
 			}
 		} else {
 			if (m.hasTP() == true) {
-				target.teleport(m.teleport);
+				target.teleport(m.getTeleport());
 			}
 		}
 	}
 
 	public static Mine getMine(String name) {
 		for (Mine m : mines) {
-			if (ChatColor.stripColor(Text.addColor(m.name)).equalsIgnoreCase(name)) {
+			if (ChatColor.stripColor(Text.color(m.getName())).equalsIgnoreCase(name)) {
 				return m;
 			}
 		}
@@ -215,7 +217,7 @@ public class MineManager {
 
 	public static void findBlockBreak(Block b) {
 		for (Mine m : mines) {
-			if (m.c.contains(b)) {
+			if (m.getMine().contains(b)) {
 				MineBlockBreakEvent exampleEvent = new MineBlockBreakEvent(m);
 				Bukkit.getPluginManager().callEvent(exampleEvent);
 			}
@@ -224,16 +226,13 @@ public class MineManager {
 
 	public static void despertar(Mine m) {
 		m.updateSigns();
-		if (m.resetByPercentage == true) {
-			if ((double) m.getRemainingBlocksPer() < m.resetByPercentageValue) {
+		if (m.isResetBy(Enum.Reset.PERCENTAGE) == true) {
+			if ((double) m.getRemainingBlocksPer() < m.getResetValue(Enum.Reset.PERCENTAGE)) {
 				m.kickPlayers("&6Warning &fThis mine is going to be reset.");
 				Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.pl, new Runnable() {
 					@Override
 					public void run() {
 						m.reset();
-
-						//  The reset method above has the broadcast. this has been commented out as it seems like it would do double announcements
-						//Bukkit.broadcastMessage("&fMine �9" + m.name + " &fjust &aresetted.");
 					}
 				}, 10);
 			}
@@ -243,7 +242,7 @@ public class MineManager {
 	public static ArrayList<MineSign> getSigns() {
 		ArrayList<MineSign> l = new ArrayList<MineSign>();
 		for (Mine m : mines) {
-			l.addAll(m.signs);
+			l.addAll(m.getSigns());
 		}
 		return l;
 	}
@@ -255,13 +254,13 @@ public class MineManager {
 	public static void setRegion(String name, MinePlayer mp) {
 		Mine m = getMine(name);
 		if (mp.pos1 == null || mp.pos2 == null) {
-			mp.sendMessage("&fYour boundaries &carent set.");
+			mp.sendMessage("&fYour boundaries &care not set.");
 			return;
 		}
-		Location p1 = mp.pos1.getLocation();
-		Location p2 = mp.pos2.getLocation();
-		m.pos1 = p1;
-		m.pos2 = p2;
+		Location p1 = mp.pos1;
+		Location p2 = mp.pos2;
+		m.setPosition(1, mp.pos1);
+		m.setPosition(2, mp.pos2);
 		m.saveData(Data.REGION);
 		mp.sendMessage("&fRegion &aupdated.");
 		m.reset();
@@ -269,20 +268,24 @@ public class MineManager {
 
 	public static void stopTasks() {
 		for (Mine m : mines) {
-			m.timer.kill();
+			m.getTimer().kill();
 		}
 	}
 
 	public static void startTasks() {
 		for (Mine m : mines) {
-			m.timer.start();
+			m.getTimer().start();
 		}
 	}
 
 	public static void deleteMine(Mine mine) {
 		mine.clear();
-		mine.timer.kill();
+		mine.getTimer().kill();
 		mine.removeDependencies();
 		unregisterMine(mine);
+	}
+
+	public static void clearMemory() {
+		mines.clear();
 	}
 }

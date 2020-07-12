@@ -61,10 +61,10 @@ public class MaterialPicker {
 		min = m;
 		this.pt = block;
 		if (block.equals(PickType.BLOCK)) {
-			inv = Bukkit.getServer().createInventory(null, 54, Text.addColor("Pick a new block"));
+			inv = Bukkit.getServer().createInventory(null, 54, Text.color("Pick a new block"));
 		}
 		if (block.equals(PickType.ICON)) {
-			inv = Bukkit.getServer().createInventory(null, 54, Text.addColor("Select icon for " + m.name));
+			inv = Bukkit.getServer().createInventory(null, 54, Text.color("Select icon for " + m.getName()));
 		}
 
 		items = getIcons();
@@ -80,10 +80,10 @@ public class MaterialPicker {
 		min = m;
 		this.pt = block;
 		if (block.equals(PickType.BLOCK)) {
-			inv = Bukkit.getServer().createInventory(null, 54, Text.addColor("Pick a new block"));
+			inv = Bukkit.getServer().createInventory(null, 54, Text.color("Pick a new block"));
 		}
 		if (block.equals(PickType.ICON)) {
-			inv = Bukkit.getServer().createInventory(null, 54, Text.addColor("Select icon for " + m.name));
+			inv = Bukkit.getServer().createInventory(null, 54, Text.color("Select icon for " + m.getName()));
 		}
 
 		items = searchMaterial(search);
@@ -198,7 +198,7 @@ public class MaterialPicker {
 							return;
 						}
 
-						MinePlayer gp = PlayerManager.searchPlayer((Player) clicker);
+						MinePlayer gp = PlayerManager.get((Player) clicker);
 
 						if (e.getRawSlot() == 4) {
 							new PlayerInput(gp, new InputRunnable() {
@@ -239,7 +239,7 @@ public class MaterialPicker {
 						if (current.display.containsKey(e.getRawSlot())) {
 							Material a = current.display.get(e.getRawSlot());
 							if (current.pt.equals(PickType.ICON)) {
-								current.min.icon = a;
+								current.min.setIcon(a);
 								current.min.saveData(Data.ICON);
 								gp.player.closeInventory();
 								GUIManager.openMine(current.min, gp.player);

@@ -1,5 +1,7 @@
 package josegamerpt.realmines.classes;
 
+import josegamerpt.realmines.utils.CubeVisualizer;
+import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import josegamerpt.realmines.RealMines;
@@ -8,9 +10,10 @@ import josegamerpt.realmines.utils.Text;
 
 public class MinePlayer {
 	
-	public SelectionBlock pos1;
-	public SelectionBlock pos2;
+	public Location pos1;
+	public Location pos2;
 	public Player player;
+	public CubeVisualizer cb = new CubeVisualizer(this);
 	
 	public MinePlayer(Player p)
 	{
@@ -29,6 +32,6 @@ public class MinePlayer {
 	}
 
 	public void sendMessage(String string) {
-		player.sendMessage(RealMines.getPrefix() + Text.addColor(string));
+		player.sendMessage(RealMines.getPrefix() + Text.color(string));
 	}
 }

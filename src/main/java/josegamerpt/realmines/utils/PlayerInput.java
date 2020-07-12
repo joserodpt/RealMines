@@ -23,7 +23,7 @@ public class PlayerInput implements Listener {
 	private UUID uuid;
 
 	private ArrayList<String> texts = Text
-			.addColor(Arrays.asList("&l&9Type in chat your input", "&fType &4cancel &fto cancel"));
+			.color(Arrays.asList("&l&9Type in chat your input", "&fType &4cancel &fto cancel"));
 
 	private InputRunnable runGo;
 	private InputRunnable runCancel;
@@ -62,7 +62,7 @@ public class PlayerInput implements Listener {
 		return new Listener() {
 			@EventHandler
 			public void onPlayerChat(AsyncPlayerChatEvent event) {
-				MinePlayer p = PlayerManager.searchPlayer(event.getPlayer());
+				MinePlayer p = PlayerManager.get(event.getPlayer());
 				String input = event.getMessage();
 				UUID uuid = p.player.getUniqueId();
 				if (inputs.containsKey(uuid)) {

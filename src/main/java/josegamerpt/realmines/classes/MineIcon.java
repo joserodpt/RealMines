@@ -25,6 +25,6 @@ public class MineIcon {
 	}
 
 	private void makeIcon() {
-		i = Itens.createItemLore(m.icon, 1, "&9" + m.name, Arrays.asList("&b" + m.getRemainingBlocks() + "&f/&b" + m.getBlockCount() + "&f blocks", "&fClick to edit this mine."));
+		i = Itens.createItemLore(m.getIcon(), 1, "&9" + m.getName(), Arrays.asList("&b" + m.getRemainingBlocks() + "&f/&b" + m.getBlockCount() + "&f blocks", "&fClick to edit this mine."));
 	}
 }

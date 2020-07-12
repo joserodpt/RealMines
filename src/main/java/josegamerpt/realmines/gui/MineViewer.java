@@ -136,7 +136,7 @@ public class MineViewer {
 						}
 
 						e.setCancelled(true);
-						MinePlayer gp = PlayerManager.searchPlayer((Player) clicker);
+						MinePlayer gp = PlayerManager.get((Player) clicker);
 
 						if (e.getRawSlot() == 49) {
 							gp.player.closeInventory();

@@ -1,14 +1,12 @@
 package josegamerpt.realmines.classes;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Config;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
@@ -19,23 +17,24 @@ import josegamerpt.realmines.utils.Text;
 
 public class Mine {
 
-	public String name;
-	public ArrayList<MineBlock> blocks;
-	public ArrayList<Material> sorted = new ArrayList<Material>();
-	public ArrayList<MineSign> signs;
-	public Location teleport;
-	public Location pos1;
-	public Location pos2;
-	public Material icon;
-	public MineCuboid c;
-	public boolean resetByPercentage = true;
-	public boolean resetByTime = true;
-	public Double resetByPercentageValue;
-	public int resetByTimeValue;
-	public MineTimer timer;
+	private String name;
+	private ArrayList<MineBlock> blocks;
+	private ArrayList<Material> sorted = new ArrayList<Material>();
+	private ArrayList<MineSign> signs;
+	private Location teleport;
+	private Location pos1;
+	private Location pos2;
+	private Material icon;
+	private MineCuboid c;
+	private boolean resetByPercentage = true;
+	private boolean resetByTime = true;
+	private int resetByPercentageValue;
+	private int resetByTimeValue;
+	private MineTimer timer;
+	private boolean highlight = false;
 
 	public Mine(String n, ArrayList<MineBlock> b, ArrayList<MineSign> si, Location p1, Location p2, Material i,
-			Location t, Boolean resetByPercentag, Boolean resetByTim, Double rbpv, int rbtv) {
+			Location t, Boolean resetByPercentag, Boolean resetByTim, int rbpv, int rbtv) {
 		this.name = n;
 		this.blocks = b;
 		this.signs = si;
@@ -66,6 +65,11 @@ public class Mine {
 			l.add(b.getWorld().getName() + ";" + b.getX() + ";" + b.getY() + ";" + b.getZ() + ";" + ms.mod);
 		}
 		return l;
+	}
+
+	public MineCuboid getMine()
+	{
+		return this.c;
 	}
 
 	public int getBlockCount() {
@@ -159,10 +163,8 @@ public class Mine {
 		fillMine();
 		updateSigns();
 		if(Config.file().getBoolean("RealMines.announceResets")) {
-			Bukkit.broadcastMessage(ChatColor.translateAlternateColorCodes('&', Config.file().getString("RealMines.resetAnnouncement").replace("%mine%", this.name)));
+			Bukkit.broadcastMessage(Text.color(RealMines.getPrefix() + Config.file().getString("RealMines.resetAnnouncement").replace("%mine%", this.name)));
 		}
-
-
 	}
 
 	public void addSign(Block block, String modif) {
@@ -194,8 +196,8 @@ public class Mine {
 					sign.setLine(1, getRemainingBlocksPer() + "%");
 					sign.setLine(2, "left on");
 				}
-				sign.setLine(0, "§7[§9Real§bMines§7]");
-				sign.setLine(3, "" + Text.addColor(this.name));
+				sign.setLine(0, "Â§7[Â§9RealÂ§bMinesÂ§7]");
+				sign.setLine(3, "" + Text.color(this.name));
 				sign.update();
 			}
 		}
@@ -234,7 +236,7 @@ public class Mine {
 
 	public void broadcastMessage(String s) {
 		for (Player p : getPlayersInMine()) {
-			p.sendMessage(Text.addColor(s));
+			p.sendMessage(Text.color(RealMines.getPrefix() + s));
 		}
 	}
 
@@ -257,5 +259,138 @@ public class Mine {
 		{
 			ms.block.getLocation().getWorld().getBlockAt(ms.block.getLocation()).setType(Material.AIR);
 		}
+	}
+
+	public List<Location> getCube() {
+		List<Location> result = new ArrayList<>();
+		World world = pos1.getWorld();
+		double minX = Math.min(pos1.getX(), pos2.getX());
+		double minY = Math.min(pos1.getY(), pos2.getY());
+		double minZ = Math.min(pos1.getZ(), pos2.getZ());
+		double maxX = Math.max(pos1.getX() + 1, pos2.getX() + 1);
+		double maxY = Math.max(pos1.getY() + 1, pos2.getY() + 1);
+		double maxZ = Math.max(pos1.getZ() + 1, pos2.getZ() + 1);
+		double dist = 0.5D;
+		for (double x = minX; x <= maxX; x += dist) {
+			for (double y = minY; y <= maxY; y += dist) {
+				for (double z = minZ; z <= maxZ; z += dist) {
+					int components = 0;
+					if (x == minX || x == maxX) components++;
+					if (y == minY || y == maxY) components++;
+					if (z == minZ || z == maxZ) components++;
+					if (components >= 2) {
+						result.add(new Location(world, x, y, z));
+					}
+				}
+			}
+		}
+		return result;
+	}
+
+	public void highlight() {
+		if (highlight)
+		{
+			getCube().forEach(location -> location.getWorld().spawnParticle(Particle.REDSTONE, location.getX(), location.getY(), location.getZ(), 0, 0.001, 1, 0, 1, new Particle.DustOptions(Color.AQUA, 1)));
+		}
+	}
+
+	public String getName() {
+		return this.name;
+	}
+
+	public boolean isResetBy(Enum.Reset e)
+	{
+		switch (e)
+		{
+			case PERCENTAGE:
+				return this.resetByPercentage;
+			case TIME:
+				return this.resetByTime;
+		}
+		return false;
+	}
+
+	public int getResetValue(Enum.Reset e) {
+		switch (e)
+		{
+			case PERCENTAGE:
+				return this.resetByPercentageValue;
+			case TIME:
+				return this.resetByTimeValue;
+		}
+		return -1;
+	}
+
+	public void setResetStatus(Enum.Reset e, boolean b) {
+		switch (e)
+		{
+			case PERCENTAGE:
+				this.resetByPercentage = b;
+			case TIME:
+				this.resetByTime = b;
+		}
+	}
+
+	public void setResetValue(Enum.Reset e, int d) {
+		switch (e)
+		{
+			case PERCENTAGE:
+				this.resetByPercentageValue = d;
+			case TIME:
+				this.resetByTimeValue = d;
+		}
+	}
+
+	public Material getIcon() {
+		return this.icon;
+	}
+
+	public boolean isHighlighted() {
+		return this.highlight;
+	}
+
+	public void setHighlight(boolean b) {
+		this.highlight = b;
+	}
+
+	public void setIcon(Material a) {
+		this.icon = a;
+	}
+
+	public Location getPosition(int i) {
+		switch (i)
+		{
+			case 1:
+				return this.pos1;
+			case 2:
+				return this.pos2;
+		}
+		return null;
+	}
+
+	public Location getTeleport() {
+		return this.teleport;
+	}
+
+	public ArrayList<MineSign> getSigns() {
+		return this.signs;
+	}
+
+	public void setPosition(int i, Location l) {
+		switch (i)
+		{
+			case 1:
+				this.pos1 = l;
+			case 2:
+				this.pos1 = l;
+		}
+	}
+
+	public MineTimer getTimer() {
+		return this.timer;
+	}
+
+	public void setTeleport(Location location) {
+		this.teleport = location;
 	}
 }

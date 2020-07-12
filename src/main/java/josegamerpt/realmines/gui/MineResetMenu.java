@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+
+import josegamerpt.realmines.classes.Enum;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -35,7 +37,7 @@ public class MineResetMenu {
 
 	public MineResetMenu(Player as, Mine m) {
 		this.uuid = as.getUniqueId();
-		inv = Bukkit.getServer().createInventory(null, InventoryType.HOPPER, m.name + " §rReset Options");
+		inv = Bukkit.getServer().createInventory(null, InventoryType.HOPPER, m.getName() + " §rReset Options");
 		this.min = m;
 
 		load(m);
@@ -45,20 +47,20 @@ public class MineResetMenu {
 
 	public void load(Mine m) {
 		inv.clear();
-		if (m.resetByPercentage == true) {
+		if (m.isResetBy(Enum.Reset.PERCENTAGE)) {
 			this.inv.setItem(0, Itens.createItemLoreEnchanted(Material.BOOK, 1, "&9Reset By Percentage &7(&a&lON&r&7)",
-					Arrays.asList("&7Left click to turn &cOFF", "&fRight Click to input a new percentage.", "&fCurrent Value: &b" + m.resetByPercentageValue + "%")));
+					Arrays.asList("&7Left click to turn &cOFF", "&fRight Click to input a new percentage.", "&fCurrent Value: &b" + m.getResetValue(Enum.Reset.PERCENTAGE) + "%")));
 		} else {
 			this.inv.setItem(0, Itens.createItemLore(Material.BOOK, 1, "&9Reset By Percentage &7(&c&lOFF&r&7)",
-					Arrays.asList("&7Left click to turn &aON", "&fRight Click to input a new percentage.", "&fCurrent Value: &b" + m.resetByPercentageValue + "%")));
+					Arrays.asList("&7Left click to turn &aON", "&fRight Click to input a new percentage.", "&fCurrent Value: &b" + m.getResetValue(Enum.Reset.PERCENTAGE) + "%")));
 		}
 
-		if (m.resetByTime == true) {
+		if (m.isResetBy(Enum.Reset.PERCENTAGE)) {
 			this.inv.setItem(4, Itens.createItemLoreEnchanted(Material.CLOCK, 1, "&9Reset By Time &7(&a&lON&r&7)",
-					Arrays.asList("&7Left click to turn &cOFF", "&fRight Click to input a new time.", "&fCurrent Value: &b" + m.resetByTimeValue)));
+					Arrays.asList("&7Left click to turn &cOFF", "&fRight Click to input a new time.", "&fCurrent Value: &b" + m.getResetValue(Enum.Reset.TIME))));
 		} else {
 			this.inv.setItem(4, Itens.createItemLore(Material.CLOCK, 1, "&9Reset By Time &7(&c&lOFF&r&7)",
-					Arrays.asList("&7Left click to turn &aON", "&fRight Click to input a new time.", "&fCurrent Value: &b" + m.resetByTimeValue)));
+					Arrays.asList("&7Left click to turn &aON", "&fRight Click to input a new time.", "&fCurrent Value: &b" + m.getResetValue(Enum.Reset.TIME))));
 
 		}
 
@@ -96,7 +98,7 @@ public class MineResetMenu {
 						}
 
 						e.setCancelled(true);
-						MinePlayer gp = PlayerManager.searchPlayer((Player) clicker);
+						MinePlayer gp = PlayerManager.get((Player) clicker);
 
 						if (e.getRawSlot() == 2) {
 							gp.player.closeInventory();
@@ -105,7 +107,7 @@ public class MineResetMenu {
 
 						if (e.getRawSlot() == 0) {
 							if (e.getClick().equals(ClickType.LEFT)) {
-								current.min.resetByPercentage = !current.min.resetByPercentage;
+								current.min.setResetStatus(Enum.Reset.PERCENTAGE, !current.min.isResetBy(Enum.Reset.PERCENTAGE));
 								current.load(current.min);
 								current.min.saveData(Data.OPTIONS);
 							}
@@ -117,7 +119,7 @@ public class MineResetMenu {
 
 						if (e.getRawSlot() == 4) {
 							if (e.getClick().equals(ClickType.LEFT)) {
-								current.min.resetByTime = !current.min.resetByTime;
+								current.min.setResetStatus(Enum.Reset.TIME, !current.min.isResetBy(Enum.Reset.PERCENTAGE));
 								current.load(current.min);
 								current.min.saveData(Data.OPTIONS);
 							}
@@ -150,9 +152,9 @@ public class MineResetMenu {
 			new PlayerInput(gp, new InputRunnable() {
 				@Override
 				public void run(String s) {
-					Double d = -1D;
+					int d = 0;
 					try {
-						d = Double.valueOf(s.replace("%", ""));
+						d = Integer.valueOf(s.replace("%", ""));
 					} catch (Exception ex) {
 						gp.sendMessage("&cInput a percentage from 0 to 100.");
 						editSetting(0, gp, m);
@@ -165,7 +167,7 @@ public class MineResetMenu {
 						return;
 					}
 
-					m.resetByPercentageValue = d;
+					m.setResetValue(Enum.Reset.PERCENTAGE, d);
 					m.saveData(Data.OPTIONS);
 					gp.sendMessage("&fPercentage modified to &b" + d + "%");
 
@@ -199,7 +201,7 @@ public class MineResetMenu {
 						return;
 					}
 
-					m.resetByTimeValue = d;
+					m.setResetValue(Enum.Reset.TIME, d);
 					m.saveData(Data.OPTIONS);
 					gp.sendMessage("&fTime modified to &b" + d + " seconds.");
 

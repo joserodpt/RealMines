@@ -8,7 +8,7 @@ public class Debugger {
 
 	public static void print(String s) {
 		if (state == 1) {
-			System.out.print(Text.addColor(s));
+			System.out.print(Text.color(s));
 		}
 	}
 

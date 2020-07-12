@@ -1,11 +1,10 @@
 name: RealMines
 description: Mine management plugin.
 author: JoseGamer_PT
-version: 24-12-2019 Build 1
+version: 12-07-2020 Build 1
 website: www.spigotmc.org/members/josegamer_pt.40267/
 main: josegamerpt.realmines.RealMines
 api-version: 1.13
-depend: [ProtocolLib]
 softdepend:
 - Multiworld
 - Multiverse-Core

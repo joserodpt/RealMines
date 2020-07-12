@@ -57,7 +57,7 @@ public class MineBlocksViewer {
 	public MineBlocksViewer(Player target, Mine min) {
 		this.uuid = target.getUniqueId();
 		this.m = min;
-		inv = Bukkit.getServer().createInventory(null, 54, Text.addColor(min.name + " &rblocks"));
+		inv = Bukkit.getServer().createInventory(null, 54, Text.color(min.getName() + " &rblocks"));
 
 		load();
 
@@ -146,7 +146,7 @@ public class MineBlocksViewer {
 						}
 
 						e.setCancelled(true);
-						MinePlayer gp = PlayerManager.searchPlayer((Player) clicker);
+						MinePlayer gp = PlayerManager.get((Player) clicker);
 
 						if (e.getRawSlot() == 49) {
 							gp.player.closeInventory();
