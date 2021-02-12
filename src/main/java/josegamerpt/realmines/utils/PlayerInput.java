@@ -31,14 +31,14 @@ public class PlayerInput implements Listener {
 	private Boolean inputMode;
 
 	public PlayerInput(MinePlayer p, InputRunnable correct, InputRunnable cancel) {
-		this.uuid = p.player.getUniqueId();
-		p.player.closeInventory();
+		this.uuid = p.getPlayer().getUniqueId();
+		p.getPlayer().closeInventory();
 		this.inputMode = true;
 		this.runGo = correct;
 		this.runCancel = cancel;
 		this.taskId = new BukkitRunnable() {
 			public void run() {
-				p.player.sendTitle(texts.get(0), texts.get(1), 0, 21, 0);
+				p.getPlayer().sendTitle(texts.get(0), texts.get(1), 0, 21, 0);
 			}
 		}.runTaskTimer(RealMines.pl, 0L, (long) 20);
 
@@ -64,7 +64,7 @@ public class PlayerInput implements Listener {
 			public void onPlayerChat(AsyncPlayerChatEvent event) {
 				MinePlayer p = PlayerManager.get(event.getPlayer());
 				String input = event.getMessage();
-				UUID uuid = p.player.getUniqueId();
+				UUID uuid = p.getPlayer().getUniqueId();
 				if (inputs.containsKey(uuid)) {
 					PlayerInput current = inputs.get(uuid);
 					if (current.inputMode == true) {
@@ -73,7 +73,7 @@ public class PlayerInput implements Listener {
 							if (input.equalsIgnoreCase("cancel")) {
 								p.sendMessage("&fInput canceled.");
 								current.taskId.cancel();
-								p.player.sendTitle("", "", 0, 1, 0);
+								p.getPlayer().sendTitle("", "", 0, 1, 0);
 								Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.pl, new Runnable() {
 									@Override
 									public void run() {
@@ -91,7 +91,7 @@ public class PlayerInput implements Listener {
 									current.runGo.run(input);
 								}
 							}, 3);
-							p.player.sendTitle("", "", 0, 1, 0);
+							p.getPlayer().sendTitle("", "", 0, 1, 0);
 							current.unregister();
 						} catch (Exception e) {
 							p.sendMessage("&cAn error ocourred. Contact JoseGamer_PT on Spigot.com");

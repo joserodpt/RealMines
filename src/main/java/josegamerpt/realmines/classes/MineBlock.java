@@ -4,8 +4,8 @@ import org.bukkit.Material;
 
 public class MineBlock {
 
-	public Material material;
-	public Double percentage;
+	private Material material;
+	private Double percentage;
 
 	public MineBlock(Material m, Double p) {
 		this.material = m;
@@ -24,5 +24,9 @@ public class MineBlock {
 		String s = (percentage + "").replace(".0", "");
 		return Integer.valueOf(s);
 
+	}
+
+	public void setPercentage(double d) {
+		this.percentage = d;
 	}
 }

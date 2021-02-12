@@ -1,14 +1,5 @@
 package josegamerpt.realmines;
 
-import josegamerpt.realmines.classes.MinePlayer;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.PluginManager;
-import org.bukkit.plugin.java.JavaPlugin;
-
 import josegamerpt.realmines.config.Config;
 import josegamerpt.realmines.config.Mines;
 import josegamerpt.realmines.events.BlockInteractions;
@@ -24,80 +15,107 @@ import josegamerpt.realmines.utils.GUIBuilder;
 import josegamerpt.realmines.utils.Itens;
 import josegamerpt.realmines.utils.PlayerInput;
 import josegamerpt.realmines.utils.Text;
+import me.mattstudios.mf.base.CommandManager;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
 
 public class RealMines extends JavaPlugin {
 
-	public static ItemStack SelectionTool = Itens.createItem(Material.IRON_PICKAXE, 1, "&9Selection &fTool");
+    public static Plugin pl;
+    public static String prefix;
+    PluginManager pm = Bukkit.getPluginManager();
 
-	PluginManager pm = Bukkit.getPluginManager();
-	public static Plugin pl;
+    CommandManager commandManager;
 
-	public static String prefix;
+    public static void log(Level l, String s) {
+        Bukkit.getLogger().log(l, s);
+    }
 
-	static String name = "[RealMines] ";
+    public static String getPrefix() {
+        return prefix + " ";
+    }
 
-	public void onEnable() {
-		pl = this;
+    public void onEnable() {
+        pl = this;
 
-		String star = "<------------------ RealMines PT ------------------>".replace("PT", "| " +
-				this.getDescription().getVersion());
-		log(star);
-		log("Loading Config Files.");
-		saveDefaultConfig();
-		Config.setup(this);
-		Mines.setup(this);
+        String star = "<------------------ RealMines PT ------------------>".replace("PT", "| " +
+                this.getDescription().getVersion());
+        log(Level.INFO, star);
+        log(Level.INFO, "Loading Config Files.");
+        saveDefaultConfig();
+        Config.setup(this);
+        prefix = Text.color(Config.file().getString("RealMines.Prefix"));
 
-		log("Registering Events.");
-		pm.registerEvents(new BlockInteractions(), this);
-		pm.registerEvents(new PlayerEvents(), this);
-		pm.registerEvents(MineViewer.getListener(), this);
-		pm.registerEvents(GUIBuilder.getListener(), this);
-		pm.registerEvents(MaterialPicker.getListener(), this);
-		pm.registerEvents(MineBlocksViewer.getListener(), this);
-		pm.registerEvents(new BlockModify(), this);
-		pm.registerEvents(PlayerInput.getListener(), this);
-		pm.registerEvents(MineResetMenu.getListener(), this);
+        Mines.setup(this);
 
-		log("Registering Commands.");
-		getCommand("realmines").setExecutor(new Commands());
+        log(Level.INFO, "Registering Events.");
+        pm.registerEvents(new BlockInteractions(), this);
+        pm.registerEvents(new PlayerEvents(), this);
+        pm.registerEvents(MineViewer.getListener(), this);
+        pm.registerEvents(GUIBuilder.getListener(), this);
+        pm.registerEvents(MaterialPicker.getListener(), this);
+        pm.registerEvents(MineBlocksViewer.getListener(), this);
+        pm.registerEvents(new BlockModify(), this);
+        pm.registerEvents(PlayerInput.getListener(), this);
+        pm.registerEvents(MineResetMenu.getListener(), this);
 
-		log("Loading Mines.");
-		MineManager.loadMines();
-		log("Loaded " + MineManager.mines.size() + " mines and " + MineManager.getSigns().size() + " mine signs.");
+        commandManager = new CommandManager(this);
+        commandManager.hideTabComplete(true);
+        //command suggestions
+        commandManager.getCompletionHandler().register("#createsuggestions", input -> {
+            List<String> sugests = new ArrayList<>();
+            for (int i = 0; i < 200; i++) {
+                sugests.add("Mine" + i);
+            }
 
-		prefix = Text.color(Config.file().getString("RealMines.Prefix"));
+            return sugests;
+        });
+        commandManager.getCompletionHandler().register("#mines", input -> MineManager.getRegisteredMines());
 
-		log("Plugin has been loaded.");
-		log("Author: JoseGamer_PT | " + this.getDescription().getWebsite());
-		log(star);
+        //command messages
+        commandManager.getMessageHandler().register("cmd.no.exists", sender -> {
+            sender.sendMessage(RealMines.getPrefix() + Text.color("&cThe command you're trying to run doesn't exist!"));
+        });
+        commandManager.getMessageHandler().register("cmd.no.permission", sender -> {
+            sender.sendMessage(RealMines.getPrefix() + Text.color("&fYou &cdon't &fhave permission to execute this command!"));
+        });
+        commandManager.getMessageHandler().register("cmd.wrong.usage", sender -> {
+            sender.sendMessage(RealMines.getPrefix() + Text.color("&cWrong usage for the command!"));
+        });
 
-		for (Player p : Bukkit.getOnlinePlayers()) {
-			PlayerManager.loadPlayer(p);
-		}
+        //registo de comandos #portugal
+        commandManager.register(new Commands());
+        log(Level.INFO, "Loading Mines.");
+        MineManager.loadMines();
+        log(Level.INFO, "Loaded " + MineManager.mines.size() + " mines and " + MineManager.getSigns().size() + " mine signs.");
 
-		new BukkitRunnable() {
+        Bukkit.getOnlinePlayers().forEach(player -> PlayerManager.loadPlayer(player));
 
-			@Override
-			public void run() {
-				for (MinePlayer player : PlayerManager.players) {
-					player.cb.getCube().forEach(location -> player.cb.spawnParticle(location));
-				}
-				MineManager.mines.forEach(mine -> mine.highlight());
-			}
+        new BukkitRunnable() {
 
-		}.runTaskTimer(this,0, 10);
-	}
+            @Override
+            public void run() {
+                PlayerManager.getPlayers().forEach(minePlayer -> minePlayer.getCube().getParticleLocations().forEach(location -> minePlayer.getCube().spawnParticle(location)));
+                MineManager.getMines().forEach(mine -> mine.highlight());
+            }
 
-	public void onDisable() {
-		MineManager.clearMemory();
-	}
+        }.runTaskTimer(this, 0, 10);
 
-	public static void log(String string) {
-		System.out.print(name + string);
-	}
+        log(Level.INFO, "Plugin has been loaded.");
+        log(Level.INFO, "Author: JoseGamer_PT | " + this.getDescription().getWebsite());
+        log(Level.INFO, star);
+    }
 
-	public static String getPrefix() {
-		return prefix + " ";
-	}
+    public void onDisable() {
+        MineManager.clearMemory();
+    }
 }

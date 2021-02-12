@@ -1,125 +1,203 @@
 package josegamerpt.realmines;
 
-import java.util.Arrays;
-
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
-
-import josegamerpt.realmines.classes.Enum.Data;
-import josegamerpt.realmines.config.Config;
-import josegamerpt.realmines.config.Mines;
 import josegamerpt.realmines.classes.Mine;
 import josegamerpt.realmines.classes.MinePlayer;
+import josegamerpt.realmines.config.Config;
+import josegamerpt.realmines.config.Mines;
+import josegamerpt.realmines.gui.GUIManager;
 import josegamerpt.realmines.gui.MineViewer;
 import josegamerpt.realmines.managers.MineManager;
 import josegamerpt.realmines.managers.PlayerManager;
 import josegamerpt.realmines.utils.Text;
+import me.mattstudios.mf.annotations.*;
+import me.mattstudios.mf.base.CommandBase;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
-public class Commands implements CommandExecutor {
+import java.util.Arrays;
 
-	String nop = "&cSorry but you don't have permission to use this command.";
+@Command("realmines")
+@Alias({"mine", "rm"})
+public class Commands extends CommandBase {
 
-	public boolean onCommand(CommandSender sender, Command cmd, String label, String[] args) {
-		if ((sender instanceof Player)) {
-			Player p = (Player) sender;
-			MinePlayer mp = PlayerManager.get(p);
-			if ((cmd.getName().equalsIgnoreCase("mine")) && (p.hasPermission("RealMines.Admin"))) {
-				if (args.length == 0) {
-					printHelp(p);
-				} else if (args.length == 1) {
-					if (args[0].equals("create")) {
-						Text.send(p,  "&cWrong usage. &f/mine create <name>");
-					} else if (args[0].equals("wand")) {
-						Text.send(p, "&fYou can use the &aSelection Tool &fto select a region for the new mine.");
-						p.getInventory().addItem(RealMines.SelectionTool);
-					} else if (args[0].equals("list")) {
-						MineViewer v = new MineViewer(p);
-						v.openInventory(p);
-					} else if (args[0].equals("stopTasks")) {
-						MineManager.stopTasks();
-						mp.sendMessage("&cStopped &fall mine tasks.");
-					} else if (args[0].equals("startTasks")) {
-						MineManager.startTasks();
-						mp.sendMessage("&aStarted &fall mine tasks.");
-					} else if (args[0].equals("reload")) {
-						Config.reload();
-						Mines.reload();
-						RealMines.prefix = Text.color(Config.file().getString("RealMines.Prefix"));
-						MineManager.unloadMines();
-						MineManager.loadMines();
-						Text.send(p,  "&aReloaded.");
-					} else {
-						Text.send(p, "&fNo command has been found with that syntax.");
-					}
-				} else if (args.length == 2) {
-					if (args[0].equals("create")) {
-						String name = args[1];
-						if (MineManager.exists(name) == false) {
-							MineManager.createMine(mp, name);
-						} else {
-							Text.send(p,  "&cThere is already a mine with that name.");
-						}
-					} else if (args[0].equals("settp")) {
-						if (MineManager.exists(args[1]) == true) {
-							Mine m = MineManager.getMine(args[1]);
-							m.setTeleport(p.getLocation());
-							m.saveData(Data.TELEPORT);
-							mp.sendMessage("&fTeleport &Aset.");
-						} else {
-							Text.send(p,  "&cNo mine exists with that name.");
-						}
-					} else if (args[0].equals("reset")) {
-						if (MineManager.exists(args[1]) == true) {
-							Mine m = MineManager.getMine(args[1]);
-							m.reset();
-						} else {
-							Text.send(p, "&cNo mine exists with that name.");
-						}
-					} else if (args[0].equals("delete")) {
-						if (MineManager.exists(args[1]) == true) {
-							MineManager.deleteMine(MineManager.getMine(args[1]));
-							Text.send(p,  "&fMine deleted.");
-						} else {
-							Text.send(p, "&cNo mine exists with that name.");
-						}
-					} else if (args[0].equals("clear")) {
-						if (MineManager.exists(args[1]) == true) {
-							Mine m = MineManager.getMine(args[1]);
-							m.clear();
-							mp.sendMessage(Text.color("&fMine has been &acleared."));
-						} else {
-							Text.send(p, "&cNo mine exists with that name.");
-						}
-					} else if (args[0].equals("setregion")) {
-						String name = args[1];
-						if (MineManager.exists(name) == true) {
-							MineManager.setRegion(name, mp);
-						} else {
-							Text.send(p,  "&cThere is no mine with that name.");
-						}
-					} else {
-						Text.send(p, "&fNo command has been found with that syntax.");
-					}
-				} else if (args.length == 3) {
-					//
-				} else {
-					printHelp(p);
-				}
-			} else {
-				Text.send(p,  nop);
-			}
-		} else {
-			System.out.print("Only players can execute this command.");
-		}
-		return false;
+	String playerOnly = "[RealMines] Only players can run this command.";
+
+	@Default
+	public void defaultCommand(final CommandSender commandSender) {
+		Text.sendList(commandSender,
+				Arrays.asList("", "        &9Real&bMines", "&7Release &a" + RealMines.pl.getDescription().getVersion(), "",
+						"/mine create <name>","/mine delete <name>", "/mine list", "/mine settp", "/mine setregion",
+						"/mine reset <name>", "/mine reload", "/mine startTasks", "/mine stopTasks", ""));
 	}
 
-	private void printHelp(Player p) {
-		Text.sendList(p,
-				Arrays.asList("", "        &9Real&bMines", "&7Release &a" + RealMines.pl.getDescription().getVersion(), "",
-						"/mine create <name>","/mine delete <name>", "/mine list", "/mine wand", "/mine settp", "/mine setregion",
-						"/mine reset <name>", "/mine reload", "/mine startTasks", "/mine stopTasks", ""));
+	@SubCommand("reload")
+	@Permission("realmines.reload")
+	public void reloadcmd(final CommandSender commandSender) {
+		Config.reload();
+		Mines.reload();
+		RealMines.prefix = Text.color(Config.file().getString("RealMines.Prefix"));
+		MineManager.unloadMines();
+		MineManager.loadMines();
+		Text.send(commandSender,  "&aReloaded.");
+	}
+
+	@SubCommand("list")
+	@Alias("t")
+	@Permission("realmines.list")
+	public void listcmd(final CommandSender commandSender) {
+		if (commandSender instanceof Player) {
+			MineViewer v = new MineViewer(Bukkit.getPlayer(commandSender.getName()));
+			v.openInventory(Bukkit.getPlayer(commandSender.getName()));
+		} else {
+			commandSender.sendMessage(playerOnly);
+		}
+	}
+
+	@SubCommand("stoptasks")
+	@Permission("realmines.admin")
+	public void stoptaskscmd(final CommandSender commandSender) {
+		if (commandSender instanceof Player) {
+			MineManager.stopTasks();
+			commandSender.sendMessage(Text.color(RealMines.getPrefix() + "&cStopped &fall mine tasks."));
+		} else {
+			commandSender.sendMessage(playerOnly);
+		}
+	}
+
+	@SubCommand("starttasks")
+	@Permission("realmines.admin")
+	public void starttaskcmd(final CommandSender commandSender) {
+		if (commandSender instanceof Player) {
+			MineManager.startTasks();
+			commandSender.sendMessage(Text.color(RealMines.getPrefix() + "&aStarted &fall mine tasks."));
+		} else {
+			commandSender.sendMessage(playerOnly);
+		}
+	}
+
+	@SubCommand("create")
+	@Completion("#createsuggestions")
+	@Permission("realmines.admin")
+	@WrongUsage("&c/mine create <name>")
+	public void createcmd(final CommandSender commandSender, final String name) {
+		if (commandSender instanceof Player) {
+			String mineName = ChatColor.stripColor(name);
+			if (!MineManager.exists(mineName)) {
+				MineManager.createMine(Bukkit.getPlayer(commandSender.getName()), mineName);
+			} else {
+				Text.send(commandSender,  "&cThere is already a mine with that name.");
+			}
+		} else {
+			commandSender.sendMessage(playerOnly);
+		}
+	}
+
+	@SubCommand("settp")
+	@Completion("#mines")
+	@Permission("realmines.admin")
+	@WrongUsage("&c/mine settp <name>")
+	public void settpcmd(final CommandSender commandSender, final String name) {
+		if (commandSender instanceof Player) {
+			if (MineManager.exists(name)) {
+				Mine m = MineManager.getMine(name);
+				MinePlayer mp = PlayerManager.get(Bukkit.getPlayer(commandSender.getName()));
+				m.setTeleport(mp.getPlayer().getLocation());
+				m.saveData(Mine.Data.TELEPORT);
+				mp.sendMessage("&fTeleport &Aset &fon mine " + m.getDisplayName());
+			} else {
+				Text.send(commandSender,  "&cNo mine exists with that name.");
+			}
+		} else {
+			commandSender.sendMessage(playerOnly);
+		}
+	}
+
+	@SubCommand("open")
+	@Alias("o")
+	@Completion("#mines")
+	@Permission("realmines.admin")
+	@WrongUsage("&c/mine open <name>")
+	public void opencmd(final CommandSender commandSender, final String name) {
+		if (commandSender instanceof Player) {
+			if (MineManager.exists(name)) {
+				Mine m = MineManager.getMine(name);
+				GUIManager.openMine(m, Bukkit.getPlayer(commandSender.getName()));
+			} else {
+				Text.send(commandSender,  "&cNo mine exists with that name.");
+			}
+		} else {
+			commandSender.sendMessage(playerOnly);
+		}
+	}
+
+	@SubCommand("reset")
+	@Completion("#mines")
+	@Permission("realmines.admin")
+	@WrongUsage("&c/mine reset <name>")
+	public void resetcmd(final CommandSender commandSender, final String name) {
+		if (commandSender instanceof Player) {
+			if (MineManager.exists(name)) {
+				Mine m = MineManager.getMine(name);
+				m.reset();
+				Text.send(commandSender, "&fMine " + m.getDisplayName() + " &fhas been &aresetted.");
+			} else {
+				Text.send(commandSender, "&cNo mine exists with that name.");
+			}
+		} else {
+			commandSender.sendMessage(playerOnly);
+		}
+	}
+
+	@SubCommand("delete")
+	@Completion("#mines")
+	@Permission("realmines.admin")
+	@WrongUsage("&c/mine delete <name>")
+	public void deletecmd(final CommandSender commandSender, final String name) {
+		if (commandSender instanceof Player) {
+			if (MineManager.exists(name)) {
+				MineManager.deleteMine(MineManager.getMine(name));
+				Text.send(commandSender,  "&fMine deleted.");
+			} else {
+				Text.send(commandSender, "&cNo mine exists with that name.");
+			}
+		} else {
+			commandSender.sendMessage(playerOnly);
+		}
+	}
+
+	@SubCommand("clear")
+	@Completion("#mines")
+	@Permission("realmines.admin")
+	@WrongUsage("&c/mine clear <name>")
+	public void clearcmd(final CommandSender commandSender, final String name) {
+		if (commandSender instanceof Player) {
+			if (MineManager.exists(name)) {
+				Mine m = MineManager.getMine(name);
+				m.clear();
+				Text.send(commandSender, "&fMine has been &acleared.");
+			} else {
+				Text.send(commandSender, "&cNo mine exists with that name.");
+			}
+		} else {
+			commandSender.sendMessage(playerOnly);
+		}
+	}
+
+	@SubCommand("setregion")
+	@Completion("#mines")
+	@Permission("realmines.admin")
+	@WrongUsage("&c/mine setregion <name>")
+	public void setregioncmd(final CommandSender commandSender, final String name) {
+		if (commandSender instanceof Player) {
+			if (MineManager.exists(name)) {
+				MineManager.setRegion(name, Bukkit.getPlayer(commandSender.getName()));
+			} else {
+				Text.send(commandSender,  "&cThere is no mine with that name.");
+			}
+		} else {
+			commandSender.sendMessage(playerOnly);
+		}
 	}
 }

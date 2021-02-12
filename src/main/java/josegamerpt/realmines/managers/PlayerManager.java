@@ -8,20 +8,24 @@ import josegamerpt.realmines.classes.MinePlayer;
 
 public class PlayerManager {
 
-	public static ArrayList<MinePlayer> players = new ArrayList<MinePlayer>();
+	static ArrayList<MinePlayer> players = new ArrayList<>();
 
 	public static void loadPlayer(Player player) {
-		MinePlayer mp = new MinePlayer(player);
-		mp.save();
+		players.add(new MinePlayer(player));
 	}
 
 	public static MinePlayer get(Player player) {
 		for (MinePlayer p : players) {
-			if (p.player.equals(player))
-			{
-				return p;
-			}
+			return p.getPlayer().equals(player) ? p : null;
 		}
 		return null;
 	}
+
+	public static ArrayList<MinePlayer> getPlayers() {
+		return players;
+	}
+
+    public static void unloadPlyer(MinePlayer minePlayer) {
+		players.remove(minePlayer);
+    }
 }

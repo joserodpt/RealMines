@@ -7,39 +7,43 @@ import java.util.Random;
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Config;
 import org.bukkit.*;
+import org.bukkit.Color;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
-import josegamerpt.realmines.classes.Enum.Data;
 import josegamerpt.realmines.managers.MineManager;
 import josegamerpt.realmines.utils.Text;
 
 public class Mine {
 
+
+	public enum Reset {PERCENTAGE, TIME}
+
+	public enum Data {BLOCKS, ICON, ALL, TELEPORT, SIGNS, REGION, INIT, OPTIONS, NAME}
+
 	private String name;
+	private String displayName;
 	private ArrayList<MineBlock> blocks;
-	private ArrayList<Material> sorted = new ArrayList<Material>();
+
+	private ArrayList<Material> sorted = new ArrayList<>();
 	private ArrayList<MineSign> signs;
 	private Location teleport;
-	private Location pos1;
-	private Location pos2;
 	private Material icon;
 	private MineCuboid c;
-	private boolean resetByPercentage = true;
-	private boolean resetByTime = true;
+	private boolean resetByPercentage;
+	private boolean resetByTime;
 	private int resetByPercentageValue;
 	private int resetByTimeValue;
 	private MineTimer timer;
 	private boolean highlight = false;
 
-	public Mine(String n, ArrayList<MineBlock> b, ArrayList<MineSign> si, Location p1, Location p2, Material i,
+	public Mine(String n, String displayname, ArrayList<MineBlock> b, ArrayList<MineSign> si, Location p1, Location p2, Material i,
 			Location t, Boolean resetByPercentag, Boolean resetByTim, int rbpv, int rbtv) {
-		this.name = n;
+		this.name = ChatColor.stripColor(Text.color(n));
+		this.displayName = displayname;
 		this.blocks = b;
 		this.signs = si;
-		this.pos1 = p1;
-		this.pos2 = p2;
 		this.icon = i;
 		this.teleport = t;
 		this.resetByPercentage = resetByPercentag;
@@ -47,11 +51,22 @@ public class Mine {
 		this.resetByPercentageValue = rbpv;
 		this.resetByTimeValue = rbtv;
 		timer = new MineTimer(this);
-		if (resetByTim == true) {
+		if (resetByTim) {
 			timer.start();
 		}
-		fillMine();
-		updateSigns();
+		fillMine(p1, p2);
+	}
+
+	public Location getPOS1() {
+		return this.c.getPOS1();
+	}
+
+	public Location getPOS2() {
+		return this.c.getPOS2();
+	}
+
+	public void setPOS(Location p1, Location p2) {
+		fillMine(p1, p2);
 	}
 
 	public boolean hasTP() {
@@ -59,12 +74,14 @@ public class Mine {
 	}
 
 	public ArrayList<String> getSignList() {
-		ArrayList<String> l = new ArrayList<String>();
-		for (MineSign ms : signs) {
-			Block b = ms.block;
-			l.add(b.getWorld().getName() + ";" + b.getX() + ";" + b.getY() + ";" + b.getZ() + ";" + ms.mod);
-		}
+		ArrayList<String> l = new ArrayList<>();
+		signs.forEach(mineSign -> l.add(mineSign.getBlock().getWorld().getName() + ";" + mineSign.getBlock().getX() + ";" + mineSign.getBlock().getY() + ";" + mineSign.getBlock().getZ() + ";" + mineSign.getModifier()));
+
 		return l;
+	}
+
+	public String getDisplayName() {
+		return this.displayName;
 	}
 
 	public MineCuboid getMine()
@@ -92,24 +109,20 @@ public class Mine {
 		return (getMinedBlocks() * 100 / getBlockCount());
 	}
 
-	public void fillMine() {
+	public void fillMine(Location pos1, Location pos2) {
 		c = new MineCuboid(pos1, pos2);
 		sortBlocks();
 		if (blocks.size() != 0) {
-			for (Block block : c)
-				block.setType(getBlock());
+			c.forEach(block -> block.setType(getBlock()));
 		}
+		updateSigns();
 	}
 
 	private void sortBlocks() {
-		double per = 0;
-		for (MineBlock d : blocks) {
-			per = per + d.percentage;
-		}
 		sorted.clear();
 		for (MineBlock d : blocks) {
 			for (int i = 0; i < d.getPerInt(); i++) {
-				sorted.add(d.material);
+				sorted.add(d.getMaterial());
 			}
 		}
 	}
@@ -117,10 +130,8 @@ public class Mine {
 	private Material getBlock() {
 		Random r = new Random();
 		Material m = null;
-		for (@SuppressWarnings("unused")
-		MineBlock d : blocks) {
+		for (int i = 0; i < blocks.size(); i++) {
 			int chance = r.nextInt(sorted.size());
-
 			m = sorted.get(chance);
 		}
 		return m;
@@ -132,7 +143,7 @@ public class Mine {
 
 	public void saveData(Data t) {
 		MineManager.saveMine(this, t);
-		if (this.resetByTime == false) {
+		if (!this.resetByTime) {
 			timer.kill();
 		} else {
 			timer.restart();
@@ -140,18 +151,14 @@ public class Mine {
 	}
 
 	public ArrayList<String> getBlockList() {
-		ArrayList<String> l = new ArrayList<String>();
-		for (MineBlock b : blocks) {
-			l.add(b.material.name() + ";" + b.percentage);
-		}
+		ArrayList<String> l = new ArrayList<>();
+		blocks.forEach(mineBlock -> l.add(mineBlock.getMaterial().name() + ";" + mineBlock.getPercentage()));
 		return l;
 	}
 
 	public ArrayList<MineBlockIcon> getBlocks() {
-		ArrayList<MineBlockIcon> l = new ArrayList<MineBlockIcon>();
-		for (MineBlock b : blocks) {
-			l.add(new MineBlockIcon(b));
-		}
+		ArrayList<MineBlockIcon> l = new ArrayList<>();
+		blocks.forEach(mineBlock -> l.add(new MineBlockIcon(mineBlock)));
 		if (l.size() == 0) {
 			l.add(new MineBlockIcon());
 		}
@@ -159,24 +166,24 @@ public class Mine {
 	}
 
 	public void reset() {
-		kickPlayers(this.name + " &fis being &ereset.");
-		fillMine();
+		kickPlayers(getDisplayName() + " &fis being &ereset.");
+		fillMine(this.c.getPOS1(), this.c.getPOS2());
 		updateSigns();
 		if(Config.file().getBoolean("RealMines.announceResets")) {
-			Bukkit.broadcastMessage(Text.color(RealMines.getPrefix() + Config.file().getString("RealMines.resetAnnouncement").replace("%mine%", this.name)));
+			Bukkit.broadcastMessage(Text.color(RealMines.getPrefix() + Config.file().getString("RealMines.resetAnnouncement").replace("%mine%", getDisplayName())));
 		}
 	}
 
 	public void addSign(Block block, String modif) {
-		signs.add(new MineSign(block, modif));
+		this.signs.add(new MineSign(block, modif));
 		this.saveData(Data.SIGNS);
 	}
 
 	public void updateSigns() {
 		for (MineSign ms : signs) {
-			if (ms.block.getType().name().contains("SIGN")) {
-				Sign sign = (Sign) ms.block.getState();
-				String modif = ms.mod;
+			if (ms.getBlock().getType().name().contains("SIGN")) {
+				Sign sign = (Sign) ms.getBlock().getState();
+				String modif = ms.getModifier();
 
 				if (modif.equalsIgnoreCase("PM")) {
 					sign.setLine(1, getMinedBlocksPer() + "%");
@@ -197,7 +204,7 @@ public class Mine {
 					sign.setLine(2, "left on");
 				}
 				sign.setLine(0, "§7[§9Real§bMines§7]");
-				sign.setLine(3, "" + Text.color(this.name));
+				sign.setLine(3, "" + Text.color(getDisplayName()));
 				sign.update();
 			}
 		}
@@ -213,25 +220,18 @@ public class Mine {
 		saveData(Data.BLOCKS);
 	}
 
-	public void setName(String input) {
-		this.timer.kill();
-		MineManager.unregisterMine(this);
-		this.name = input;
-		this.register();
-		saveData(Data.ALL);
-		saveData(Data.TELEPORT);
+	public void setDisplayName(String input) {
+		this.displayName = input;
+		saveData(Data.NAME);
 	}
 
 	public void clear() {
-		for (Block block : c)
-			block.setType(Material.AIR);
+		this.c.forEach(block -> block.setType(Material.AIR));
 	}
 
 	public void kickPlayers(String s) {
 		broadcastMessage(s);
-		for (Player p : getPlayersInMine()) {
-			MineManager.teleport(p, this, false);
-		}
+		this.getPlayersInMine().forEach(player -> MineManager.teleport(player, this, false));
 	}
 
 	public void broadcastMessage(String s) {
@@ -241,7 +241,7 @@ public class Mine {
 	}
 
 	public ArrayList<Player> getPlayersInMine() {
-		ArrayList<Player> ps = new ArrayList<Player>();
+		ArrayList<Player> ps = new ArrayList<>();
 		for (Player p : Bukkit.getOnlinePlayers()) {
 			if (c.contains(p.getLocation())) {
 				ps.add(p);
@@ -250,26 +250,19 @@ public class Mine {
 		return ps;
 	}
 
-	public int getPlayersInMineCount() {
-		return getPlayersInMine().size();
-	}
-
 	public void removeDependencies() {
-		for (MineSign ms : signs)
-		{
-			ms.block.getLocation().getWorld().getBlockAt(ms.block.getLocation()).setType(Material.AIR);
-		}
+		signs.forEach(ms -> ms.getBlock().getLocation().getWorld().getBlockAt(ms.getBlock().getLocation()).setType(Material.AIR));
 	}
 
 	public List<Location> getCube() {
 		List<Location> result = new ArrayList<>();
-		World world = pos1.getWorld();
-		double minX = Math.min(pos1.getX(), pos2.getX());
-		double minY = Math.min(pos1.getY(), pos2.getY());
-		double minZ = Math.min(pos1.getZ(), pos2.getZ());
-		double maxX = Math.max(pos1.getX() + 1, pos2.getX() + 1);
-		double maxY = Math.max(pos1.getY() + 1, pos2.getY() + 1);
-		double maxZ = Math.max(pos1.getZ() + 1, pos2.getZ() + 1);
+		World world = this.c.getPOS1().getWorld();
+		double minX = Math.min(this.c.getPOS1().getX(), this.c.getPOS2().getX());
+		double minY = Math.min(this.c.getPOS1().getY(), this.c.getPOS2().getY());
+		double minZ = Math.min(this.c.getPOS1().getZ(), this.c.getPOS2().getZ());
+		double maxX = Math.max(this.c.getPOS1().getX() + 1, this.c.getPOS2().getX() + 1);
+		double maxY = Math.max(this.c.getPOS1().getY() + 1, this.c.getPOS2().getY() + 1);
+		double maxZ = Math.max(this.c.getPOS1().getZ() + 1, this.c.getPOS2().getZ() + 1);
 		double dist = 0.5D;
 		for (double x = minX; x <= maxX; x += dist) {
 			for (double y = minY; y <= maxY; y += dist) {
@@ -298,7 +291,7 @@ public class Mine {
 		return this.name;
 	}
 
-	public boolean isResetBy(Enum.Reset e)
+	public boolean isResetBy(Reset e)
 	{
 		switch (e)
 		{
@@ -310,7 +303,7 @@ public class Mine {
 		return false;
 	}
 
-	public int getResetValue(Enum.Reset e) {
+	public int getResetValue(Reset e) {
 		switch (e)
 		{
 			case PERCENTAGE:
@@ -321,7 +314,7 @@ public class Mine {
 		return -1;
 	}
 
-	public void setResetStatus(Enum.Reset e, boolean b) {
+	public void setResetStatus(Reset e, boolean b) {
 		switch (e)
 		{
 			case PERCENTAGE:
@@ -331,7 +324,7 @@ public class Mine {
 		}
 	}
 
-	public void setResetValue(Enum.Reset e, int d) {
+	public void setResetValue(Reset e, int d) {
 		switch (e)
 		{
 			case PERCENTAGE:
@@ -357,17 +350,6 @@ public class Mine {
 		this.icon = a;
 	}
 
-	public Location getPosition(int i) {
-		switch (i)
-		{
-			case 1:
-				return this.pos1;
-			case 2:
-				return this.pos2;
-		}
-		return null;
-	}
-
 	public Location getTeleport() {
 		return this.teleport;
 	}
@@ -376,15 +358,6 @@ public class Mine {
 		return this.signs;
 	}
 
-	public void setPosition(int i, Location l) {
-		switch (i)
-		{
-			case 1:
-				this.pos1 = l;
-			case 2:
-				this.pos1 = l;
-		}
-	}
 
 	public MineTimer getTimer() {
 		return this.timer;

@@ -1,11 +1,14 @@
 package josegamerpt.realmines.gui;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import josegamerpt.realmines.RealMines;
+import josegamerpt.realmines.classes.Mine;
+import josegamerpt.realmines.classes.MineBlock;
+import josegamerpt.realmines.classes.MinePlayer;
+import josegamerpt.realmines.managers.PlayerManager;
+import josegamerpt.realmines.utils.Itens;
+import josegamerpt.realmines.utils.Pagination;
+import josegamerpt.realmines.utils.PlayerInput;
+import josegamerpt.realmines.utils.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -19,301 +22,287 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
-import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.classes.Mine;
-import josegamerpt.realmines.classes.MineBlock;
-import josegamerpt.realmines.classes.MinePlayer;
-import josegamerpt.realmines.classes.Enum.Data;
-import josegamerpt.realmines.classes.Enum.PickType;
-import josegamerpt.realmines.managers.PlayerManager;
-import josegamerpt.realmines.utils.Itens;
-import josegamerpt.realmines.utils.Pagination;
-import josegamerpt.realmines.utils.PlayerInput;
-import josegamerpt.realmines.utils.PlayerInput.InputRunnable;
-import josegamerpt.realmines.utils.Text;
+import java.util.*;
 
 public class MaterialPicker {
 
-	private static Map<UUID, MaterialPicker> inventories = new HashMap<>();
-	private Inventory inv;
+    public enum PickType {ICON, BLOCK}
 
-	static ItemStack placeholder = Itens.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-	static ItemStack next = Itens.createItemLore(Material.GREEN_STAINED_GLASS, 1, "&aNext",
-			Arrays.asList("&fClick here to go to the next page."));
-	static ItemStack back = Itens.createItemLore(Material.YELLOW_STAINED_GLASS, 1, "&6Back",
-			Arrays.asList("&fClick here to go back to the next page."));
-	static ItemStack close = Itens.createItemLore(Material.ACACIA_DOOR, 1, "&cGo Back",
-			Arrays.asList("&fClick here to go back."));
-	static ItemStack search = Itens.createItemLore(Material.OAK_SIGN, 1, "&9Search",
-			Arrays.asList("&fClick here to search for a block."));
+    static ItemStack placeholder = Itens.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
+    static ItemStack next = Itens.createItemLore(Material.GREEN_STAINED_GLASS, 1, "&aNext",
+            Arrays.asList("&fClick here to go to the next page."));
+    static ItemStack back = Itens.createItemLore(Material.YELLOW_STAINED_GLASS, 1, "&6Back",
+            Arrays.asList("&fClick here to go back to the next page."));
+    static ItemStack close = Itens.createItemLore(Material.ACACIA_DOOR, 1, "&cGo Back",
+            Arrays.asList("&fClick here to go back."));
+    static ItemStack search = Itens.createItemLore(Material.OAK_SIGN, 1, "&9Search",
+            Arrays.asList("&fClick here to search for a block."));
+    private static final Map<UUID, MaterialPicker> inventories = new HashMap<>();
+    int pageNumber = 0;
+    Pagination<Material> p;
+    private Inventory inv;
+    private final UUID uuid;
+    private final ArrayList<Material> items;
+    private final HashMap<Integer, Material> display = new HashMap<Integer, Material>();
+    private final Mine min;
+    private final PickType pt;
 
-	private UUID uuid;
-	private ArrayList<Material> items;
-	private HashMap<Integer, Material> display = new HashMap<Integer, Material>();
+    public MaterialPicker(Mine m, Player pl, PickType block) {
+        this.uuid = pl.getUniqueId();
+        min = m;
+        this.pt = block;
 
-	int pageNumber = 0;
-	Pagination<Material> p;
-	private Mine min;
-	private PickType pt;
+        switch (block) {
+            case BLOCK:
+                inv = Bukkit.getServer().createInventory(null, 54, Text.color("Pick a new block"));
+                break;
+            case ICON:
+                inv = Bukkit.getServer().createInventory(null, 54, Text.color("Select icon for " + m.getDisplayName()));
+                break;
+        }
+        items = getIcons();
 
-	public MaterialPicker(Mine m, Player pl, PickType block) {
-		this.uuid = pl.getUniqueId();
-		min = m;
-		this.pt = block;
-		if (block.equals(PickType.BLOCK)) {
-			inv = Bukkit.getServer().createInventory(null, 54, Text.color("Pick a new block"));
-		}
-		if (block.equals(PickType.ICON)) {
-			inv = Bukkit.getServer().createInventory(null, 54, Text.color("Select icon for " + m.getName()));
-		}
+        p = new Pagination<>(28, items);
+        fillChest(p.getPage(pageNumber));
 
-		items = getIcons();
+        this.register();
+    }
 
-		p = new Pagination<Material>(28, items);
-		fillChest(p.getPage(pageNumber));
+    public MaterialPicker(Mine m, Player pl, PickType block, String search) {
+        this.uuid = pl.getUniqueId();
+        min = m;
+        this.pt = block;
 
-		this.register();
-	}
+        switch (block) {
+            case BLOCK:
+                inv = Bukkit.getServer().createInventory(null, 54, Text.color("Pick a new block"));
+                break;
+            case ICON:
+                inv = Bukkit.getServer().createInventory(null, 54, Text.color("Select icon for " + m.getDisplayName()));
+                break;
+        }
 
-	public MaterialPicker(Mine m, Player pl, PickType block, String search) {
-		this.uuid = pl.getUniqueId();
-		min = m;
-		this.pt = block;
-		if (block.equals(PickType.BLOCK)) {
-			inv = Bukkit.getServer().createInventory(null, 54, Text.color("Pick a new block"));
-		}
-		if (block.equals(PickType.ICON)) {
-			inv = Bukkit.getServer().createInventory(null, 54, Text.color("Select icon for " + m.getName()));
-		}
+        items = searchMaterial(search);
 
-		items = searchMaterial(search);
+        p = new Pagination<>(28, items);
+        fillChest(p.getPage(pageNumber));
 
-		p = new Pagination<Material>(28, items);
-		fillChest(p.getPage(pageNumber));
+        this.register();
+    }
 
-		this.register();
-	}
+    public static Listener getListener() {
+        return new Listener() {
+            @EventHandler
+            public void onClick(InventoryClickEvent e) {
+                HumanEntity clicker = e.getWhoClicked();
+                if (clicker instanceof Player) {
+                    if (e.getCurrentItem() == null) {
+                        return;
+                    }
+                    UUID uuid = clicker.getUniqueId();
+                    if (inventories.containsKey(uuid)) {
+                        MaterialPicker current = inventories.get(uuid);
+                        if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
+                            return;
+                        }
 
-	private ArrayList<Material> getIcons() {
-		ArrayList<Material> ms = new ArrayList<Material>();
-		if (pt.equals(PickType.ICON)) {
-			for (Material m : Material.values()) {
-				if (!m.equals(Material.AIR) && m.isSolid() && m.isBlock() && m.isItem()) {
-					ms.add(m);
-				}
-			}
-		} else {
-			for (Material m : Material.values()) {
-				if (!m.equals(Material.AIR) && m.isSolid() && m.isBlock() && m.isItem()) {
-					ms.add(m);
-				}
-			}
-		}
-		return ms;
-	}
+                        MinePlayer gp = PlayerManager.get((Player) clicker);
 
-	private ArrayList<Material> searchMaterial(String s) {
-		ArrayList<Material> ms = new ArrayList<Material>();
-		for (Material m : getIcons()) {
-			if (m.name().toLowerCase().contains(s.toLowerCase())) {
-				ms.add(m);
-			}
-		}
-		return ms;
-	}
+                        switch (e.getRawSlot()) {
+                            case 4:
+                                new PlayerInput(gp, input -> {
+                                    if (current.searchMaterial(input).size() == 0) {
+                                        gp.sendMessage("&fNothing found for your results.");
+                                        current.exit(gp);
+                                        return;
+                                    }
+                                    MaterialPicker df = new MaterialPicker(current.min, gp.getPlayer(), current.pt, input);
+                                    df.openInventory(gp.getPlayer());
+                                }, input -> {
+                                    gp.getPlayer().closeInventory();
+                                    MineBlocksViewer v = new MineBlocksViewer(gp.getPlayer(), current.min);
+                                    v.openInventory(gp.getPlayer());
+                                });
+                                break;
+                            case 49:
+                                current.exit(gp);
+                                break;
+                            case 26:
+                            case 35:
+                                nextPage(current);
+                                gp.getPlayer().playSound(gp.getPlayer().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
+                                break;
+                            case 18:
+                            case 27:
+                                backPage(current);
+                                gp.getPlayer().playSound(gp.getPlayer().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
+                                break;
+                        }
 
-	public void fillChest(List<Material> items) {
+                        if (current.display.containsKey(e.getRawSlot())) {
+                            Material a = current.display.get(e.getRawSlot());
 
-		inv.clear();
-		display.clear();
+                            switch (current.pt) {
+                                case ICON:
+                                    current.min.setIcon(a);
+                                    current.min.saveData(Mine.Data.ICON);
+                                    gp.getPlayer().closeInventory();
+                                    GUIManager.openMine(current.min, gp.getPlayer());
+                                    break;
+                                case BLOCK:
+                                    current.min.addBlock(new MineBlock(a, 10D));
+                                    gp.getPlayer().closeInventory();
+                                    Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.pl, new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            MineBlocksViewer v = new MineBlocksViewer(gp.getPlayer(), current.min);
+                                            v.openInventory(gp.getPlayer());
+                                        }
+                                    }, 3);
+                                    break;
+                            }
+                        }
 
-		for (int i = 0; i < 9; i++) {
-			inv.setItem(i, placeholder);
-		}
+                        e.setCancelled(true);
+                    }
+                }
+            }
 
-		inv.setItem(4, search);
+            private void backPage(MaterialPicker asd) {
+                if (asd.p.exists(asd.pageNumber - 1)) {
+                    asd.pageNumber--;
+                }
 
-		inv.setItem(45, placeholder);
-		inv.setItem(46, placeholder);
-		inv.setItem(47, placeholder);
-		inv.setItem(48, placeholder);
-		inv.setItem(49, placeholder);
-		inv.setItem(50, placeholder);
-		inv.setItem(51, placeholder);
-		inv.setItem(52, placeholder);
-		inv.setItem(53, placeholder);
-		inv.setItem(36, placeholder);
-		inv.setItem(44, placeholder);
-		inv.setItem(9, placeholder);
-		inv.setItem(17, placeholder);
+                asd.fillChest(asd.p.getPage(asd.pageNumber));
+            }
 
-		inv.setItem(18, back);
-		inv.setItem(27, back);
-		inv.setItem(26, next);
-		inv.setItem(35, next);
+            private void nextPage(MaterialPicker asd) {
+                if (asd.p.exists(asd.pageNumber + 1)) {
+                    asd.pageNumber++;
+                }
 
-		int slot = 0;
-		for (ItemStack i : inv.getContents()) {
-			if (i == null) {
-				if (items.size() != 0) {
-					Material s = items.get(0);
-					inv.setItem(slot,
-							Itens.createItemLore(s, 1, "§9" + s.name(), Arrays.asList("&fClick to pick this.")));
-					display.put(slot, s);
-					items.remove(0);
-				}
-			}
-			slot++;
-		}
+                asd.fillChest(asd.p.getPage(asd.pageNumber));
+            }
 
-		inv.setItem(49, close);
-	}
+            @EventHandler
+            public void onClose(InventoryCloseEvent e) {
+                if (e.getPlayer() instanceof Player) {
+                    if (e.getInventory() == null) {
+                        return;
+                    }
+                    Player p = (Player) e.getPlayer();
+                    UUID uuid = p.getUniqueId();
+                    if (inventories.containsKey(uuid)) {
+                        inventories.get(uuid).unregister();
+                    }
+                }
+            }
+        };
+    }
 
-	public void openInventory(Player target) {
-		Inventory inv = getInventory();
-		InventoryView openInv = target.getOpenInventory();
-		if (openInv != null) {
-			Inventory openTop = target.getOpenInventory().getTopInventory();
-			if (openTop != null && openTop.getType().name().equalsIgnoreCase(inv.getType().name())) {
-				openTop.setContents(inv.getContents());
-			} else {
-				target.openInventory(inv);
-			}
-		}
-	}
+    private ArrayList<Material> getIcons() {
+        ArrayList<Material> ms = new ArrayList<Material>();
+        switch (pt) {
+            default:
+                for (Material m : Material.values()) {
+                    if (!m.equals(Material.AIR) && m.isSolid() && m.isBlock() && m.isItem()) {
+                        ms.add(m);
+                    }
+                }
+                break;
+        }
+        return ms;
+    }
 
-	public static Listener getListener() {
-		return new Listener() {
-			@EventHandler
-			public void onClick(InventoryClickEvent e) {
-				HumanEntity clicker = e.getWhoClicked();
-				if (clicker instanceof Player) {
-					if (e.getCurrentItem() == null) {
-						return;
-					}
-					UUID uuid = clicker.getUniqueId();
-					if (inventories.containsKey(uuid)) {
-						MaterialPicker current = inventories.get(uuid);
-						if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
-							return;
-						}
+    private ArrayList<Material> searchMaterial(String s) {
+        ArrayList<Material> ms = new ArrayList<Material>();
+        for (Material m : getIcons()) {
+            if (m.name().toLowerCase().contains(s.toLowerCase())) {
+                ms.add(m);
+            }
+        }
+        return ms;
+    }
 
-						MinePlayer gp = PlayerManager.get((Player) clicker);
+    public void fillChest(List<Material> items) {
+        inv.clear();
+        display.clear();
 
-						if (e.getRawSlot() == 4) {
-							new PlayerInput(gp, new InputRunnable() {
-								@Override
-								public void run(String input) {
-									if (current.searchMaterial(input).size() == 0) {
-										gp.sendMessage("&fNothing found for your results.");
+        for (int i = 0; i < 9; i++) {
+            inv.setItem(i, placeholder);
+        }
 
-										current.exit(gp);
-										return;
-									}
-									MaterialPicker df = new MaterialPicker(current.min, gp.player, current.pt, input);
-									df.openInventory(gp.player);
-								}
-							}, new InputRunnable() {
-								@Override
-								public void run(String input) {
-									gp.player.closeInventory();
-									MineBlocksViewer v = new MineBlocksViewer(gp.player, current.min);
-									v.openInventory(gp.player);
-								}
-							});
-						}
+        inv.setItem(4, search);
 
-						if (e.getRawSlot() == 49) {
-							current.exit(gp);
-						}
+        inv.setItem(45, placeholder);
+        inv.setItem(46, placeholder);
+        inv.setItem(47, placeholder);
+        inv.setItem(48, placeholder);
+        inv.setItem(49, placeholder);
+        inv.setItem(50, placeholder);
+        inv.setItem(51, placeholder);
+        inv.setItem(52, placeholder);
+        inv.setItem(53, placeholder);
+        inv.setItem(36, placeholder);
+        inv.setItem(44, placeholder);
+        inv.setItem(9, placeholder);
+        inv.setItem(17, placeholder);
 
-						if (e.getRawSlot() == 26 || e.getRawSlot() == 35) {
-							nextPage(current);
-							gp.player.playSound(gp.player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
-						}
-						if (e.getRawSlot() == 18 || e.getRawSlot() == 27) {
-							backPage(current);
-							gp.player.playSound(gp.player.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
-						}
+        inv.setItem(18, back);
+        inv.setItem(27, back);
+        inv.setItem(26, next);
+        inv.setItem(35, next);
 
-						if (current.display.containsKey(e.getRawSlot())) {
-							Material a = current.display.get(e.getRawSlot());
-							if (current.pt.equals(PickType.ICON)) {
-								current.min.setIcon(a);
-								current.min.saveData(Data.ICON);
-								gp.player.closeInventory();
-								GUIManager.openMine(current.min, gp.player);
-							}
-							if (current.pt.equals(PickType.BLOCK)) {
-								current.min.addBlock(new MineBlock(a, 10D));
-								gp.player.closeInventory();
-								Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.pl, new Runnable() {
-									@Override
-									public void run() {
-										MineBlocksViewer v = new MineBlocksViewer(gp.player, current.min);
-										v.openInventory(gp.player);
-									}
-								},3 );
-							}
-						}
+        int slot = 0;
+        for (ItemStack i : inv.getContents()) {
+            if (i == null && items.size() != 0) {
+                Material s = items.get(0);
+                inv.setItem(slot,
+                        Itens.createItemLore(s, 1, "§9" + s.name(), Arrays.asList("&fClick to pick this.")));
+                display.put(slot, s);
+                items.remove(0);
+            }
+            slot++;
+        }
 
-						e.setCancelled(true);
-					}
-				}
-			}
+        inv.setItem(49, close);
+    }
 
-			private void backPage(MaterialPicker asd) {
-				if (asd.p.exists(asd.pageNumber - 1)) {
-					asd.pageNumber--;
-				}
+    public void openInventory(Player target) {
+        Inventory inv = getInventory();
+        InventoryView openInv = target.getOpenInventory();
+        if (openInv != null) {
+            Inventory openTop = target.getOpenInventory().getTopInventory();
+            if (openTop != null && openTop.getType().name().equalsIgnoreCase(inv.getType().name())) {
+                openTop.setContents(inv.getContents());
+            } else {
+                target.openInventory(inv);
+            }
+        }
+    }
 
-				asd.fillChest(asd.p.getPage(asd.pageNumber));
-			}
+    protected void exit(MinePlayer gp) {
+        switch (this.pt) {
+            case ICON:
+                gp.getPlayer().closeInventory();
+                GUIManager.openMine(this.min, gp.getPlayer());
+                break;
+            case BLOCK:
+                MineBlocksViewer v = new MineBlocksViewer(gp.getPlayer(), this.min);
+                v.openInventory(gp.getPlayer());
+                break;
+        }
+    }
 
-			private void nextPage(MaterialPicker asd) {
-				if (asd.p.exists(asd.pageNumber + 1)) {
-					asd.pageNumber++;
-				}
+    public Inventory getInventory() {
+        return inv;
+    }
 
-				asd.fillChest(asd.p.getPage(asd.pageNumber));
-			}
+    private void register() {
+        inventories.put(this.uuid, this);
+    }
 
-			@EventHandler
-			public void onClose(InventoryCloseEvent e) {
-				if (e.getPlayer() instanceof Player) {
-					if (e.getInventory() == null) {
-						return;
-					}
-					Player p = (Player) e.getPlayer();
-					UUID uuid = p.getUniqueId();
-					if (inventories.containsKey(uuid)) {
-						inventories.get(uuid).unregister();
-					}
-				}
-			}
-		};
-	}
-
-	protected void exit(MinePlayer gp) {
-		if (this.pt.equals(PickType.ICON)) {
-			gp.player.closeInventory();
-			GUIManager.openMine(this.min, gp.player);
-		}
-		if (this.pt.equals(PickType.BLOCK)) {
-			MineBlocksViewer v = new MineBlocksViewer(gp.player, this.min);
-			v.openInventory(gp.player);
-		}
-	}
-
-	public Inventory getInventory() {
-		return inv;
-	}
-
-	private void register() {
-		inventories.put(this.uuid, this);
-	}
-
-	private void unregister() {
-		inventories.remove(this.uuid);
-	}
+    private void unregister() {
+        inventories.remove(this.uuid);
+    }
 }

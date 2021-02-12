@@ -3,14 +3,21 @@ package josegamerpt.realmines.classes;
 import org.bukkit.block.Block;
 
 public class MineSign {
-	
-	public Block block;
-	public String mod;
 
-	public MineSign(Block b, String m)
-	{
-		this.block = b;
-		this.mod = m;
-	}
+    private Block block;
+    private String mod;
+
+    public MineSign(Block b, String m) {
+        this.block = b;
+        this.mod = m;
+    }
+
+    public Block getBlock() {
+        return this.block;
+    }
+
+    public String getModifier() {
+        return this.mod;
+    }
 
 }

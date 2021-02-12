@@ -24,7 +24,10 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
 	protected final String worldName;
 	protected final int x1, y1, z1;
 	protected final int x2, y2, z2;
-	protected int totalBlocks = 0;
+	protected Location loc1 = null;
+	protected Location loc2 = null;
+
+	protected int totalBlocks;
 
 	/**
 	 * Construct a Cuboid given two Location objects which represent any two corners
@@ -43,8 +46,21 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
 		this.x2 = Math.max(l1.getBlockX(), l2.getBlockX());
 		this.y2 = Math.max(l1.getBlockY(), l2.getBlockY());
 		this.z2 = Math.max(l1.getBlockZ(), l2.getBlockZ());
+
+		this.loc1 = l1;
+		this.loc2 = l2;
 		
 		totalBlocks = getVolume();
+	}
+
+	public Location getPOS1()
+	{
+		return this.loc1;
+	}
+
+	public Location getPOS2()
+	{
+		return this.loc2;
 	}
 
 	/**
@@ -56,6 +72,8 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
 		this(l1, l1);
 		totalBlocks = getVolume();
 
+		this.loc1 = l1;
+		this.loc2 = l1;
 	}
 
 	/**
@@ -135,7 +153,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
 
 	@Override
 	public Map<String, Object> serialize() {
-		Map<String, Object> map = new HashMap<String, Object>();
+		Map<String, Object> map = new HashMap<>();
 		map.put("worldName", this.worldName);
 		map.put("x1", this.x1);
 		map.put("y1", this.y1);
@@ -173,7 +191,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
 	 */
 	public List<Block> getBlocks() {
 		Iterator<Block> blockI = this.iterator();
-		List<Block> copy = new ArrayList<Block>();
+		List<Block> copy = new ArrayList<>();
 		while (blockI.hasNext())
 			copy.add(blockI.next());
 		return copy;
