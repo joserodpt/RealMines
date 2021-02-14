@@ -17,7 +17,6 @@ import josegamerpt.realmines.utils.Text;
 
 public class Mine {
 
-
 	public enum Reset {PERCENTAGE, TIME}
 
 	public enum Data {BLOCKS, ICON, ALL, TELEPORT, SIGNS, REGION, INIT, OPTIONS, NAME}
@@ -38,6 +37,9 @@ public class Mine {
 	private MineTimer timer;
 	private boolean highlight = false;
 
+	private Location l1;
+	private Location l2;
+
 	public Mine(String n, String displayname, ArrayList<MineBlock> b, ArrayList<MineSign> si, Location p1, Location p2, Material i,
 			Location t, Boolean resetByPercentag, Boolean resetByTim, int rbpv, int rbtv) {
 		this.name = ChatColor.stripColor(Text.color(n));
@@ -50,23 +52,28 @@ public class Mine {
 		this.resetByTime = resetByTim;
 		this.resetByPercentageValue = rbpv;
 		this.resetByTimeValue = rbtv;
+
 		timer = new MineTimer(this);
 		if (resetByTim) {
 			timer.start();
 		}
-		fillMine(p1, p2);
+
+		setPOS(p1, p2);
+		updateSigns();
 	}
 
 	public Location getPOS1() {
-		return this.c.getPOS1();
+		return this.l1;
 	}
 
 	public Location getPOS2() {
-		return this.c.getPOS2();
+		return this.l2;
 	}
 
 	public void setPOS(Location p1, Location p2) {
-		fillMine(p1, p2);
+		this.l1 = p1;
+		this.l2 = p2;
+		fillMine();
 	}
 
 	public boolean hasTP() {
@@ -109,8 +116,8 @@ public class Mine {
 		return (getMinedBlocks() * 100 / getBlockCount());
 	}
 
-	public void fillMine(Location pos1, Location pos2) {
-		c = new MineCuboid(pos1, pos2);
+	public void fillMine() {
+		c = new MineCuboid(this.l1, this.l2);
 		sortBlocks();
 		if (blocks.size() != 0) {
 			c.forEach(block -> block.setType(getBlock()));
@@ -167,7 +174,7 @@ public class Mine {
 
 	public void reset() {
 		kickPlayers(getDisplayName() + " &fis being &ereset.");
-		fillMine(this.c.getPOS1(), this.c.getPOS2());
+		fillMine();
 		updateSigns();
 		if(Config.file().getBoolean("RealMines.announceResets")) {
 			Bukkit.broadcastMessage(Text.color(RealMines.getPrefix() + Config.file().getString("RealMines.resetAnnouncement").replace("%mine%", getDisplayName())));

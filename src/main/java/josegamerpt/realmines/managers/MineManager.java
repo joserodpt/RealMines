@@ -37,11 +37,13 @@ public class MineManager {
     public static void loadMines() {
         for (String s : getRegisteredMines()) {
             World w = Bukkit.getWorld(Mines.file().getString(s + ".World"));
+
             Location pos1 = new Location(w, Mines.file().getDouble(s + ".POS1.X"),
                     Mines.file().getDouble(s + ".POS1.Y"), Mines.file().getDouble(s + ".POS1.Z"));
             Location pos2 = new Location(w, Mines.file().getDouble(s + ".POS2.X"),
                     Mines.file().getDouble(s + ".POS2.Y"), Mines.file().getDouble(s + ".POS2.Z"));
             Location tp = null;
+
             if (Mines.file().get(s + ".Teleport") != null) {
                 tp = new Location(w, Mines.file().getDouble(s + ".Teleport.X"),
                         Mines.file().getDouble(s + ".Teleport.Y"), Mines.file().getDouble(s + ".Teleport.Z"),
@@ -229,7 +231,7 @@ public class MineManager {
         if (m.isResetBy(Reset.PERCENTAGE)) {
             if ((double) m.getRemainingBlocksPer() < m.getResetValue(Reset.PERCENTAGE)) {
                 m.kickPlayers("&6Warning &fThis mine is going to be reset.");
-                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.pl, () -> m.reset(), 10);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.pl, m::reset, 10);
             }
         }
     }
