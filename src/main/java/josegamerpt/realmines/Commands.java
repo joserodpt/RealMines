@@ -35,11 +35,7 @@ public class Commands extends CommandBase {
 	@SubCommand("reload")
 	@Permission("realmines.reload")
 	public void reloadcmd(final CommandSender commandSender) {
-		Config.reload();
-		Mines.reload();
-		RealMines.prefix = Text.color(Config.file().getString("RealMines.Prefix"));
-		MineManager.unloadMines();
-		MineManager.loadMines();
+		RealMines.reload();
 		Text.send(commandSender,  "&aReloaded.");
 	}
 
