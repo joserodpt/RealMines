@@ -69,6 +69,8 @@ public class RealMines extends JavaPlugin {
         Config.setup(this);
         Language.setup(this);
 
+        new Metrics(this, 10574);
+
         log(Level.INFO, "Your config version is: " + Configer.getConfigVersion());
         Configer.updateConfig();
 
