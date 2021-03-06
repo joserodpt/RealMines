@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.bukkit.Bukkit;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
@@ -14,8 +15,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.classes.MinePlayer;
-import josegamerpt.realmines.managers.PlayerManager;
 
 public class PlayerInput implements Listener {
 
@@ -28,19 +27,17 @@ public class PlayerInput implements Listener {
 	private InputRunnable runGo;
 	private InputRunnable runCancel;
 	private BukkitTask taskId;
-	private Boolean inputMode;
 
-	public PlayerInput(MinePlayer p, InputRunnable correct, InputRunnable cancel) {
-		this.uuid = p.getPlayer().getUniqueId();
-		p.getPlayer().closeInventory();
-		this.inputMode = true;
+	public PlayerInput(Player p, InputRunnable correct, InputRunnable cancel) {
+		this.uuid = p.getUniqueId();
+		p.closeInventory();
 		this.runGo = correct;
 		this.runCancel = cancel;
 		this.taskId = new BukkitRunnable() {
 			public void run() {
 				p.getPlayer().sendTitle(texts.get(0), texts.get(1), 0, 21, 0);
 			}
-		}.runTaskTimer(RealMines.pl, 0L, (long) 20);
+		}.runTaskTimer(RealMines.getPlugin(), 0L, 20);
 
 		this.register();
 	}
@@ -55,52 +52,39 @@ public class PlayerInput implements Listener {
 
 	@FunctionalInterface
 	public interface InputRunnable {
-		public void run(String input);
+		void run(String input);
 	}
 
 	public static Listener getListener() {
 		return new Listener() {
 			@EventHandler
 			public void onPlayerChat(AsyncPlayerChatEvent event) {
-				MinePlayer p = PlayerManager.get(event.getPlayer());
+				Player p = event.getPlayer();
 				String input = event.getMessage();
-				UUID uuid = p.getPlayer().getUniqueId();
+				UUID uuid = p.getUniqueId();
 				if (inputs.containsKey(uuid)) {
 					PlayerInput current = inputs.get(uuid);
-					if (current.inputMode == true) {
 						event.setCancelled(true);
 						try {
 							if (input.equalsIgnoreCase("cancel")) {
-								p.sendMessage("&fInput canceled.");
+								p.sendMessage(Text.color("&fInput canceled."));
 								current.taskId.cancel();
-								p.getPlayer().sendTitle("", "", 0, 1, 0);
-								Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.pl, new Runnable() {
-									@Override
-									public void run() {
-										current.runCancel.run(input);
-									}
-								}, 3);
+								p.sendTitle("", "", 0, 1, 0);
+								Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getPlugin(), () -> current.runCancel.run(input), 3);
 								current.unregister();
 								return;
 							}
 
 							current.taskId.cancel();
-							Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.pl, new Runnable() {
-								@Override
-								public void run() {
-									current.runGo.run(input);
-								}
-							}, 3);
-							p.getPlayer().sendTitle("", "", 0, 1, 0);
+							Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getPlugin(), () -> current.runGo.run(input), 3);
+							p.sendTitle("", "", 0, 1, 0);
 							current.unregister();
 						} catch (Exception e) {
-							p.sendMessage("&cAn error ocourred. Contact JoseGamer_PT on Spigot.com");
+							p.sendMessage(Text.color("&cAn error ocourred. Contact JoseGamer_PT on www.spigotmc.org"));
 							e.printStackTrace();
 						}
 					}
 				}
-			}
-
 		};
 	}
 }

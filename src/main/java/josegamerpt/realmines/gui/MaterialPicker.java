@@ -3,8 +3,7 @@ package josegamerpt.realmines.gui;
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.classes.Mine;
 import josegamerpt.realmines.classes.MineBlock;
-import josegamerpt.realmines.classes.MinePlayer;
-import josegamerpt.realmines.managers.PlayerManager;
+import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.utils.Itens;
 import josegamerpt.realmines.utils.Pagination;
 import josegamerpt.realmines.utils.PlayerInput;
@@ -29,21 +28,22 @@ public class MaterialPicker {
     public enum PickType {ICON, BLOCK}
 
     static ItemStack placeholder = Itens.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static ItemStack next = Itens.createItemLore(Material.GREEN_STAINED_GLASS, 1, "&aNext",
-            Arrays.asList("&fClick here to go to the next page."));
-    static ItemStack back = Itens.createItemLore(Material.YELLOW_STAINED_GLASS, 1, "&6Back",
-            Arrays.asList("&fClick here to go back to the next page."));
-    static ItemStack close = Itens.createItemLore(Material.ACACIA_DOOR, 1, "&cGo Back",
-            Arrays.asList("&fClick here to go back."));
-    static ItemStack search = Itens.createItemLore(Material.OAK_SIGN, 1, "&9Search",
-            Arrays.asList("&fClick here to search for a block."));
+    static ItemStack next = Itens.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
+            Language.file().getStringList("GUI.Items.Next.Description"));
+    static ItemStack back = Itens.createItemLore(Material.YELLOW_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Back.Name"),
+            Language.file().getStringList("GUI.Items.Back.Description"));
+    static ItemStack close = Itens.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
+            Language.file().getStringList("GUI.Items.Close.Description"));
+
+    static ItemStack search = Itens.createItemLore(Material.OAK_SIGN, 1, Language.file().getString("GUI.Items.Search.Name"),
+            Language.file().getStringList("GUI.Items.Close.Description"));
     private static final Map<UUID, MaterialPicker> inventories = new HashMap<>();
     int pageNumber = 0;
     Pagination<Material> p;
     private Inventory inv;
     private final UUID uuid;
     private final ArrayList<Material> items;
-    private final HashMap<Integer, Material> display = new HashMap<Integer, Material>();
+    private final HashMap<Integer, Material> display = new HashMap<>();
     private final Mine min;
     private final PickType pt;
 
@@ -106,22 +106,22 @@ public class MaterialPicker {
                             return;
                         }
 
-                        MinePlayer gp = PlayerManager.get((Player) clicker);
+                        Player gp = (Player) clicker;
 
                         switch (e.getRawSlot()) {
                             case 4:
                                 new PlayerInput(gp, input -> {
                                     if (current.searchMaterial(input).size() == 0) {
-                                        gp.sendMessage("&fNothing found for your results.");
+                                        gp.sendMessage(Text.color("&fNothing found for your results."));
                                         current.exit(gp);
                                         return;
                                     }
-                                    MaterialPicker df = new MaterialPicker(current.min, gp.getPlayer(), current.pt, input);
-                                    df.openInventory(gp.getPlayer());
+                                    MaterialPicker df = new MaterialPicker(current.min, gp, current.pt, input);
+                                    df.openInventory(gp);
                                 }, input -> {
-                                    gp.getPlayer().closeInventory();
-                                    MineBlocksViewer v = new MineBlocksViewer(gp.getPlayer(), current.min);
-                                    v.openInventory(gp.getPlayer());
+                                    gp.closeInventory();
+                                    MineBlocksViewer v = new MineBlocksViewer(gp, current.min);
+                                    v.openInventory(gp);
                                 });
                                 break;
                             case 49:
@@ -130,12 +130,12 @@ public class MaterialPicker {
                             case 26:
                             case 35:
                                 nextPage(current);
-                                gp.getPlayer().playSound(gp.getPlayer().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
+                                gp.playSound(gp.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
                                 break;
                             case 18:
                             case 27:
                                 backPage(current);
-                                gp.getPlayer().playSound(gp.getPlayer().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
+                                gp.playSound(gp.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
                                 break;
                         }
 
@@ -146,18 +146,15 @@ public class MaterialPicker {
                                 case ICON:
                                     current.min.setIcon(a);
                                     current.min.saveData(Mine.Data.ICON);
-                                    gp.getPlayer().closeInventory();
-                                    GUIManager.openMine(current.min, gp.getPlayer());
+                                    gp.closeInventory();
+                                    GUIManager.openMine(current.min, gp);
                                     break;
                                 case BLOCK:
                                     current.min.addBlock(new MineBlock(a, 10D));
-                                    gp.getPlayer().closeInventory();
-                                    Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.pl, new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            MineBlocksViewer v = new MineBlocksViewer(gp.getPlayer(), current.min);
-                                            v.openInventory(gp.getPlayer());
-                                        }
+                                    gp.closeInventory();
+                                    Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getPlugin(), () -> {
+                                        MineBlocksViewer v = new MineBlocksViewer(gp, current.min);
+                                        v.openInventory(gp);
                                     }, 3);
                                     break;
                             }
@@ -201,21 +198,17 @@ public class MaterialPicker {
     }
 
     private ArrayList<Material> getIcons() {
-        ArrayList<Material> ms = new ArrayList<Material>();
-        switch (pt) {
-            default:
-                for (Material m : Material.values()) {
-                    if (!m.equals(Material.AIR) && m.isSolid() && m.isBlock() && m.isItem()) {
-                        ms.add(m);
-                    }
-                }
-                break;
+        ArrayList<Material> ms = new ArrayList<>();
+        for (Material m : Material.values()) {
+            if (!m.equals(Material.AIR) && m.isSolid() && m.isBlock() && m.isItem()) {
+                ms.add(m);
+            }
         }
         return ms;
     }
 
     private ArrayList<Material> searchMaterial(String s) {
-        ArrayList<Material> ms = new ArrayList<Material>();
+        ArrayList<Material> ms = new ArrayList<>();
         for (Material m : getIcons()) {
             if (m.name().toLowerCase().contains(s.toLowerCase())) {
                 ms.add(m);
@@ -258,7 +251,7 @@ public class MaterialPicker {
             if (i == null && items.size() != 0) {
                 Material s = items.get(0);
                 inv.setItem(slot,
-                        Itens.createItemLore(s, 1, "§9" + s.name(), Arrays.asList("&fClick to pick this.")));
+                        Itens.createItemLore(s, 1, "§9§l" + s.name(), Collections.singletonList("&fClick to pick this.")));
                 display.put(slot, s);
                 items.remove(0);
             }
@@ -281,15 +274,15 @@ public class MaterialPicker {
         }
     }
 
-    protected void exit(MinePlayer gp) {
+    protected void exit(Player gp) {
         switch (this.pt) {
             case ICON:
-                gp.getPlayer().closeInventory();
-                GUIManager.openMine(this.min, gp.getPlayer());
+                gp.closeInventory();
+                GUIManager.openMine(this.min, gp);
                 break;
             case BLOCK:
-                MineBlocksViewer v = new MineBlocksViewer(gp.getPlayer(), this.min);
-                v.openInventory(gp.getPlayer());
+                MineBlocksViewer v = new MineBlocksViewer(gp, this.min);
+                v.openInventory(gp);
                 break;
         }
     }

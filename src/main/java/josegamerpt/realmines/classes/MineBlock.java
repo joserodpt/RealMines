@@ -21,9 +21,7 @@ public class MineBlock {
 	}
 
 	public Integer getPerInt() {
-		String s = (percentage + "").replace(".0", "");
-		return Integer.valueOf(s);
-
+		return Integer.valueOf((percentage + "").replace(".0", ""));
 	}
 
 	public void setPercentage(double d) {

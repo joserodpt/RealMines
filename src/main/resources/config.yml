@@ -1,4 +1,13 @@
 RealMines:
- Prefix: "&7[&9Real&bMines&7]"
+ Prefix: "&7[&9Real&bMines&7] "
  announceResets: true
- resetAnnouncement: "&fMine &9%mine% &fjust &areset."
+ announceTimes:
+  - 30
+  - 20
+  - 10
+  - 5
+  - 4
+  - 3
+  - 2
+  - 1
+Version: 2

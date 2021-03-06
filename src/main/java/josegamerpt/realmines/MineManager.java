@@ -1,31 +1,35 @@
-package josegamerpt.realmines.managers;
+package josegamerpt.realmines;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
-import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.classes.*;
+import josegamerpt.realmines.classes.Mine;
 import josegamerpt.realmines.classes.Mine.Data;
 import josegamerpt.realmines.classes.Mine.Reset;
+import josegamerpt.realmines.classes.MineBlock;
+import josegamerpt.realmines.classes.MineIcon;
+import josegamerpt.realmines.classes.MineSign;
+import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.config.Mines;
 import josegamerpt.realmines.events.MineBlockBreakEvent;
+import josegamerpt.realmines.utils.PlayerInput;
 import josegamerpt.realmines.utils.Text;
 import org.bukkit.*;
 import org.bukkit.block.Block;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MineManager {
 
-    public static ArrayList<Mine> mines = new ArrayList<>();
-    public static List<String> signset = Arrays.asList("PM", "PL", "BM", "BR");
+    public final static List<String> signset = Arrays.asList("PM", "PL", "BM", "BR");
+    private static ArrayList<Mine> mines = new ArrayList<>();
 
     public static ArrayList<String> getRegisteredMines() {
         Mines.reload();
-        ArrayList<String> mines = new ArrayList<>();
-        ConfigurationSection cs = Mines.file().getConfigurationSection("");
-        cs.getKeys(false).forEach(s -> mines.add(ChatColor.stripColor(s)));
-        return mines;
+        ArrayList<String> ret = new ArrayList<>();
+        mines.forEach(s -> ret.add(s.getName()));
+        return ret;
     }
 
     public static void unregisterMine(Mine m) {
@@ -35,7 +39,7 @@ public class MineManager {
     }
 
     public static void loadMines() {
-        for (String s : getRegisteredMines()) {
+        for (String s : Mines.file().getConfigurationSection("").getKeys(false)) {
             World w = Bukkit.getWorld(Mines.file().getString(s + ".World"));
 
             Location pos1 = new Location(w, Mines.file().getDouble(s + ".POS1.X"),
@@ -65,11 +69,18 @@ public class MineManager {
             }
             Material ic = Material.valueOf(Mines.file().getString(s + ".Icon"));
             ArrayList<MineBlock> blocks = getBlocks(s);
+
+            String color = "white";
+
+            if (!Mines.file().getString(s + ".Color", "").equals("")) {
+                color = Mines.file().getString(s + ".Color");
+            }
+
             Mine m = new Mine(s, Mines.file().getString(s + ".Display-Name"), blocks, signs, pos1, pos2, ic, tp,
                     Mines.file().getBoolean(s + ".Settings.Reset.ByPercentage"),
                     Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                     Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
-                    Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"));
+                    Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), color);
             m.register();
         }
     }
@@ -86,40 +97,55 @@ public class MineManager {
     }
 
     public static void createMine(Player p, String name) {
-		WorldEditPlugin w = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
-		try {
-			com.sk89q.worldedit.regions.Region r = w.getSession(p.getPlayer()).getSelection(w.getSession(p.getPlayer()).getSelectionWorld());
+        WorldEditPlugin w = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
+        try {
+            com.sk89q.worldedit.regions.Region r = w.getSession(p.getPlayer()).getSelection(w.getSession(p.getPlayer()).getSelectionWorld());
 
-			if (r != null) {
-				Location pos1 = new Location(p.getWorld(), r.getMaximumPoint().getBlockX(), r.getMaximumPoint().getBlockY(), r.getMaximumPoint().getBlockZ());
-				Location pos2 = new Location(p.getWorld(), r.getMinimumPoint().getBlockX(), r.getMinimumPoint().getBlockY(), r.getMinimumPoint().getBlockZ());
+            if (r != null) {
+                Location pos1 = new Location(p.getWorld(), r.getMaximumPoint().getBlockX(), r.getMaximumPoint().getBlockY(), r.getMaximumPoint().getBlockZ());
+                Location pos2 = new Location(p.getWorld(), r.getMinimumPoint().getBlockX(), r.getMinimumPoint().getBlockY(), r.getMinimumPoint().getBlockZ());
 
-				Mine m = new Mine(name, name, new ArrayList<>(), new ArrayList<>(), pos1, pos2,
-						Material.DIAMOND_ORE, null, false, true, 20, 60);
-				m.saveData(Mine.Data.INIT);
+                Mine m = new Mine(name, name, new ArrayList<>(), new ArrayList<>(), pos1, pos2,
+                        Material.DIAMOND_ORE, null, false, true, 20, 60, "white");
+                m.saveData(Mine.Data.ALL);
 
-				m.register();
-				m.addBlock(new MineBlock(Material.STONE, 100D));
-				m.reset();
-				m.setTeleport(p.getLocation());
-				m.saveData(Data.TELEPORT);
-                Text.send(p, "&fMine &acreated.");
-			}
-		} catch (Exception e) {
-			Text.send(p, "&fYour boundaries &care not set.");
+                m.register();
+                m.addBlock(new MineBlock(Material.STONE, 100D));
+                m.reset();
+                m.setTeleport(p.getLocation());
+                m.saveData(Data.TELEPORT);
+
+                Text.send(p, Language.file().getString("System.Add-Blocks"));
+                ArrayList<Material> mat = m.getMineCuboid().getBlockTypes();
+                mat.forEach(material -> Text.send(p, " &7> &f" + material.name()));
+                Text.send(p, Language.file().getString("System.Block-Count").replaceAll("%count%", mat.size() + ""));
+
+                new PlayerInput(p, input -> {
+                    if (input.equalsIgnoreCase("yes")) {
+                        mat.forEach(material -> m.addBlock(new MineBlock(material, 10D)));
+                        Text.send(p, Language.file().getString("System.Blocks-Added").replaceAll("%count%", mat.size() + ""));
+                    }
+                    Text.send(p, Language.file().getString("System.Mine-Created").replaceAll("%mine%", name));
+                }, input -> {
+                    Text.send(p, Language.file().getString("System.Mine-Created").replaceAll("%mine%", name));
+                });
+            }
+        } catch (Exception e) {
+            Text.send(p, Language.file().getString("System.Boundaries-Not-Set"));
         }
     }
 
     public static void saveMine(Mine mine, Mine.Data t) {
-
-        switch (t)
-        {
+        switch (t) {
             case NAME:
                 Mines.file().set(mine.getName() + ".Display-Name", mine.getDisplayName());
                 break;
+            case COLOR:
+                Mines.file().set(mine.getName() + ".Color", mine.getColor().name());
+                break;
             case ALL:
-            case INIT:
                 Mines.file().set(mine.getName() + ".Display-Name", mine.getDisplayName());
+                Mines.file().set(mine.getName() + ".Color", mine.getColor().name());
                 Mines.file().set(mine.getName() + ".World", mine.getPOS1().getWorld().getName());
                 Mines.file().set(mine.getName() + ".POS1.X", mine.getPOS1().getX());
                 Mines.file().set(mine.getName() + ".POS1.Y", mine.getPOS1().getY());
@@ -173,20 +199,9 @@ public class MineManager {
         Mines.save();
     }
 
-    public static boolean exists(String name) {
-        for (Mine m : mines) {
-            if (ChatColor.stripColor(Text.color(m.getName())).equalsIgnoreCase(name)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public static ArrayList<MineIcon> getMineList() {
         ArrayList<MineIcon> l = new ArrayList<>();
-        for (Mine mine : mines) {
-            l.add(new MineIcon(mine));
-        }
+        mines.forEach(mine -> l.add(new MineIcon(mine)));
         if (l.size() == 0) {
             l.add(new MineIcon());
         }
@@ -195,12 +210,15 @@ public class MineManager {
 
     public static void teleport(Player target, Mine m, Boolean silent) {
         if (!silent) {
+            String send;
             if (m.hasTP()) {
                 target.teleport(m.getTeleport());
-                target.sendMessage(RealMines.getPrefix() + Text.color("&fTeleported to mine &9" + m.getDisplayName()));
+                send = Language.file().getString("Mines.Teleport").replaceAll("%mine%", m.getDisplayName());
             } else {
-                target.sendMessage(RealMines.getPrefix() + Text.color("&fThis mine &cdoesnt have a teleport location."));
+                send = Language.file().getString("Mines.No-Teleport-Location");
             }
+
+            Text.send(target, send);
         } else {
             if (m.hasTP()) {
                 target.teleport(m.getTeleport());
@@ -208,48 +226,39 @@ public class MineManager {
         }
     }
 
-    public static Mine getMine(String name) {
-        for (Mine m : mines) {
-            if (ChatColor.stripColor(Text.color(m.getName())).equalsIgnoreCase(name)) {
-                return m;
-            }
-        }
-        return null;
+    public static Mine get(String name) {
+        return mines.stream().filter(o -> o.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
     public static void findBlockUpdate(Block b) {
         for (Mine m : mines) {
-            if (m.getMine().contains(b)) {
-                MineBlockBreakEvent exampleEvent = new MineBlockBreakEvent(m);
-                Bukkit.getPluginManager().callEvent(exampleEvent);
+            if (m.getMineCuboid().contains(b)) {
+                Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(m));
             }
         }
     }
 
-    public static void despertar(Mine m) {
+    public static void resetPercentage(Mine m) {
         m.updateSigns();
-        if (m.isResetBy(Reset.PERCENTAGE)) {
-            if ((double) m.getRemainingBlocksPer() < m.getResetValue(Reset.PERCENTAGE)) {
-                m.kickPlayers("&6Warning &fThis mine is going to be reset.");
-                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.pl, m::reset, 10);
-            }
+        if (m.isResetBy(Reset.PERCENTAGE) & ((double) m.getRemainingBlocksPer() < m.getResetValue(Reset.PERCENTAGE))) {
+            m.kickPlayers(Language.file().getString("Mines.Reset.Percentage"));
+            Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getPlugin(), m::reset, 10);
         }
     }
 
     public static ArrayList<MineSign> getSigns() {
         ArrayList<MineSign> l = new ArrayList<>();
-        for (Mine m : mines) {
-            l.addAll(m.getSigns());
-        }
+        mines.forEach(mine -> l.addAll(mine.getSigns()));
         return l;
     }
 
     public static void unloadMines() {
+        mines.forEach(mine -> mine.getTimer().kill());
         mines.clear();
     }
 
     public static void setRegion(String name, Player p) {
-        Mine m = getMine(name);
+        Mine m = get(name);
 
         WorldEditPlugin w = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
         try {
@@ -261,11 +270,11 @@ public class MineManager {
 
                 m.setPOS(pos1, pos2);
                 m.saveData(Data.REGION);
-                Text.send(p, "&fRegion &aupdated.");
+                Text.send(p, Language.file().getString("System.Region-Updated"));
                 m.reset();
             }
         } catch (Exception e) {
-            Text.send(p, "&fYour boundaries &care not set.");
+            Text.send(p, Language.file().getString("System.Boundaries-Not-Set"));
         }
     }
 
@@ -278,9 +287,11 @@ public class MineManager {
     }
 
     public static void deleteMine(Mine mine) {
-        mine.clear();
-        mine.getTimer().kill();
-        mine.removeDependencies();
+        if (mine != null) {
+            mine.clear();
+            mine.getTimer().kill();
+            mine.removeDependencies();
+        }
         unregisterMine(mine);
     }
 
@@ -290,5 +301,9 @@ public class MineManager {
 
     public static ArrayList<Mine> getMines() {
         return mines;
+    }
+
+    public static void add(Mine mine) {
+        mines.add(mine);
     }
 }

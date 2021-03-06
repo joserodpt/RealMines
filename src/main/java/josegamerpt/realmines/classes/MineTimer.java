@@ -1,12 +1,14 @@
 package josegamerpt.realmines.classes;
 
 import josegamerpt.realmines.RealMines;
+import josegamerpt.realmines.config.Config;
+import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.utils.Countdown;
 
 public class MineTimer {
 
-    public Countdown count;
-    public Mine m;
+    private Countdown count;
+    private Mine m;
 
     public MineTimer(Mine mi) {
         this.m = mi;
@@ -23,21 +25,8 @@ public class MineTimer {
             m.reset();
             startTask(this.m.getResetValue(Mine.Reset.TIME));
         }, (t) -> {
-            if (count.getSecondsLeft() == 30) {
-                m.broadcastMessage("&7[&6Warning&7] &r" + m.getDisplayName() + " &fwill reset in &9" + count.getSecondsLeft()
-                        + " seconds.");
-            }
-            if (count.getSecondsLeft() == 20) {
-                m.broadcastMessage("&7[&6Warning&7] &r" + m.getDisplayName() + " &fwill reset in &9" + count.getSecondsLeft()
-                        + " seconds.");
-            }
-            if (count.getSecondsLeft() == 10) {
-                m.broadcastMessage("&7[&6Warning&7] &r" + m.getDisplayName() + " &fwill reset in &9" + count.getSecondsLeft()
-                        + " seconds.");
-            }
-            if (count.getSecondsLeft() <= 5) {
-                m.broadcastMessage("&7[&6Warning&7] &r" + m.getDisplayName() + " &fwill reset in &9" + count.getSecondsLeft()
-                        + " seconds.");
+            if (Config.file().getStringList("RealMines.announceTimes") != null && Config.file().getStringList("RealMines.announceTimes").contains(count.getSecondsLeft() + "")) {
+                m.broadcastMessage(Language.file().getString("Mines.Reset.Warning").replaceAll("%mine%", m.getDisplayName()).replaceAll("%time%", count.getSecondsLeft() + ""), false);
             }
         });
 
@@ -45,9 +34,8 @@ public class MineTimer {
     }
 
     public void kill() {
-        if (count != null) {
+        if (count != null)
             count.killTask();
-        }
     }
 
     public void restart() {

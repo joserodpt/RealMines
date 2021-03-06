@@ -1,18 +1,13 @@
 package josegamerpt.realmines.utils;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Random;
 
+import com.google.common.base.Strings;
 import josegamerpt.realmines.RealMines;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-
-import net.md_5.bungee.api.ChatMessageType;
-import net.md_5.bungee.api.chat.TextComponent;
 
 public class Text {
 
@@ -38,4 +33,12 @@ public class Text {
 		p.sendMessage(Text.color(RealMines.getPrefix() + string));
 	}
 
+	public static String getProgressBar(int current, int max, int totalBars, char symbol, ChatColor completedColor,
+								 ChatColor notCompletedColor) {
+		float percent = (float) current / max;
+		int progressBars = (int) (totalBars * percent);
+
+		return Strings.repeat("" + completedColor + symbol, progressBars)
+				+ Strings.repeat("" + notCompletedColor + symbol, totalBars - progressBars);
+	}
 }

@@ -2,6 +2,7 @@ package josegamerpt.realmines.config;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -22,7 +23,7 @@ public class Mines implements Listener {
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
-			} catch (IOException e) {
+			} catch (IOException ignored) {
 			}
 		}
 		customFile = YamlConfiguration.loadConfiguration(file);
@@ -38,7 +39,7 @@ public class Mines implements Listener {
 		try {
 			customFile.save(file);
 		} catch (IOException e) {
-			System.out.println("[" + RealMines.pl.getDescription().getName() + "] Couldn't save " + name + "!");
+			RealMines.log(Level.SEVERE, "[" + RealMines.getPlugin().getDescription().getName() + "] Couldn't save " + name + "!");
 		}
 	}
 

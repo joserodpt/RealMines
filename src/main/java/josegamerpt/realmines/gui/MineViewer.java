@@ -1,13 +1,12 @@
 package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.classes.MineIcon;
-import josegamerpt.realmines.classes.MinePlayer;
-import josegamerpt.realmines.managers.MineManager;
-import josegamerpt.realmines.managers.PlayerManager;
+import josegamerpt.realmines.config.Language;
+import josegamerpt.realmines.MineManager;
 import josegamerpt.realmines.utils.Itens;
 import josegamerpt.realmines.utils.Pagination;
+import josegamerpt.realmines.utils.Text;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;
@@ -25,23 +24,23 @@ import java.util.*;
 public class MineViewer {
 
     static ItemStack placeholder = Itens.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static ItemStack next = Itens.createItemLore(Material.GREEN_STAINED_GLASS, 1, "&aNext",
-            Collections.singletonList("&fClick here to go to the next page."));
-    static ItemStack back = Itens.createItemLore(Material.YELLOW_STAINED_GLASS, 1, "&6Back",
-            Collections.singletonList("&fClick here to go back to the next page."));
-    static ItemStack close = Itens.createItemLore(Material.ACACIA_DOOR, 1, "&cClose",
-            Collections.singletonList("&fClick here to close this menu."));
+    static ItemStack next = Itens.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
+            Language.file().getStringList("GUI.Items.Next.Description"));
+    static ItemStack back = Itens.createItemLore(Material.YELLOW_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Back.Name"),
+            Language.file().getStringList("GUI.Items.Back.Description"));
+    static ItemStack close = Itens.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
+            Language.file().getStringList("GUI.Items.Close.Description"));
+
     private static final Map<UUID, MineViewer> inventories = new HashMap<>();
     int pageNumber = 0;
     Pagination<MineIcon> p;
     private final Inventory inv;
     private final UUID uuid;
-    private List<MineIcon> items;
     private final HashMap<Integer, MineIcon> display = new HashMap<>();
 
     public MineViewer(Player as) {
         this.uuid = as.getUniqueId();
-        inv = Bukkit.getServer().createInventory(null, 54, ChatColor.translateAlternateColorCodes('&', "&9Mines"));
+        inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Panel-Name")));
 
         load();
 
@@ -65,33 +64,33 @@ public class MineViewer {
                         }
 
                         e.setCancelled(true);
-                        MinePlayer gp = PlayerManager.get((Player) clicker);
+                        Player gp = (Player) clicker;
 
                         switch (e.getRawSlot()) {
                             case 49:
-                                gp.getPlayer().closeInventory();
+                                gp.closeInventory();
                                 break;
                             case 26:
                             case 35:
                                 nextPage(current);
-                                gp.getPlayer().playSound(gp.getPlayer().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
+                                gp.playSound(gp.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
                                 break;
                             case 18:
                             case 27:
                                 backPage(current);
-                                gp.getPlayer().playSound(gp.getPlayer().getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
+                                gp.playSound(gp.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
                                 break;
                         }
 
                         if (current.display.containsKey(e.getRawSlot())) {
                             MineIcon a = current.display.get(e.getRawSlot());
 
-                            if (a.placeholder) {
+                            if (a.isPlaceholder()) {
                                 return;
                             }
 
-                            gp.getPlayer().closeInventory();
-                            GUIManager.openMine(a.m, gp.getPlayer());
+                            gp.closeInventory();
+                            GUIManager.openMine(a.getMine(), gp);
                         }
                     }
                 }
@@ -130,7 +129,7 @@ public class MineViewer {
     }
 
     public void load() {
-        items = MineManager.getMineList();
+        List<MineIcon> items = MineManager.getMineList();
 
         p = new Pagination<>(28, items);
         fillChest(p.getPage(pageNumber));
@@ -168,7 +167,7 @@ public class MineViewer {
         for (ItemStack i : inv.getContents()) {
             if (i == null && items.size() != 0) {
                 MineIcon s = items.get(0);
-                inv.setItem(slot, s.i);
+                inv.setItem(slot, s.getIcon());
                 display.put(slot, s);
                 items.remove(0);
             }

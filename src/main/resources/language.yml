@@ -1,0 +1,108 @@
+Mines:
+  Reset:
+    Starting: "&f%mine% &fis being &ereset."
+    Percentage: "&6Warning &fThis mine is going to be reset."
+    Announcement: "&fMine &9%mine% &fjust &areset."
+    Warning: "&7[&6Warning&7] &r%mine% &fwill reset in &b%time% &9seconds."
+  Teleport: "&fTeleported to mine &9%mine%"
+  Teleport-Set: "&fTeleport &Aset &fon mine %mine%"
+  No-Teleport-Location: "&fThis mine &cdoesnt have a teleport location."
+GUI:
+  Panel-Name: "&9Mines"
+  Reset-Name: "%mine% &rReset Options"
+  Mine-Blocks-Name: "%mine% &rblocks"
+  Color-Picker-Name: "&rPick a color"
+  Items:
+    Blocks:
+      Name: "&9&lBlocks"
+      Description:
+        - "&fClick here to open this category."
+    Resets:
+      Name: "&6&lResets"
+      Description:
+        - "&fClick here to manage the resets."
+    Teleport:
+      Name: "&5&lTeleport"
+      Description:
+        - "&fClick here to teleport to this mine."
+    Icon:
+      Name: "&b&lIcon"
+      Description:
+        - "&fClick here to select a new icon."
+    Name:
+      Name: "&a&lName"
+      Description:
+        - "&fClick here to input a new name."
+    Clear:
+      Name: "&c&lClear"
+      Description:
+        - "&fClick here to clear this mine."
+    Reset:
+      Name: "&4&lReset"
+      Description:
+        - "&fClick here to reset this mine."
+    Boundaries:
+      Name: "&e&lBoundaries"
+      Description:
+        - "&fClick to see the boundaries of the mine."
+    MineColor:
+      Name: "&3&lColor"
+      Description:
+        - "&fClick to select the mine color."
+    Add:
+      Name: "&b&lAdd Block"
+      Description:
+        - "&fClick here to add a new block."
+    Search:
+      Name: "&9&lSearch"
+      Description:
+        - "&fClick here to seach for a block."
+    Next:
+      Name: "&a&lNext"
+      Description:
+        - "&fClick here to go to the next page."
+    Back:
+      Name: "&6&lBack"
+      Description:
+        - "&fClick here to go to the previous page."
+    Close:
+      Name: "&c&lClose"
+      Description:
+        - "&fClick here to close this."
+    Mine-Block:
+      Block:
+        Name: "&3&l%material%"
+        Description:
+          - "&fPercentage: &b%percentage%%"
+          - "&fClick to edit the percentage."
+          - "&f(Q) to remove this block."
+      No-Blocks:
+        Name: "&3&l%material%"
+        Description:
+          - "&fPercentage: &b%percentage%%"
+          - "&fClick to edit the percentage."
+          - "&f(Q) to remove this block."
+    Mine:
+      Description:
+        - "&3%remainingblocks%&7/&b%totalblocks% &fblocks"
+        - "&f%bar%"
+        - "&fClick here to edit this mine."
+    No-Mines-Found:
+      Name: "&9&lNo Mines Found"
+      Description:
+        - "&fCreate a new mine with"
+        - "&f/rm crate <name>."
+System:
+  Boundaries-Not-Set: "&fYour boundaries &care not set."
+  Mine-Created: "&fMine %mine% &acreated."
+  Mine-Exists: "&cThere is already a mine with that name."
+  Mine-Doesnt-Exist: "&cNo mine exists with that name."
+  Mine-Clear: "&fMine has been &acleared."
+  Stopped-Mine-Tasks: "&cStopped &fall mine tasks."
+  Started-Mine-Tasks: "&aStarted &fall mine tasks."
+  Remove: "&fYou removed &b%object%"
+  Region-Updated: "&fRegion &aupdated."
+  Add-Blocks: "&fDo you want to add the following blocks to the mine? (type yes or no)"
+  Block-Count: "&fTotal Blocks: &3%count%"
+  Blocks-Added: "&b%count% &fblock have been &aadded &fto the mine."
+

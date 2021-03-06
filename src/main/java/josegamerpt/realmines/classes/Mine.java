@@ -6,22 +6,23 @@ import java.util.Random;
 
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Config;
+import josegamerpt.realmines.config.Language;
 import org.bukkit.*;
-import org.bukkit.Color;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
-import josegamerpt.realmines.managers.MineManager;
+import josegamerpt.realmines.MineManager;
 import josegamerpt.realmines.utils.Text;
 
 public class Mine {
 
 	public enum Reset {PERCENTAGE, TIME}
-
-	public enum Data {BLOCKS, ICON, ALL, TELEPORT, SIGNS, REGION, INIT, OPTIONS, NAME}
+	public enum Data {BLOCKS, ICON, ALL, TELEPORT, SIGNS, REGION, OPTIONS, NAME,COLOR}
+	public enum Color {YELLOW,ORANGE,RED,GREEN,WHITE,GRAY,BLUE,PURPLE,BROWN}
 
 	private String name;
+	private Color color = Color.WHITE;
 	private String displayName;
 	private ArrayList<MineBlock> blocks;
 
@@ -29,7 +30,7 @@ public class Mine {
 	private ArrayList<MineSign> signs;
 	private Location teleport;
 	private Material icon;
-	private MineCuboid c;
+	private MineCuboid mineCuboid;
 	private boolean resetByPercentage;
 	private boolean resetByTime;
 	private int resetByPercentageValue;
@@ -41,7 +42,7 @@ public class Mine {
 	private Location l2;
 
 	public Mine(String n, String displayname, ArrayList<MineBlock> b, ArrayList<MineSign> si, Location p1, Location p2, Material i,
-			Location t, Boolean resetByPercentag, Boolean resetByTim, int rbpv, int rbtv) {
+			Location t, Boolean resetByPercentag, Boolean resetByTim, int rbpv, int rbtv, String color) {
 		this.name = ChatColor.stripColor(Text.color(n));
 		this.displayName = displayname;
 		this.blocks = b;
@@ -53,6 +54,8 @@ public class Mine {
 		this.resetByPercentageValue = rbpv;
 		this.resetByTimeValue = rbtv;
 
+		setColor(color);
+
 		timer = new MineTimer(this);
 		if (resetByTim) {
 			timer.start();
@@ -60,6 +63,108 @@ public class Mine {
 
 		setPOS(p1, p2);
 		updateSigns();
+	}
+
+	@Override
+	public String toString() {
+		return "Mine{" +
+				"name='" + name + '\'' +
+				", color=" + color +
+				", displayName='" + displayName + '\'' +
+				", blocks=" + blocks +
+				", sorted=" + sorted +
+				", signs=" + signs +
+				", teleport=" + teleport +
+				", icon=" + icon +
+				", mineCuboid=" + mineCuboid +
+				", resetByPercentage=" + resetByPercentage +
+				", resetByTime=" + resetByTime +
+				", resetByPercentageValue=" + resetByPercentageValue +
+				", resetByTimeValue=" + resetByTimeValue +
+				", timer=" + timer +
+				", highlight=" + highlight +
+				", l1=" + l1.toString() +
+				", l2=" + l2.toString() +
+				'}';
+	}
+
+	public String getColorIcon() {
+		String color = "";
+
+		switch (this.color)
+		{
+			case PURPLE:
+				color = "&d";
+				break;
+			case RED:
+				color = "&c";
+				break;
+			case BLUE:
+				color = "&9";
+				break;
+			case GRAY:
+				color = "&8";
+				break;
+			case BROWN:
+				color = "&4";
+				break;
+			case GREEN:
+				color = "&2";
+				break;
+			case WHITE:
+				color = "&f";
+				break;
+			case ORANGE:
+				color = "&6";
+				break;
+			case YELLOW:
+				color = "&e";
+				break;
+		}
+
+		return color + "●";
+	}
+
+	public Color getColor() {
+		return this.color;
+	}
+
+	public void setColor(Color c) {
+		this.color = c;
+	}
+
+	public void setColor(String s) {
+		switch (s.toLowerCase())
+		{
+			case "yellow":
+				setColor(Color.YELLOW);
+				break;
+			case "orange":
+				setColor(Color.ORANGE);
+				break;
+			case "red":
+				setColor(Color.RED);
+				break;
+			case "green":
+				setColor(Color.GREEN);
+				break;
+			case "gray":
+				setColor(Color.GRAY);
+				break;
+			case "blue":
+				setColor(Color.BLUE);
+				break;
+			case "brown":
+				setColor(Color.BROWN);
+				break;
+			case "purple":
+				setColor(Color.PURPLE);
+				break;
+			case "white":
+			default:
+				setColor(Color.WHITE);
+				break;
+		}
 	}
 
 	public Location getPOS1() {
@@ -83,7 +188,6 @@ public class Mine {
 	public ArrayList<String> getSignList() {
 		ArrayList<String> l = new ArrayList<>();
 		signs.forEach(mineSign -> l.add(mineSign.getBlock().getWorld().getName() + ";" + mineSign.getBlock().getX() + ";" + mineSign.getBlock().getY() + ";" + mineSign.getBlock().getZ() + ";" + mineSign.getModifier()));
-
 		return l;
 	}
 
@@ -91,21 +195,21 @@ public class Mine {
 		return this.displayName;
 	}
 
-	public MineCuboid getMine()
+	public MineCuboid getMineCuboid()
 	{
-		return this.c;
+		return this.mineCuboid;
 	}
 
 	public int getBlockCount() {
-		return c.getTotalVolume();
+		return mineCuboid.getTotalVolume();
 	}
 
 	public int getRemainingBlocks() {
-		return c.getTotalBlocks();
+		return mineCuboid.getTotalBlocks();
 	}
 
 	public int getRemainingBlocksPer() {
-		return (c.getTotalBlocks() * 100 / getBlockCount());
+		return (mineCuboid.getTotalBlocks() * 100 / getBlockCount());
 	}
 
 	public int getMinedBlocks() {
@@ -117,10 +221,10 @@ public class Mine {
 	}
 
 	public void fillMine() {
-		c = new MineCuboid(this.l1, this.l2);
+		mineCuboid = new MineCuboid(this.l1, this.l2);
 		sortBlocks();
 		if (blocks.size() != 0) {
-			c.forEach(block -> block.setType(getBlock()));
+			Bukkit.getScheduler().runTask(RealMines.getPlugin(), () -> mineCuboid.forEach(block -> block.setType(getBlock())));
 		}
 		updateSigns();
 	}
@@ -145,7 +249,7 @@ public class Mine {
 	}
 
 	public void register() {
-		MineManager.mines.add(this);
+		MineManager.add(this);
 	}
 
 	public void saveData(Data t) {
@@ -173,11 +277,11 @@ public class Mine {
 	}
 
 	public void reset() {
-		kickPlayers(getDisplayName() + " &fis being &ereset.");
+		kickPlayers(Language.file().getString("Mines.Reset.Starting").replace("%mine%", getDisplayName()));
 		fillMine();
 		updateSigns();
 		if(Config.file().getBoolean("RealMines.announceResets")) {
-			Bukkit.broadcastMessage(Text.color(RealMines.getPrefix() + Config.file().getString("RealMines.resetAnnouncement").replace("%mine%", getDisplayName())));
+			Bukkit.broadcastMessage(Text.color(RealMines.getPrefix() + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", getDisplayName())));
 		}
 	}
 
@@ -187,34 +291,36 @@ public class Mine {
 	}
 
 	public void updateSigns() {
-		for (MineSign ms : signs) {
-			if (ms.getBlock().getType().name().contains("SIGN")) {
-				Sign sign = (Sign) ms.getBlock().getState();
-				String modif = ms.getModifier();
+		Bukkit.getScheduler().runTaskAsynchronously(RealMines.getPlugin(), () -> {
+			for (MineSign ms : signs) {
+				if (ms.getBlock().getType().name().contains("SIGN")) {
+					Sign sign = (Sign) ms.getBlock().getState();
+					String modif = ms.getModifier();
 
-				if (modif.equalsIgnoreCase("PM")) {
-					sign.setLine(1, getMinedBlocksPer() + "%");
-					sign.setLine(2, "mined on");
-				}
-				if (modif.equalsIgnoreCase("BM")) {
-					sign.setLine(1, "" + getMinedBlocks());
-					sign.setLine(2, "mined blocks on");
+					if (modif.equalsIgnoreCase("PM")) {
+						sign.setLine(1, getMinedBlocksPer() + "%");
+						sign.setLine(2, "mined on");
+					}
+					if (modif.equalsIgnoreCase("BM")) {
+						sign.setLine(1, "" + getMinedBlocks());
+						sign.setLine(2, "mined blocks on");
 
-				}
-				if (modif.equalsIgnoreCase("BR")) {
-					sign.setLine(1, "" + getRemainingBlocks());
-					sign.setLine(2, "blocks on");
+					}
+					if (modif.equalsIgnoreCase("BR")) {
+						sign.setLine(1, "" + getRemainingBlocks());
+						sign.setLine(2, "blocks on");
 
+					}
+					if (modif.equalsIgnoreCase("PL")) {
+						sign.setLine(1, getRemainingBlocksPer() + "%");
+						sign.setLine(2, "left on");
+					}
+					sign.setLine(0, RealMines.getPrefix());
+					sign.setLine(3, "" + Text.color(getDisplayName()));
+					sign.update();
 				}
-				if (modif.equalsIgnoreCase("PL")) {
-					sign.setLine(1, getRemainingBlocksPer() + "%");
-					sign.setLine(2, "left on");
-				}
-				sign.setLine(0, "§7[§9Real§bMines§7]");
-				sign.setLine(3, "" + Text.color(getDisplayName()));
-				sign.update();
 			}
-		}
+		});
 	}
 
 	public void removeBlock(MineBlock mb) {
@@ -233,24 +339,24 @@ public class Mine {
 	}
 
 	public void clear() {
-		this.c.forEach(block -> block.setType(Material.AIR));
+		this.mineCuboid.forEach(block -> block.setType(Material.AIR));
 	}
 
 	public void kickPlayers(String s) {
-		broadcastMessage(s);
 		this.getPlayersInMine().forEach(player -> MineManager.teleport(player, this, false));
+		broadcastMessage(s, true);
 	}
 
-	public void broadcastMessage(String s) {
-		for (Player p : getPlayersInMine()) {
-			p.sendMessage(Text.color(RealMines.getPrefix() + s));
-		}
+	public void broadcastMessage(String s, Boolean prefix) {
+		if (prefix) { s = RealMines.getPrefix() + s; }
+		String finalS = s;
+		getPlayersInMine().forEach(player -> player.sendMessage(Text.color(finalS)));
 	}
 
 	public ArrayList<Player> getPlayersInMine() {
 		ArrayList<Player> ps = new ArrayList<>();
 		for (Player p : Bukkit.getOnlinePlayers()) {
-			if (c.contains(p.getLocation())) {
+			if (mineCuboid.contains(p.getLocation())) {
 				ps.add(p);
 			}
 		}
@@ -263,13 +369,13 @@ public class Mine {
 
 	public List<Location> getCube() {
 		List<Location> result = new ArrayList<>();
-		World world = this.c.getPOS1().getWorld();
-		double minX = Math.min(this.c.getPOS1().getX(), this.c.getPOS2().getX());
-		double minY = Math.min(this.c.getPOS1().getY(), this.c.getPOS2().getY());
-		double minZ = Math.min(this.c.getPOS1().getZ(), this.c.getPOS2().getZ());
-		double maxX = Math.max(this.c.getPOS1().getX() + 1, this.c.getPOS2().getX() + 1);
-		double maxY = Math.max(this.c.getPOS1().getY() + 1, this.c.getPOS2().getY() + 1);
-		double maxZ = Math.max(this.c.getPOS1().getZ() + 1, this.c.getPOS2().getZ() + 1);
+		World world = this.mineCuboid.getPOS1().getWorld();
+		double minX = Math.min(this.mineCuboid.getPOS1().getX(), this.mineCuboid.getPOS2().getX());
+		double minY = Math.min(this.mineCuboid.getPOS1().getY(), this.mineCuboid.getPOS2().getY());
+		double minZ = Math.min(this.mineCuboid.getPOS1().getZ(), this.mineCuboid.getPOS2().getZ());
+		double maxX = Math.max(this.mineCuboid.getPOS1().getX() + 1, this.mineCuboid.getPOS2().getX() + 1);
+		double maxY = Math.max(this.mineCuboid.getPOS1().getY() + 1, this.mineCuboid.getPOS2().getY() + 1);
+		double maxZ = Math.max(this.mineCuboid.getPOS1().getZ() + 1, this.mineCuboid.getPOS2().getZ() + 1);
 		double dist = 0.5D;
 		for (double x = minX; x <= maxX; x += dist) {
 			for (double y = minY; y <= maxY; y += dist) {
@@ -290,8 +396,33 @@ public class Mine {
 	public void highlight() {
 		if (highlight)
 		{
-			getCube().forEach(location -> location.getWorld().spawnParticle(Particle.REDSTONE, location.getX(), location.getY(), location.getZ(), 0, 0.001, 1, 0, 1, new Particle.DustOptions(Color.AQUA, 1)));
+			getCube().forEach(location -> location.getWorld().spawnParticle(Particle.REDSTONE, location.getX(), location.getY(), location.getZ(), 0, 0.001, 1, 0, 1, new Particle.DustOptions(convertColor(this.color), 1)));
 		}
+	}
+
+	private org.bukkit.Color convertColor(Color color) {
+		switch (color)
+		{
+			case RED:
+				return org.bukkit.Color.RED;
+			case YELLOW:
+				return org.bukkit.Color.YELLOW;
+			case GRAY:
+				return org.bukkit.Color.GRAY;
+			case GREEN:
+				return org.bukkit.Color.GREEN;
+			case BLUE:
+				return org.bukkit.Color.fromRGB(51,153,255);
+			case WHITE:
+				return org.bukkit.Color.WHITE;
+			case BROWN:
+				return org.bukkit.Color.fromRGB(153, 102, 51);
+			case ORANGE:
+				return org.bukkit.Color.ORANGE;
+			case PURPLE:
+				return org.bukkit.Color.PURPLE;
+		}
+		return org.bukkit.Color.fromRGB(0, 153, 204);
 	}
 
 	public String getName() {
@@ -364,7 +495,6 @@ public class Mine {
 	public ArrayList<MineSign> getSigns() {
 		return this.signs;
 	}
-
 
 	public MineTimer getTimer() {
 		return this.timer;

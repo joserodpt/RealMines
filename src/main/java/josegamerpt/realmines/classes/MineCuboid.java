@@ -201,7 +201,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
 		int tot = 0;
 		for (Block b : getBlocks())
 		{
-			if (b.isEmpty() == false)
+			if (!b.isEmpty())
 			{
 				tot++;
 			}
@@ -561,7 +561,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
 	/**
 	 * Check if the Cuboid contains only blocks of the given type
 	 *
-	 * @param blockId - The block ID to check for
+	 * @param - The block ID to check for
 	 * @return true if this Cuboid contains only blocks of the given type
 	 */
 	public boolean containsOnly(Material m) {
@@ -570,6 +570,17 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
 				return false;
 		}
 		return true;
+	}
+
+	public ArrayList<Material> getBlockTypes() {
+		ArrayList<Material> retm = new ArrayList<>();
+
+		for (Block b : this) {
+			if (!retm.contains(b.getType()) && !b.getType().name().contains("AIR") && b.getType() != Material.STONE) {
+				retm.add(b.getType());
+			}
+		}
+		return retm;
 	}
 
 	/**
@@ -626,7 +637,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
 	 * @return A list of Chunk objects
 	 */
 	public List<Chunk> getChunks() {
-		List<Chunk> res = new ArrayList<Chunk>();
+		List<Chunk> res = new ArrayList<>();
 
 		World w = this.getWorld();
 		int x1 = this.getLowerX() & ~0xf;
@@ -652,8 +663,8 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
 
 	@Override
 	public String toString() {
-		return new String("Cuboid: " + this.worldName + "," + this.x1 + "," + this.y1 + "," + this.z1 + "=>" + this.x2
-				+ "," + this.y2 + "," + this.z2);
+		return "Cuboid: " + this.worldName + "," + this.x1 + "," + this.y1 + "," + this.z1 + "=>" + this.x2
+				+ "," + this.y2 + "," + this.z2;
 	}
 
 	public class CuboidIterator implements Iterator<Block> {
