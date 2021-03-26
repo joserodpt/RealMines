@@ -26,12 +26,11 @@ import java.util.logging.Level;
 
 public class RealMines extends JavaPlugin {
 
+    public static Boolean newUpdate = false;
     private static Plugin pl;
     PluginManager pm = Bukkit.getPluginManager();
-
-    public static Boolean newUpdate = false;
-
     CommandManager commandManager;
+    private BukkitTask mineHighlight;
 
     public static void log(Level l, String s) {
         Bukkit.getLogger().log(l, s);
@@ -40,10 +39,8 @@ public class RealMines extends JavaPlugin {
     public static String getPrefix() {
         return Text.color(Config.file().getString("RealMines.Prefix"));
     }
-    private BukkitTask mineHighlight;
 
-    public static Plugin getPlugin()
-    {
+    public static Plugin getPlugin() {
         return pl;
     }
 
@@ -138,9 +135,6 @@ public class RealMines extends JavaPlugin {
                     getLogger().info("There is a new update available!");
                 }
             });
-
-
-            MineManager.getMines().forEach(mine -> log(Level.WARNING, mine.toString()));
         }
     }
 
@@ -152,8 +146,7 @@ public class RealMines extends JavaPlugin {
 
 
     public void onDisable() {
-        if (mineHighlight != null)
-        {
+        if (mineHighlight != null) {
             mineHighlight.cancel();
         }
         MineManager.clearMemory();
