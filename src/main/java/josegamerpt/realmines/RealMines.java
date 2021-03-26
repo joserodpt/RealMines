@@ -29,6 +29,8 @@ public class RealMines extends JavaPlugin {
     private static Plugin pl;
     PluginManager pm = Bukkit.getPluginManager();
 
+    public static Boolean newUpdate = false;
+
     CommandManager commandManager;
 
     public static void log(Level l, String s) {
@@ -83,6 +85,7 @@ public class RealMines extends JavaPlugin {
 
             log(Level.INFO, "Registering Events.");
             pm.registerEvents(new BlockEvents(), this);
+            pm.registerEvents(new BlockEvents(), this);
             pm.registerEvents(MineViewer.getListener(), this);
             pm.registerEvents(GUIBuilder.getListener(), this);
             pm.registerEvents(MaterialPicker.getListener(), this);
@@ -126,6 +129,16 @@ public class RealMines extends JavaPlugin {
             log(Level.INFO, "Plugin has been loaded.");
             log(Level.INFO, "Author: JoseGamer_PT | " + this.getDescription().getWebsite());
             log(Level.INFO, star);
+
+            new UpdateChecker(this, 73707).getVersion(version -> {
+                if (this.getDescription().getVersion().equalsIgnoreCase(version)) {
+                    getLogger().info("The plugin is updated to the latest version.");
+                } else {
+                    newUpdate = true;
+                    getLogger().info("There is a new update available!");
+                }
+            });
+
 
             MineManager.getMines().forEach(mine -> log(Level.WARNING, mine.toString()));
         }
