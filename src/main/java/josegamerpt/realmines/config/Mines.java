@@ -4,12 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
-
-import josegamerpt.realmines.RealMines;
 
 public class Mines implements Listener {
 
@@ -39,7 +38,7 @@ public class Mines implements Listener {
 		try {
 			customFile.save(file);
 		} catch (IOException e) {
-			RealMines.log(Level.SEVERE, "[" + RealMines.getPlugin().getDescription().getName() + "] Couldn't save " + name + "!");
+			Bukkit.getLogger().log(Level.SEVERE, "[RealMines] Couldn't save " + name + "!");
 		}
 	}
 

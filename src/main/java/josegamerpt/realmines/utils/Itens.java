@@ -1,16 +1,27 @@
 package josegamerpt.realmines.utils;
 
 import dev.dbassett.skullcreator.SkullCreator;
-import josegamerpt.realmines.classes.Mine;
+import josegamerpt.realmines.mines.Mine;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Itens {
+
+    public static ArrayList<Material> getValidBlocks() {
+        ArrayList<Material> ms = new ArrayList<>();
+        for (Material m : Material.values()) {
+            if (!m.equals(Material.AIR) && m.isSolid() && m.isBlock() && m.isItem()) {
+                ms.add(m);
+            }
+        }
+        return ms;
+    }
 
     public static ItemStack createItem(Material material, int quantidade, String nome) {
         ItemStack item = new ItemStack(material, quantidade);

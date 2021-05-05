@@ -1,9 +1,8 @@
 package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.classes.Mine;
+import josegamerpt.realmines.mines.Mine;
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.MineManager;
 import josegamerpt.realmines.utils.Itens;
 import josegamerpt.realmines.utils.Text;
 import org.bukkit.Bukkit;
@@ -26,8 +25,10 @@ public class MineColorPicker {
     private final Inventory inv;
     private final UUID uuid;
     private final Mine mi;
+    private final RealMines rm;
 
-    public MineColorPicker(Player as, Mine mi) {
+    public MineColorPicker(RealMines rm, Player as, Mine mi) {
+        this.rm = rm;
         this.uuid = as.getUniqueId();
         inv = Bukkit.getServer().createInventory(null, InventoryType.DROPPER, Text.color(Language.file().getString("GUI.Color-Picker-Name")));
 
@@ -87,8 +88,8 @@ public class MineColorPicker {
                         }
                         gp.playSound(gp.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 50, 50);
                         gp.closeInventory();
-                        MineManager.saveMine(current.mi, Mine.Data.COLOR);
-                        Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getPlugin(), () -> GUIManager.openMine(current.mi, gp), 2);
+                        current.rm.getMineManager().saveMine(current.mi, Mine.Data.COLOR);
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> current.rm.getGUIManager().openMine(current.mi, gp), 2);
                     }
                 }
             }

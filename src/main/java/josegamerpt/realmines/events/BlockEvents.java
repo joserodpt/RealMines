@@ -1,43 +1,49 @@
 package josegamerpt.realmines.events;
 
 import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.classes.Mine;
+import josegamerpt.realmines.mines.Mine;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 
-import josegamerpt.realmines.MineManager;
 import org.bukkit.event.block.SignChangeEvent;
 
 public class BlockEvents implements Listener {
 
+	private final RealMines rm;
+
+	public BlockEvents(RealMines rm)
+	{
+		this.rm = rm;
+	}
+
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent e) {
-		MineManager.findBlockUpdate(e.getBlock());
+		RealMines.getInstance().getMineManager().findBlockUpdate(e.getBlock());
 	}
 
 	@EventHandler
 	public void onBlockPlace(BlockPlaceEvent e) {
-		MineManager.findBlockUpdate(e.getBlock());
+		RealMines.getInstance().getMineManager().findBlockUpdate(e.getBlock());
 	}
 
 	@EventHandler
 	public void mineBlockBreak(MineBlockBreakEvent e) {
-		MineManager.resetPercentage(e.getMine());
+		RealMines.getInstance().getMineManager().resetPercentage(e.getMine());
 	}
 
 	@EventHandler
 	public void onSignChange(SignChangeEvent event) {
 		if (event.getLine(0).contains("[realmines]") || event.getLine(0).contains("[RealMines]")) {
-			event.setLine(0, RealMines.getPrefix());
+			event.setLine(0, this.rm.getPrefix());
 			String name = event.getLine(1);
 
-			Mine m = MineManager.get(name);
+			Mine m = RealMines.getInstance().getMineManager().get(name);
 
 			if (m != null) {
 				String modif = event.getLine(2);
-				if (MineManager.signset.contains(modif)) {
+				if (RealMines.getInstance().getMineManager().signset.contains(modif)) {
 					m.addSign(event.getBlock(), modif);
 					m.updateSigns();
 				} else {

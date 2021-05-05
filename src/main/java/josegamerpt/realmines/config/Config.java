@@ -4,11 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
-import josegamerpt.realmines.RealMines;
+import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.event.Listener;
-import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class Config implements Listener {
 
@@ -16,13 +16,13 @@ public class Config implements Listener {
 	private static FileConfiguration customFile;
 	private static String name = "config.yml";
 
-	public static void setup(Plugin p) {
-		file = new File(p.getDataFolder(), name);
+	public static void setup(JavaPlugin rm) {
+		file = new File(rm.getDataFolder(), name);
 
 		if (!file.exists()) {
 			try {
 				file.createNewFile();
-			} catch (IOException e) {
+			} catch (IOException ignored) {
 			}
 		}
 		customFile = YamlConfiguration.loadConfiguration(file);
@@ -36,7 +36,7 @@ public class Config implements Listener {
 		try {
 			customFile.save(file);
 		} catch (IOException e) {
-			RealMines.log(Level.SEVERE, "Couldn't save " + name + "!");
+			Bukkit.getLogger().log(Level.SEVERE, "Couldn't save " + name + "!");
 		}
 	}
 

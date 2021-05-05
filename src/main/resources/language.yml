@@ -10,6 +10,7 @@ Mines:
 GUI:
   Panel-Name: "&9Mines"
   Reset-Name: "%mine% &rReset Options"
+  Faces-Name: "&rFaces"
   Mine-Blocks-Name: "%mine% &rblocks"
   Color-Picker-Name: "&rPick a color"
   Items:
@@ -17,6 +18,10 @@ GUI:
       Name: "&9&lBlocks"
       Description:
         - "&fClick here to open this category."
+    Faces:
+      Name: "&a&lFaces"
+      Description:
+        - "&fClick here to configure the mine faces."
     Resets:
       Name: "&6&lResets"
       Description:
@@ -53,6 +58,7 @@ GUI:
       Name: "&b&lAdd Block"
       Description:
         - "&fClick here to add a new block."
+        - "&fYou can also &bclick &fon a block in your inventory to add it!"
     Search:
       Name: "&9&lSearch"
       Description:
@@ -93,9 +99,16 @@ GUI:
         - "&fCreate a new mine with"
         - "&f/rm crate <name>."
 System:
+  Invalid-Arguments: "&cInvalid arguments."
   Boundaries-Not-Set: "&fYour boundaries &care not set."
-  Mine-Created: "&fMine %mine% &acreated."
+  Cant-Add-Item: "&fThat item &ccant &fbe added to the mine."
+  Mine-Created: "&fMine &b%mine% &acreated."
+  Mine-Task-Created: "&fMine task &b%task% &fwith delay &e%delay% &fcreated."
+  Mine-Task-Exists: "&cThere is already a mine task with that name."
   Mine-Exists: "&cThere is already a mine with that name."
+  Mine-Linked: "&fMine &alinked!"
+  Mine-Unlinked: "&fMine &aunlinked!"
+  Mine-Task-Doesnt-Exist: "&cNo mine task exists with that name."
   Mine-Doesnt-Exist: "&cNo mine exists with that name."
   Mine-Clear: "&fMine has been &acleared."
   Stopped-Mine-Tasks: "&cStopped &fall mine tasks."

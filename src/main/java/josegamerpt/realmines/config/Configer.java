@@ -1,6 +1,6 @@
 package josegamerpt.realmines.config;
 
-import josegamerpt.realmines.RealMines;
+import org.bukkit.Bukkit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -32,10 +32,10 @@ public class Configer {
                     Config.save();
                     break;
             }
-            RealMines.log(Level.INFO, "Config file updated to version " + newconfig + ".");
+            Bukkit.getLogger().log(Level.INFO, "Config file updated to version " + newconfig + ".");
         }
         if (getConfigVersion() == latest) {
-            RealMines.log(Level.INFO, "Your config file is updated to the latest version.");
+            Bukkit.getLogger().log(Level.INFO, "Your config file is updated to the latest version.");
         }
     }
 

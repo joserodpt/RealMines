@@ -1,7 +1,8 @@
 package josegamerpt.realmines.gui;
 
-import josegamerpt.realmines.classes.Mine;
+import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
+import josegamerpt.realmines.mines.Mine;
 import josegamerpt.realmines.utils.Itens;
 import josegamerpt.realmines.utils.PlayerInput;
 import josegamerpt.realmines.utils.Text;
@@ -26,8 +27,10 @@ public class MineResetMenu {
 
     private final UUID uuid;
     private final Mine min;
+    private final RealMines rm;
 
-    public MineResetMenu(Player as, Mine m) {
+    public MineResetMenu(RealMines rm, Player as, Mine m) {
+        this.rm = rm;
         this.uuid = as.getUniqueId();
         inv = Bukkit.getServer().createInventory(null, InventoryType.HOPPER, Text.color(Language.file().getString("GUI.Reset-Name").replaceAll("%mine%", m.getDisplayName())));
         this.min = m;
@@ -59,7 +62,7 @@ public class MineResetMenu {
                         switch (e.getRawSlot()) {
                             case 2:
                                 gp.closeInventory();
-                                GUIManager.openMine(current.min, gp);
+                                current.rm.getGUIManager().openMine(current.min, gp);
                                 break;
                             case 0:
                                 switch (e.getClick()) {
@@ -69,7 +72,7 @@ public class MineResetMenu {
                                         current.min.saveData(Mine.Data.OPTIONS);
                                         break;
                                     case RIGHT:
-                                        current.editSetting(0, gp, current.min);
+                                        current.editSetting(current.rm, 0, gp, current.min);
                                         break;
                                 }
                                 break;
@@ -81,7 +84,7 @@ public class MineResetMenu {
                                         current.min.saveData(Mine.Data.OPTIONS);
                                         break;
                                     case RIGHT:
-                                        current.editSetting(1, gp, current.min);
+                                        current.editSetting(current.rm, 1, gp, current.min);
                                         break;
                                     default:
                                         break;
@@ -145,7 +148,7 @@ public class MineResetMenu {
         }
     }
 
-    protected void editSetting(int i, Player gp, Mine m) {
+    protected void editSetting(RealMines rm, int i, Player gp, Mine m) {
         switch (i) {
             case 0:
                 new PlayerInput(gp, s -> {
@@ -154,13 +157,13 @@ public class MineResetMenu {
                         d = Integer.parseInt(s.replace("%", ""));
                     } catch (Exception ex) {
                         gp.sendMessage(Text.color("&cInput a percentage from 0 to 100."));
-                        editSetting(0, gp, m);
+                        editSetting(rm, 0, gp, m);
                         return;
                     }
 
                     if (d <= 1 || d >= 100) {
                         gp.sendMessage(Text.color("&cWrong input. Please input a percentage greater than 1 and lower or equal to 100"));
-                        editSetting(0, gp, m);
+                        editSetting(rm, 0, gp, m);
                         return;
                     }
 
@@ -168,27 +171,27 @@ public class MineResetMenu {
                     m.saveData(Mine.Data.OPTIONS);
                     gp.sendMessage(Text.color("&fPercentage modified to &b" + d + "%"));
 
-                    MineResetMenu v = new MineResetMenu(gp, m);
+                    MineResetMenu v = new MineResetMenu(rm, gp, m);
                     v.openInventory(gp);
                 }, s -> {
-                    MineResetMenu v = new MineResetMenu(gp, m);
+                    MineResetMenu v = new MineResetMenu(rm, gp, m);
                     v.openInventory(gp);
                 });
                 break;
             case 1:
                 new PlayerInput(gp, s -> {
-                    int d = 0;
+                    int d;
                     try {
                         d = Integer.parseInt(s.replace("%", ""));
                     } catch (Exception ex) {
                         gp.sendMessage(Text.color("&cInput a new time in seconds."));
-                        editSetting(1, gp, m);
+                        editSetting(rm, 1, gp, m);
                         return;
                     }
 
                     if (d < 1) {
                         gp.sendMessage(Text.color("&cWrong input. Please input a new time greater than 1"));
-                        editSetting(1, gp, m);
+                        editSetting(rm, 1, gp, m);
                         return;
                     }
 
@@ -197,10 +200,10 @@ public class MineResetMenu {
                     gp.sendMessage(Text.color("&fTime modified to &b" + d + " seconds."));
 
 
-                    MineResetMenu v = new MineResetMenu(gp, m);
+                    MineResetMenu v = new MineResetMenu(rm, gp, m);
                     v.openInventory(gp);
                 }, s -> {
-                    MineResetMenu v = new MineResetMenu(gp, m);
+                    MineResetMenu v = new MineResetMenu(rm, gp, m);
                     v.openInventory(gp);
                 });
                 break;

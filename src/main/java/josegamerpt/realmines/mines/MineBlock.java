@@ -1,4 +1,4 @@
-package josegamerpt.realmines.classes;
+package josegamerpt.realmines.mines;
 
 import org.bukkit.Material;
 
@@ -13,15 +13,11 @@ public class MineBlock {
 	}
 
 	public double getPercentage() {
-		return percentage;
+		return this.percentage;
 	}
 
 	public Material getMaterial() {
-		return material;
-	}
-
-	public Integer getPerInt() {
-		return Integer.valueOf((percentage + "").replace(".0", ""));
+		return this.material;
 	}
 
 	public void setPercentage(double d) {

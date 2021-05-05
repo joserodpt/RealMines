@@ -11,19 +11,24 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
-public class Language implements Listener {
+public class MineResetTasks implements Listener {
 
 	private static File file;
 	private static FileConfiguration customFile;
-	private static String name = "language.yml";
+	private static String name = "mineresettasks.yml";
 
 	public static void setup(Plugin p) {
 		file = new File(p.getDataFolder(), name);
 
 		if (!file.exists()) {
-			RealMines.getInstance().saveResource("language.yml", true);
+			try {
+				file.createNewFile();
+			} catch (IOException ignored) {
+			}
 		}
 		customFile = YamlConfiguration.loadConfiguration(file);
+
+        MineResetTasks.save();
 	}
 
 	public static FileConfiguration file() {
@@ -34,11 +39,12 @@ public class Language implements Listener {
 		try {
 			customFile.save(file);
 		} catch (IOException e) {
-			Bukkit.getLogger().log(Level.SEVERE, "Couldn't save " + name + "!");
+			Bukkit.getLogger().log(Level.SEVERE, "[RealMines] Couldn't save " + name + "!");
 		}
 	}
 
 	public static void reload() {
 		customFile = YamlConfiguration.loadConfiguration(file);
 	}
+
 }

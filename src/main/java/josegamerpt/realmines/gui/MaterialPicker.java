@@ -1,9 +1,10 @@
 package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.classes.Mine;
-import josegamerpt.realmines.classes.MineBlock;
+import josegamerpt.realmines.mines.Mine;
+import josegamerpt.realmines.mines.MineBlock;
 import josegamerpt.realmines.config.Language;
+import josegamerpt.realmines.mines.MineCuboid;
 import josegamerpt.realmines.utils.Itens;
 import josegamerpt.realmines.utils.Pagination;
 import josegamerpt.realmines.utils.PlayerInput;
@@ -25,7 +26,9 @@ import java.util.*;
 
 public class MaterialPicker {
 
-    public enum PickType {ICON, BLOCK}
+    private final RealMines rm;
+
+    public enum PickType {ICON, BLOCK, FACE_MATERIAL}
 
     static ItemStack placeholder = Itens.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
     static ItemStack next = Itens.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
@@ -47,20 +50,24 @@ public class MaterialPicker {
     private final Mine min;
     private final PickType pt;
 
-    public MaterialPicker(Mine m, Player pl, PickType block) {
+    private String add;
+
+    public MaterialPicker(RealMines rm, Mine m, Player pl, PickType block, String additional) {
+        this.add = additional;
+        this.rm = rm;
         this.uuid = pl.getUniqueId();
         min = m;
         this.pt = block;
 
         switch (block) {
-            case BLOCK:
-                inv = Bukkit.getServer().createInventory(null, 54, Text.color("Pick a new block"));
-                break;
             case ICON:
                 inv = Bukkit.getServer().createInventory(null, 54, Text.color("Select icon for " + m.getDisplayName()));
                 break;
+            default:
+                inv = Bukkit.getServer().createInventory(null, 54, Text.color("Pick a new block"));
+                break;
         }
-        items = getIcons();
+        items = Itens.getValidBlocks();
 
         p = new Pagination<>(28, items);
         fillChest(p.getPage(pageNumber));
@@ -68,17 +75,20 @@ public class MaterialPicker {
         this.register();
     }
 
-    public MaterialPicker(Mine m, Player pl, PickType block, String search) {
+    public MaterialPicker(RealMines rm, Mine m, Player pl, PickType block, String search, String additional) {
+        this.add = additional;
+        this.rm = rm;
+
         this.uuid = pl.getUniqueId();
         min = m;
         this.pt = block;
 
         switch (block) {
-            case BLOCK:
-                inv = Bukkit.getServer().createInventory(null, 54, Text.color("Pick a new block"));
-                break;
             case ICON:
                 inv = Bukkit.getServer().createInventory(null, 54, Text.color("Select icon for " + m.getDisplayName()));
+                break;
+            default:
+                inv = Bukkit.getServer().createInventory(null, 54, Text.color("Pick a new block"));
                 break;
         }
 
@@ -113,19 +123,19 @@ public class MaterialPicker {
                                 new PlayerInput(gp, input -> {
                                     if (current.searchMaterial(input).size() == 0) {
                                         gp.sendMessage(Text.color("&fNothing found for your results."));
-                                        current.exit(gp);
+                                        current.exit(current.rm, gp);
                                         return;
                                     }
-                                    MaterialPicker df = new MaterialPicker(current.min, gp, current.pt, input);
+                                    MaterialPicker df = new MaterialPicker(current.rm, current.min, gp, current.pt, input, current.add);
                                     df.openInventory(gp);
                                 }, input -> {
                                     gp.closeInventory();
-                                    MineBlocksViewer v = new MineBlocksViewer(gp, current.min);
+                                    MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.min);
                                     v.openInventory(gp);
                                 });
                                 break;
                             case 49:
-                                current.exit(gp);
+                                current.exit(current.rm, gp);
                                 break;
                             case 26:
                             case 35:
@@ -147,13 +157,22 @@ public class MaterialPicker {
                                     current.min.setIcon(a);
                                     current.min.saveData(Mine.Data.ICON);
                                     gp.closeInventory();
-                                    GUIManager.openMine(current.min, gp);
+                                    current.rm.getGUIManager().openMine(current.min, gp);
                                     break;
                                 case BLOCK:
                                     current.min.addBlock(new MineBlock(a, 10D));
                                     gp.closeInventory();
-                                    Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getPlugin(), () -> {
-                                        MineBlocksViewer v = new MineBlocksViewer(gp, current.min);
+                                    Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
+                                        MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.min);
+                                        v.openInventory(gp);
+                                    }, 3);
+                                    break;
+                                case FACE_MATERIAL:
+                                    MineCuboid.CuboidDirection cd = MineCuboid.CuboidDirection.valueOf(current.add);
+                                    current.min.setFaceBlock(cd, a);
+                                    gp.closeInventory();
+                                    Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
+                                        MineFaces v = new MineFaces(current.rm, gp, current.min);
                                         v.openInventory(gp);
                                     }, 3);
                                     break;
@@ -197,19 +216,9 @@ public class MaterialPicker {
         };
     }
 
-    private ArrayList<Material> getIcons() {
-        ArrayList<Material> ms = new ArrayList<>();
-        for (Material m : Material.values()) {
-            if (!m.equals(Material.AIR) && m.isSolid() && m.isBlock() && m.isItem()) {
-                ms.add(m);
-            }
-        }
-        return ms;
-    }
-
     private ArrayList<Material> searchMaterial(String s) {
         ArrayList<Material> ms = new ArrayList<>();
-        for (Material m : getIcons()) {
+        for (Material m : Itens.getValidBlocks()) {
             if (m.name().toLowerCase().contains(s.toLowerCase())) {
                 ms.add(m);
             }
@@ -251,7 +260,7 @@ public class MaterialPicker {
             if (i == null && items.size() != 0) {
                 Material s = items.get(0);
                 inv.setItem(slot,
-                        Itens.createItemLore(s, 1, "§9§l" + s.name(), Collections.singletonList("&fClick to pick this.")));
+                        Itens.createItemLore(s, 1, "§3§l" + s.name(), Collections.singletonList("&fClick to pick this.")));
                 display.put(slot, s);
                 items.remove(0);
             }
@@ -274,14 +283,14 @@ public class MaterialPicker {
         }
     }
 
-    protected void exit(Player gp) {
+    protected void exit(RealMines rm, Player gp) {
         switch (this.pt) {
             case ICON:
                 gp.closeInventory();
-                GUIManager.openMine(this.min, gp);
+                rm.getGUIManager().openMine(this.min, gp);
                 break;
             case BLOCK:
-                MineBlocksViewer v = new MineBlocksViewer(gp, this.min);
+                MineBlocksViewer v = new MineBlocksViewer(rm, gp, this.min);
                 v.openInventory(gp);
                 break;
         }

@@ -1,4 +1,4 @@
-package josegamerpt.realmines.classes;
+package josegamerpt.realmines.mines;
 
 import java.util.ArrayList;
 import java.util.List;

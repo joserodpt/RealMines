@@ -1,8 +1,8 @@
 package josegamerpt.realmines.gui;
 
-import josegamerpt.realmines.classes.MineIcon;
+import josegamerpt.realmines.RealMines;
+import josegamerpt.realmines.mines.MineIcon;
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.MineManager;
 import josegamerpt.realmines.utils.Itens;
 import josegamerpt.realmines.utils.Pagination;
 import josegamerpt.realmines.utils.Text;
@@ -38,11 +38,14 @@ public class MineViewer {
     private final UUID uuid;
     private final HashMap<Integer, MineIcon> display = new HashMap<>();
 
-    public MineViewer(Player as) {
-        this.uuid = as.getUniqueId();
-        inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Panel-Name")));
+    private RealMines rm;
 
-        load();
+    public MineViewer(RealMines rm, Player as) {
+        this.rm = rm;
+        this.uuid = as.getUniqueId();
+        this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Panel-Name")));
+
+        this.load();
 
         this.register();
     }
@@ -90,7 +93,7 @@ public class MineViewer {
                             }
 
                             gp.closeInventory();
-                            GUIManager.openMine(a.getMine(), gp);
+                            current.rm.getGUIManager().openMine(a.getMine(), gp);
                         }
                     }
                 }
@@ -129,7 +132,7 @@ public class MineViewer {
     }
 
     public void load() {
-        List<MineIcon> items = MineManager.getMineList();
+        List<MineIcon> items = rm.getMineManager().getMineList();
 
         p = new Pagination<>(28, items);
         fillChest(p.getPage(pageNumber));

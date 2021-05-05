@@ -37,7 +37,7 @@ public class PlayerInput implements Listener {
 			public void run() {
 				p.getPlayer().sendTitle(texts.get(0), texts.get(1), 0, 21, 0);
 			}
-		}.runTaskTimer(RealMines.getPlugin(), 0L, 20);
+		}.runTaskTimer(RealMines.getInstance(), 0L, 20);
 
 		this.register();
 	}
@@ -70,13 +70,13 @@ public class PlayerInput implements Listener {
 								p.sendMessage(Text.color("&fInput canceled."));
 								current.taskId.cancel();
 								p.sendTitle("", "", 0, 1, 0);
-								Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getPlugin(), () -> current.runCancel.run(input), 3);
+								Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getInstance(), () -> current.runCancel.run(input), 3);
 								current.unregister();
 								return;
 							}
 
 							current.taskId.cancel();
-							Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getPlugin(), () -> current.runGo.run(input), 3);
+							Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getInstance(), () -> current.runGo.run(input), 3);
 							p.sendTitle("", "", 0, 1, 0);
 							current.unregister();
 						} catch (Exception e) {

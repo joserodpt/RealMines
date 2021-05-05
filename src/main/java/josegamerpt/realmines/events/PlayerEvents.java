@@ -10,8 +10,8 @@ public class PlayerEvents implements Listener {
 
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
-        if (e.getPlayer().isOp() && RealMines.newUpdate) {
-            Text.send(e.getPlayer(), "&6&lWARNING &fThere is a new version of RealMines!");
+        if (e.getPlayer().isOp() && RealMines.getInstance().newUpdate) {
+            Text.send(e.getPlayer(), "&6&lWARNING! &fThere is a new version of RealMines!");
         }
     }
 

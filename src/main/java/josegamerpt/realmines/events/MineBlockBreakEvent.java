@@ -3,7 +3,7 @@ package josegamerpt.realmines.events;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
-import josegamerpt.realmines.classes.Mine;
+import josegamerpt.realmines.mines.Mine;
 
 public class MineBlockBreakEvent extends Event {
 	

@@ -1,4 +1,4 @@
-package josegamerpt.realmines.classes;
+package josegamerpt.realmines.mines;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +50,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
 		this.loc1 = l1;
 		this.loc2 = l2;
 		
-		totalBlocks = getVolume();
+		this.totalBlocks = this.getVolume();
 	}
 
 	public Location getPOS1()
@@ -70,7 +70,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
 	 */
 	public MineCuboid(Location l1) {
 		this(l1, l1);
-		totalBlocks = getVolume();
+		this.totalBlocks = getVolume();
 
 		this.loc1 = l1;
 		this.loc2 = l1;
@@ -83,7 +83,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
 	 */
 	public MineCuboid(MineCuboid other) {
 		this(other.getWorld().getName(), other.x1, other.y1, other.z1, other.x2, other.y2, other.z2);
-		totalBlocks = getVolume();
+		this.totalBlocks = getVolume();
 
 	}
 

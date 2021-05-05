@@ -26,11 +26,11 @@ public class Text {
 	}
 
 	public static void send(Player p, String string) {
-		p.sendMessage(Text.color(RealMines.getPrefix() + string));
+		p.sendMessage(Text.color(RealMines.getInstance().getPrefix() + string));
 	}
 
 	public static void send(CommandSender p, String string) {
-		p.sendMessage(Text.color(RealMines.getPrefix() + string));
+		p.sendMessage(Text.color(RealMines.getInstance().getPrefix() + string));
 	}
 
 	public static String getProgressBar(int current, int max, int totalBars, char symbol, ChatColor completedColor,
