@@ -159,6 +159,10 @@ public class RealMines extends JavaPlugin {
 
             }.runTaskTimerAsynchronously(this, 0, 10);
 
+            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                new RealMinesPlaceholderAPI(this).register();
+            }
+
             log(Level.INFO, "Plugin has been loaded.");
             log(Level.INFO, "Author: JoseGamer_PT | " + this.getDescription().getWebsite());
             log(Level.INFO, star);

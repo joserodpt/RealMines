@@ -224,14 +224,11 @@ public class Mine {
         if (this.blocks.size() != 0) {
             Bukkit.getScheduler().runTask(RealMines.getInstance(), () -> {
                 mineCuboid.forEach(block -> block.setType(getBlock()));
-                Iterator<Map.Entry<MineCuboid.CuboidDirection, Material>> it = this.faces.entrySet().iterator();
-                while (it.hasNext()) {
-                    Map.Entry<MineCuboid.CuboidDirection, Material> pair = it.next();
+                for (Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
                     mineCuboid.getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
                 }
             });
         }
-
     }
 
     private void sortBlocks() {
@@ -244,10 +241,9 @@ public class Mine {
     }
 
     private Material getBlock() {
-        Random r = new Random();
-        Material m = null;
+        Material m = Material.AIR;
         for (int i = 0; i < blocks.size(); i++) {
-            int chance = r.nextInt(sorted.size());
+            int chance = RealMines.getInstance().r.nextInt(sorted.size());
             m = sorted.get(chance);
         }
         return m;
@@ -277,7 +273,7 @@ public class Mine {
 
     public ArrayList<String> getBlockList() {
         ArrayList<String> l = new ArrayList<>();
-        blocks.forEach(mineBlock -> l.add(mineBlock.getMaterial().name() + ";" + mineBlock.getPercentage()));
+        this.blocks.forEach(mineBlock -> l.add(mineBlock.getMaterial().name() + ";" + mineBlock.getPercentage()));
         return l;
     }
 
@@ -291,9 +287,9 @@ public class Mine {
     }
 
     public void reset() {
-        kickPlayers(Language.file().getString("Mines.Reset.Starting").replace("%mine%", getDisplayName()));
-        fill();
-        updateSigns();
+        kickPlayers(Language.file().getString("Mines.Reset.Starting").replace("%mine%", this.getDisplayName()));
+        this.fill();
+        this.updateSigns();
         if (Config.file().getBoolean("RealMines.announceResets")) {
             Bukkit.broadcastMessage(Text.color(RealMines.getInstance().getPrefix() + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", getDisplayName())));
         }
@@ -305,7 +301,7 @@ public class Mine {
     }
 
     public void updateSigns() {
-        Bukkit.getScheduler().runTaskAsynchronously(RealMines.getInstance(), () -> {
+        Bukkit.getScheduler().runTask(RealMines.getInstance(), () -> {
             for (MineSign ms : signs) {
                 if (ms.getBlock().getType().name().contains("SIGN")) {
                     Sign sign = (Sign) ms.getBlock().getState();
