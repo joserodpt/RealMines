@@ -220,7 +220,7 @@ public class Mine {
 
     public void fill() {
         this.mineCuboid = new MineCuboid(this.getPOS1(), this.getPOS2());
-        sortBlocks();
+        this.sortBlocks();
         if (this.blocks.size() != 0) {
             Bukkit.getScheduler().runTask(RealMines.getInstance(), () -> {
                 mineCuboid.forEach(block -> block.setType(getBlock()));
