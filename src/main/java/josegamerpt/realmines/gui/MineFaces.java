@@ -2,8 +2,8 @@ package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.mines.Mine;
-import josegamerpt.realmines.mines.MineCuboid;
+import josegamerpt.realmines.mines.RMine;
+import josegamerpt.realmines.mines.components.MineCuboid;
 import josegamerpt.realmines.utils.Itens;
 import josegamerpt.realmines.utils.Text;
 import org.bukkit.Bukkit;
@@ -19,10 +19,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class MineFaces {
 
@@ -31,11 +28,11 @@ public class MineFaces {
             Language.file().getStringList("GUI.Items.Close.Description"));
     private final Inventory inv;
     private final UUID uuid;
-    private final Mine m;
+    private final RMine m;
 
     private RealMines rm;
 
-    public MineFaces(RealMines rm, Player as, Mine m) {
+    public MineFaces(RealMines rm, Player as, RMine m) {
         this.rm = rm;
         this.m = m;
         this.uuid = as.getUniqueId();
@@ -138,11 +135,11 @@ public class MineFaces {
         };
     }
 
-    private ItemStack getIcon(Mine m, MineCuboid.CuboidDirection sel) {
+    private ItemStack getIcon(RMine m, MineCuboid.CuboidDirection sel) {
         if (m.hasFaceBlock(sel)) {
-            return Itens.createItemLore(m.getFaceBlock(sel), 1, "&3&L" + sel.name(), Arrays.asList("&7Selected Block: &f" + m.getFaceBlock(sel).name()));
+            return Itens.createItemLore(m.getFaceBlock(sel), 1, "&3&L" + sel.name(), Collections.singletonList("&7Selected Block: &f" + m.getFaceBlock(sel).name()));
         } else {
-            return Itens.createItemLore(Material.BOOK, 1, "&3&L" + sel.name(), Arrays.asList("&7Selected Block: &fNone"));
+            return Itens.createItemLore(Material.BOOK, 1, "&3&L" + sel.name(), Collections.singletonList("&7Selected Block: &fNone"));
         }
     }
 

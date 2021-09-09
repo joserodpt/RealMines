@@ -2,7 +2,8 @@ package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.mines.Mine;
+import josegamerpt.realmines.mines.RMine;
+import josegamerpt.realmines.mines.mine.BlockMine;
 import josegamerpt.realmines.utils.Itens;
 import josegamerpt.realmines.utils.PlayerInput;
 import josegamerpt.realmines.utils.Text;
@@ -26,10 +27,10 @@ public class MineResetMenu {
     private final Inventory inv;
 
     private final UUID uuid;
-    private final Mine min;
+    private final RMine min;
     private final RealMines rm;
 
-    public MineResetMenu(RealMines rm, Player as, Mine m) {
+    public MineResetMenu(RealMines rm, Player as, RMine m) {
         this.rm = rm;
         this.uuid = as.getUniqueId();
         inv = Bukkit.getServer().createInventory(null, InventoryType.HOPPER, Text.color(Language.file().getString("GUI.Reset-Name").replaceAll("%mine%", m.getDisplayName())));
@@ -67,9 +68,9 @@ public class MineResetMenu {
                             case 0:
                                 switch (e.getClick()) {
                                     case LEFT:
-                                        current.min.setResetStatus(Mine.Reset.PERCENTAGE, !current.min.isResetBy(Mine.Reset.PERCENTAGE));
+                                        current.min.setResetStatus(BlockMine.Reset.PERCENTAGE, !current.min.isResetBy(BlockMine.Reset.PERCENTAGE));
                                         current.load(current.min);
-                                        current.min.saveData(Mine.Data.OPTIONS);
+                                        current.min.saveData(BlockMine.Data.OPTIONS);
                                         break;
                                     case RIGHT:
                                         current.editSetting(current.rm, 0, gp, current.min);
@@ -79,9 +80,9 @@ public class MineResetMenu {
                             case 4:
                                 switch (e.getClick()) {
                                     case LEFT:
-                                        current.min.setResetStatus(Mine.Reset.TIME, !current.min.isResetBy(Mine.Reset.TIME));
+                                        current.min.setResetStatus(BlockMine.Reset.TIME, !current.min.isResetBy(BlockMine.Reset.TIME));
                                         current.load(current.min);
-                                        current.min.saveData(Mine.Data.OPTIONS);
+                                        current.min.saveData(BlockMine.Data.OPTIONS);
                                         break;
                                     case RIGHT:
                                         current.editSetting(current.rm, 1, gp, current.min);
@@ -111,23 +112,23 @@ public class MineResetMenu {
         };
     }
 
-    public void load(Mine m) {
+    public void load(RMine m) {
         inv.clear();
 
-        if (m.isResetBy(Mine.Reset.PERCENTAGE)) {
+        if (m.isResetBy(BlockMine.Reset.PERCENTAGE)) {
             this.inv.setItem(0, Itens.createItemLoreEnchanted(Material.BOOK, 1, "&9Reset By Percentage &7(&a&lON&r&7)",
-                    Arrays.asList("&7Left click to turn &cOFF", "&fRight Click to input a new percentage.", "&fCurrent Value: &b" + m.getResetValue(Mine.Reset.PERCENTAGE) + "%")));
+                    Arrays.asList("&7Left click to turn &cOFF", "&fRight Click to input a new percentage.", "&fCurrent Value: &b" + m.getResetValue(BlockMine.Reset.PERCENTAGE) + "%")));
         } else {
             this.inv.setItem(0, Itens.createItemLore(Material.BOOK, 1, "&9Reset By Percentage &7(&c&lOFF&r&7)",
-                    Arrays.asList("&7Left click to turn &aON", "&fRight Click to input a new percentage.", "&fCurrent Value: &b" + m.getResetValue(Mine.Reset.PERCENTAGE) + "%")));
+                    Arrays.asList("&7Left click to turn &aON", "&fRight Click to input a new percentage.", "&fCurrent Value: &b" + m.getResetValue(BlockMine.Reset.PERCENTAGE) + "%")));
         }
 
-        if (m.isResetBy(Mine.Reset.TIME)) {
+        if (m.isResetBy(BlockMine.Reset.TIME)) {
             this.inv.setItem(4, Itens.createItemLoreEnchanted(Material.CLOCK, 1, "&9Reset By Time &7(&a&lON&r&7)",
-                    Arrays.asList("&7Left click to turn &cOFF", "&fRight Click to input a new time.", "&fCurrent Value: &b" + m.getResetValue(Mine.Reset.TIME))));
+                    Arrays.asList("&7Left click to turn &cOFF", "&fRight Click to input a new time.", "&fCurrent Value: &b" + m.getResetValue(BlockMine.Reset.TIME))));
         } else {
             this.inv.setItem(4, Itens.createItemLore(Material.CLOCK, 1, "&9Reset By Time &7(&c&lOFF&r&7)",
-                    Arrays.asList("&7Left click to turn &aON", "&fRight Click to input a new time.", "&fCurrent Value: &b" + m.getResetValue(Mine.Reset.TIME))));
+                    Arrays.asList("&7Left click to turn &aON", "&fRight Click to input a new time.", "&fCurrent Value: &b" + m.getResetValue(BlockMine.Reset.TIME))));
 
         }
 
@@ -148,7 +149,7 @@ public class MineResetMenu {
         }
     }
 
-    protected void editSetting(RealMines rm, int i, Player gp, Mine m) {
+    protected void editSetting(RealMines rm, int i, Player gp, RMine m) {
         switch (i) {
             case 0:
                 new PlayerInput(gp, s -> {
@@ -167,8 +168,8 @@ public class MineResetMenu {
                         return;
                     }
 
-                    m.setResetValue(Mine.Reset.PERCENTAGE, d);
-                    m.saveData(Mine.Data.OPTIONS);
+                    m.setResetValue(BlockMine.Reset.PERCENTAGE, d);
+                    m.saveData(BlockMine.Data.OPTIONS);
                     gp.sendMessage(Text.color("&fPercentage modified to &b" + d + "%"));
 
                     MineResetMenu v = new MineResetMenu(rm, gp, m);
@@ -195,8 +196,8 @@ public class MineResetMenu {
                         return;
                     }
 
-                    m.setResetValue(Mine.Reset.TIME, d);
-                    m.saveData(Mine.Data.OPTIONS);
+                    m.setResetValue(BlockMine.Reset.TIME, d);
+                    m.saveData(BlockMine.Data.OPTIONS);
                     gp.sendMessage(Text.color("&fTime modified to &b" + d + " seconds."));
 
 

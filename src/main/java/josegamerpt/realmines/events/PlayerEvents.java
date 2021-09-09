@@ -14,5 +14,4 @@ public class PlayerEvents implements Listener {
             Text.send(e.getPlayer(), "&6&lWARNING! &fThere is a new version of RealMines!");
         }
     }
-
 }

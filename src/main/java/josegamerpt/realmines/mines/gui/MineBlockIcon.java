@@ -1,9 +1,10 @@
-package josegamerpt.realmines.mines;
+package josegamerpt.realmines.mines.gui;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import josegamerpt.realmines.config.Language;
+import josegamerpt.realmines.mines.components.MineBlock;
 import josegamerpt.realmines.utils.Text;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

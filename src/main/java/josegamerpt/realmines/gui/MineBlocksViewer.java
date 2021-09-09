@@ -1,9 +1,10 @@
 package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.mines.Mine;
-import josegamerpt.realmines.mines.MineBlock;
-import josegamerpt.realmines.mines.MineBlockIcon;
+import josegamerpt.realmines.mines.RMine;
+import josegamerpt.realmines.mines.mine.BlockMine;
+import josegamerpt.realmines.mines.components.MineBlock;
+import josegamerpt.realmines.mines.gui.MineBlockIcon;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.utils.Itens;
 import josegamerpt.realmines.utils.Pagination;
@@ -44,12 +45,12 @@ public class MineBlocksViewer {
     private final Inventory inv;
     private final UUID uuid;
     private final HashMap<Integer, MineBlockIcon> display = new HashMap<>();
-    private final Mine m;
+    private final RMine m;
 
     int pageNumber = 0;
     Pagination<MineBlockIcon> p;
 
-    public MineBlocksViewer(RealMines rm, Player target, Mine min) {
+    public MineBlocksViewer(RealMines rm, Player target, RMine min) {
         this.rm = rm;
         this.uuid = target.getUniqueId();
         this.m = min;
@@ -261,7 +262,7 @@ public class MineBlocksViewer {
             }
 
             a.getMineBlock().setPercentage(d);
-            current.m.saveData(Mine.Data.BLOCKS);
+            current.m.saveData(BlockMine.Data.BLOCKS);
             gp.sendMessage(Text.color("&fPercentage modified to &b" + d + "%"));
             MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.m);
             v.openInventory(gp);

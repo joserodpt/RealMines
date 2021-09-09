@@ -6,7 +6,7 @@ import josegamerpt.realmines.config.*;
 import josegamerpt.realmines.gui.GUIManager;
 import josegamerpt.realmines.managers.MineManager;
 import josegamerpt.realmines.managers.MineResetTasksManager;
-import josegamerpt.realmines.mines.Mine;
+import josegamerpt.realmines.mines.RMine;
 import josegamerpt.realmines.events.BlockEvents;
 import josegamerpt.realmines.gui.*;
 import josegamerpt.realmines.utils.GUIBuilder;
@@ -20,6 +20,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -81,6 +82,7 @@ public class RealMines extends JavaPlugin {
 
     public void onEnable() {
         pl = this;
+        new Metrics(this, 10574);
 
         String star = "<------------------ RealMines PT ------------------>".replace("PT", "| " +
                 this.getDescription().getVersion());
@@ -90,8 +92,12 @@ public class RealMines extends JavaPlugin {
         Config.setup(this);
         MineResetTasks.setup(this);
         Language.setup(this);
-
-        new Metrics(this, 10574);
+        //mkdir folder
+        File folder = new File(RealMines.getInstance().getDataFolder(), "schematics");
+        if (!folder.exists())
+        {
+            folder.mkdir();
+        }
 
         log(Level.INFO, "Your config version is: " + Configer.getConfigVersion());
         Configer.updateConfig();
@@ -154,7 +160,7 @@ public class RealMines extends JavaPlugin {
             this.mineHighlight = new BukkitRunnable() {
                 @Override
                 public void run() {
-                    mineManager.getMines().forEach(Mine::highlight);
+                    mineManager.getMines().forEach(RMine::highlight);
                 }
 
             }.runTaskTimerAsynchronously(this, 0, 10);

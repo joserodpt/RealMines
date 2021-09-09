@@ -1,7 +1,7 @@
 package josegamerpt.realmines.utils;
 
 import dev.dbassett.skullcreator.SkullCreator;
-import josegamerpt.realmines.mines.Mine;
+import josegamerpt.realmines.mines.mine.BlockMine;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -61,7 +61,7 @@ public class Itens {
         return item;
     }
 
-    public static ItemStack getMineColor(Mine.Color c, String name, List<String> desc) {
+    public static ItemStack getMineColor(BlockMine.Color c, String name, List<String> desc) {
         switch (c) {
             case RED:
                 return Itens.changeItemStack(name, desc, SkullCreator.itemFromBase64("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOTdjMWYxZWFkNGQ1MzFjYWE0YTViMGQ2OWVkYmNlMjlhZjc4OWEyNTUwZTVkZGJkMjM3NzViZTA1ZTJkZjJjNCJ9fX0="));

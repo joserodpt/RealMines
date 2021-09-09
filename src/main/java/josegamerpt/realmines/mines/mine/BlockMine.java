@@ -1,17 +1,26 @@
-package josegamerpt.realmines.mines;
+package josegamerpt.realmines.mines.mine;
 
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Config;
 import josegamerpt.realmines.config.Language;
+import josegamerpt.realmines.mines.*;
+import josegamerpt.realmines.mines.components.MineBlock;
+import josegamerpt.realmines.mines.components.MineCuboid;
+import josegamerpt.realmines.mines.components.MineSign;
+import josegamerpt.realmines.mines.gui.MineBlockIcon;
+import josegamerpt.realmines.mines.tasks.MineTimer;
 import josegamerpt.realmines.utils.Text;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-public class Mine {
+public class BlockMine implements RMine {
 
     private String name;
     private Color color = Color.WHITE;
@@ -32,8 +41,8 @@ public class Mine {
     private Location l1;
     private Location l2;
 
-    public Mine(String n, String displayname, ArrayList<MineBlock> b, ArrayList<MineSign> si, Location p1, Location p2, Material i,
-                Location t, Boolean resetByPercentag, Boolean resetByTim, int rbpv, int rbtv, String color, HashMap<MineCuboid.CuboidDirection, Material> faces) {
+    public BlockMine(String n, String displayname, ArrayList<MineBlock> b, ArrayList<MineSign> si, Location p1, Location p2, Material i,
+                     Location t, Boolean resetByPercentag, Boolean resetByTim, int rbpv, int rbtv, String color, HashMap<MineCuboid.CuboidDirection, Material> faces) {
         this.name = ChatColor.stripColor(Text.color(n));
         this.displayName = displayname;
         this.blocks = b;
@@ -46,17 +55,18 @@ public class Mine {
         this.resetByTimeValue = rbtv;
         this.faces = faces;
 
-        setColor(color);
+        this.setColor(color);
 
-        timer = new MineTimer(this);
+        this.timer = new MineTimer(this);
         if (this.resetByTime) {
-            timer.start();
+            this.timer.start();
         }
 
-        setPOS(p1, p2);
-        updateSigns();
+        this.setPOS(p1, p2);
+        this.updateSigns();
     }
 
+    @Override
     public boolean hasFaceBlock(MineCuboid.CuboidDirection up) {
         return faces.get(up) != null;
     }
@@ -84,6 +94,7 @@ public class Mine {
                 '}';
     }
 
+    @Override
     public String getColorIcon() {
         String color = "";
 
@@ -120,14 +131,17 @@ public class Mine {
         return color + "●";
     }
 
+    @Override
     public Color getColor() {
         return this.color;
     }
 
+    @Override
     public void setColor(Color c) {
         this.color = c;
     }
 
+    @Override
     public void setColor(String s) {
         switch (s.toLowerCase()) {
             case "yellow":
@@ -161,81 +175,98 @@ public class Mine {
         }
     }
 
+    @Override
     public Location getPOS1() {
         return this.l1;
     }
 
+    @Override
     public Location getPOS2() {
         return this.l2;
     }
 
+    @Override
     public void setPOS(Location p1, Location p2) {
         this.l1 = p1;
         this.l2 = p2;
-        fill();
+        this.mineCuboid = new MineCuboid(this.getPOS1(), this.getPOS2());
+
+        this.fill();
     }
 
+    @Override
     public boolean hasTP() {
         return this.teleport != null;
     }
 
+    @Override
     public ArrayList<String> getSignList() {
         ArrayList<String> l = new ArrayList<>();
         signs.forEach(mineSign -> l.add(mineSign.getBlock().getWorld().getName() + ";" + mineSign.getBlock().getX() + ";" + mineSign.getBlock().getY() + ";" + mineSign.getBlock().getZ() + ";" + mineSign.getModifier()));
         return l;
     }
 
+    @Override
     public String getDisplayName() {
         return this.displayName;
     }
 
+    @Override
     public void setDisplayName(String input) {
         this.displayName = input;
         saveData(Data.NAME);
     }
 
+    @Override
     public MineCuboid getMineCuboid() {
         return this.mineCuboid;
     }
 
+    @Override
     public int getBlockCount() {
         return mineCuboid.getTotalVolume();
     }
 
+    @Override
     public int getRemainingBlocks() {
-        return mineCuboid.getTotalBlocks();
+        return this.mineCuboid.getTotalBlocks();
     }
 
+    @Override
     public int getRemainingBlocksPer() {
-        return (mineCuboid.getTotalBlocks() * 100 / getBlockCount());
+        return (this.mineCuboid.getTotalBlocks() * 100 / getBlockCount());
     }
 
+    @Override
     public int getMinedBlocks() {
         return getBlockCount() - getRemainingBlocks();
     }
 
+    @Override
     public int getMinedBlocksPer() {
         return (getMinedBlocks() * 100 / getBlockCount());
     }
 
+    @Override
     public void fill() {
-        this.mineCuboid = new MineCuboid(this.getPOS1(), this.getPOS2());
         this.sortBlocks();
         if (this.blocks.size() != 0) {
             Bukkit.getScheduler().runTask(RealMines.getInstance(), () -> {
-                mineCuboid.forEach(block -> block.setType(getBlock()));
+                //blocks
+                this.mineCuboid.forEach(block -> block.setType(getBlock()));
+                //faces
                 for (Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
-                    mineCuboid.getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
+                    this.mineCuboid.getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
                 }
             });
         }
     }
 
     private void sortBlocks() {
-        sorted.clear();
-        for (MineBlock d : blocks) {
+        this.sorted.clear();
+        for (MineBlock d : this.blocks) {
             for (int i = 0; i < d.getPercentage(); i++) {
-                sorted.add(d.getMaterial());
+                this.sorted.add(d.getMaterial());
             }
         }
     }
@@ -249,34 +280,39 @@ public class Mine {
         return m;
     }
 
+    @Override
     public void register() {
         RealMines.getInstance().getMineManager().add(this);
     }
 
+    @Override
     public void saveData(Data t) {
         RealMines.getInstance().getMineManager().saveMine(this, t);
         if (!this.resetByTime) {
-            timer.kill();
+            this.timer.kill();
         } else {
-            timer.restart();
+            this.timer.restart();
         }
     }
 
+    @Override
     public void saveAll() {
         RealMines.getInstance().getMineManager().saveMine(this);
         if (!this.resetByTime) {
-            timer.kill();
+            this.timer.kill();
         } else {
-            timer.restart();
+            this.timer.restart();
         }
     }
 
+    @Override
     public ArrayList<String> getBlockList() {
         ArrayList<String> l = new ArrayList<>();
         this.blocks.forEach(mineBlock -> l.add(mineBlock.getMaterial().name() + ";" + mineBlock.getPercentage()));
         return l;
     }
 
+    @Override
     public ArrayList<MineBlockIcon> getBlocks() {
         ArrayList<MineBlockIcon> l = new ArrayList<>();
         blocks.forEach(mineBlock -> l.add(new MineBlockIcon(mineBlock)));
@@ -286,6 +322,7 @@ public class Mine {
         return l;
     }
 
+    @Override
     public void reset() {
         kickPlayers(Language.file().getString("Mines.Reset.Starting").replace("%mine%", this.getDisplayName()));
         this.fill();
@@ -295,14 +332,16 @@ public class Mine {
         }
     }
 
+    @Override
     public void addSign(Block block, String modif) {
         this.signs.add(new MineSign(block, modif));
         this.saveData(Data.SIGNS);
     }
 
+    @Override
     public void updateSigns() {
         Bukkit.getScheduler().runTask(RealMines.getInstance(), () -> {
-            for (MineSign ms : signs) {
+            for (MineSign ms : this.signs) {
                 if (ms.getBlock().getType().name().contains("SIGN")) {
                     Sign sign = (Sign) ms.getBlock().getState();
                     String modif = ms.getModifier();
@@ -334,11 +373,13 @@ public class Mine {
         });
     }
 
+    @Override
     public void removeBlock(MineBlock mb) {
         blocks.remove(mb);
         saveData(Data.BLOCKS);
     }
 
+    @Override
     public void addBlock(MineBlock mineBlock) {
         if (!this.contains(mineBlock)) {
             blocks.add(mineBlock);
@@ -355,23 +396,27 @@ public class Mine {
         return false;
     }
 
+    @Override
     public void clear() {
         this.mineCuboid.forEach(block -> block.setType(Material.AIR));
     }
 
+    @Override
     public void kickPlayers(String s) {
         this.getPlayersInMine().forEach(player -> RealMines.getInstance().getMineManager().teleport(player, this, false));
         broadcastMessage(s, true);
     }
 
+    @Override
     public void broadcastMessage(String s, Boolean prefix) {
         if (prefix) {
-            s = RealMines.getInstance() + s;
+            s = RealMines.getInstance().getPrefix() + s;
         }
         String finalS = s;
         getPlayersInMine().forEach(player -> player.sendMessage(Text.color(finalS)));
     }
 
+    @Override
     public ArrayList<Player> getPlayersInMine() {
         ArrayList<Player> ps = new ArrayList<>();
         for (Player p : Bukkit.getOnlinePlayers()) {
@@ -382,10 +427,12 @@ public class Mine {
         return ps;
     }
 
+    @Override
     public void removeDependencies() {
         signs.forEach(ms -> ms.getBlock().getLocation().getWorld().getBlockAt(ms.getBlock().getLocation()).setType(Material.AIR));
     }
 
+    @Override
     public List<Location> getCube() {
         List<Location> result = new ArrayList<>();
         World world = this.mineCuboid.getPOS1().getWorld();
@@ -412,9 +459,10 @@ public class Mine {
         return result;
     }
 
+    @Override
     public void highlight() {
-        if (highlight) {
-            getCube().forEach(location -> location.getWorld().spawnParticle(Particle.REDSTONE, location.getX(), location.getY(), location.getZ(), 0, 0.001, 1, 0, 1, new Particle.DustOptions(convertColor(this.color), 1)));
+        if (this.highlight) {
+            this.getCube().forEach(location -> location.getWorld().spawnParticle(Particle.REDSTONE, location.getX(), location.getY(), location.getZ(), 0, 0.001, 1, 0, 1, new Particle.DustOptions(convertColor(this.color), 1)));
         }
     }
 
@@ -442,10 +490,12 @@ public class Mine {
         return org.bukkit.Color.fromRGB(0, 153, 204);
     }
 
+    @Override
     public String getName() {
         return this.name;
     }
 
+    @Override
     public boolean isResetBy(Reset e) {
         switch (e) {
             case PERCENTAGE:
@@ -456,6 +506,7 @@ public class Mine {
         return false;
     }
 
+    @Override
     public int getResetValue(Reset e) {
         switch (e) {
             case PERCENTAGE:
@@ -466,6 +517,7 @@ public class Mine {
         return -1;
     }
 
+    @Override
     public void setResetStatus(Reset e, boolean b) {
         switch (e) {
             case PERCENTAGE:
@@ -475,6 +527,7 @@ public class Mine {
         }
     }
 
+    @Override
     public void setResetValue(Reset e, int d) {
         switch (e) {
             case PERCENTAGE:
@@ -484,59 +537,81 @@ public class Mine {
         }
     }
 
+    @Override
     public Material getIcon() {
         return this.icon;
     }
 
+    @Override
     public void setIcon(Material a) {
         this.icon = a;
     }
 
+    @Override
     public boolean isHighlighted() {
         return this.highlight;
     }
 
+    @Override
     public void setHighlight(boolean b) {
         this.highlight = b;
     }
 
+    @Override
     public Location getTeleport() {
         return this.teleport;
     }
 
+    @Override
     public void setTeleport(Location location) {
         this.teleport = location;
     }
 
+    @Override
     public ArrayList<MineSign> getSigns() {
         return this.signs;
     }
 
+    @Override
     public MineTimer getTimer() {
         return this.timer;
     }
 
+    @Override
     public Material getFaceBlock(MineCuboid.CuboidDirection up) {
         return this.faces.get(up);
     }
 
+    @Override
     public void setFaceBlock(MineCuboid.CuboidDirection cd, Material a) {
         this.faces.put(cd, a);
         this.saveData(Data.FACES);
     }
 
+    @Override
     public void removeFaceblock(MineCuboid.CuboidDirection d) {
         this.faces.remove(d);
         this.saveData(Data.FACES);
     }
 
+    @Override
     public HashMap<MineCuboid.CuboidDirection, Material> getFaces() {
         return this.faces;
     }
 
-    public enum Reset {PERCENTAGE, TIME}
+    @Override
+    public Type getType() {
+        return Type.BLOCKS;
+    }
 
-    public enum Data {BLOCKS, ICON, TELEPORT, SIGNS, REGION, OPTIONS, NAME, FACES, COLOR}
+    @Override
+    public Location getSchematicPlace() {
+        return new Location(this.mineCuboid.getWorld(), 0,0,0);
+    }
 
-    public enum Color {YELLOW, ORANGE, RED, GREEN, WHITE, GRAY, BLUE, PURPLE, BROWN}
+    @Override
+    public String getSchematicFilename() {
+        return "ThisIsABlockMine";
+    }
+
 }

@@ -3,7 +3,8 @@ package josegamerpt.realmines.commands;
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.gui.MineViewer;
-import josegamerpt.realmines.mines.Mine;
+import josegamerpt.realmines.mines.RMine;
+import josegamerpt.realmines.mines.mine.BlockMine;
 import josegamerpt.realmines.utils.Text;
 import me.mattstudios.mf.annotations.*;
 import me.mattstudios.mf.base.CommandBase;
@@ -85,9 +86,9 @@ public class MineCMD extends CommandBase {
     @WrongUsage("&c/mine create <name>")
     public void createcmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
-            Mine m = RealMines.getInstance().getMineManager().get(name);
+            RMine m = RealMines.getInstance().getMineManager().get(name);
             if (m == null) {
-                RealMines.getInstance().getMineManager().createMine(Bukkit.getPlayer(commandSender.getName()), name);
+                RealMines.getInstance().getGUIManager().openMineChooserType((Player) commandSender, name);
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Exists"));
             }
@@ -102,10 +103,10 @@ public class MineCMD extends CommandBase {
     @WrongUsage("&c/mine settp <name>")
     public void settpcmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
-            Mine m = RealMines.getInstance().getMineManager().get(name);
+            RMine m = RealMines.getInstance().getMineManager().get(name);
             if (m != null) {
                 m.setTeleport(((Player) commandSender).getLocation());
-                m.saveData(Mine.Data.TELEPORT);
+                m.saveData(BlockMine.Data.TELEPORT);
 
                 Text.send(commandSender, Language.file().getString("Mines.Teleport-Set").replaceAll("%mine%", m.getDisplayName()));
             } else {
@@ -122,7 +123,7 @@ public class MineCMD extends CommandBase {
     @WrongUsage("&c/mine tp <name>")
     public void tpmine(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
-            Mine m = RealMines.getInstance().getMineManager().get(name);
+            RMine m = RealMines.getInstance().getMineManager().get(name);
             if (m != null) {
                 RealMines.getInstance().getMineManager().teleport(((Player) commandSender), m, false);
             } else {
@@ -140,7 +141,7 @@ public class MineCMD extends CommandBase {
     @WrongUsage("&c/mine open <name>")
     public void opencmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
-            Mine m = RealMines.getInstance().getMineManager().get(name);
+            RMine m = RealMines.getInstance().getMineManager().get(name);
             if (m != null) {
                 rm.getGUIManager().openMine(m, Bukkit.getPlayer(commandSender.getName()));
             } else {
@@ -156,7 +157,7 @@ public class MineCMD extends CommandBase {
     @Permission("realmines.admin")
     @WrongUsage("&c/mine reset <name>")
     public void resetcmd(final CommandSender commandSender, final String name) {
-        Mine m = RealMines.getInstance().getMineManager().get(name);
+        RMine m = RealMines.getInstance().getMineManager().get(name);
         if (m != null) {
             m.reset();
         } else {
@@ -184,7 +185,7 @@ public class MineCMD extends CommandBase {
     @WrongUsage("&c/mine clear <name>")
     public void clearcmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
-            Mine m = RealMines.getInstance().getMineManager().get(name);
+            RMine m = RealMines.getInstance().getMineManager().get(name);
             if (m != null) {
                 m.clear();
                 Text.send(commandSender, Language.file().getString("System.Mine-Clear"));
@@ -202,8 +203,7 @@ public class MineCMD extends CommandBase {
     @WrongUsage("&c/mine setregion <name>")
     public void setregioncmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
-            Mine m = RealMines.getInstance().getMineManager().get(name);
-
+            RMine m = RealMines.getInstance().getMineManager().get(name);
             if (m != null) {
                 RealMines.getInstance().getMineManager().setRegion(name, Bukkit.getPlayer(commandSender.getName()));
             } else {
@@ -213,4 +213,5 @@ public class MineCMD extends CommandBase {
             commandSender.sendMessage(playerOnly);
         }
     }
+
 }

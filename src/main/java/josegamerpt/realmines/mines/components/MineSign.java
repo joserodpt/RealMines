@@ -1,4 +1,4 @@
-package josegamerpt.realmines.mines;
+package josegamerpt.realmines.mines.components;
 
 import org.bukkit.block.Block;
 

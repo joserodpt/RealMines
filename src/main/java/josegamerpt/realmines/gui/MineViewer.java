@@ -1,7 +1,7 @@
 package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.mines.MineIcon;
+import josegamerpt.realmines.mines.gui.MineIcon;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.utils.Itens;
 import josegamerpt.realmines.utils.Pagination;

@@ -1,7 +1,8 @@
 package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.mines.Mine;
+import josegamerpt.realmines.mines.RMine;
+import josegamerpt.realmines.mines.mine.BlockMine;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.utils.GUIBuilder;
 import josegamerpt.realmines.utils.Itens;
@@ -15,6 +16,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class GUIManager {
@@ -26,21 +28,46 @@ public class GUIManager {
         this.rm = rm;
     }
 
-    public void openMine(Mine m, Player target) {
+    public void openMineChooserType(Player target, String name) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                GUIBuilder inventory = new GUIBuilder(Text.color("Choose mine type for: " + name), 27, target.getUniqueId());
+
+                inventory.addItem(e -> {
+                            target.closeInventory();
+                            RealMines.getInstance().getMineManager().createMine(target, name);
+                        }, Itens.createItemLore(Material.CHEST, 1, Language.file().getString("GUI.Items.Blocks.Name"), Collections.emptyList()),
+                        11);
+
+                inventory.addItem(e -> {
+                            target.closeInventory();
+                            RealMines.getInstance().getMineManager().createSchematicMine(target, name);
+                        }, Itens.createItemLore(Material.FILLED_MAP, 1, "&b&lSCHEMATIC", Collections.emptyList()),
+                        15);
+
+                inventory.openInventory(target);
+            }
+        }.runTaskLater(rm, 2);
+    }
+
+    public void openMine(RMine m, Player target) {
         new BukkitRunnable() {
             @Override
             public void run() {
                 GUIBuilder inventory = new GUIBuilder(Text.color(m.getColorIcon() + " " + m.getDisplayName() + " &r" + Text.getProgressBar(m.getRemainingBlocks(), m.getBlockCount(), 10, '■', ChatColor.GREEN, ChatColor.RED)), 27, target.getUniqueId(),
                         Itens.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "&f"));
 
-                inventory.addItem(e -> {
-                            target.closeInventory();
-							Bukkit.getScheduler().scheduleSyncDelayedTask(rm, () -> {
-								MineBlocksViewer v = new MineBlocksViewer(rm, target, m);
-								v.openInventory(target);
-							}, 2);
-                        }, Itens.createItemLore(Material.CHEST, 1, Language.file().getString("GUI.Items.Blocks.Name"), Language.file().getStringList("GUI.Items.Blocks.Description")),
-                        10);
+                if (m.getType() != BlockMine.Type.SCHEMATIC) {
+                    inventory.addItem(e -> {
+                                target.closeInventory();
+                                Bukkit.getScheduler().scheduleSyncDelayedTask(rm, () -> {
+                                    MineBlocksViewer v = new MineBlocksViewer(rm, target, m);
+                                    v.openInventory(target);
+                                }, 2);
+                            }, Itens.createItemLore(Material.CHEST, 1, Language.file().getString("GUI.Items.Blocks.Name"), Language.file().getStringList("GUI.Items.Blocks.Description")),
+                            10);
+                }
 
                 inventory.addItem(e -> {
                     target.closeInventory();
@@ -88,14 +115,15 @@ public class GUIManager {
                     }, 2);
                 }, Itens.getMineColor(m.getColor(), Language.file().getString("GUI.Items.MineColor.Name"), Language.file().getStringList("GUI.Items.MineColor.Description")), 24);
 
-                inventory.addItem(e -> {
-                    target.closeInventory();
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(rm, () -> {
-                        MineFaces m1 = new MineFaces(rm, target, m);
-                        m1.openInventory(target);
-                    }, 2);
-                }, Itens.createItemLore(Material.SCAFFOLDING, 1, Language.file().getString("GUI.Items.Faces.Name"), Language.file().getStringList("GUI.Items.Faces.Description")), 16);
-
+                if (m.getType() != BlockMine.Type.SCHEMATIC) {
+                    inventory.addItem(e -> {
+                        target.closeInventory();
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(rm, () -> {
+                            MineFaces m1 = new MineFaces(rm, target, m);
+                            m1.openInventory(target);
+                        }, 2);
+                    }, Itens.createItemLore(Material.SCAFFOLDING, 1, Language.file().getString("GUI.Items.Faces.Name"), Language.file().getStringList("GUI.Items.Faces.Description")), 16);
+                }
 
                 inventory.addItem(e -> {
                     target.closeInventory();
@@ -113,11 +141,11 @@ public class GUIManager {
         }.runTaskLater(rm, 2);
     }
 
-    public static ItemStack makeMineIcon(Mine m) {
+    public static ItemStack makeMineIcon(RMine m) {
          return Itens.createItemLore(Material.TRIPWIRE_HOOK, 1, m.getColorIcon() + " &6&l" + m.getDisplayName(), var(m));
     }
 
-    private static List<String> var(Mine m) {
+    private static List<String> var(RMine m) {
         List<String> ret = new ArrayList<>();
         List<String> config = Language.file().getStringList("GUI.Items.Mine.Description");
         config.remove(config.size() - 1);
@@ -125,7 +153,7 @@ public class GUIManager {
         return ret;
     }
 
-    private static String getBar(Mine m) {
+    private static String getBar(RMine m) {
         return Text.getProgressBar(m.getRemainingBlocks(), m.getBlockCount(), 10, '■', ChatColor.GREEN, ChatColor.RED);
     }
 }

@@ -1,17 +1,16 @@
 package josegamerpt.realmines.events;
 
+import josegamerpt.realmines.mines.RMine;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-
-import josegamerpt.realmines.mines.Mine;
 
 public class MineBlockBreakEvent extends Event {
 	
     private static final HandlerList HANDLERS = new HandlerList();
     
-    public final Mine mine;
+    public final RMine mine;
 
-    public MineBlockBreakEvent(Mine m) {
+    public MineBlockBreakEvent(RMine m) {
         this.mine = m;
     }
 
@@ -23,7 +22,7 @@ public class MineBlockBreakEvent extends Event {
         return HANDLERS;
     }
     
-    public Mine getMine() {
+    public RMine getMine() {
         return this.mine;
     }
 

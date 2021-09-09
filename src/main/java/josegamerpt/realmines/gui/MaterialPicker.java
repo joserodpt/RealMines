@@ -1,10 +1,11 @@
 package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.mines.Mine;
-import josegamerpt.realmines.mines.MineBlock;
+import josegamerpt.realmines.mines.RMine;
+import josegamerpt.realmines.mines.mine.BlockMine;
+import josegamerpt.realmines.mines.components.MineBlock;
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.mines.MineCuboid;
+import josegamerpt.realmines.mines.components.MineCuboid;
 import josegamerpt.realmines.utils.Itens;
 import josegamerpt.realmines.utils.Pagination;
 import josegamerpt.realmines.utils.PlayerInput;
@@ -47,16 +48,16 @@ public class MaterialPicker {
     private final UUID uuid;
     private final ArrayList<Material> items;
     private final HashMap<Integer, Material> display = new HashMap<>();
-    private final Mine min;
+    private final RMine min;
     private final PickType pt;
 
     private String add;
 
-    public MaterialPicker(RealMines rm, Mine m, Player pl, PickType block, String additional) {
+    public MaterialPicker(RealMines rm, RMine m, Player pl, PickType block, String additional) {
         this.add = additional;
         this.rm = rm;
         this.uuid = pl.getUniqueId();
-        min = m;
+        this.min = m;
         this.pt = block;
 
         switch (block) {
@@ -75,12 +76,12 @@ public class MaterialPicker {
         this.register();
     }
 
-    public MaterialPicker(RealMines rm, Mine m, Player pl, PickType block, String search, String additional) {
+    public MaterialPicker(RealMines rm, RMine m, Player pl, PickType block, String search, String additional) {
         this.add = additional;
         this.rm = rm;
 
         this.uuid = pl.getUniqueId();
-        min = m;
+        this.min = m;
         this.pt = block;
 
         switch (block) {
@@ -155,7 +156,7 @@ public class MaterialPicker {
                             switch (current.pt) {
                                 case ICON:
                                     current.min.setIcon(a);
-                                    current.min.saveData(Mine.Data.ICON);
+                                    current.min.saveData(BlockMine.Data.ICON);
                                     gp.closeInventory();
                                     current.rm.getGUIManager().openMine(current.min, gp);
                                     break;

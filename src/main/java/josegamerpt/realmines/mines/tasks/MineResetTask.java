@@ -1,7 +1,9 @@
-package josegamerpt.realmines.mines;
+package josegamerpt.realmines.mines.tasks;
 
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.MineResetTasks;
+import josegamerpt.realmines.mines.RMine;
+import josegamerpt.realmines.mines.mine.BlockMine;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -12,7 +14,7 @@ public class MineResetTask {
 
     private String name;
     private int delay;
-    private List<Mine> mines = new ArrayList<>();
+    private List<RMine> mines = new ArrayList<>();
     private BukkitTask task;
 
     public MineResetTask(String name, int delay, Boolean nova) {
@@ -44,18 +46,18 @@ public class MineResetTask {
         this.task = new BukkitRunnable() {
             @Override
             public void run() {
-                mines.forEach(Mine::reset);
+                mines.forEach(RMine::reset);
             }
         }.runTaskTimer(RealMines.getInstance(), 0L, this.delay * 20L);
 
     }
 
-    public void addMine(Mine m) {
+    public void addMine(RMine m) {
         this.mines.add(m);
         this.save();
     }
 
-    public void removeMine(Mine m) {
+    public void removeMine(RMine m) {
         this.mines.remove(m);
         this.save();
     }
@@ -68,7 +70,7 @@ public class MineResetTask {
         this.mines.clear();
     }
 
-    public boolean hasMine(Mine mine) {
+    public boolean hasMine(RMine mine) {
         return this.mines.contains(mine);
     }
 }

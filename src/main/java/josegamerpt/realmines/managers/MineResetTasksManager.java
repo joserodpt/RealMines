@@ -2,8 +2,8 @@ package josegamerpt.realmines.managers;
 
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.MineResetTasks;
-import josegamerpt.realmines.mines.Mine;
-import josegamerpt.realmines.mines.MineResetTask;
+import josegamerpt.realmines.mines.RMine;
+import josegamerpt.realmines.mines.tasks.MineResetTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -28,7 +28,7 @@ public class MineResetTasksManager {
             MineResetTask mrt = new MineResetTask(s, interval, false);
 
             for (String s1 : MineResetTasks.file().getStringList(s + ".LinkedMines")) {
-                Mine m = rm.getMineManager().get(s1);
+                RMine m = rm.getMineManager().get(s1);
                 if (m != null) {
                     mrt.addMine(m);
                 }

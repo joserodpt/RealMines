@@ -1,4 +1,4 @@
-package josegamerpt.realmines.mines;
+package josegamerpt.realmines.mines.components;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -199,7 +199,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
 
 	public int getTotalBlocks() {
 		int tot = 0;
-		for (Block b : getBlocks())
+		for (Block b : this.getBlocks())
 		{
 			if (!b.isEmpty())
 			{

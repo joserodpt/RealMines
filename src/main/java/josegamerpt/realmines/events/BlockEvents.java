@@ -1,7 +1,7 @@
 package josegamerpt.realmines.events;
 
 import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.mines.Mine;
+import josegamerpt.realmines.mines.RMine;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -39,7 +39,7 @@ public class BlockEvents implements Listener {
 			event.setLine(0, this.rm.getPrefix());
 			String name = event.getLine(1);
 
-			Mine m = RealMines.getInstance().getMineManager().get(name);
+			RMine m = RealMines.getInstance().getMineManager().get(name);
 
 			if (m != null) {
 				String modif = event.getLine(2);

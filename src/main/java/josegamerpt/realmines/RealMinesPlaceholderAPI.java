@@ -1,6 +1,6 @@
 package josegamerpt.realmines;
 
-import josegamerpt.realmines.mines.Mine;
+import josegamerpt.realmines.mines.RMine;
 import org.bukkit.OfflinePlayer;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
@@ -96,7 +96,7 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         {
             String[] split = identifier.split("_");
             String mine = split[mineIndex];
-            Mine m = plugin.getMineManager().get(mine);
+            RMine m = plugin.getMineManager().get(mine);
             if (m != null) {
                 return plugin.getMineManager().get(mine).getBlockCount() + "";
             } else {
@@ -108,7 +108,7 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         {
             String[] split = identifier.split("_");
             String mine = split[mineIndex];
-            Mine m = plugin.getMineManager().get(mine);
+            RMine m = plugin.getMineManager().get(mine);
             if (m != null) {
                 return plugin.getMineManager().get(mine).getMinedBlocks() + "";
             } else {
@@ -120,7 +120,7 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         {
             String[] split = identifier.split("_");
             String mine = split[mineIndex];
-            Mine m = plugin.getMineManager().get(mine);
+            RMine m = plugin.getMineManager().get(mine);
             if (m != null) {
                 return plugin.getMineManager().get(mine).getRemainingBlocks() + "";
             } else {
@@ -132,7 +132,7 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         {
             String[] split = identifier.split("_");
             String mine = split[mineIndex];
-            Mine m = plugin.getMineManager().get(mine);
+            RMine m = plugin.getMineManager().get(mine);
             if (m != null) {
                 return plugin.getMineManager().get(mine).getRemainingBlocksPer() + "";
             } else {
@@ -144,7 +144,7 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         {
             String[] split = identifier.split("_");
             String mine = split[mineIndex];
-            Mine m = plugin.getMineManager().get(mine);
+            RMine m = plugin.getMineManager().get(mine);
             if (m != null) {
                 return plugin.getMineManager().get(mine).getMinedBlocksPer() + "";
             } else {

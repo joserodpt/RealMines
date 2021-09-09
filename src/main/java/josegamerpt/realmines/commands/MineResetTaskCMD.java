@@ -2,8 +2,8 @@ package josegamerpt.realmines.commands;
 
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.mines.Mine;
-import josegamerpt.realmines.mines.MineResetTask;
+import josegamerpt.realmines.mines.RMine;
+import josegamerpt.realmines.mines.tasks.MineResetTask;
 import josegamerpt.realmines.utils.Text;
 import me.mattstudios.mf.annotations.*;
 import me.mattstudios.mf.base.CommandBase;
@@ -76,7 +76,7 @@ public class MineResetTaskCMD extends CommandBase {
         if (commandSender instanceof Player) {
             MineResetTask mrt = rm.getMineResetTasksManager().getTask(name);
             if (mrt != null) {
-                Mine m = rm.getMineManager().get(mine);
+                RMine m = rm.getMineManager().get(mine);
                 if (m != null) {
                     mrt.addMine(m);
                     Text.send(commandSender, Language.file().getString("System.Mine-Linked"));
@@ -99,7 +99,7 @@ public class MineResetTaskCMD extends CommandBase {
         if (commandSender instanceof Player) {
             MineResetTask mrt = rm.getMineResetTasksManager().getTask(name);
             if (mrt != null) {
-                Mine m = rm.getMineManager().get(mine);
+                RMine m = rm.getMineManager().get(mine);
                 if (m != null) {
                     mrt.removeMine(m);
                     Text.send(commandSender, Language.file().getString("System.Mine-Unlinked"));
