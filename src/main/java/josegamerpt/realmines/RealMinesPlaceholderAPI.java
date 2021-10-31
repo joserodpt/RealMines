@@ -152,6 +152,18 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
             }
         }
 
+        if (identifier.startsWith("secondsleft"))
+        {
+            String[] split = identifier.split("_");
+            String mine = split[mineIndex];
+            RMine m = plugin.getMineManager().get(mine);
+            if (m != null) {
+                return plugin.getMineManager().get(mine).getMineTimer().getCountdown().getSecondsLeft() + "";
+            } else {
+                return "No mine: " + mine;
+            }
+        }
+
         // Wev return null if an inalid placeholder (f.e. %example_placeholder3%)
         // was provided
         return null;

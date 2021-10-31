@@ -44,4 +44,8 @@ public class MineTimer {
         kill();
         start();
     }
+
+    public Countdown getCountdown() {
+        return this.count;
+    }
 }

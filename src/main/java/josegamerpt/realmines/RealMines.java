@@ -178,7 +178,7 @@ public class RealMines extends JavaPlugin {
                     getLogger().info("The plugin is updated to the latest version.");
                 } else {
                     this.newUpdate = true;
-                    getLogger().info("There is a new update available!");
+                    getLogger().info("There is a new update available! Version: " + version);
                 }
             });
         }

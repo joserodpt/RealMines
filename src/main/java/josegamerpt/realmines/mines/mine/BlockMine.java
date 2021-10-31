@@ -181,6 +181,11 @@ public class BlockMine implements RMine {
     }
 
     @Override
+    public MineTimer getMineTimer() {
+        return this.timer;
+    }
+
+    @Override
     public Location getPOS2() {
         return this.l2;
     }

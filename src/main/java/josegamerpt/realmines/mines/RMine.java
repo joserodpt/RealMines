@@ -130,6 +130,8 @@ public interface RMine {
 
     Location getPOS1();
 
+    MineTimer getMineTimer();
+
     enum Reset {PERCENTAGE, TIME}
 
     enum Type {BLOCKS, SCHEMATIC}

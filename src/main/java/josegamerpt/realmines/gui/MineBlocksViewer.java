@@ -246,17 +246,16 @@ public class MineBlocksViewer {
 
     protected void editPercentage(Player gp, MineBlockIcon a, MineBlocksViewer current) {
         new PlayerInput(gp, s -> {
-            double d;
+            double d = 0;
             try {
                 d = Double.parseDouble(s.replace("%", ""));
             } catch (Exception ex) {
                 gp.sendMessage(Text.color("&cInput a percentage from 0 to 100."));
                 editPercentage(gp, a, current);
-                return;
             }
 
-            if (d < 1) {
-                gp.sendMessage(Text.color("&cWrong input. Please input a percentage greater than 1"));
+            if (d <= 0) {
+                gp.sendMessage(Text.color("&cWrong input. Please input a percentage greater than 0"));
                 editPercentage(gp, a, current);
                 return;
             }
