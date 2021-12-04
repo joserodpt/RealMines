@@ -119,7 +119,7 @@ public class MineCMD extends CommandBase {
 
     @SubCommand("tp")
     @Completion("#mines")
-    @Permission("realmines.admin")
+    @Permission("realmines.tp")
     @WrongUsage("&c/mine tp <name>")
     public void tpmine(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {

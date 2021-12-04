@@ -302,17 +302,19 @@ public class MineManager {
         return l;
     }
 
+    //permission for teleport: realmines.tp.<name>
     public void teleport(Player target, RMine m, Boolean silent) {
         if (!silent) {
-            String send;
             if (m.hasTP()) {
-                target.teleport(m.getTeleport());
-                send = Language.file().getString("Mines.Teleport").replaceAll("%mine%", m.getDisplayName());
+                if (target.hasPermission("realmines.tp." + m.getName())) {
+                    target.teleport(m.getTeleport());
+                    Text.send(target, Language.file().getString("Mines.Teleport").replaceAll("%mine%", m.getDisplayName()));
+                } else {
+                    Text.send(target, RealMines.getInstance().getPrefix() + "&fYou &cdon't &fhave permission to execute this command!");
+                }
             } else {
-                send = Language.file().getString("Mines.No-Teleport-Location");
+                Text.send(target, Language.file().getString("Mines.No-Teleport-Location"));
             }
-
-            Text.send(target, send);
         } else {
             if (m.hasTP()) {
                 target.teleport(m.getTeleport());

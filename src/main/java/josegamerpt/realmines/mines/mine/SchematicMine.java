@@ -4,7 +4,7 @@ import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Config;
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.mines.*;
+import josegamerpt.realmines.mines.RMine;
 import josegamerpt.realmines.mines.components.MineBlock;
 import josegamerpt.realmines.mines.components.MineCuboid;
 import josegamerpt.realmines.mines.components.MineSign;
@@ -17,7 +17,10 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 
 public class SchematicMine implements RMine {
 
@@ -258,8 +261,11 @@ public class SchematicMine implements RMine {
 
     @Override
     public void fill() {
-        WorldEditUtils.placeSchematic(this.pasteClipboard, this.pasteLocation);
-        this.schematicBlocks = this.mineCuboid.getTotalBlocks();
+        if (Bukkit.getOnlinePlayers().size() > 0) {
+
+            WorldEditUtils.placeSchematic(this.pasteClipboard, this.pasteLocation);
+            this.schematicBlocks = this.mineCuboid.getTotalBlocks();
+        }
     }
 
     @Override
@@ -299,16 +305,17 @@ public class SchematicMine implements RMine {
 
     @Override
     public void reset() {
-        kickPlayers(Language.file().getString("Mines.Reset.Starting").replace("%mine%", this.getDisplayName()));
-        try {
-            this.fill();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-        }
-        this.updateSigns();
-        if (Config.file().getBoolean("RealMines.announceResets")) {
-            Bukkit.broadcastMessage(Text.color(RealMines.getInstance().getPrefix() + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", getDisplayName())));
+        if (Bukkit.getOnlinePlayers().size() > 0) {
+            kickPlayers(Language.file().getString("Mines.Reset.Starting").replace("%mine%", this.getDisplayName()));
+            try {
+                this.fill();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            this.updateSigns();
+            if (Config.file().getBoolean("RealMines.announceResets")) {
+                Bukkit.broadcastMessage(Text.color(RealMines.getInstance().getPrefix() + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", getDisplayName())));
+            }
         }
     }
 
@@ -354,10 +361,12 @@ public class SchematicMine implements RMine {
     }
 
     @Override
-    public void removeBlock(MineBlock mb) {}
+    public void removeBlock(MineBlock mb) {
+    }
 
     @Override
-    public void addBlock(MineBlock mineBlock) {}
+    public void addBlock(MineBlock mineBlock) {
+    }
 
     @Override
     public void clear() {
@@ -559,7 +568,9 @@ public class SchematicMine implements RMine {
     }
 
     @Override
-    public Type getType() { return Type.SCHEMATIC; }
+    public Type getType() {
+        return Type.SCHEMATIC;
+    }
 
     @Override
     public Location getSchematicPlace() {

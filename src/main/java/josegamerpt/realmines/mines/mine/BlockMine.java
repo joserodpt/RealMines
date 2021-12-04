@@ -3,7 +3,7 @@ package josegamerpt.realmines.mines.mine;
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Config;
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.mines.*;
+import josegamerpt.realmines.mines.RMine;
 import josegamerpt.realmines.mines.components.MineBlock;
 import josegamerpt.realmines.mines.components.MineCuboid;
 import josegamerpt.realmines.mines.components.MineSign;
@@ -254,16 +254,18 @@ public class BlockMine implements RMine {
 
     @Override
     public void fill() {
-        this.sortBlocks();
-        if (this.blocks.size() != 0) {
-            Bukkit.getScheduler().runTask(RealMines.getInstance(), () -> {
-                //blocks
-                this.mineCuboid.forEach(block -> block.setType(getBlock()));
-                //faces
-                for (Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
-                    this.mineCuboid.getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
-                }
-            });
+        if (Bukkit.getOnlinePlayers().size() > 0) {
+            this.sortBlocks();
+            if (this.blocks.size() != 0) {
+                Bukkit.getScheduler().runTask(RealMines.getInstance(), () -> {
+                    //blocks
+                    this.mineCuboid.forEach(block -> block.setType(getBlock()));
+                    //faces
+                    for (Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
+                        this.mineCuboid.getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
+                    }
+                });
+            }
         }
     }
 
@@ -329,11 +331,13 @@ public class BlockMine implements RMine {
 
     @Override
     public void reset() {
-        kickPlayers(Language.file().getString("Mines.Reset.Starting").replace("%mine%", this.getDisplayName()));
-        this.fill();
-        this.updateSigns();
-        if (Config.file().getBoolean("RealMines.announceResets")) {
-            Bukkit.broadcastMessage(Text.color(RealMines.getInstance().getPrefix() + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", getDisplayName())));
+        if (Bukkit.getOnlinePlayers().size() > 0) {
+            kickPlayers(Language.file().getString("Mines.Reset.Starting").replace("%mine%", this.getDisplayName()));
+            this.fill();
+            this.updateSigns();
+            if (Config.file().getBoolean("RealMines.announceResets")) {
+                Bukkit.broadcastMessage(Text.color(RealMines.getInstance().getPrefix() + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", getDisplayName())));
+            }
         }
     }
 
@@ -611,7 +615,7 @@ public class BlockMine implements RMine {
 
     @Override
     public Location getSchematicPlace() {
-        return new Location(this.mineCuboid.getWorld(), 0,0,0);
+        return new Location(this.mineCuboid.getWorld(), 0, 0, 0);
     }
 
     @Override
