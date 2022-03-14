@@ -8,7 +8,7 @@ import java.util.logging.Level;
 
 public class Configer {
 
-    private final static int latest = 2;
+    private final static int latest = 3;
     private static String errors;
 
     public static int getConfigVersion() {
@@ -29,6 +29,12 @@ public class Configer {
                     Config.file().set("Version", newconfig);
                     Config.file().set("RealMines.resetAnnouncement", null);
                     Config.file().set("RealMines.announceTimes", Arrays.asList("30", "20", "10", "5", "4", "3", "2", "1"));
+                    Config.save();
+                    break;
+                case 2:
+                    //update to 3
+                    newconfig = 3;
+                    Config.file().set("RealMines.teleportMessage", true);
                     Config.save();
                     break;
             }

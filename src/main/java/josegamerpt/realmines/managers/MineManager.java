@@ -2,6 +2,7 @@ package josegamerpt.realmines.managers;
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import josegamerpt.realmines.RealMines;
+import josegamerpt.realmines.config.Config;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.config.Mines;
 import josegamerpt.realmines.events.MineBlockBreakEvent;
@@ -308,9 +309,16 @@ public class MineManager {
             if (m.hasTP()) {
                 if (target.hasPermission("realmines.tp." + m.getName())) {
                     target.teleport(m.getTeleport());
-                    Text.send(target, Language.file().getString("Mines.Teleport").replaceAll("%mine%", m.getDisplayName()));
+
+                    if (Config.file().getBoolean("RealMines.teleportMessage"))
+                    {
+                        Text.send(target, Language.file().getString("Mines.Teleport").replaceAll("%mine%", m.getDisplayName()));
+                    }
                 } else {
-                    Text.send(target, RealMines.getInstance().getPrefix() + "&fYou &cdon't &fhave permission to execute this command!");
+                    if (Config.file().getBoolean("RealMines.teleportMessage"))
+                    {
+                        Text.send(target, RealMines.getInstance().getPrefix() + "&fYou &cdon't &fhave permission to execute this command!");
+                    }
                 }
             } else {
                 Text.send(target, Language.file().getString("Mines.No-Teleport-Location"));
