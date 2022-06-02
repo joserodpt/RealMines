@@ -85,7 +85,7 @@ public class MineBlocksViewer {
 
                             if (Itens.getValidBlocks().contains(e.getCurrentItem().getType()))
                             {
-                                current.m.addBlock(new MineBlock(e.getCurrentItem().getType(), 10D));
+                                current.m.addBlock(new MineBlock(e.getCurrentItem().getType(), 0.1D));
                                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 50, 50);
                                 p.closeInventory();
                                 Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
@@ -250,19 +250,26 @@ public class MineBlocksViewer {
             try {
                 d = Double.parseDouble(s.replace("%", ""));
             } catch (Exception ex) {
-                gp.sendMessage(Text.color("&cInput a percentage from 0 to 100."));
+                gp.sendMessage(Text.color("&cInput a percentage from 0 to 1."));
                 editPercentage(gp, a, current);
             }
 
             if (d <= 0) {
-                gp.sendMessage(Text.color("&cWrong input. Please input a percentage greater than 0"));
+                gp.sendMessage(Text.color("&cWrong input. Please input a percentage greater than 0."));
+                editPercentage(gp, a, current);
+                return;
+            }
+            if (d >= 100) {
+                gp.sendMessage(Text.color("&cWrong input. Please input a percentage lower than 100."));
                 editPercentage(gp, a, current);
                 return;
             }
 
+            d /= 100;
+
             a.getMineBlock().setPercentage(d);
             current.m.saveData(BlockMine.Data.BLOCKS);
-            gp.sendMessage(Text.color("&fPercentage modified to &b" + d + "%"));
+            gp.sendMessage(Text.color("&fPercentage modified to &b" + d * 100 + "%"));
             MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.m);
             v.openInventory(gp);
         }, s -> {

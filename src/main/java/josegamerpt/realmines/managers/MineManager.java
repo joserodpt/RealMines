@@ -155,7 +155,7 @@ public class MineManager {
                 m.saveAll();
 
                 m.register();
-                m.addBlock(new MineBlock(Material.STONE, 100D));
+                m.addBlock(new MineBlock(Material.STONE, 1D));
                 m.reset();
                 m.setTeleport(p.getLocation());
                 m.saveData(RMine.Data.TELEPORT);
@@ -168,7 +168,7 @@ public class MineManager {
 
                     new PlayerInput(p, input -> {
                         if (input.equalsIgnoreCase("yes")) {
-                            mat.forEach(material -> m.addBlock(new MineBlock(material, 10D)));
+                            mat.forEach(material -> m.addBlock(new MineBlock(material, 0.1D)));
                             Text.send(p, Language.file().getString("System.Blocks-Added").replaceAll("%count%", mat.size() + ""));
                         }
                         Text.send(p, Language.file().getString("System.Mine-Created").replaceAll("%mine%", name));

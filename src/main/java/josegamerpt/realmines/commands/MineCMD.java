@@ -76,7 +76,6 @@ public class MineCMD extends CommandBase {
     @SubCommand("list")
     @Permission("realmines.admin")
     public void listcmd(final CommandSender commandSender) {
-        Text.send(commandSender, RealMines.getInstance().getPrefix());
         RealMines.getInstance().getMineManager().getMines().forEach(mine -> Text.send(commandSender, " &7> &f" + mine.getName() + " &r&7(&f" + mine.getDisplayName() + "&r&7)"));
     }
 

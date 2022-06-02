@@ -34,7 +34,7 @@ public class MineBlockIcon {
 
 	private List<String> var(MineBlock mb) {
 		List<String> ret = new ArrayList<>();
-		Language.file().getStringList("GUI.Items.Mine-Block.Block.Description").forEach(s -> ret.add(Text.color(s.replaceAll("%percentage%", mb.getPercentage() + ""))));
+		Language.file().getStringList("GUI.Items.Mine-Block.Block.Description").forEach(s -> ret.add(Text.color(s.replaceAll("%percentage%", mb.getPercentage() * 100 + ""))));
 		return ret;
 	}
 

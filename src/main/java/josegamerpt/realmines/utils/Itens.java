@@ -1,6 +1,5 @@
 package josegamerpt.realmines.utils;
 
-import dev.dbassett.skullcreator.SkullCreator;
 import josegamerpt.realmines.mines.mine.BlockMine;
 import org.bukkit.Material;
 import org.bukkit.enchantments.Enchantment;
@@ -35,10 +34,13 @@ public class Itens {
 
     public static ItemStack createItemLore(Material material, int quantidade, String nome, List<String> desc) {
         ItemStack item = new ItemStack(material, quantidade);
-        ItemMeta meta = item.getItemMeta();
-        meta.setDisplayName(Text.color(nome));
-        meta.setLore(Text.color(desc));
-        item.setItemMeta(meta);
+        if (item.getItemMeta() != null)
+        {
+            ItemMeta meta = item.getItemMeta();
+            meta.setDisplayName(Text.color(nome));
+            meta.setLore(Text.color(desc));
+            item.setItemMeta(meta);
+        }
         return item;
     }
 

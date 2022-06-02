@@ -161,7 +161,7 @@ public class MaterialPicker {
                                     current.rm.getGUIManager().openMine(current.min, gp);
                                     break;
                                 case BLOCK:
-                                    current.min.addBlock(new MineBlock(a, 10D));
+                                    current.min.addBlock(new MineBlock(a));
                                     gp.closeInventory();
                                     Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
                                         MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.min);

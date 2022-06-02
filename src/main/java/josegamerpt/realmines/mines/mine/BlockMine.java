@@ -15,10 +15,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class BlockMine implements RMine {
 
@@ -269,20 +266,53 @@ public class BlockMine implements RMine {
         }
     }
 
-    private void sortBlocks() {
-        this.sorted.clear();
-        for (MineBlock d : this.blocks) {
-            for (int i = 0; i < d.getPercentage(); i++) {
-                this.sorted.add(d.getMaterial());
+    /*
+    private MineBlock getHighestPercentageBlock()
+    {
+        MineBlock ret = this.blocks.get(0);
+        for (int i = 0; i < this.blocks.size(); ++i) {
+            if (ret.getPercentage() < this.blocks.get(i).getPercentage())
+            {
+                ret = this.blocks.get(i);
             }
         }
+        return ret;
+    }*/
+
+    private void sortBlocks() {
+        this.sorted.clear();
+
+        for (MineBlock d : this.blocks) {
+            double percentage = d.getPercentage() * getBlockCount();
+
+            for (int i = 0; i < (int) percentage; ++i)
+            {
+                if (this.sorted.size() != this.getBlockCount()) {
+                    this.sorted.add(d.getMaterial());
+                }
+            }
+        }
+
+        /*
+        if (this.sorted.size() != getBlockCount())
+        {
+            MineBlock higher = getHighestPercentageBlock();
+            for (int i = 0; i < getBlockCount() - this.sorted.size(); ++i)
+            {
+                this.sorted.add(higher.getMaterial());
+            }
+        }*/
+
     }
 
     private Material getBlock() {
-        Material m = Material.AIR;
-        for (int i = 0; i < blocks.size(); i++) {
-            int chance = RealMines.getInstance().r.nextInt(sorted.size());
-            m = sorted.get(chance);
+        Material m;
+        Random rand = new Random();
+        if (this.sorted.size() > 0) {
+            m = this.sorted.get(rand.nextInt(sorted.size()));
+            this.sorted.remove(m);
+        } else {
+            m = Material.AIR;
         }
         return m;
     }
@@ -391,8 +421,14 @@ public class BlockMine implements RMine {
     @Override
     public void addBlock(MineBlock mineBlock) {
         if (!this.contains(mineBlock)) {
-            blocks.add(mineBlock);
+            this.blocks.add(mineBlock);
             saveData(Data.BLOCKS);
+
+            this.blocks.sort((a, b) -> {
+                // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
+                return Double.compare(b.getPercentage(), a.getPercentage());
+            });
+
         }
     }
 
@@ -438,7 +474,7 @@ public class BlockMine implements RMine {
 
     @Override
     public void removeDependencies() {
-        signs.forEach(ms -> ms.getBlock().getLocation().getWorld().getBlockAt(ms.getBlock().getLocation()).setType(Material.AIR));
+        this.signs.forEach(ms -> ms.getBlock().getLocation().getWorld().getBlockAt(ms.getBlock().getLocation()).setType(Material.AIR));
     }
 
     @Override

@@ -12,6 +12,11 @@ public class MineBlock {
 		this.percentage = p;
 	}
 
+	public MineBlock(Material m) {
+		this.material = m;
+		this.percentage = 0.1D;
+	}
+
 	public double getPercentage() {
 		return this.percentage;
 	}
@@ -22,5 +27,13 @@ public class MineBlock {
 
 	public void setPercentage(double d) {
 		this.percentage = d;
+	}
+
+	@Override
+	public String toString() {
+		return "MineBlock{" +
+				"material=" + material.toString() +
+				", percentage=" + percentage +
+				'}';
 	}
 }
