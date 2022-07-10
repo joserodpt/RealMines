@@ -259,8 +259,9 @@ public class MineBlocksViewer {
                 editPercentage(gp, a, current);
                 return;
             }
-            if (d >= 100) {
-                gp.sendMessage(Text.color("&cWrong input. Please input a percentage lower than 100."));
+
+            if (d > 100) {
+                gp.sendMessage(Text.color("&cWrong input. Please input a percentage lower or equal than 100."));
                 editPercentage(gp, a, current);
                 return;
             }
