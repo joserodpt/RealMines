@@ -39,7 +39,7 @@ public class WorldEditUtils {
 
     public static EditSession placeSchematic(Clipboard clipboard, Location loc) {
         if (clipboard != null) {
-            try (EditSession editSession = WorldEdit.getInstance().getEditSessionFactory().getEditSession(BukkitAdapter.adapt(loc.getWorld()), 999999999)) {
+            try (EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(loc.getWorld()))) {
                 Operation operation = new ClipboardHolder(clipboard)
                         .createPaste(editSession)
                         .to(BlockVector3.at(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ()))
