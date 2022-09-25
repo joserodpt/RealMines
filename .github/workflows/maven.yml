@@ -1,21 +1,27 @@
-name: Build with Maven
-
-on:
-  push:
-    branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
-
+name: Publish and Build
+on: [push, pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
     steps:
     - uses: actions/checkout@v3
-    - name: Set up JDK 11
-      uses: actions/setup-java@v3
+    - uses: actions/setup-java@v3
       with:
-        java-version: '11'
         distribution: 'temurin'
-        cache: maven
-    - name: Build with Maven
-      run: mvn --activate-profiles dist --no-transfer-progress package
+        java-version: 11
+    - uses: actions/cache@v3
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+    - name: Extract Maven project version
+      run: echo ::set-output name=version::$(mvn -q -Dexec.executable=echo -Dexec.args='${project.version}' --non-recursive exec:exec)
+      id: project
+    - run: mvn --activate-profiles dist --no-transfer-progress package
+    - uses: actions/upload-artifact@v3
+      with:
+        name: RealMines
+        path: target/RealMines-${{ steps.project.outputs.version }}.jar
