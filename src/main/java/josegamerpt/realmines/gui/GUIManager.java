@@ -153,7 +153,7 @@ public class GUIManager {
         return ret;
     }
 
-    private static String getBar(RMine m) {
+    public static String getBar(RMine m) {
         return Text.getProgressBar(m.getRemainingBlocks(), m.getBlockCount(), 10, '■', ChatColor.GREEN, ChatColor.RED);
     }
 }
