@@ -4,6 +4,7 @@ import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Config;
 import josegamerpt.realmines.config.Language;
+import josegamerpt.realmines.config.Mines;
 import josegamerpt.realmines.mines.RMine;
 import josegamerpt.realmines.mines.components.MineBlock;
 import josegamerpt.realmines.mines.components.MineCuboid;
@@ -313,10 +314,20 @@ public class SchematicMine implements RMine {
                 e.printStackTrace();
             }
             this.updateSigns();
-            if (Config.file().getBoolean("RealMines.announceResets")) {
+            if (!isSilent()) {
                 Bukkit.broadcastMessage(Text.color(RealMines.getInstance().getPrefix() + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", getDisplayName())));
             }
         }
+    }
+
+    @Override
+    public void setSilent(boolean b) {
+        Mines.file().set(this.name + ".Settings.Reset.Silent", b);
+    }
+
+    @Override
+    public boolean isSilent() {
+        return Mines.file().getBoolean(this.name + ".Settings.Reset.Silent");
     }
 
     @Override
