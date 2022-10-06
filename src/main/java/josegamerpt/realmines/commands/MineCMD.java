@@ -133,6 +133,31 @@ public class MineCMD extends CommandBase {
         }
     }
 
+    @SubCommand("silent")
+    @Completion("#mines")
+    @Permission("realmines.silent")
+    @WrongUsage("&c/mine silent <name>")
+    public void silent(final CommandSender commandSender, String name) {
+        if (commandSender instanceof Player) {
+            RMine m = RealMines.getInstance().getMineManager().get(name);
+            if (m != null) {
+                if (m.isSilent()) {
+                    m.setSilent(false);
+                    m.saveData(RMine.Data.OPTIONS);
+                    Text.send(commandSender, "&f" + name + " &awill now announce resets!"); // TODO - create translation in future
+                } else if (!m.isSilent()) {
+                    m.setSilent(true);
+                    m.saveData(RMine.Data.OPTIONS);
+                    Text.send(commandSender, "&f" + name + " &cwill no longer announce resets!"); // TODO - create translation in future
+                }
+            } else {
+                Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+            }
+        } else {
+            commandSender.sendMessage(playerOnly);
+        }
+    }
+
     @SubCommand("open")
     @Alias("o")
     @Completion("#mines")

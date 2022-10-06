@@ -119,7 +119,8 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByPercentage"),
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
-                            Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), color, faces);
+                            Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), color, faces,
+                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"));
                     break;
                 case SCHEMATIC:
                     Location place = new Location(w, Mines.file().getDouble(s + ".Place.X"),
@@ -128,7 +129,8 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByPercentage"),
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
-                            Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), color, pos1, pos2);
+                            Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), color, pos1, pos2,
+                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"));
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + type);
@@ -151,7 +153,7 @@ public class MineManager {
                 Location pos2 = new Location(p.getWorld(), r.getMinimumPoint().getBlockX(), r.getMinimumPoint().getBlockY(), r.getMinimumPoint().getBlockZ());
 
                 BlockMine m = new BlockMine(name, name, new ArrayList<>(), new ArrayList<>(), pos1, pos2,
-                        Material.DIAMOND_ORE, null, false, true, 20, 60, "white", new HashMap<>());
+                        Material.DIAMOND_ORE, null, false, true, 20, 60, "white", new HashMap<>(), false);
                 m.saveAll();
 
                 m.register();
@@ -194,7 +196,7 @@ public class MineManager {
                 Location loc2 = new Location(p.getWorld(), 0,0,0);
 
                 SchematicMine m = new SchematicMine(name, name, new ArrayList<>(), p.getLocation(), s,
-                        Material.DIAMOND_ORE, null, false, true, 20, 60, "white", loc, loc2);
+                        Material.DIAMOND_ORE, null, false, true, 20, 60, "white", loc, loc2, false);
                 m.saveAll();
 
                 m.register();
@@ -244,6 +246,7 @@ public class MineManager {
                 Mines.file().set(mine.getName() + ".Settings.Reset.ByTime", mine.isResetBy(RMine.Reset.TIME));
                 Mines.file().set(mine.getName() + ".Settings.Reset.ByPercentageValue", mine.getResetValue(RMine.Reset.PERCENTAGE));
                 Mines.file().set(mine.getName() + ".Settings.Reset.ByTimeValue", mine.getResetValue(RMine.Reset.TIME));
+                Mines.file().set(mine.getName() + ".Settings.Reset.Silent", mine.isSilent());
                 break;
             case PLACE:
                 switch (mine.getType())

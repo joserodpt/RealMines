@@ -98,6 +98,10 @@ public interface RMine {
 
     void setResetValue(Reset e, int d);
 
+    boolean isSilent();
+
+    void setSilent(boolean b);
+
     Material getIcon();
 
     void setIcon(Material a);

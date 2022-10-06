@@ -1,8 +1,8 @@
 package josegamerpt.realmines.mines.mine;
 
 import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.config.Config;
 import josegamerpt.realmines.config.Language;
+import josegamerpt.realmines.config.Mines;
 import josegamerpt.realmines.mines.RMine;
 import josegamerpt.realmines.mines.components.MineBlock;
 import josegamerpt.realmines.mines.components.MineCuboid;
@@ -37,9 +37,10 @@ public class BlockMine implements RMine {
     private HashMap<MineCuboid.CuboidDirection, Material> faces;
     private Location l1;
     private Location l2;
+    private boolean silent;
 
     public BlockMine(String n, String displayname, ArrayList<MineBlock> b, ArrayList<MineSign> si, Location p1, Location p2, Material i,
-                     Location t, Boolean resetByPercentag, Boolean resetByTim, int rbpv, int rbtv, String color, HashMap<MineCuboid.CuboidDirection, Material> faces) {
+                     Location t, Boolean resetByPercentag, Boolean resetByTim, int rbpv, int rbtv, String color, HashMap<MineCuboid.CuboidDirection, Material> faces, boolean silent) {
         this.name = ChatColor.stripColor(Text.color(n));
         this.displayName = displayname;
         this.blocks = b;
@@ -51,6 +52,7 @@ public class BlockMine implements RMine {
         this.resetByPercentageValue = rbpv;
         this.resetByTimeValue = rbtv;
         this.faces = faces;
+        this.silent = silent;
 
         this.setColor(color);
 
@@ -365,10 +367,20 @@ public class BlockMine implements RMine {
             kickPlayers(Language.file().getString("Mines.Reset.Starting").replace("%mine%", this.getDisplayName()));
             this.fill();
             this.updateSigns();
-            if (Config.file().getBoolean("RealMines.announceResets")) {
+            if (!isSilent()) {
                 Bukkit.broadcastMessage(Text.color(RealMines.getInstance().getPrefix() + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", getDisplayName())));
             }
         }
+    }
+
+    @Override
+    public void setSilent(boolean b) {
+        Mines.file().set(this.name + ".Settings.Reset.Silent", b);
+    }
+
+    @Override
+    public boolean isSilent() {
+        return silent;
     }
 
     @Override
