@@ -37,9 +37,10 @@ public class BlockMine implements RMine {
     private HashMap<MineCuboid.CuboidDirection, Material> faces;
     private Location l1;
     private Location l2;
+    private boolean silent;
 
     public BlockMine(String n, String displayname, ArrayList<MineBlock> b, ArrayList<MineSign> si, Location p1, Location p2, Material i,
-                     Location t, Boolean resetByPercentag, Boolean resetByTim, int rbpv, int rbtv, String color, HashMap<MineCuboid.CuboidDirection, Material> faces) {
+                     Location t, Boolean resetByPercentag, Boolean resetByTim, int rbpv, int rbtv, String color, HashMap<MineCuboid.CuboidDirection, Material> faces, boolean silent) {
         this.name = ChatColor.stripColor(Text.color(n));
         this.displayName = displayname;
         this.blocks = b;
@@ -51,6 +52,7 @@ public class BlockMine implements RMine {
         this.resetByPercentageValue = rbpv;
         this.resetByTimeValue = rbtv;
         this.faces = faces;
+        this.silent = silent;
 
         this.setColor(color);
 
@@ -378,7 +380,7 @@ public class BlockMine implements RMine {
 
     @Override
     public boolean isSilent() {
-        return Mines.file().getBoolean(this.name + ".Settings.Reset.Silent");
+        return silent;
     }
 
     @Override

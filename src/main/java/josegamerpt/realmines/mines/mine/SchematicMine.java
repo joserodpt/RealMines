@@ -41,6 +41,7 @@ public class SchematicMine implements RMine {
     private boolean highlight = false;
     private Location l1;
     private Location l2;
+    private boolean silent;
 
     private String schematicFile;
     private Location pasteLocation;
@@ -48,7 +49,7 @@ public class SchematicMine implements RMine {
     private int schematicBlocks;
 
     public SchematicMine(String n, String displayname, ArrayList<MineSign> si, Location pasteLocation, String schematicFile, Material i,
-                         Location t, Boolean resetByPercentag, Boolean resetByTim, int rbpv, int rbtv, String color, Location pos1, Location pos2) {
+                         Location t, Boolean resetByPercentag, Boolean resetByTim, int rbpv, int rbtv, String color, Location pos1, Location pos2, boolean silent) {
         this.name = ChatColor.stripColor(Text.color(n));
         this.displayName = displayname;
         this.signs = si;
@@ -58,6 +59,7 @@ public class SchematicMine implements RMine {
         this.resetByTime = resetByTim;
         this.resetByPercentageValue = rbpv;
         this.resetByTimeValue = rbtv;
+        this.silent = silent;
         this.schematicFile = schematicFile;
         this.setColor(color);
 
@@ -327,7 +329,7 @@ public class SchematicMine implements RMine {
 
     @Override
     public boolean isSilent() {
-        return Mines.file().getBoolean(this.name + ".Settings.Reset.Silent");
+        return silent;
     }
 
     @Override
