@@ -20,5 +20,5 @@ jobs:
     - run: mvn --activate-profiles dist --no-transfer-progress package
     - uses: actions/upload-artifact@v3
       with:
-        name: RealMines
+        name: 'RealMines (Dev Build)'
         path: target/RealMines*.jar
