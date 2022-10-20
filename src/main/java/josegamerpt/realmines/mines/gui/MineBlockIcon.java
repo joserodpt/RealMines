@@ -9,7 +9,7 @@ import josegamerpt.realmines.utils.Text;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import josegamerpt.realmines.utils.Itens;
+import josegamerpt.realmines.utils.Items;
 
 public class MineBlockIcon {
 	
@@ -25,11 +25,11 @@ public class MineBlockIcon {
 
 	public MineBlockIcon() {
 		this.placeholder = true;
-		this.i = Itens.createItemLore(Material.DEAD_BUSH, 1, Language.file().getString("GUI.Items.Mine-Block.No-Blocks.Name"), Language.file().getStringList("GUI.Items.Mine-Block.No-Blocks.Description"));
+		this.i = Items.createItemLore(Material.DEAD_BUSH, 1, Language.file().getString("GUI.Items.Mine-Block.No-Blocks.Name"), Language.file().getStringList("GUI.Items.Mine-Block.No-Blocks.Description"));
 	}
 
 	private void makeIcon() {
-		this.i = Itens.createItemLore(mb.getMaterial(), 1, Language.file().getString("GUI.Items.Mine-Block.Block.Name").replace("%material%", getMineBlock().getMaterial().name()), var(mb));
+		this.i = Items.createItemLore(mb.getMaterial(), 1, Language.file().getString("GUI.Items.Mine-Block.Block.Name").replace("%material%", getMineBlock().getMaterial().name()), var(mb));
 	}
 
 	private List<String> var(MineBlock mb) {

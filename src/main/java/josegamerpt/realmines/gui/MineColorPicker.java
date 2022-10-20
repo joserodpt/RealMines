@@ -4,7 +4,7 @@ import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.mines.RMine;
 import josegamerpt.realmines.mines.mine.BlockMine;
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.utils.Itens;
+import josegamerpt.realmines.utils.Items;
 import josegamerpt.realmines.utils.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -112,15 +112,15 @@ public class MineColorPicker {
     }
 
     public void load() {
-        inv.setItem(0, Itens.getMineColor(BlockMine.Color.RED, "&c&lRED", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(1, Itens.getMineColor(BlockMine.Color.GREEN, "&2&lGREEN", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(2, Itens.getMineColor(BlockMine.Color.BLUE, "&9&lBLUE", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(3, Itens.getMineColor(BlockMine.Color.BROWN, "&4&lBROWN", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(4, Itens.getMineColor(BlockMine.Color.GRAY, "&7&lGRAY", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(5, Itens.getMineColor(BlockMine.Color.WHITE, "&f&lWHITE", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(6, Itens.getMineColor(BlockMine.Color.ORANGE, "&6&lORANGE", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(7, Itens.getMineColor(BlockMine.Color.YELLOW, "&e&lYELLOW", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(8, Itens.getMineColor(BlockMine.Color.PURPLE, "&d&lPURPLE", Collections.singletonList("&fClick to set this mine color.")));
+        inv.setItem(0, Items.getMineColor(BlockMine.Color.RED, "&c&lRED", Collections.singletonList("&fClick to set this mine color.")));
+        inv.setItem(1, Items.getMineColor(BlockMine.Color.GREEN, "&2&lGREEN", Collections.singletonList("&fClick to set this mine color.")));
+        inv.setItem(2, Items.getMineColor(BlockMine.Color.BLUE, "&9&lBLUE", Collections.singletonList("&fClick to set this mine color.")));
+        inv.setItem(3, Items.getMineColor(BlockMine.Color.BROWN, "&4&lBROWN", Collections.singletonList("&fClick to set this mine color.")));
+        inv.setItem(4, Items.getMineColor(BlockMine.Color.GRAY, "&7&lGRAY", Collections.singletonList("&fClick to set this mine color.")));
+        inv.setItem(5, Items.getMineColor(BlockMine.Color.WHITE, "&f&lWHITE", Collections.singletonList("&fClick to set this mine color.")));
+        inv.setItem(6, Items.getMineColor(BlockMine.Color.ORANGE, "&6&lORANGE", Collections.singletonList("&fClick to set this mine color.")));
+        inv.setItem(7, Items.getMineColor(BlockMine.Color.YELLOW, "&e&lYELLOW", Collections.singletonList("&fClick to set this mine color.")));
+        inv.setItem(8, Items.getMineColor(BlockMine.Color.PURPLE, "&d&lPURPLE", Collections.singletonList("&fClick to set this mine color.")));
     }
 
     public void openInventory(Player target) {

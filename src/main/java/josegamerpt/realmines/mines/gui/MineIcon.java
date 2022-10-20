@@ -10,7 +10,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import josegamerpt.realmines.utils.Itens;
+import josegamerpt.realmines.utils.Items;
 
 public class MineIcon {
 	
@@ -26,11 +26,11 @@ public class MineIcon {
 
 	public MineIcon() {
 		this.placeholder = true;
-		this.i = Itens.createItemLore(Material.DEAD_BUSH, 1, Language.file().getString("GUI.Items.No-Mines-Found.Name"), Language.file().getStringList("GUI.Items.No-Mines-Found.Description"));
+		this.i = Items.createItemLore(Material.DEAD_BUSH, 1, Language.file().getString("GUI.Items.No-Mines-Found.Name"), Language.file().getStringList("GUI.Items.No-Mines-Found.Description"));
 	}
 
 	private void makeIcon() {
-		this.i = Itens.createItemLore(m.getIcon(), 1, m.getColorIcon() + " &6&l" + m.getDisplayName() + " &f- &b&l" + m.getType().name(), var(m));
+		this.i = Items.createItemLore(m.getIcon(), 1, m.getColorIcon() + " &6&l" + m.getDisplayName() + " &f- &b&l" + m.getType().name(), var(m));
 	}
 
 	private List<String> var(RMine m) {

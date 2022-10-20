@@ -3,7 +3,7 @@ package josegamerpt.realmines.gui;
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.mines.gui.MineIcon;
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.utils.Itens;
+import josegamerpt.realmines.utils.Items;
 import josegamerpt.realmines.utils.Pagination;
 import josegamerpt.realmines.utils.Text;
 import org.bukkit.Bukkit;
@@ -23,12 +23,12 @@ import java.util.*;
 
 public class MineViewer {
 
-    static ItemStack placeholder = Itens.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static ItemStack next = Itens.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
+    static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
+    static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
             Language.file().getStringList("GUI.Items.Next.Description"));
-    static ItemStack back = Itens.createItemLore(Material.YELLOW_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Back.Name"),
+    static ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Back.Name"),
             Language.file().getStringList("GUI.Items.Back.Description"));
-    static ItemStack close = Itens.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
+    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
             Language.file().getStringList("GUI.Items.Close.Description"));
 
     private static final Map<UUID, MineViewer> inventories = new HashMap<>();

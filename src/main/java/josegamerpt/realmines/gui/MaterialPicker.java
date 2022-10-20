@@ -6,7 +6,7 @@ import josegamerpt.realmines.mines.mine.BlockMine;
 import josegamerpt.realmines.mines.components.MineBlock;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mines.components.MineCuboid;
-import josegamerpt.realmines.utils.Itens;
+import josegamerpt.realmines.utils.Items;
 import josegamerpt.realmines.utils.Pagination;
 import josegamerpt.realmines.utils.PlayerInput;
 import josegamerpt.realmines.utils.Text;
@@ -31,15 +31,15 @@ public class MaterialPicker {
 
     public enum PickType {ICON, BLOCK, FACE_MATERIAL}
 
-    static ItemStack placeholder = Itens.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static ItemStack next = Itens.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
+    static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
+    static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
             Language.file().getStringList("GUI.Items.Next.Description"));
-    static ItemStack back = Itens.createItemLore(Material.YELLOW_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Back.Name"),
+    static ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Back.Name"),
             Language.file().getStringList("GUI.Items.Back.Description"));
-    static ItemStack close = Itens.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
+    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
             Language.file().getStringList("GUI.Items.Close.Description"));
 
-    static ItemStack search = Itens.createItemLore(Material.OAK_SIGN, 1, Language.file().getString("GUI.Items.Search.Name"),
+    static ItemStack search = Items.createItemLore(Material.OAK_SIGN, 1, Language.file().getString("GUI.Items.Search.Name"),
             Language.file().getStringList("GUI.Items.Close.Description"));
     private static final Map<UUID, MaterialPicker> inventories = new HashMap<>();
     int pageNumber = 0;
@@ -68,7 +68,7 @@ public class MaterialPicker {
                 inv = Bukkit.getServer().createInventory(null, 54, Text.color("Pick a new block"));
                 break;
         }
-        items = Itens.getValidBlocks();
+        items = Items.getValidBlocks();
 
         p = new Pagination<>(28, items);
         fillChest(p.getPage(pageNumber));
@@ -219,7 +219,7 @@ public class MaterialPicker {
 
     private ArrayList<Material> searchMaterial(String s) {
         ArrayList<Material> ms = new ArrayList<>();
-        for (Material m : Itens.getValidBlocks()) {
+        for (Material m : Items.getValidBlocks()) {
             if (m.name().toLowerCase().contains(s.toLowerCase())) {
                 ms.add(m);
             }
@@ -261,7 +261,7 @@ public class MaterialPicker {
             if (i == null && items.size() != 0) {
                 Material s = items.get(0);
                 inv.setItem(slot,
-                        Itens.createItemLore(s, 1, "§3§l" + s.name(), Collections.singletonList("&fClick to pick this.")));
+                        Items.createItemLore(s, 1, "§3§l" + s.name(), Collections.singletonList("&fClick to pick this.")));
                 display.put(slot, s);
                 items.remove(0);
             }

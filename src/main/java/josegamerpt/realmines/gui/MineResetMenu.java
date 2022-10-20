@@ -4,7 +4,7 @@ import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mines.RMine;
 import josegamerpt.realmines.mines.mine.BlockMine;
-import josegamerpt.realmines.utils.Itens;
+import josegamerpt.realmines.utils.Items;
 import josegamerpt.realmines.utils.PlayerInput;
 import josegamerpt.realmines.utils.Text;
 import org.bukkit.Bukkit;
@@ -116,24 +116,24 @@ public class MineResetMenu {
         inv.clear();
 
         if (m.isResetBy(BlockMine.Reset.PERCENTAGE)) {
-            this.inv.setItem(0, Itens.createItemLoreEnchanted(Material.BOOK, 1, "&9Reset By Percentage &7(&a&lON&r&7)",
+            this.inv.setItem(0, Items.createItemLoreEnchanted(Material.BOOK, 1, "&9Reset By Percentage &7(&a&lON&r&7)",
                     Arrays.asList("&7Left click to turn &cOFF", "&fRight Click to input a new percentage.", "&fCurrent Value: &b" + m.getResetValue(BlockMine.Reset.PERCENTAGE) + "%")));
         } else {
-            this.inv.setItem(0, Itens.createItemLore(Material.BOOK, 1, "&9Reset By Percentage &7(&c&lOFF&r&7)",
+            this.inv.setItem(0, Items.createItemLore(Material.BOOK, 1, "&9Reset By Percentage &7(&c&lOFF&r&7)",
                     Arrays.asList("&7Left click to turn &aON", "&fRight Click to input a new percentage.", "&fCurrent Value: &b" + m.getResetValue(BlockMine.Reset.PERCENTAGE) + "%")));
         }
 
         if (m.isResetBy(BlockMine.Reset.TIME)) {
-            this.inv.setItem(4, Itens.createItemLoreEnchanted(Material.CLOCK, 1, "&9Reset By Time &7(&a&lON&r&7)",
+            this.inv.setItem(4, Items.createItemLoreEnchanted(Material.CLOCK, 1, "&9Reset By Time &7(&a&lON&r&7)",
                     Arrays.asList("&7Left click to turn &cOFF", "&fRight Click to input a new time.", "&fCurrent Value: &b" + m.getResetValue(BlockMine.Reset.TIME))));
         } else {
-            this.inv.setItem(4, Itens.createItemLore(Material.CLOCK, 1, "&9Reset By Time &7(&c&lOFF&r&7)",
+            this.inv.setItem(4, Items.createItemLore(Material.CLOCK, 1, "&9Reset By Time &7(&c&lOFF&r&7)",
                     Arrays.asList("&7Left click to turn &aON", "&fRight Click to input a new time.", "&fCurrent Value: &b" + m.getResetValue(BlockMine.Reset.TIME))));
 
         }
 
         this.inv.setItem(2,
-                Itens.createItemLore(Material.ACACIA_DOOR, 1, "&9Go Back", Collections.singletonList("&7Click here to go back.")));
+                Items.createItemLore(Material.ACACIA_DOOR, 1, "&9Go Back", Collections.singletonList("&7Click here to go back.")));
     }
 
     public void openInventory(Player target) {

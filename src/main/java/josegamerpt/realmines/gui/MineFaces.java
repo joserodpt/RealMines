@@ -4,7 +4,7 @@ import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mines.RMine;
 import josegamerpt.realmines.mines.components.MineCuboid;
-import josegamerpt.realmines.utils.Itens;
+import josegamerpt.realmines.utils.Items;
 import josegamerpt.realmines.utils.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -24,7 +24,7 @@ import java.util.*;
 public class MineFaces {
 
     private static final Map<UUID, MineFaces> inventories = new HashMap<>();
-    static ItemStack close = Itens.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
+    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
             Language.file().getStringList("GUI.Items.Close.Description"));
     private final Inventory inv;
     private final UUID uuid;
@@ -137,8 +137,8 @@ public class MineFaces {
 
     private ItemStack getIcon(RMine m, MineCuboid.CuboidDirection sel) {
         return m.hasFaceBlock(sel) ?
-                Itens.createItemLore(m.getFaceBlock(sel), 1, "&3&L" + sel.name(), Arrays.asList("&7Selected Block: &f" + m.getFaceBlock(sel).name(), "&7Press &fQ &7to &cdelete.")) :
-                Itens.createItemLore(Material.BOOK, 1, "&3&L" + sel.name(), Arrays.asList("&7Selected Block: &fNone", "&7Press &fQ &7to &cdelete."));
+                Items.createItemLore(m.getFaceBlock(sel), 1, "&3&L" + sel.name(), Arrays.asList("&7Selected Block: &f" + m.getFaceBlock(sel).name(), "&7Press &fQ &7to &cdelete.")) :
+                Items.createItemLore(Material.BOOK, 1, "&3&L" + sel.name(), Arrays.asList("&7Selected Block: &fNone", "&7Press &fQ &7to &cdelete."));
 
     }
 
