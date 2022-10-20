@@ -15,7 +15,7 @@ public class Language implements Listener {
 
 	private static File file;
 	private static FileConfiguration customFile;
-	private static String name = "language.yml";
+	private static final String name = "language.yml";
 
 	public static void setup(Plugin p) {
 		file = new File(p.getDataFolder(), name);
