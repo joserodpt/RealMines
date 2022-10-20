@@ -124,4 +124,6 @@ System:
   Silent-Off: "&f%mine% &awill now announce resets."
   Silent-On: "&f%mine% &cwill no longer announce resets."
   Update-Found: "&6&lWARNING! &fThere is a new version of RealMines!"
+  Input-Cancelled: "&fInput canceled."
+  Error-Occurred: "&cAn error occurred. Contact JoseGamer_PT on www.spigotmc.org"
 
