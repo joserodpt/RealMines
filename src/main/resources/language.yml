@@ -123,4 +123,5 @@ System:
   Blocks-Added: "&b%count% &fblock have been &aadded &fto the mine."
   Silent-Off: "&f%mine% &awill now announce resets."
   Silent-On: "&f%mine% &cwill no longer announce resets."
+  Update-Found: "&6&lWARNING! &fThere is a new version of RealMines!"
 
