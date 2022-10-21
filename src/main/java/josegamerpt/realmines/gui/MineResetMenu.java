@@ -130,20 +130,17 @@ public class MineResetMenu {
         for (String s : Language.file().getStringList("GUI.Resets.Time-Off.Description")) {
             timeOffDesc.add(s.replaceAll("%value%", "" + m.getResetValue(BlockMine.Reset.TIME)));
         }
-
         if (m.isResetBy(BlockMine.Reset.PERCENTAGE)) {
             this.inv.setItem(0, Items.createItemLoreEnchanted(Material.BOOK, 1, Language.file().getString("GUI.Resets.Percentage-On.Name"), percentageOnDesc));
         } else {
             this.inv.setItem(0, Items.createItemLore(Material.BOOK, 1, Language.file().getString("GUI.Resets.Percentage-Off.Name"), percentageOffDesc));
         }
-
         if (m.isResetBy(BlockMine.Reset.TIME)) {
             this.inv.setItem(4, Items.createItemLoreEnchanted(Material.CLOCK, 1, Language.file().getString("GUI.Resets.Time-On.Name"), timeOnDesc));
         } else {
             this.inv.setItem(4, Items.createItemLore(Material.CLOCK, 1, Language.file().getString("GUI.Resets.Time-Off.Name"), timeOffDesc));
 
         }
-
         this.inv.setItem(2,
                 Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Go-Back.Name"), Language.file().getStringList("GUI.Items.Go-Back.Description")));
     }
