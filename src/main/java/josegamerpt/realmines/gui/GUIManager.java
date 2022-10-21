@@ -32,7 +32,7 @@ public class GUIManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                GUIBuilder inventory = new GUIBuilder(Text.color("Choose mine type for: " + name), 27, target.getUniqueId());
+                GUIBuilder inventory = new GUIBuilder(Text.color(Language.file().getString("GUI.Choose-Name").replaceAll("%mine%", name)), 27, target.getUniqueId());
 
                 inventory.addItem(e -> {
                             target.closeInventory();
@@ -43,7 +43,7 @@ public class GUIManager {
                 inventory.addItem(e -> {
                             target.closeInventory();
                             RealMines.getInstance().getMineManager().createSchematicMine(target, name);
-                        }, Items.createItemLore(Material.FILLED_MAP, 1, "&b&lSCHEMATIC", Collections.emptyList()),
+                        }, Items.createItemLore(Material.FILLED_MAP, 1, Language.file().getString("GUI.Items.Schematic.Name"), Collections.emptyList()),
                         15);
 
                 inventory.openInventory(target);

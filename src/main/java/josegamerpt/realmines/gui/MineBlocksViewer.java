@@ -250,18 +250,18 @@ public class MineBlocksViewer {
             try {
                 d = Double.parseDouble(s.replace("%", ""));
             } catch (Exception ex) {
-                gp.sendMessage(Text.color("&cInput a percentage from 0 to 1."));
+                gp.sendMessage(Text.color(Language.file().getString("System.Input-Percentage-Error")));
                 editPercentage(gp, a, current);
             }
 
             if (d <= 0) {
-                gp.sendMessage(Text.color("&cWrong input. Please input a percentage greater than 0."));
+                gp.sendMessage(Text.color(Language.file().getString("System.Input-Percentage-Error-Greater")));
                 editPercentage(gp, a, current);
                 return;
             }
 
             if (d > 100) {
-                gp.sendMessage(Text.color("&cWrong input. Please input a percentage lower or equal than 100."));
+                gp.sendMessage(Text.color(Language.file().getString("System.Input-Percentage-Error-Lower")));
                 editPercentage(gp, a, current);
                 return;
             }
@@ -270,7 +270,7 @@ public class MineBlocksViewer {
 
             a.getMineBlock().setPercentage(d);
             current.m.saveData(BlockMine.Data.BLOCKS);
-            gp.sendMessage(Text.color("&fPercentage modified to &b" + d * 100 + "%"));
+            gp.sendMessage(Text.color(Language.file().getString("System.Percentage-Modified").replaceAll("%value%", "" + (d * 100))));
             MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.m);
             v.openInventory(gp);
         }, s -> {

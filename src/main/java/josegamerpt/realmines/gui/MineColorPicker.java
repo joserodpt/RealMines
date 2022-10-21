@@ -27,6 +27,7 @@ public class MineColorPicker {
     private final UUID uuid;
     private final RMine mi;
     private final RealMines rm;
+    private final List<String> colorsDescription = Language.file().getStringList("GUI.Items.Colors.Description");
 
     public MineColorPicker(RealMines rm, Player as, RMine mi) {
         this.rm = rm;
@@ -112,15 +113,15 @@ public class MineColorPicker {
     }
 
     public void load() {
-        inv.setItem(0, Items.getMineColor(BlockMine.Color.RED, "&c&lRED", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(1, Items.getMineColor(BlockMine.Color.GREEN, "&2&lGREEN", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(2, Items.getMineColor(BlockMine.Color.BLUE, "&9&lBLUE", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(3, Items.getMineColor(BlockMine.Color.BROWN, "&4&lBROWN", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(4, Items.getMineColor(BlockMine.Color.GRAY, "&7&lGRAY", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(5, Items.getMineColor(BlockMine.Color.WHITE, "&f&lWHITE", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(6, Items.getMineColor(BlockMine.Color.ORANGE, "&6&lORANGE", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(7, Items.getMineColor(BlockMine.Color.YELLOW, "&e&lYELLOW", Collections.singletonList("&fClick to set this mine color.")));
-        inv.setItem(8, Items.getMineColor(BlockMine.Color.PURPLE, "&d&lPURPLE", Collections.singletonList("&fClick to set this mine color.")));
+        inv.setItem(0, Items.getMineColor(BlockMine.Color.RED, Language.file().getString("GUI.Items.Colors.Red"), colorsDescription));
+        inv.setItem(1, Items.getMineColor(BlockMine.Color.GREEN, Language.file().getString("GUI.Items.Colors.Green"), colorsDescription));
+        inv.setItem(2, Items.getMineColor(BlockMine.Color.BLUE, Language.file().getString("GUI.Items.Colors.Blue"), colorsDescription));
+        inv.setItem(3, Items.getMineColor(BlockMine.Color.BROWN, Language.file().getString("GUI.Items.Colors.Brown"), colorsDescription));
+        inv.setItem(4, Items.getMineColor(BlockMine.Color.GRAY, Language.file().getString("GUI.Items.Colors.Gray"), colorsDescription));
+        inv.setItem(5, Items.getMineColor(BlockMine.Color.WHITE, Language.file().getString("GUI.Items.Colors.White"), colorsDescription));
+        inv.setItem(6, Items.getMineColor(BlockMine.Color.ORANGE, Language.file().getString("GUI.Items.Colors.Orange"), colorsDescription));
+        inv.setItem(7, Items.getMineColor(BlockMine.Color.YELLOW, Language.file().getString("GUI.Items.Colors.Yellow"), colorsDescription));
+        inv.setItem(8, Items.getMineColor(BlockMine.Color.PURPLE, Language.file().getString("GUI.Items.Colors.Purple"), colorsDescription));
     }
 
     public void openInventory(Player target) {

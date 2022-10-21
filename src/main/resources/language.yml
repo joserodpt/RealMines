@@ -11,9 +11,47 @@ GUI:
   Panel-Name: "&9Mines"
   Reset-Name: "%mine% &rReset Options"
   Faces-Name: "&rFaces"
+  Choose-Name: "&rChoose mine type for: %mine%"
+  Select-Icon-Name: "&rSelect icon for %mine%"
+  Pick-New-Block-Name: "&rPick a new block"
   Mine-Blocks-Name: "%mine% &rblocks"
   Color-Picker-Name: "&rPick a color"
+  Faces:
+    Name: "&3&l%face%"
+    Selected-Description:
+      - "&7Selected Block: &f%material%"
+      - "&7Press &fQ &7to &cdelete."
+    None-Description:
+      - "&7Selected Block: &fNone"
+      - "&7Press &fQ &7to &cdelete."
+  Resets:
+    Percentage-On:
+      Name: "&9Reset By Percentage &7(&a&lON&r&7)"
+      Description:
+        - "&7Left click to turn &cOFF"
+        - "&fRight Click to input a new percentage."
+        - "&fCurrent Value: &b%value%%"
+    Percentage-Off:
+      Name: "&9Reset By Percentage &7(&c&lOFF&r&7)"
+      Description:
+        - "&7Left click to turn &aON"
+        - "&fRight Click to input a new percentage."
+        - "&fCurrent Value: &b%value%%"
+    Time-On:
+      Name: "&9Reset By Time &7(&a&lON&r&7)"
+      Description:
+        - "&7Left click to turn &cOFF"
+        - "&fRight Click to input a new time."
+        - "&fCurrent Value: &b%value%%"
+    Time-Off:
+      Name: "&9Reset By Time &7(&c&lOFF&r&7)"
+      Description:
+        - "&7Left click to turn &aON"
+        - "&fRight Click to input a new time."
+        - "&fCurrent Value: &b%value%%"
   Items:
+    Schematic:
+      Name: "&b&lSchematic"
     Blocks:
       Name: "&9&lBlocks"
       Description:
@@ -71,6 +109,10 @@ GUI:
       Name: "&6&lBack"
       Description:
         - "&fClick here to go to the previous page."
+    Go-Back:
+      Name: "&9Go Back"
+      Description:
+        - "&7Click here to go back."
     Close:
       Name: "&c&lClose"
       Description:
@@ -98,6 +140,22 @@ GUI:
       Description:
         - "&fCreate a new mine with"
         - "&f/rm crate <name>."
+    Pick:
+      Name: "&3&l%material%"
+      Description:
+        - "&fClick to pick this."
+    Colors:
+      Red: "&c&lRED"
+      Green: "&2&lGREEN"
+      Blue: "&9&lBLUE"
+      Brown: "&4&lBROWN"
+      Gray: "&7&lGRAY"
+      White: "&f&lWHITE"
+      Orange: "&6&lORANGE"
+      Yellow: "&e&lYELLOW"
+      Purple: "&d&lPURPLE"
+      Description:
+        - "&fClick to set this mine color."
 System:
   Player-Only: "&cOnly players can run this command."
   Invalid-Arguments: "&cInvalid arguments."
@@ -126,4 +184,27 @@ System:
   Update-Found: "&6&lWARNING! &fThere is a new version of RealMines!"
   Input-Cancelled: "&fInput canceled."
   Error-Occurred: "&cAn error occurred. Contact JoseGamer_PT on www.spigotmc.org"
+  Error-Permission: "&fYou &cdo not &fhave permission to execute this command!"
+  Error-Command: "&cThe command you're trying to run doesn't exist!"
+  Error-Usage: "&cWrong usage for the command!"
+  Nothing-Found: "&fNothing found for your results."
+  Invalid-Schematic: "&cThe specified schematic file does not exist. Did you write the extension format? (.schem, etc)"
+  Input-Schematic: "&fInput in chat the schematic file name in RealMines/schematics folder (Example: Schem1.schem)"
+  Input-Schematic-Warn: "&eWARNING &fDont forget to select the schematic region with WorldEdit and then do %action%"
+  Input-Parse: "&cInput a percentage from 0 to 100."
+  Input-Limit-Error: "&cWrong input. Please input a percentage greater than 1 and lower or equal to 100"
+  Input-Percentage-Error: "&cInput a percentage from 0 to 1."
+  Input-Percentage-Error-Greater: "&cWrong input. Please input a percentage greater than 0."
+  Input-Percentage-Error-Lower: "&cWrong input. Please input a percentage lower or equal than 100."
+  Input-Limit-Error-Greater: "&cWrong input. Please input a new time greater than 1"
+  Input-Seconds: "&cInput a new time in seconds."
+  Percentage-Modified: "&fPercentage modified to &b%value%"
+  Time-Modified: "&fTime modified to &b%value% seconds."
+  Type-Input:
+    - "&l&9Type in chat your input"
+    - "&fType &4cancel &fto cancel"
+Signs:
+  # Split lines with |
+  Setting-Not-Found: "&4Setting|&4not|&4found"
+  Mine-Not-Found: "&4Mine&4|&4not|&4found"
 

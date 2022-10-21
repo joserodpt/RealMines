@@ -1,7 +1,9 @@
 package josegamerpt.realmines.events;
 
 import josegamerpt.realmines.RealMines;
+import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mines.RMine;
+import josegamerpt.realmines.utils.Text;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -9,9 +11,14 @@ import org.bukkit.event.block.BlockPlaceEvent;
 
 import org.bukkit.event.block.SignChangeEvent;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class BlockEvents implements Listener {
 
 	private final RealMines rm;
+	private final String noSetting = Language.file().getString("Signs.Setting-Not-Found");
+	private final String noMine = Language.file().getString("Signs.Mine-Not-Found");
 
 	public BlockEvents(RealMines rm)
 	{
@@ -47,12 +54,16 @@ public class BlockEvents implements Listener {
 					m.addSign(event.getBlock(), modif);
 					m.updateSigns();
 				} else {
-					event.setLine(1, "§4Setting not");
-					event.setLine(2, "§4found");
+					String[] line = noSetting.split("\\|");
+					event.setLine(1, Text.color(line[0]));
+					event.setLine(2, Text.color(line[1]));
+					event.setLine(3, Text.color(line[2]));
 				}
 			} else {
-				event.setLine(1, "§4Mine not");
-				event.setLine(2, "§4found");
+				String[] line = noMine.split("\\|");
+				event.setLine(1, Text.color(line[0]));
+				event.setLine(2, Text.color(line[1]));
+				event.setLine(3, Text.color(line[2]));
 			}
 		}
 	}

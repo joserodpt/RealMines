@@ -62,10 +62,10 @@ public class MaterialPicker {
 
         switch (block) {
             case ICON:
-                inv = Bukkit.getServer().createInventory(null, 54, Text.color("Select icon for " + m.getDisplayName()));
+                inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Select-Icon-Name").replaceAll("%mine%", m.getDisplayName())));
                 break;
             default:
-                inv = Bukkit.getServer().createInventory(null, 54, Text.color("Pick a new block"));
+                inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Pick-New-Block-Name")));
                 break;
         }
         items = Items.getValidBlocks();
@@ -86,10 +86,10 @@ public class MaterialPicker {
 
         switch (block) {
             case ICON:
-                inv = Bukkit.getServer().createInventory(null, 54, Text.color("Select icon for " + m.getDisplayName()));
+                inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Select-Icon-Name").replaceAll("%mine%", m.getDisplayName())));
                 break;
             default:
-                inv = Bukkit.getServer().createInventory(null, 54, Text.color("Pick a new block"));
+                inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Pick-New-Block-Name")));
                 break;
         }
 
@@ -123,7 +123,7 @@ public class MaterialPicker {
                             case 4:
                                 new PlayerInput(gp, input -> {
                                     if (current.searchMaterial(input).size() == 0) {
-                                        gp.sendMessage(Text.color("&fNothing found for your results."));
+                                        gp.sendMessage(Text.color(Language.file().getString("System.Nothing-Found")));
                                         current.exit(current.rm, gp);
                                         return;
                                     }
@@ -261,7 +261,7 @@ public class MaterialPicker {
             if (i == null && items.size() != 0) {
                 Material s = items.get(0);
                 inv.setItem(slot,
-                        Items.createItemLore(s, 1, "§3§l" + s.name(), Collections.singletonList("&fClick to pick this.")));
+                        Items.createItemLore(s, 1, Language.file().getString("GUI.Items.Pick.Name").replaceAll("%material%", s.name()), Language.file().getStringList("GUI.Items.Pick.Description")));
                 display.put(slot, s);
                 items.remove(0);
             }

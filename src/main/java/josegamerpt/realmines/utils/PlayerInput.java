@@ -23,7 +23,7 @@ public class PlayerInput implements Listener {
 	private final UUID uuid;
 
 	private final ArrayList<String> texts = Text
-			.color(Arrays.asList("&l&9Type in chat your input", "&fType &4cancel &fto cancel"));
+			.color(Language.file().getStringList("System.Type-Input"));
 
 	private final InputRunnable runGo;
 	private final InputRunnable runCancel;

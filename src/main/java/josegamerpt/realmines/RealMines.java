@@ -145,9 +145,9 @@ public class RealMines extends JavaPlugin {
             commandManager.getCompletionHandler().register("#minetasks", input -> this.mineResetTasksManager.getRegisteredTasks());
 
             //command messages
-            commandManager.getMessageHandler().register("cmd.no.exists", sender -> sender.sendMessage(this.getPrefix() + Text.color("&cThe command you're trying to run doesn't exist!")));
-            commandManager.getMessageHandler().register("cmd.no.permission", sender -> sender.sendMessage(this.getPrefix() + Text.color("&fYou &cdon't &fhave permission to execute this command!")));
-            commandManager.getMessageHandler().register("cmd.wrong.usage", sender -> sender.sendMessage(this.getPrefix() + Text.color("&cWrong usage for the command!")));
+            commandManager.getMessageHandler().register("cmd.no.exists", sender -> sender.sendMessage(this.getPrefix() + Text.color(Language.file().getString("System.Error-Command"))));
+            commandManager.getMessageHandler().register("cmd.no.permission", sender -> sender.sendMessage(this.getPrefix() + Text.color(Language.file().getString("System.Error-Permission"))));
+            commandManager.getMessageHandler().register("cmd.wrong.usage", sender -> sender.sendMessage(this.getPrefix() + Text.color(Language.file().getString("System.Error-Usage"))));
 
             //registo de comandos #portugal
             commandManager.register(new MineCMD(this));

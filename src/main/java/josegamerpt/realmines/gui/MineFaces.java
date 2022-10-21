@@ -136,10 +136,16 @@ public class MineFaces {
     }
 
     private ItemStack getIcon(RMine m, MineCuboid.CuboidDirection sel) {
-        return m.hasFaceBlock(sel) ?
-                Items.createItemLore(m.getFaceBlock(sel), 1, "&3&L" + sel.name(), Arrays.asList("&7Selected Block: &f" + m.getFaceBlock(sel).name(), "&7Press &fQ &7to &cdelete.")) :
-                Items.createItemLore(Material.BOOK, 1, "&3&L" + sel.name(), Arrays.asList("&7Selected Block: &fNone", "&7Press &fQ &7to &cdelete."));
-
+        List<String> faceSelectedDesc = new ArrayList<>();
+        if (!faceSelectedDesc.isEmpty()) faceSelectedDesc.clear();
+        if (m.hasFaceBlock(sel)) {
+            for (String s : Language.file().getStringList("GUI.Faces.Selected-Description")) {
+                faceSelectedDesc.add(s.replaceAll("%material%", m.getFaceBlock(sel).name()));
+            }
+            return Items.createItemLore(m.getFaceBlock(sel), 1, Language.file().getString("GUI.Faces.Name").replaceAll("%face%", sel.name()), faceSelectedDesc);
+        } else {
+            return Items.createItemLore(Material.BOOK, 1, Language.file().getString("GUI.Faces.Name").replaceAll("%face%", sel.name()), faceSelectedDesc);
+        }
     }
 
     public void openInventory(Player target) {

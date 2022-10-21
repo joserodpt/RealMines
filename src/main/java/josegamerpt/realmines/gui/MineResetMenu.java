@@ -114,26 +114,38 @@ public class MineResetMenu {
 
     public void load(RMine m) {
         inv.clear();
+        List<String> percentageOnDesc = new ArrayList<>();
+        List<String> percentageOffDesc = new ArrayList<>();
+        List<String> timeOnDesc = new ArrayList<>();
+        List<String> timeOffDesc = new ArrayList<>();
+        for (String s : Language.file().getStringList("GUI.Resets.Percentage-On.Description")) {
+            percentageOnDesc.add(s.replaceAll("%value%", "" + m.getResetValue(BlockMine.Reset.PERCENTAGE)));
+        }
+        for (String s : Language.file().getStringList("GUI.Resets.Percentage-Off.Description")) {
+            percentageOffDesc.add(s.replaceAll("%value%", "" + m.getResetValue(BlockMine.Reset.PERCENTAGE)));
+        }
+        for (String s : Language.file().getStringList("GUI.Resets.Time-On.Description")) {
+            timeOnDesc.add(s.replaceAll("%value%", "" + m.getResetValue(BlockMine.Reset.TIME)));
+        }
+        for (String s : Language.file().getStringList("GUI.Resets.Time-Off.Description")) {
+            timeOffDesc.add(s.replaceAll("%value%", "" + m.getResetValue(BlockMine.Reset.TIME)));
+        }
 
         if (m.isResetBy(BlockMine.Reset.PERCENTAGE)) {
-            this.inv.setItem(0, Items.createItemLoreEnchanted(Material.BOOK, 1, "&9Reset By Percentage &7(&a&lON&r&7)",
-                    Arrays.asList("&7Left click to turn &cOFF", "&fRight Click to input a new percentage.", "&fCurrent Value: &b" + m.getResetValue(BlockMine.Reset.PERCENTAGE) + "%")));
+            this.inv.setItem(0, Items.createItemLoreEnchanted(Material.BOOK, 1, Language.file().getString("GUI.Resets.Percentage-On.Name"), percentageOnDesc));
         } else {
-            this.inv.setItem(0, Items.createItemLore(Material.BOOK, 1, "&9Reset By Percentage &7(&c&lOFF&r&7)",
-                    Arrays.asList("&7Left click to turn &aON", "&fRight Click to input a new percentage.", "&fCurrent Value: &b" + m.getResetValue(BlockMine.Reset.PERCENTAGE) + "%")));
+            this.inv.setItem(0, Items.createItemLore(Material.BOOK, 1, Language.file().getString("GUI.Resets.Percentage-Off.Name"), percentageOffDesc));
         }
 
         if (m.isResetBy(BlockMine.Reset.TIME)) {
-            this.inv.setItem(4, Items.createItemLoreEnchanted(Material.CLOCK, 1, "&9Reset By Time &7(&a&lON&r&7)",
-                    Arrays.asList("&7Left click to turn &cOFF", "&fRight Click to input a new time.", "&fCurrent Value: &b" + m.getResetValue(BlockMine.Reset.TIME))));
+            this.inv.setItem(4, Items.createItemLoreEnchanted(Material.CLOCK, 1, Language.file().getString("GUI.Resets.Time-On.Name"), timeOnDesc));
         } else {
-            this.inv.setItem(4, Items.createItemLore(Material.CLOCK, 1, "&9Reset By Time &7(&c&lOFF&r&7)",
-                    Arrays.asList("&7Left click to turn &aON", "&fRight Click to input a new time.", "&fCurrent Value: &b" + m.getResetValue(BlockMine.Reset.TIME))));
+            this.inv.setItem(4, Items.createItemLore(Material.CLOCK, 1, Language.file().getString("GUI.Resets.Time-Off.Name"), timeOffDesc));
 
         }
 
         this.inv.setItem(2,
-                Items.createItemLore(Material.ACACIA_DOOR, 1, "&9Go Back", Collections.singletonList("&7Click here to go back.")));
+                Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Go-Back.Name"), Language.file().getStringList("GUI.Items.Go-Back.Description")));
     }
 
     public void openInventory(Player target) {
@@ -157,20 +169,20 @@ public class MineResetMenu {
                     try {
                         d = Integer.parseInt(s.replace("%", ""));
                     } catch (Exception ex) {
-                        gp.sendMessage(Text.color("&cInput a percentage from 0 to 100."));
+                        gp.sendMessage(Text.color(Language.file().getString("System.Input-Parse")));
                         editSetting(rm, 0, gp, m);
                         return;
                     }
 
                     if (d <= 1 || d >= 100) {
-                        gp.sendMessage(Text.color("&cWrong input. Please input a percentage greater than 1 and lower or equal to 100"));
+                        gp.sendMessage(Text.color(Language.file().getString("System.Input-Limit-Error")));
                         editSetting(rm, 0, gp, m);
                         return;
                     }
 
                     m.setResetValue(BlockMine.Reset.PERCENTAGE, d);
                     m.saveData(BlockMine.Data.OPTIONS);
-                    gp.sendMessage(Text.color("&fPercentage modified to &b" + d + "%"));
+                    gp.sendMessage(Text.color(Language.file().getString("System.Percentage-Modified").replaceAll("%value%", "" + d)));
 
                     MineResetMenu v = new MineResetMenu(rm, gp, m);
                     v.openInventory(gp);
@@ -185,20 +197,20 @@ public class MineResetMenu {
                     try {
                         d = Integer.parseInt(s.replace("%", ""));
                     } catch (Exception ex) {
-                        gp.sendMessage(Text.color("&cInput a new time in seconds."));
+                        gp.sendMessage(Text.color(Language.file().getString("System.Input-Seconds")));
                         editSetting(rm, 1, gp, m);
                         return;
                     }
 
                     if (d < 1) {
-                        gp.sendMessage(Text.color("&cWrong input. Please input a new time greater than 1"));
+                        gp.sendMessage(Text.color(Language.file().getString("System.Input-Limit-Error-Greater")));
                         editSetting(rm, 1, gp, m);
                         return;
                     }
 
                     m.setResetValue(BlockMine.Reset.TIME, d);
                     m.saveData(BlockMine.Data.OPTIONS);
-                    gp.sendMessage(Text.color("&fTime modified to &b" + d + " seconds."));
+                    gp.sendMessage(Text.color(Language.file().getString("System.Time-Modified").replaceAll("%value%", "" + d)));
 
 
                     MineResetMenu v = new MineResetMenu(rm, gp, m);
