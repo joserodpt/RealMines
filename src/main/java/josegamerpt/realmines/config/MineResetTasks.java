@@ -15,7 +15,7 @@ public class MineResetTasks implements Listener {
 
 	private static File file;
 	private static FileConfiguration customFile;
-	private static String name = "mineresettasks.yml";
+	private static final String name = "mineresettasks.yml";
 
 	public static void setup(Plugin p) {
 		file = new File(p.getDataFolder(), name);

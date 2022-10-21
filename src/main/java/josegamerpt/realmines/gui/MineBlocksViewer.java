@@ -6,7 +6,7 @@ import josegamerpt.realmines.mines.mine.BlockMine;
 import josegamerpt.realmines.mines.components.MineBlock;
 import josegamerpt.realmines.mines.gui.MineBlockIcon;
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.utils.Itens;
+import josegamerpt.realmines.utils.Items;
 import josegamerpt.realmines.utils.Pagination;
 import josegamerpt.realmines.utils.PlayerInput;
 import josegamerpt.realmines.utils.Text;
@@ -32,15 +32,15 @@ public class MineBlocksViewer {
     private RealMines rm;
 
     private static final Map<UUID, MineBlocksViewer> inventories = new HashMap<>();
-    static ItemStack placeholder = Itens.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static ItemStack next = Itens.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
+    static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
+    static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
             Language.file().getStringList("GUI.Items.Next.Description"));
-    static ItemStack back = Itens.createItemLore(Material.YELLOW_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Back.Name"),
+    static ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Back.Name"),
             Language.file().getStringList("GUI.Items.Back.Description"));
-    static ItemStack close = Itens.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
+    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
             Language.file().getStringList("GUI.Items.Close.Description"));
 
-    static ItemStack add = Itens.createItemLore(Material.HOPPER, 1, Language.file().getString("GUI.Items.Add.Name"),
+    static ItemStack add = Items.createItemLore(Material.HOPPER, 1, Language.file().getString("GUI.Items.Add.Name"),
             Language.file().getStringList("GUI.Items.Add.Description"));
     private final Inventory inv;
     private final UUID uuid;
@@ -83,7 +83,7 @@ public class MineBlocksViewer {
                         if (e.getClickedInventory().getType() == InventoryType.PLAYER)
                         {
 
-                            if (Itens.getValidBlocks().contains(e.getCurrentItem().getType()))
+                            if (Items.getValidBlocks().contains(e.getCurrentItem().getType()))
                             {
                                 current.m.addBlock(new MineBlock(e.getCurrentItem().getType(), 0.1D));
                                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 50, 50);

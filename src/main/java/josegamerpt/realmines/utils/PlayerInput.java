@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import josegamerpt.realmines.config.Language;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,15 +19,15 @@ import josegamerpt.realmines.RealMines;
 
 public class PlayerInput implements Listener {
 
-	private static Map<UUID, PlayerInput> inputs = new HashMap<>();
-	private UUID uuid;
+	private static final Map<UUID, PlayerInput> inputs = new HashMap<>();
+	private final UUID uuid;
 
-	private ArrayList<String> texts = Text
+	private final ArrayList<String> texts = Text
 			.color(Arrays.asList("&l&9Type in chat your input", "&fType &4cancel &fto cancel"));
 
-	private InputRunnable runGo;
-	private InputRunnable runCancel;
-	private BukkitTask taskId;
+	private final InputRunnable runGo;
+	private final InputRunnable runCancel;
+	private final BukkitTask taskId;
 
 	public PlayerInput(Player p, InputRunnable correct, InputRunnable cancel) {
 		this.uuid = p.getUniqueId();
@@ -67,7 +68,7 @@ public class PlayerInput implements Listener {
 						event.setCancelled(true);
 						try {
 							if (input.equalsIgnoreCase("cancel")) {
-								p.sendMessage(Text.color("&fInput canceled."));
+								Text.send(p, Language.file().getString("System.Input-Cancelled"));
 								current.taskId.cancel();
 								p.sendTitle("", "", 0, 1, 0);
 								Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getInstance(), () -> current.runCancel.run(input), 3);
@@ -80,7 +81,7 @@ public class PlayerInput implements Listener {
 							p.sendTitle("", "", 0, 1, 0);
 							current.unregister();
 						} catch (Exception e) {
-							p.sendMessage(Text.color("&cAn error ocourred. Contact JoseGamer_PT on www.spigotmc.org"));
+							Text.send(p, Language.file().getString("System.Error-Occurred"));
 							e.printStackTrace();
 						}
 					}

@@ -18,7 +18,7 @@ import java.util.Arrays;
 @Alias({"mine", "rm"})
 public class MineCMD extends CommandBase {
 
-    String playerOnly = "[RealMines] Only players can run this command.";
+    String playerOnly = Language.file().getString("System.Player-Only");
     private RealMines rm;
 
     public MineCMD(RealMines rm) {
@@ -35,7 +35,7 @@ public class MineCMD extends CommandBase {
     @Permission("realmines.reload")
     public void reloadcmd(final CommandSender commandSender) {
         this.rm.reload();
-        Text.send(commandSender, "&aReloaded.");
+        Text.send(commandSender, Language.file().getString("System.Reloaded"));
     }
 
     @SubCommand("panel")
@@ -47,7 +47,7 @@ public class MineCMD extends CommandBase {
             MineViewer v = new MineViewer(rm, p);
             v.openInventory(p);
         } else {
-            commandSender.sendMessage(playerOnly);
+            Text.send(commandSender, playerOnly);
         }
     }
 
@@ -58,7 +58,7 @@ public class MineCMD extends CommandBase {
             RealMines.getInstance().getMineManager().stopTasks();
             Text.send(commandSender, Language.file().getString("System.Stopped-Mine-Tasks"));
         } else {
-            commandSender.sendMessage(playerOnly);
+            Text.send(commandSender, playerOnly);
         }
     }
 
@@ -69,7 +69,7 @@ public class MineCMD extends CommandBase {
             RealMines.getInstance().getMineManager().startTasks();
             Text.send(commandSender, Language.file().getString("System.Started-Mine-Tasks"));
         } else {
-            commandSender.sendMessage(playerOnly);
+            Text.send(commandSender, playerOnly);
         }
     }
 
@@ -92,7 +92,7 @@ public class MineCMD extends CommandBase {
                 Text.send(commandSender, Language.file().getString("System.Mine-Exists"));
             }
         } else {
-            commandSender.sendMessage(playerOnly);
+            Text.send(commandSender, playerOnly);
         }
     }
 
@@ -112,7 +112,7 @@ public class MineCMD extends CommandBase {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }
         } else {
-            commandSender.sendMessage(playerOnly);
+            Text.send(commandSender, playerOnly);
         }
     }
 
@@ -129,7 +129,7 @@ public class MineCMD extends CommandBase {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }
         } else {
-            commandSender.sendMessage(playerOnly);
+            Text.send(commandSender, playerOnly);
         }
     }
 
@@ -144,17 +144,17 @@ public class MineCMD extends CommandBase {
                 if (m.isSilent()) {
                     m.setSilent(false);
                     m.saveData(RMine.Data.OPTIONS);
-                    Text.send(commandSender, "&f" + name + " &awill now announce resets!"); // TODO - create translation in future
+                    Text.send(commandSender, Language.file().getString("System.Silent-Off").replaceAll("%mine%", name));
                 } else if (!m.isSilent()) {
                     m.setSilent(true);
                     m.saveData(RMine.Data.OPTIONS);
-                    Text.send(commandSender, "&f" + name + " &cwill no longer announce resets!"); // TODO - create translation in future
+                    Text.send(commandSender, Language.file().getString("System.Silent-On").replaceAll("%mine%", name));
                 }
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }
         } else {
-            commandSender.sendMessage(playerOnly);
+            Text.send(commandSender, playerOnly);
         }
     }
 
@@ -172,7 +172,7 @@ public class MineCMD extends CommandBase {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }
         } else {
-            commandSender.sendMessage(playerOnly);
+            Text.send(commandSender, playerOnly);
         }
     }
 
@@ -197,9 +197,9 @@ public class MineCMD extends CommandBase {
     public void deletecmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
             RealMines.getInstance().getMineManager().deleteMine(RealMines.getInstance().getMineManager().get(name));
-            Text.send(commandSender, "&fMine deleted.");
+            Text.send(commandSender, Language.file().getString("System.Mine-Deleted"));
         } else {
-            commandSender.sendMessage(playerOnly);
+            Text.send(commandSender, playerOnly);
         }
     }
 
@@ -217,7 +217,7 @@ public class MineCMD extends CommandBase {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }
         } else {
-            commandSender.sendMessage(playerOnly);
+            Text.send(commandSender, playerOnly);
         }
     }
 
@@ -234,7 +234,7 @@ public class MineCMD extends CommandBase {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }
         } else {
-            commandSender.sendMessage(playerOnly);
+            Text.send(commandSender, playerOnly);
         }
     }
 
