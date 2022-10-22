@@ -100,8 +100,15 @@ public class RealMines extends JavaPlugin {
         }
 
         log(Level.INFO, "Your config version is: " + Configer.getConfigVersion());
+        log(Level.INFO, "Your language version is: " + LanguageConfiger.getConfigVersion());
         Configer.updateConfig();
+        LanguageConfiger.updateConfig();
 
+        if (LanguageConfiger.checkForErrors()) {
+            failMessage("There are some problems with your language config: " + LanguageConfiger.getErrors() + "\nPlease check this errors. Plugin is disable due to config errors.");
+            log(Level.INFO, star);
+            disablePlugin();
+        }
         if (Configer.checkForErrors()) {
             failMessage("There are some problems with your config: " + Configer.getErrors() + "\nPlease check this errors. Plugin is disabled due to config errors.");
             log(Level.INFO, star);
