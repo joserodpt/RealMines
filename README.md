@@ -9,6 +9,9 @@
 
 </div>
 
+<a href="https://www.spigotmc.org/resources/realmines-1-14-to-1-19-2.73707/"><img src="https://raw.githubusercontent.com/intergrav/devins-badges/v2/assets/compact/supported/spigot_46h.png" height="50"></a>
+<a href="https://github.com/JoseGamerPT/RealMines"><img src="https://raw.githubusercontent.com/intergrav/devins-badges/v2/assets/compact/available/github_46h.png" height="50"></a>
+
 Welcome to the **RealMines plugin**. This is a brand new mine management plugin. Coded in the 1.14 codebase, it's aim is to provide Server Owners and Players with a fast and reliable mines system.
 
 ----
