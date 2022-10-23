@@ -6,7 +6,7 @@
 
     <groupId>josegamerpt.realmines</groupId>
     <artifactId>RealMines</artifactId>
-    <version>20-10-2022 Build 1</version>
+    <version>22-10-2022 Build 1</version>
     <packaging>jar</packaging>
 
     <name>RealMines</name>

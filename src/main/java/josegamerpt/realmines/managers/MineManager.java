@@ -183,7 +183,7 @@ public class MineManager {
     }
 
     public void createSchematicMine(Player p, String name) {
-        Text.send(p, "&fInput in chat the schematic file name in RealMines/schematics folder (Example: Schem1.schem)");
+        Text.send(p, Language.file().getString("System.Input-Schematic"));
 
         new PlayerInput(p, s -> {
             File folder = new File(RealMines.getInstance().getDataFolder(), "schematics");
@@ -203,10 +203,9 @@ public class MineManager {
                 m.reset();
                 m.setTeleport(p.getLocation());
                 m.saveData(RMine.Data.TELEPORT);
-
-                Text.send(p, "&eWARNING &fDont forget to select the schematic region with WorldEdit and then do /mine setregion " + ChatColor.stripColor(name));
+                Text.send(p, Language.file().getString("System.Input-Schematic-Warn").replaceAll("%action%", "/mine setregion " + ChatColor.stripColor(name)));
             } else {
-                Text.send(p, "&cThe specified schematic file does not exist. Did you write the extension format? (.schem, etc)");
+                Text.send(p, Language.file().getString("System.Invalid-Schematic"));
             }
         }, s -> {
 
@@ -320,7 +319,7 @@ public class MineManager {
                 } else {
                     if (Config.file().getBoolean("RealMines.teleportMessage"))
                     {
-                        Text.send(target, RealMines.getInstance().getPrefix() + "&fYou &cdon't &fhave permission to execute this command!");
+                        Text.send(target, RealMines.getInstance().getPrefix() + Language.file().getString("System.Error-Permission"));
                     }
                 }
             } else {

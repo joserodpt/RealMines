@@ -1,4 +1,17 @@
-# RealMines
+<div align="center">
+
+![Logo](https://i.imgur.com/rl6dII1.png)
+## RealMines - Brand new, simple and efficient mine management plugin.
+[![Build](https://img.shields.io/github/workflow/status/JoseGamerPT/RealMines/Publish%20and%20Build)](https://github.com/JoseGamerPT/RealMines/actions)
+![Issues](https://img.shields.io/github/issues-raw/JoseGamerPT/RealMines)
+[![Stars](https://img.shields.io/github/stars/JoseGamerPT/RealMines)](https://github.com/JoseGamerPT/RealMines/stargazers)
+[![Chat)](https://img.shields.io/discord/817810368649887744?logo=discord&logoColor=white)](https://discord.gg/t7gfnYZKy8) 
+
+</div>
+
+<a href="/#"><img src="https://raw.githubusercontent.com/intergrav/devins-badges/v2/assets/compact/supported/spigot_46h.png" height="35"></a>
+<a href="/#"><img src="https://raw.githubusercontent.com/intergrav/devins-badges/v2/assets/compact/supported/paper_46h.png" height="35"></a>
+<a href="/#"><img src="https://raw.githubusercontent.com/intergrav/devins-badges/v2/assets/compact/supported/purpur_46h.png" height="35"></a>
 
 Welcome to the **RealMines plugin**. This is a brand new mine management plugin. Coded in the 1.14 codebase, it's aim is to provide Server Owners and Players with a fast and reliable mines system.
 

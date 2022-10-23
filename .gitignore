@@ -12,3 +12,4 @@ target/
 *.zip
 *.tar.gz
 *.rar
+dependency-reduced-pom.xml
