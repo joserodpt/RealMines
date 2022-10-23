@@ -5,7 +5,7 @@
 [![Build](https://img.shields.io/github/workflow/status/JoseGamerPT/RealMines/Publish%20and%20Build)](https://github.com/JoseGamerPT/RealMines/actions)
 ![Issues](https://img.shields.io/github/issues-raw/JoseGamerPT/RealMines)
 [![Stars](https://img.shields.io/github/stars/JoseGamerPT/RealMines)](https://github.com/JoseGamerPT/RealMines/stargazers)
-[![Chat](https://img.shields.io/discord/817810368649887744?color=7289da&logo=discord&logoColor=white)](https://discord.gg/t7gfnYZKy8) 
+[![Chat)](https://img.shields.io/discord/817810368649887744?logo=discord&logoColor=white)](https://discord.gg/t7gfnYZKy8) 
 
 </div>
 
