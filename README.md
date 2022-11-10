@@ -13,7 +13,7 @@
 
 </div>
 
-Welcome to the **RealMines plugin**. This is a brand new mine management plugin. Coded in the 1.14 codebase, it's aim is to provide Server Owners and Players with a fast and reliable mines system.
+Welcome to the **RealMines plugin**! This is a brand new mine management plugin. Coded in the 1.14 codebase, it's aim is to provide Server Owners and Players with a fast and reliable mines system.
 
 ----
 
