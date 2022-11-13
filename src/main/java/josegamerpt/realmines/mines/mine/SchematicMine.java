@@ -323,11 +323,6 @@ public class SchematicMine implements RMine {
     }
 
     @Override
-    public void setSilent(boolean b) {
-        Mines.file().set(this.name + ".Settings.Reset.Silent", b);
-    }
-
-    @Override
     public boolean isSilent() {
         return silent;
     }
@@ -487,6 +482,8 @@ public class SchematicMine implements RMine {
                 return this.resetByPercentage;
             case TIME:
                 return this.resetByTime;
+            case SILENT:
+                return this.silent;
         }
         return false;
     }
@@ -509,6 +506,8 @@ public class SchematicMine implements RMine {
                 this.resetByPercentage = b;
             case TIME:
                 this.resetByTime = b;
+            case SILENT:
+                this.silent = b;
         }
     }
 

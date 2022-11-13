@@ -245,7 +245,7 @@ public class MineManager {
                 Mines.file().set(mine.getName() + ".Settings.Reset.ByTime", mine.isResetBy(RMine.Reset.TIME));
                 Mines.file().set(mine.getName() + ".Settings.Reset.ByPercentageValue", mine.getResetValue(RMine.Reset.PERCENTAGE));
                 Mines.file().set(mine.getName() + ".Settings.Reset.ByTimeValue", mine.getResetValue(RMine.Reset.TIME));
-                Mines.file().set(mine.getName() + ".Settings.Reset.Silent", mine.isSilent());
+                Mines.file().set(mine.getName() + ".Settings.Reset.Silent", mine.isResetBy(RMine.Reset.SILENT));
                 break;
             case PLACE:
                 switch (mine.getType())

@@ -100,8 +100,6 @@ public interface RMine {
 
     boolean isSilent();
 
-    void setSilent(boolean b);
-
     Material getIcon();
 
     void setIcon(Material a);
@@ -136,7 +134,7 @@ public interface RMine {
 
     MineTimer getMineTimer();
 
-    enum Reset {PERCENTAGE, TIME}
+    enum Reset {PERCENTAGE, TIME, SILENT}
 
     enum Type {BLOCKS, SCHEMATIC}
 

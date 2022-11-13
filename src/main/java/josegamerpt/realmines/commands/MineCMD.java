@@ -142,11 +142,11 @@ public class MineCMD extends CommandBase {
             RMine m = RealMines.getInstance().getMineManager().get(name);
             if (m != null) {
                 if (m.isSilent()) {
-                    m.setSilent(false);
+                    m.setResetStatus(RMine.Reset.SILENT, false);
                     m.saveData(RMine.Data.OPTIONS);
                     Text.send(commandSender, Language.file().getString("System.Silent-Off").replaceAll("%mine%", name));
                 } else if (!m.isSilent()) {
-                    m.setSilent(true);
+                    m.setResetStatus(RMine.Reset.SILENT, true);
                     m.saveData(RMine.Data.OPTIONS);
                     Text.send(commandSender, Language.file().getString("System.Silent-On").replaceAll("%mine%", name));
                 }
