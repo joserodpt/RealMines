@@ -2,6 +2,7 @@ package josegamerpt.realmines;
 
 import josegamerpt.realmines.gui.GUIManager;
 import josegamerpt.realmines.mines.RMine;
+import josegamerpt.realmines.utils.Countdown;
 import org.bukkit.OfflinePlayer;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 
@@ -160,6 +161,18 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
             RMine m = plugin.getMineManager().get(mine);
             if (m != null) {
                 return plugin.getMineManager().get(mine).getMineTimer().getCountdown().getSecondsLeft() + "";
+            } else {
+                return "No mine: " + mine;
+            }
+        }
+
+        if (identifier.startsWith("timeleft"))
+        {
+            String[] split = identifier.split("_");
+            String mine = split[mineIndex];
+            RMine m = plugin.getMineManager().get(mine);
+            if (m != null) {
+                return Countdown.format(plugin.getMineManager().get(mine).getMineTimer().getCountdown().getSecondsLeft() * 1000L) + "";
             } else {
                 return "No mine: " + mine;
             }

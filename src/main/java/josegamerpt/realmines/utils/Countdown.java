@@ -3,6 +3,7 @@ package josegamerpt.realmines.utils;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.time.Duration;
 import java.util.function.Consumer;
 
 /**
@@ -105,5 +106,13 @@ public class Countdown implements Runnable {
     public void scheduleTimer() {
         // Initialize our assigned task's id, for later use so we can cancel
         this.assignedTaskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(plugin, this, 0L, 20L);
+    }
+
+    public static String format(long mills) {
+        Duration duration = Duration.ofMillis(mills);
+        if (duration.toMinutesPart() != 0) {
+            return duration.toMinutesPart() + "m " + duration.toSecondsPart() + "s";
+        } else
+            return duration.toSecondsPart() + "s";
     }
 }
