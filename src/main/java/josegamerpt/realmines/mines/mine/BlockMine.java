@@ -1,6 +1,7 @@
 package josegamerpt.realmines.mines.mine;
 
 import josegamerpt.realmines.RealMines;
+import josegamerpt.realmines.config.Config;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.config.Mines;
 import josegamerpt.realmines.mines.RMine;
@@ -256,14 +257,25 @@ public class BlockMine implements RMine {
         if (Bukkit.getOnlinePlayers().size() > 0) {
             this.sortBlocks();
             if (this.blocks.size() != 0) {
-                Bukkit.getScheduler().runTask(RealMines.getInstance(), () -> {
-                    //blocks
-                    this.mineCuboid.forEach(block -> block.setType(getBlock()));
-                    //faces
-                    for (Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
-                        this.mineCuboid.getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
-                    }
-                });
+                if (Config.file().getBoolean("RealMines.dev-options.async-resets")) {
+                    RealMines.getInstance().getExecutor().execute(() -> {
+                        //blocks
+                        this.mineCuboid.forEach(block -> block.setType(getBlock()));
+                        //faces
+                        for (Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
+                            this.mineCuboid.getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
+                        }
+                    });
+                } else {
+                    Bukkit.getScheduler().runTask(RealMines.getInstance(), () -> {
+                        //blocks
+                        this.mineCuboid.forEach(block -> block.setType(getBlock()));
+                        //faces
+                        for (Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
+                            this.mineCuboid.getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
+                        }
+                    });
+                }
             }
         }
     }
