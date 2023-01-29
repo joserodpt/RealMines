@@ -10,6 +10,4 @@ RealMines:
   - 3
   - 2
   - 1
- dev-options:
-  async-resets: true
-Version: 4
+Version: 3

@@ -1,7 +1,6 @@
 package josegamerpt.realmines.mines;
 
 import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.config.Config;
 import josegamerpt.realmines.mines.components.MineBlock;
 import josegamerpt.realmines.mines.components.MineCuboid;
 import josegamerpt.realmines.mines.components.MineSign;
@@ -34,16 +33,7 @@ public class BlockMine extends RMine {
         if (Bukkit.getOnlinePlayers().size() > 0) {
             this.sortBlocks();
             if (this.blocks.size() != 0) {
-                if (Config.file().getBoolean("RealMines.dev-options.async-resets")) {
-                    RealMines.getInstance().getExecutor().execute(() -> {
-                        //blocks
-                        this.mineCuboid.forEach(block -> block.setType(getBlock()));
-                        //faces
-                        for (Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
-                            this.mineCuboid.getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
-                        }
-                    });
-                } else {
+
                     Bukkit.getScheduler().runTask(RealMines.getInstance(), () -> {
                         //blocks
                         this.mineCuboid.forEach(block -> block.setType(getBlock()));
@@ -52,7 +42,6 @@ public class BlockMine extends RMine {
                             this.mineCuboid.getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
                         }
                     });
-                }
             }
         }
     }

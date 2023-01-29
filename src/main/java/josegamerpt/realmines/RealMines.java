@@ -1,15 +1,16 @@
 package josegamerpt.realmines;
 
-import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import josegamerpt.realmines.commands.MineCMD;
 import josegamerpt.realmines.commands.MineResetTaskCMD;
-import josegamerpt.realmines.config.*;
-import josegamerpt.realmines.gui.GUIManager;
+import josegamerpt.realmines.config.Config;
+import josegamerpt.realmines.config.Language;
+import josegamerpt.realmines.config.MineResetTasks;
+import josegamerpt.realmines.config.Mines;
+import josegamerpt.realmines.events.BlockEvents;
+import josegamerpt.realmines.gui.*;
 import josegamerpt.realmines.managers.MineManager;
 import josegamerpt.realmines.managers.MineResetTasksManager;
 import josegamerpt.realmines.mines.RMine;
-import josegamerpt.realmines.events.BlockEvents;
-import josegamerpt.realmines.gui.*;
 import josegamerpt.realmines.utils.GUIBuilder;
 import josegamerpt.realmines.utils.PlayerInput;
 import josegamerpt.realmines.utils.Text;
@@ -24,9 +25,6 @@ import org.bukkit.scheduler.BukkitTask;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.logging.Level;
 
 public class RealMines extends JavaPlugin {
@@ -37,12 +35,9 @@ public class RealMines extends JavaPlugin {
     PluginManager pm = Bukkit.getPluginManager();
     CommandManager commandManager;
     private BukkitTask mineHighlight;
-    public Random r = new Random();
-
     private MineManager mineManager = new MineManager();
     private MineResetTasksManager mineResetTasksManager = new MineResetTasksManager(this);
     private GUIManager guiManager = new GUIManager(this);
-    private ExecutorService executor;
 
     public MineManager getMineManager()
     {
@@ -66,9 +61,6 @@ public class RealMines extends JavaPlugin {
         return Text.color(Config.file().getString("RealMines.Prefix"));
     }
 
-    public ExecutorService getExecutor() {
-        return executor;
-    }
 
     public static RealMines getInstance() {
         return pl;
@@ -85,7 +77,6 @@ public class RealMines extends JavaPlugin {
 
     public void onEnable() {
         pl = this;
-        executor = Executors.newSingleThreadExecutor(new ThreadFactoryBuilder().setNameFormat("RealMines-Thread-Pool-%d").build());
         new Metrics(this, 10574);
 
         String star = "<------------------ RealMines PT ------------------>".replace("PT", "| " +
@@ -181,13 +172,6 @@ public class RealMines extends JavaPlugin {
             }
         });
     }
-
-    private void disablePlugin() {
-        HandlerList.unregisterAll(this);
-
-        Bukkit.getPluginManager().disablePlugin(this);
-    }
-
 
     public void onDisable() {
         if (this.mineHighlight != null) {
