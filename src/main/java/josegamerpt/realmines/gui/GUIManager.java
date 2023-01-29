@@ -1,8 +1,8 @@
 package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.RealMines;
+import josegamerpt.realmines.mines.BlockMine;
 import josegamerpt.realmines.mines.RMine;
-import josegamerpt.realmines.mines.mine.BlockMine;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.utils.GUIBuilder;
 import josegamerpt.realmines.utils.Items;
@@ -58,7 +58,7 @@ public class GUIManager {
                 GUIBuilder inventory = new GUIBuilder(Text.color(m.getColorIcon() + " " + m.getDisplayName() + " &r" + Text.getProgressBar(m.getRemainingBlocks(), m.getBlockCount(), 10, '■', ChatColor.GREEN, ChatColor.RED)), 27, target.getUniqueId(),
                         Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "&f"));
 
-                if (m.getType() != BlockMine.Type.SCHEMATIC) {
+                if (m instanceof BlockMine) {
                     inventory.addItem(e -> {
                                 target.closeInventory();
                                 Bukkit.getScheduler().scheduleSyncDelayedTask(rm, () -> {
@@ -115,7 +115,7 @@ public class GUIManager {
                     }, 2);
                 }, Items.getMineColor(m.getColor(), Language.file().getString("GUI.Items.MineColor.Name"), Language.file().getStringList("GUI.Items.MineColor.Description")), 24);
 
-                if (m.getType() != BlockMine.Type.SCHEMATIC) {
+                if (m instanceof BlockMine) {
                     inventory.addItem(e -> {
                         target.closeInventory();
                         Bukkit.getScheduler().scheduleSyncDelayedTask(rm, () -> {

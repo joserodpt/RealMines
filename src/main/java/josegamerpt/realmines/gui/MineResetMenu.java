@@ -3,7 +3,6 @@ package josegamerpt.realmines.gui;
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mines.RMine;
-import josegamerpt.realmines.mines.mine.BlockMine;
 import josegamerpt.realmines.utils.Items;
 import josegamerpt.realmines.utils.PlayerInput;
 import josegamerpt.realmines.utils.Text;
@@ -68,9 +67,9 @@ public class MineResetMenu {
                             case 0:
                                 switch (e.getClick()) {
                                     case LEFT:
-                                        current.min.setResetStatus(BlockMine.Reset.PERCENTAGE, !current.min.isResetBy(BlockMine.Reset.PERCENTAGE));
+                                        current.min.setResetStatus(RMine.Reset.PERCENTAGE, !current.min.isResetBy(RMine.Reset.PERCENTAGE));
                                         current.load(current.min);
-                                        current.min.saveData(BlockMine.Data.OPTIONS);
+                                        current.min.saveData(RMine.Data.OPTIONS);
                                         break;
                                     case RIGHT:
                                         current.editSetting(current.rm, 0, gp, current.min);
@@ -80,9 +79,9 @@ public class MineResetMenu {
                             case 4:
                                 switch (e.getClick()) {
                                     case LEFT:
-                                        current.min.setResetStatus(BlockMine.Reset.TIME, !current.min.isResetBy(BlockMine.Reset.TIME));
+                                        current.min.setResetStatus(RMine.Reset.TIME, !current.min.isResetBy(RMine.Reset.TIME));
                                         current.load(current.min);
-                                        current.min.saveData(BlockMine.Data.OPTIONS);
+                                        current.min.saveData(RMine.Data.OPTIONS);
                                         break;
                                     case RIGHT:
                                         current.editSetting(current.rm, 1, gp, current.min);
@@ -119,23 +118,23 @@ public class MineResetMenu {
         List<String> timeOnDesc = new ArrayList<>();
         List<String> timeOffDesc = new ArrayList<>();
         for (String s : Language.file().getStringList("GUI.Resets.Percentage-On.Description")) {
-            percentageOnDesc.add(s.replaceAll("%value%", "" + m.getResetValue(BlockMine.Reset.PERCENTAGE)));
+            percentageOnDesc.add(s.replaceAll("%value%", "" + m.getResetValue(RMine.Reset.PERCENTAGE)));
         }
         for (String s : Language.file().getStringList("GUI.Resets.Percentage-Off.Description")) {
-            percentageOffDesc.add(s.replaceAll("%value%", "" + m.getResetValue(BlockMine.Reset.PERCENTAGE)));
+            percentageOffDesc.add(s.replaceAll("%value%", "" + m.getResetValue(RMine.Reset.PERCENTAGE)));
         }
         for (String s : Language.file().getStringList("GUI.Resets.Time-On.Description")) {
-            timeOnDesc.add(s.replaceAll("%value%", "" + m.getResetValue(BlockMine.Reset.TIME)));
+            timeOnDesc.add(s.replaceAll("%value%", "" + m.getResetValue(RMine.Reset.TIME)));
         }
         for (String s : Language.file().getStringList("GUI.Resets.Time-Off.Description")) {
-            timeOffDesc.add(s.replaceAll("%value%", "" + m.getResetValue(BlockMine.Reset.TIME)));
+            timeOffDesc.add(s.replaceAll("%value%", "" + m.getResetValue(RMine.Reset.TIME)));
         }
-        if (m.isResetBy(BlockMine.Reset.PERCENTAGE)) {
+        if (m.isResetBy(RMine.Reset.PERCENTAGE)) {
             this.inv.setItem(0, Items.createItemLoreEnchanted(Material.BOOK, 1, Language.file().getString("GUI.Resets.Percentage-On.Name"), percentageOnDesc));
         } else {
             this.inv.setItem(0, Items.createItemLore(Material.BOOK, 1, Language.file().getString("GUI.Resets.Percentage-Off.Name"), percentageOffDesc));
         }
-        if (m.isResetBy(BlockMine.Reset.TIME)) {
+        if (m.isResetBy(RMine.Reset.TIME)) {
             this.inv.setItem(4, Items.createItemLoreEnchanted(Material.CLOCK, 1, Language.file().getString("GUI.Resets.Time-On.Name"), timeOnDesc));
         } else {
             this.inv.setItem(4, Items.createItemLore(Material.CLOCK, 1, Language.file().getString("GUI.Resets.Time-Off.Name"), timeOffDesc));
@@ -171,14 +170,14 @@ public class MineResetMenu {
                         return;
                     }
 
-                    if (d <= 1 || d >= 100) {
+                    if (d >= 1 || d <= 100) {
                         gp.sendMessage(Text.color(Language.file().getString("System.Input-Limit-Error")));
                         editSetting(rm, 0, gp, m);
                         return;
                     }
 
-                    m.setResetValue(BlockMine.Reset.PERCENTAGE, d);
-                    m.saveData(BlockMine.Data.OPTIONS);
+                    m.setResetValue(RMine.Reset.PERCENTAGE, d);
+                    m.saveData(RMine.Data.OPTIONS);
                     gp.sendMessage(Text.color(Language.file().getString("System.Percentage-Modified").replaceAll("%value%", "" + d)));
 
                     MineResetMenu v = new MineResetMenu(rm, gp, m);
@@ -205,8 +204,8 @@ public class MineResetMenu {
                         return;
                     }
 
-                    m.setResetValue(BlockMine.Reset.TIME, d);
-                    m.saveData(BlockMine.Data.OPTIONS);
+                    m.setResetValue(RMine.Reset.TIME, d);
+                    m.saveData(RMine.Data.OPTIONS);
                     gp.sendMessage(Text.color(Language.file().getString("System.Time-Modified").replaceAll("%value%", "" + d)));
 
 

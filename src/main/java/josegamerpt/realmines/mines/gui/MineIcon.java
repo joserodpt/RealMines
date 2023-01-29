@@ -30,7 +30,7 @@ public class MineIcon {
 	}
 
 	private void makeIcon() {
-		this.i = Items.createItemLore(m.getIcon(), 1, m.getColorIcon() + " &6&l" + m.getDisplayName() + " &f- &b&l" + m.getType().name(), var(m));
+		this.i = Items.createItemLore(m.getIcon(), 1, m.getColorIcon() + " &6&l" + m.getDisplayName() + " &f- &b&l" + m.getType(), var(m));
 	}
 
 	private List<String> var(RMine m) {

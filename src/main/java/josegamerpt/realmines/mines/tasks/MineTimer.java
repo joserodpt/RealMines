@@ -4,7 +4,6 @@ import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Config;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mines.RMine;
-import josegamerpt.realmines.mines.mine.BlockMine;
 import josegamerpt.realmines.utils.Countdown;
 
 public class MineTimer {
@@ -17,7 +16,7 @@ public class MineTimer {
     }
 
     public void start() {
-        startTask(m.getResetValue(BlockMine.Reset.TIME));
+        startTask(m.getResetValue(RMine.Reset.TIME));
     }
 
     private void startTask(int s) {
@@ -25,7 +24,7 @@ public class MineTimer {
             //
         }, () -> {
             this.m.reset();
-            startTask(this.m.getResetValue(BlockMine.Reset.TIME));
+            startTask(this.m.getResetValue(RMine.Reset.TIME));
         }, (t) -> {
             if (Config.file().getStringList("RealMines.announceTimes") != null && Config.file().getStringList("RealMines.announceTimes").contains(count.getSecondsLeft() + "")) {
                 this.m.broadcastMessage(Language.file().getString("Mines.Reset.Warning").replaceAll("%mine%", m.getDisplayName()).replaceAll("%time%", count.getSecondsLeft() + ""), false);

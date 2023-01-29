@@ -1,8 +1,8 @@
 package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.RealMines;
+import josegamerpt.realmines.mines.BlockMine;
 import josegamerpt.realmines.mines.RMine;
-import josegamerpt.realmines.mines.mine.BlockMine;
 import josegamerpt.realmines.mines.components.MineBlock;
 import josegamerpt.realmines.mines.gui.MineBlockIcon;
 import josegamerpt.realmines.config.Language;
@@ -85,7 +85,7 @@ public class MineBlocksViewer {
 
                             if (Items.getValidBlocks().contains(e.getCurrentItem().getType()))
                             {
-                                current.m.addBlock(new MineBlock(e.getCurrentItem().getType(), 0.1D));
+                                ((BlockMine) current.m).addBlock(new MineBlock(e.getCurrentItem().getType(), 0.1D));
                                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 50, 50);
                                 p.closeInventory();
                                 Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
@@ -132,7 +132,7 @@ public class MineBlocksViewer {
 
                                 if (e.getClick() == ClickType.DROP) {
                                     // eliminar
-                                    current.m.removeBlock(a.getMineBlock());
+                                    ((BlockMine) current.m).removeBlock(a.getMineBlock());
                                     Text.send(p, Language.file().getString("System.Remove").replace("%object%", a.getMineBlock().getMaterial().name()));
                                     p.closeInventory();
                                     Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
@@ -184,7 +184,7 @@ public class MineBlocksViewer {
     }
 
     public void load() {
-        p = new Pagination<>(28, m.getBlocks());
+        p = new Pagination<>(28, ((BlockMine) m).getBlocks());
         fillChest(p.getPage(pageNumber));
     }
 

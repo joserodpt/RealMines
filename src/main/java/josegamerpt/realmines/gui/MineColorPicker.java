@@ -2,7 +2,6 @@ package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.mines.RMine;
-import josegamerpt.realmines.mines.mine.BlockMine;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.utils.Items;
 import josegamerpt.realmines.utils.Text;
@@ -61,36 +60,36 @@ public class MineColorPicker {
 
                         switch (e.getRawSlot()) {
                             case 0:
-                                current.mi.setColor(BlockMine.Color.RED);
+                                current.mi.setColor(RMine.Color.RED);
                                 break;
                             case 1:
-                                current.mi.setColor(BlockMine.Color.GREEN);
+                                current.mi.setColor(RMine.Color.GREEN);
                                 break;
                             case 2:
-                                current.mi.setColor(BlockMine.Color.BLUE);
+                                current.mi.setColor(RMine.Color.BLUE);
                                 break;
                             case 3:
-                                current.mi.setColor(BlockMine.Color.BROWN);
+                                current.mi.setColor(RMine.Color.BROWN);
                                 break;
                             case 4:
-                                current.mi.setColor(BlockMine.Color.GRAY);
+                                current.mi.setColor(RMine.Color.GRAY);
                                 break;
                             case 5:
-                                current.mi.setColor(BlockMine.Color.WHITE);
+                                current.mi.setColor(RMine.Color.WHITE);
                                 break;
                             case 6:
-                                current.mi.setColor(BlockMine.Color.ORANGE);
+                                current.mi.setColor(RMine.Color.ORANGE);
                                 break;
                             case 7:
-                                current.mi.setColor(BlockMine.Color.YELLOW);
+                                current.mi.setColor(RMine.Color.YELLOW);
                                 break;
                             case 8:
-                                current.mi.setColor(BlockMine.Color.PURPLE);
+                                current.mi.setColor(RMine.Color.PURPLE);
                                 break;
                         }
                         gp.playSound(gp.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 50, 50);
                         gp.closeInventory();
-                        current.rm.getMineManager().saveMine(current.mi, BlockMine.Data.COLOR);
+                        current.rm.getMineManager().saveMine(current.mi, RMine.Data.COLOR);
                         Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> current.rm.getGUIManager().openMine(current.mi, gp), 2);
                     }
                 }
@@ -113,15 +112,15 @@ public class MineColorPicker {
     }
 
     public void load() {
-        inv.setItem(0, Items.getMineColor(BlockMine.Color.RED, Language.file().getString("GUI.Items.Colors.Red"), colorsDescription));
-        inv.setItem(1, Items.getMineColor(BlockMine.Color.GREEN, Language.file().getString("GUI.Items.Colors.Green"), colorsDescription));
-        inv.setItem(2, Items.getMineColor(BlockMine.Color.BLUE, Language.file().getString("GUI.Items.Colors.Blue"), colorsDescription));
-        inv.setItem(3, Items.getMineColor(BlockMine.Color.BROWN, Language.file().getString("GUI.Items.Colors.Brown"), colorsDescription));
-        inv.setItem(4, Items.getMineColor(BlockMine.Color.GRAY, Language.file().getString("GUI.Items.Colors.Gray"), colorsDescription));
-        inv.setItem(5, Items.getMineColor(BlockMine.Color.WHITE, Language.file().getString("GUI.Items.Colors.White"), colorsDescription));
-        inv.setItem(6, Items.getMineColor(BlockMine.Color.ORANGE, Language.file().getString("GUI.Items.Colors.Orange"), colorsDescription));
-        inv.setItem(7, Items.getMineColor(BlockMine.Color.YELLOW, Language.file().getString("GUI.Items.Colors.Yellow"), colorsDescription));
-        inv.setItem(8, Items.getMineColor(BlockMine.Color.PURPLE, Language.file().getString("GUI.Items.Colors.Purple"), colorsDescription));
+        inv.setItem(0, Items.getMineColor(RMine.Color.RED, Language.file().getString("GUI.Items.Colors.Red"), colorsDescription));
+        inv.setItem(1, Items.getMineColor(RMine.Color.GREEN, Language.file().getString("GUI.Items.Colors.Green"), colorsDescription));
+        inv.setItem(2, Items.getMineColor(RMine.Color.BLUE, Language.file().getString("GUI.Items.Colors.Blue"), colorsDescription));
+        inv.setItem(3, Items.getMineColor(RMine.Color.BROWN, Language.file().getString("GUI.Items.Colors.Brown"), colorsDescription));
+        inv.setItem(4, Items.getMineColor(RMine.Color.GRAY, Language.file().getString("GUI.Items.Colors.Gray"), colorsDescription));
+        inv.setItem(5, Items.getMineColor(RMine.Color.WHITE, Language.file().getString("GUI.Items.Colors.White"), colorsDescription));
+        inv.setItem(6, Items.getMineColor(RMine.Color.ORANGE, Language.file().getString("GUI.Items.Colors.Orange"), colorsDescription));
+        inv.setItem(7, Items.getMineColor(RMine.Color.YELLOW, Language.file().getString("GUI.Items.Colors.Yellow"), colorsDescription));
+        inv.setItem(8, Items.getMineColor(RMine.Color.PURPLE, Language.file().getString("GUI.Items.Colors.Purple"), colorsDescription));
     }
 
     public void openInventory(Player target) {

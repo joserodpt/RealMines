@@ -3,7 +3,6 @@ package josegamerpt.realmines.mines.tasks;
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.MineResetTasks;
 import josegamerpt.realmines.mines.RMine;
-import josegamerpt.realmines.mines.mine.BlockMine;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 

@@ -11,8 +11,6 @@ import josegamerpt.realmines.mines.components.MineBlock;
 import josegamerpt.realmines.mines.components.MineCuboid;
 import josegamerpt.realmines.mines.components.MineSign;
 import josegamerpt.realmines.mines.gui.MineIcon;
-import josegamerpt.realmines.mines.mine.BlockMine;
-import josegamerpt.realmines.mines.mine.SchematicMine;
 import josegamerpt.realmines.mines.tasks.MineResetTask;
 import josegamerpt.realmines.utils.PlayerInput;
 import josegamerpt.realmines.utils.Text;
@@ -98,23 +96,23 @@ public class MineManager {
                 color = Mines.file().getString(s + ".Color");
             }
 
-            Boolean saveType = false;
+            boolean saveType = false;
 
             String mtyp = Mines.file().getString(s + ".Type");
-            RMine.Type type;
+            String type;
             if (mtyp == null || mtyp == "")
             {
-                type = RMine.Type.BLOCKS;
+                type = "BLOCKS";
                 RealMines.getInstance().log(Level.WARNING, s + " converted into the new mine type.");
                 saveType = true;
             } else {
-                type = RMine.Type.valueOf(mtyp);
+                type = mtyp;
             }
 
             RMine m;
             switch (type)
             {
-                case BLOCKS:
+                case "BLOCKS":
                     m = new BlockMine(s, Mines.file().getString(s + ".Display-Name"), blocks, signs, pos1, pos2, ic, tp,
                             Mines.file().getBoolean(s + ".Settings.Reset.ByPercentage"),
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
@@ -122,14 +120,14 @@ public class MineManager {
                             Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), color, faces,
                             Mines.file().getBoolean(s + ".Settings.Reset.Silent"));
                     break;
-                case SCHEMATIC:
+                case "SCHEMATIC":
                     Location place = new Location(w, Mines.file().getDouble(s + ".Place.X"),
                             Mines.file().getDouble(s + ".Place.Y"), Mines.file().getDouble(s + ".Place.Z"));
                     m = new SchematicMine(s, Mines.file().getString(s + ".Display-Name"), signs, place, Mines.file().getString(s + ".Schematic-Filename"), ic, tp,
                             Mines.file().getBoolean(s + ".Settings.Reset.ByPercentage"),
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
-                            Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), color, pos1, pos2,
+                            Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), color, pos1, pos2, faces,
                             Mines.file().getBoolean(s + ".Settings.Reset.Silent"));
                     break;
                 default:
@@ -179,6 +177,7 @@ public class MineManager {
             }
         } catch (Exception e) {
             Text.send(p, Language.file().getString("System.Boundaries-Not-Set"));
+            e.printStackTrace();
         }
     }
 
@@ -196,7 +195,7 @@ public class MineManager {
                 Location loc2 = new Location(p.getWorld(), 0,0,0);
 
                 SchematicMine m = new SchematicMine(name, name, new ArrayList<>(), p.getLocation(), s,
-                        Material.DIAMOND_ORE, null, false, true, 20, 60, "white", loc, loc2, false);
+                        Material.DIAMOND_ORE, null, false, true, 20, 60, "white", loc, loc2, new HashMap<>(), false);
                 m.saveAll();
 
                 m.register();
@@ -227,14 +226,10 @@ public class MineManager {
                 Mines.file().set(mine.getName() + ".Color", mine.getColor().name());
                 break;
             case BLOCKS:
-                switch (mine.getType())
-                {
-                    case SCHEMATIC:
-                        Mines.file().set(mine.getName() + ".Schematic-Filename", mine.getSchematicFilename());
-                        break;
-                    default:
-                        Mines.file().set(mine.getName() + ".Blocks", mine.getBlockList());
-                        break;
+                if (mine instanceof SchematicMine) {
+                    Mines.file().set(mine.getName() + ".Schematic-Filename", ((SchematicMine) mine).getSchematicFilename());
+                } else {
+                    Mines.file().set(mine.getName() + ".Blocks", ((BlockMine) mine).getBlockList());
                 }
                 break;
             case ICON:
@@ -248,23 +243,21 @@ public class MineManager {
                 Mines.file().set(mine.getName() + ".Settings.Reset.Silent", mine.isResetBy(RMine.Reset.SILENT));
                 break;
             case PLACE:
-                switch (mine.getType())
-                {
-                    case SCHEMATIC:
-                        Mines.file().set(mine.getName() + ".World", mine.getSchematicPlace().getWorld().getName());
-                        Mines.file().set(mine.getName() + ".Place.X", mine.getSchematicPlace().getX());
-                        Mines.file().set(mine.getName() + ".Place.Y", mine.getSchematicPlace().getY());
-                        Mines.file().set(mine.getName() + ".Place.Z", mine.getSchematicPlace().getZ());
-                    default:
-                        Mines.file().set(mine.getName() + ".World", mine.getPOS1().getWorld().getName());
-                        Mines.file().set(mine.getName() + ".POS1.X", mine.getPOS1().getX());
-                        Mines.file().set(mine.getName() + ".POS1.Y", mine.getPOS1().getY());
-                        Mines.file().set(mine.getName() + ".POS1.Z", mine.getPOS1().getZ());
-                        Mines.file().set(mine.getName() + ".POS2.X", mine.getPOS2().getX());
-                        Mines.file().set(mine.getName() + ".POS2.Y", mine.getPOS2().getY());
-                        Mines.file().set(mine.getName() + ".POS2.Z", mine.getPOS2().getZ());
-                        break;
+                if (mine instanceof SchematicMine) {
+                    Mines.file().set(mine.getName() + ".World", ((SchematicMine) mine).getSchematicPlace().getWorld().getName());
+                    Mines.file().set(mine.getName() + ".Place.X", ((SchematicMine) mine).getSchematicPlace().getX());
+                    Mines.file().set(mine.getName() + ".Place.Y", ((SchematicMine) mine).getSchematicPlace().getY());
+                    Mines.file().set(mine.getName() + ".Place.Z", ((SchematicMine) mine).getSchematicPlace().getZ());
+                } else {
+                    Mines.file().set(mine.getName() + ".World", mine.getPOS1().getWorld().getName());
+                    Mines.file().set(mine.getName() + ".POS1.X", mine.getPOS1().getX());
+                    Mines.file().set(mine.getName() + ".POS1.Y", mine.getPOS1().getY());
+                    Mines.file().set(mine.getName() + ".POS1.Z", mine.getPOS1().getZ());
+                    Mines.file().set(mine.getName() + ".POS2.X", mine.getPOS2().getX());
+                    Mines.file().set(mine.getName() + ".POS2.Y", mine.getPOS2().getY());
+                    Mines.file().set(mine.getName() + ".POS2.Z", mine.getPOS2().getZ());
                 }
+
                 break;
             case TELEPORT:
                 if (mine.getTeleport() != null) {
@@ -279,17 +272,15 @@ public class MineManager {
                 Mines.file().set(mine.getName() + ".Signs", mine.getSignList());
                 break;
             case FACES:
-                if (mine.getType() != BlockMine.Type.SCHEMATIC) {
-                    Mines.file().set(mine.getName() + ".Faces", null);
-                    Iterator<Map.Entry<MineCuboid.CuboidDirection, Material>> it = mine.getFaces().entrySet().iterator();
-                    while (it.hasNext()) {
-                        Map.Entry<MineCuboid.CuboidDirection, Material> pair = it.next();
-                        Mines.file().set(mine.getName() + ".Faces." + pair.getKey().name(), pair.getValue().name());
-                    }
+                Mines.file().set(mine.getName() + ".Faces", null);
+                Iterator<Map.Entry<MineCuboid.CuboidDirection, Material>> it = mine.getFaces().entrySet().iterator();
+                while (it.hasNext()) {
+                    Map.Entry<MineCuboid.CuboidDirection, Material> pair = it.next();
+                    Mines.file().set(mine.getName() + ".Faces." + pair.getKey().name(), pair.getValue().name());
                 }
                 break;
             case MINE_TYPE:
-                Mines.file().set(mine.getName() + ".Type", mine.getType().name());
+                Mines.file().set(mine.getName() + ".Type", mine.getType());
                 break;
         }
 

@@ -1,8 +1,8 @@
 package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.RealMines;
+import josegamerpt.realmines.mines.BlockMine;
 import josegamerpt.realmines.mines.RMine;
-import josegamerpt.realmines.mines.mine.BlockMine;
 import josegamerpt.realmines.mines.components.MineBlock;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mines.components.MineCuboid;
@@ -161,7 +161,7 @@ public class MaterialPicker {
                                     current.rm.getGUIManager().openMine(current.min, gp);
                                     break;
                                 case BLOCK:
-                                    current.min.addBlock(new MineBlock(a));
+                                    ((BlockMine) current.min).addBlock(new MineBlock(a));
                                     gp.closeInventory();
                                     Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
                                         MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.min);

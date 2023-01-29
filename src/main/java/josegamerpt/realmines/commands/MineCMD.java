@@ -4,7 +4,6 @@ import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.gui.MineViewer;
 import josegamerpt.realmines.mines.RMine;
-import josegamerpt.realmines.mines.mine.BlockMine;
 import josegamerpt.realmines.utils.Text;
 import me.mattstudios.mf.annotations.*;
 import me.mattstudios.mf.base.CommandBase;
@@ -28,7 +27,7 @@ public class MineCMD extends CommandBase {
     @Default
     public void defaultCommand(final CommandSender commandSender) {
         Text.sendList(commandSender,
-                Arrays.asList("", "         &9Real&bMines", "&7Release &a" + RealMines.getInstance().getDescription().getVersion(), ""));
+                Arrays.asList("", "         &9Real&bMines", "         &7Release &a" + RealMines.getInstance().getDescription().getVersion(), ""));
     }
 
     @SubCommand("reload")
@@ -76,7 +75,7 @@ public class MineCMD extends CommandBase {
     @SubCommand("list")
     @Permission("realmines.admin")
     public void listcmd(final CommandSender commandSender) {
-        RealMines.getInstance().getMineManager().getMines().forEach(mine -> Text.send(commandSender, " &7> &f" + mine.getName() + " &r&7(&f" + mine.getDisplayName() + "&r&7)"));
+        RealMines.getInstance().getMineManager().getMines().forEach(mine -> Text.send(commandSender, "&7> &f" + mine.getName() + " &r&7(&f" + mine.getDisplayName() + "&r&7)"));
     }
 
     @SubCommand("create")
@@ -105,8 +104,7 @@ public class MineCMD extends CommandBase {
             RMine m = RealMines.getInstance().getMineManager().get(name);
             if (m != null) {
                 m.setTeleport(((Player) commandSender).getLocation());
-                m.saveData(BlockMine.Data.TELEPORT);
-
+                m.saveData(RMine.Data.TELEPORT);
                 Text.send(commandSender, Language.file().getString("Mines.Teleport-Set").replaceAll("%mine%", m.getDisplayName()));
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
@@ -138,18 +136,46 @@ public class MineCMD extends CommandBase {
     @Permission("realmines.silent")
     @WrongUsage("&c/mine silent <name>")
     public void silent(final CommandSender commandSender, String name) {
+        RMine m = RealMines.getInstance().getMineManager().get(name);
+        if (m != null) {
+            m.setResetStatus(RMine.Reset.SILENT, !m.isSilent());
+            m.saveData(RMine.Data.OPTIONS);
+
+            if (!m.isSilent()) {
+                Text.send(commandSender, Language.file().getString("System.Silent-Off").replaceAll("%mine%", name));
+            } else {
+                Text.send(commandSender, Language.file().getString("System.Silent-On").replaceAll("%mine%", name));
+            }
+        } else {
+            Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+        }
+    }
+
+    @SubCommand("silentall")
+    @Permission("realmines.silent")
+    @WrongUsage("&c/mine silentall <true/false>")
+    public void silentall(final CommandSender commandSender, Boolean bol) {
+        for (RMine m : RealMines.getInstance().getMineManager().getMines()) {
+            m.setResetStatus(RMine.Reset.SILENT, bol);
+            m.saveData(RMine.Data.OPTIONS);
+
+            if (!m.isSilent()) {
+                Text.send(commandSender, Language.file().getString("System.Silent-Off").replaceAll("%mine%", m.getName()));
+            } else {
+                Text.send(commandSender, Language.file().getString("System.Silent-On").replaceAll("%mine%", m.getName()));
+            }
+        }
+    }
+
+    @SubCommand("highlight")
+    @Completion("#mines")
+    @Permission("realmines.highlight")
+    @WrongUsage("&c/mine highlight <name>")
+    public void highlight(final CommandSender commandSender, String name) {
         if (commandSender instanceof Player) {
             RMine m = RealMines.getInstance().getMineManager().get(name);
             if (m != null) {
-                if (m.isSilent()) {
-                    m.setResetStatus(RMine.Reset.SILENT, false);
-                    m.saveData(RMine.Data.OPTIONS);
-                    Text.send(commandSender, Language.file().getString("System.Silent-Off").replaceAll("%mine%", name));
-                } else if (!m.isSilent()) {
-                    m.setResetStatus(RMine.Reset.SILENT, true);
-                    m.saveData(RMine.Data.OPTIONS);
-                    Text.send(commandSender, Language.file().getString("System.Silent-On").replaceAll("%mine%", name));
-                }
+                m.setHighlight(!m.isHighlighted());
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }
@@ -195,12 +221,8 @@ public class MineCMD extends CommandBase {
     @Permission("realmines.admin")
     @WrongUsage("&c/mine delete <name>")
     public void deletecmd(final CommandSender commandSender, final String name) {
-        if (commandSender instanceof Player) {
-            RealMines.getInstance().getMineManager().deleteMine(RealMines.getInstance().getMineManager().get(name));
-            Text.send(commandSender, Language.file().getString("System.Mine-Deleted"));
-        } else {
-            Text.send(commandSender, playerOnly);
-        }
+        RealMines.getInstance().getMineManager().deleteMine(RealMines.getInstance().getMineManager().get(name));
+        Text.send(commandSender, Language.file().getString("System.Mine-Deleted"));
     }
 
     @SubCommand("clear")
@@ -208,16 +230,12 @@ public class MineCMD extends CommandBase {
     @Permission("realmines.admin")
     @WrongUsage("&c/mine clear <name>")
     public void clearcmd(final CommandSender commandSender, final String name) {
-        if (commandSender instanceof Player) {
-            RMine m = RealMines.getInstance().getMineManager().get(name);
-            if (m != null) {
-                m.clear();
-                Text.send(commandSender, Language.file().getString("System.Mine-Clear"));
-            } else {
-                Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
-            }
+        RMine m = RealMines.getInstance().getMineManager().get(name);
+        if (m != null) {
+            m.clear();
+            Text.send(commandSender, Language.file().getString("System.Mine-Clear"));
         } else {
-            Text.send(commandSender, playerOnly);
+            Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
         }
     }
 
