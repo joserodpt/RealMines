@@ -2,7 +2,7 @@
 
 ![Logo](https://i.imgur.com/rl6dII1.png)
 ## RealMines - Brand new, simple and efficient mine management plugin.
-[![Build](https://img.shields.io/github/workflow/status/JoseGamerPT/RealMines/Publish%20and%20Build)](https://github.com/JoseGamerPT/RealMines/actions)
+[![Build](https://img.shields.io/github/actions/workflow/status/joserodpt/RealMines/maven.yml?branch=master)](https://github.com/JoseGamerPT/RealMines/actions)
 ![Issues](https://img.shields.io/github/issues-raw/JoseGamerPT/RealMines)
 [![Stars](https://img.shields.io/github/stars/JoseGamerPT/RealMines)](https://github.com/JoseGamerPT/RealMines/stargazers)
 [![Chat)](https://img.shields.io/discord/817810368649887744?logo=discord&logoColor=white)](https://discord.gg/t7gfnYZKy8) 
