@@ -2,9 +2,9 @@ package josegamerpt.realmines.mine;
 
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.mine.components.MineCuboid;
-import josegamerpt.realmines.mine.components.MineSign;
-import josegamerpt.realmines.mine.tasks.MineTimer;
+import josegamerpt.realmines.mine.component.MineCuboid;
+import josegamerpt.realmines.mine.component.MineSign;
+import josegamerpt.realmines.mine.task.MineTimer;
 import josegamerpt.realmines.util.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

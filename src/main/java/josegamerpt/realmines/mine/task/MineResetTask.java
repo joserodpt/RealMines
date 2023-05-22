@@ -1,4 +1,4 @@
-package josegamerpt.realmines.mine.tasks;
+package josegamerpt.realmines.mine.task;
 
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.MineResetTasks;

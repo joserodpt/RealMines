@@ -1,4 +1,4 @@
-package josegamerpt.realmines.mine.tasks;
+package josegamerpt.realmines.mine.task;
 
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Config;
@@ -27,6 +27,7 @@ public class MineTimer {
             this.startTask(this.m.getResetValue(RMine.Reset.TIME));
         }, (t) -> {
             if (Config.file().getStringList("RealMines.announceTimes") != null && Config.file().getStringList("RealMines.announceTimes").contains(String.valueOf(count.getSecondsLeft()))) {
+                if (this.m.isSilent()) return;
                 this.m.broadcastMessage(Language.file().getString("Mines.Reset.Warning").replaceAll("%mine%", this.m.getDisplayName()).replaceAll("%time%", String.valueOf(count.getSecondsLeft())), false);
             }
         });

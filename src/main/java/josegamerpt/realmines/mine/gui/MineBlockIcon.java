@@ -1,7 +1,7 @@
 package josegamerpt.realmines.mine.gui;
 
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.mine.components.MineBlock;
+import josegamerpt.realmines.mine.component.MineBlock;
 import josegamerpt.realmines.util.Items;
 import josegamerpt.realmines.util.Text;
 import org.bukkit.Material;

@@ -4,7 +4,7 @@ import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mine.BlockMine;
 import josegamerpt.realmines.mine.RMine;
-import josegamerpt.realmines.mine.components.MineBlock;
+import josegamerpt.realmines.mine.component.MineBlock;
 import josegamerpt.realmines.mine.gui.MineBlockIcon;
 import josegamerpt.realmines.util.Items;
 import josegamerpt.realmines.util.Pagination;

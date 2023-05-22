@@ -3,7 +3,7 @@ package josegamerpt.realmines.manager;
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.MineResetTasks;
 import josegamerpt.realmines.mine.RMine;
-import josegamerpt.realmines.mine.tasks.MineResetTask;
+import josegamerpt.realmines.mine.task.MineResetTask;
 
 import java.util.ArrayList;
 import java.util.List;

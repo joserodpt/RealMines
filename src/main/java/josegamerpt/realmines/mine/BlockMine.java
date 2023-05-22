@@ -1,9 +1,9 @@
 package josegamerpt.realmines.mine;
 
 import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.mine.components.MineBlock;
-import josegamerpt.realmines.mine.components.MineCuboid;
-import josegamerpt.realmines.mine.components.MineSign;
+import josegamerpt.realmines.mine.component.MineBlock;
+import josegamerpt.realmines.mine.component.MineCuboid;
+import josegamerpt.realmines.mine.component.MineSign;
 import josegamerpt.realmines.mine.gui.MineBlockIcon;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

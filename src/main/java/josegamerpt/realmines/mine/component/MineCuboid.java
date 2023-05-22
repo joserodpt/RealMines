@@ -1,4 +1,4 @@
-package josegamerpt.realmines.mine.components;
+package josegamerpt.realmines.mine.component;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;

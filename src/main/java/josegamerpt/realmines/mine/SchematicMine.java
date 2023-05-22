@@ -1,8 +1,8 @@
 package josegamerpt.realmines.mine;
 
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
-import josegamerpt.realmines.mine.components.MineCuboid;
-import josegamerpt.realmines.mine.components.MineSign;
+import josegamerpt.realmines.mine.component.MineCuboid;
+import josegamerpt.realmines.mine.component.MineSign;
 import josegamerpt.realmines.util.WorldEditUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;

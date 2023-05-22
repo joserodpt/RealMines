@@ -3,7 +3,7 @@ package josegamerpt.realmines.gui;
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mine.RMine;
-import josegamerpt.realmines.mine.components.MineCuboid;
+import josegamerpt.realmines.mine.component.MineCuboid;
 import josegamerpt.realmines.util.Items;
 import josegamerpt.realmines.util.Text;
 import org.bukkit.Bukkit;

@@ -3,7 +3,7 @@ package josegamerpt.realmines.command;
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mine.RMine;
-import josegamerpt.realmines.mine.tasks.MineResetTask;
+import josegamerpt.realmines.mine.task.MineResetTask;
 import josegamerpt.realmines.util.Text;
 import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Command;
