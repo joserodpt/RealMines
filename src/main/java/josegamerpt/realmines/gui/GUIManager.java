@@ -94,7 +94,7 @@ public class GUIManager {
                         12);
                 inventory.addItem(e -> {
                     target.closeInventory();
-                    GUIManager.this.rm.getMineManager().teleport(target, m, false);
+                    GUIManager.this.rm.getMineManager().teleport(target, m, m.isSilent());
                 }, Items.createItemLore(Material.ENDER_PEARL, 1, Language.file().getString("GUI.Items.Teleport.Name"), Language.file().getStringList("GUI.Items.Teleport.Description")), 20);
 
                 inventory.addItem(e -> {

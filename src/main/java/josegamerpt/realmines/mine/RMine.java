@@ -289,8 +289,10 @@ public abstract class RMine {
     }
 
     public void kickPlayers(final String s) {
-        this.getPlayersInMine().forEach(player -> RealMines.getInstance().getMineManager().teleport(player, this, false));
-        this.broadcastMessage(s, true);
+        this.getPlayersInMine().forEach(player -> RealMines.getInstance().getMineManager().teleport(player, this, this.isSilent()));
+        if (!this.isSilent()) {
+            this.broadcastMessage(s, true);
+        }
     }
 
     public void broadcastMessage(String s, final Boolean prefix) {
