@@ -1,15 +1,15 @@
 package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.RealMines;
-import josegamerpt.realmines.mines.BlockMine;
-import josegamerpt.realmines.mines.RMine;
-import josegamerpt.realmines.mines.components.MineBlock;
-import josegamerpt.realmines.mines.gui.MineBlockIcon;
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.utils.Items;
-import josegamerpt.realmines.utils.Pagination;
-import josegamerpt.realmines.utils.PlayerInput;
-import josegamerpt.realmines.utils.Text;
+import josegamerpt.realmines.mine.BlockMine;
+import josegamerpt.realmines.mine.RMine;
+import josegamerpt.realmines.mine.components.MineBlock;
+import josegamerpt.realmines.mine.gui.MineBlockIcon;
+import josegamerpt.realmines.util.Items;
+import josegamerpt.realmines.util.Pagination;
+import josegamerpt.realmines.util.PlayerInput;
+import josegamerpt.realmines.util.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -25,11 +25,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class MineBlocksViewer {
-
-    private RealMines rm;
 
     private static final Map<UUID, MineBlocksViewer> inventories = new HashMap<>();
     static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
@@ -39,24 +40,23 @@ public class MineBlocksViewer {
             Language.file().getStringList("GUI.Items.Back.Description"));
     static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
             Language.file().getStringList("GUI.Items.Close.Description"));
-
     static ItemStack add = Items.createItemLore(Material.HOPPER, 1, Language.file().getString("GUI.Items.Add.Name"),
             Language.file().getStringList("GUI.Items.Add.Description"));
     private final Inventory inv;
     private final UUID uuid;
     private final HashMap<Integer, MineBlockIcon> display = new HashMap<>();
     private final RMine m;
-
     int pageNumber = 0;
     Pagination<MineBlockIcon> p;
+    private final RealMines rm;
 
-    public MineBlocksViewer(RealMines rm, Player target, RMine min) {
+    public MineBlocksViewer(final RealMines rm, final Player target, final RMine min) {
         this.rm = rm;
         this.uuid = target.getUniqueId();
         this.m = min;
-        inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Mine-Blocks-Name").replaceAll("%mine%",m.getDisplayName())));
+        this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Mine-Blocks-Name").replaceAll("%mine%", this.m.getDisplayName())));
 
-        load();
+        this.load();
 
         this.register();
     }
@@ -64,32 +64,30 @@ public class MineBlocksViewer {
     public static Listener getListener() {
         return new Listener() {
             @EventHandler
-            public void onClick(InventoryClickEvent e) {
-                HumanEntity clicker = e.getWhoClicked();
+            public void onClick(final InventoryClickEvent e) {
+                final HumanEntity clicker = e.getWhoClicked();
                 if (clicker instanceof Player) {
                     if (e.getCurrentItem() == null) {
                         return;
                     }
 
-                    UUID uuid = clicker.getUniqueId();
+                    final UUID uuid = clicker.getUniqueId();
                     if (inventories.containsKey(uuid)) {
-                        Player p = (Player) clicker;
+                        final Player p = (Player) clicker;
 
-                        MineBlocksViewer current = inventories.get(uuid);
+                        final MineBlocksViewer current = inventories.get(uuid);
                         if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
                             return;
                         }
 
-                        if (e.getClickedInventory().getType() == InventoryType.PLAYER)
-                        {
+                        if (e.getClickedInventory().getType() == InventoryType.PLAYER) {
 
-                            if (Items.getValidBlocks().contains(e.getCurrentItem().getType()))
-                            {
+                            if (Items.getValidBlocks().contains(e.getCurrentItem().getType())) {
                                 ((BlockMine) current.m).addBlock(new MineBlock(e.getCurrentItem().getType(), 0.1D));
                                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 50, 50);
                                 p.closeInventory();
                                 Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
-                                    MineBlocksViewer v = new MineBlocksViewer(current.rm, p, current.m);
+                                    final MineBlocksViewer v = new MineBlocksViewer(current.rm, p, current.m);
                                     v.openInventory(p);
                                 }, 3);
                             } else {
@@ -108,23 +106,23 @@ public class MineBlocksViewer {
                                     break;
                                 case 4:
                                     p.closeInventory();
-                                    MaterialPicker mp = new MaterialPicker(current.rm, current.m, p, MaterialPicker.PickType.BLOCK, "");
+                                    final MaterialPicker mp = new MaterialPicker(current.rm, current.m, p, MaterialPicker.PickType.BLOCK, "");
                                     mp.openInventory(p);
                                     break;
                                 case 26:
                                 case 35:
-                                    nextPage(current);
+                                    this.nextPage(current);
                                     p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
                                     break;
                                 case 18:
                                 case 27:
-                                    backPage(current);
+                                    this.backPage(current);
                                     p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
                                     break;
                             }
 
                             if (current.display.containsKey(e.getRawSlot())) {
-                                MineBlockIcon a = current.display.get(e.getRawSlot());
+                                final MineBlockIcon a = current.display.get(e.getRawSlot());
 
                                 if (a.isPlaceholder()) {
                                     return;
@@ -136,7 +134,7 @@ public class MineBlocksViewer {
                                     Text.send(p, Language.file().getString("System.Remove").replace("%object%", a.getMineBlock().getMaterial().name()));
                                     p.closeInventory();
                                     Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
-                                        MineBlocksViewer v = new MineBlocksViewer(current.rm, p, current.m);
+                                        final MineBlocksViewer v = new MineBlocksViewer(current.rm, p, current.m);
                                         v.openInventory(p);
                                     }, 3);
                                 } else {
@@ -151,7 +149,7 @@ public class MineBlocksViewer {
                 }
             }
 
-            private void backPage(MineBlocksViewer asd) {
+            private void backPage(final MineBlocksViewer asd) {
                 if (asd.p.exists(asd.pageNumber - 1)) {
                     asd.pageNumber--;
                 }
@@ -159,7 +157,7 @@ public class MineBlocksViewer {
                 asd.fillChest(asd.p.getPage(asd.pageNumber));
             }
 
-            private void nextPage(MineBlocksViewer asd) {
+            private void nextPage(final MineBlocksViewer asd) {
                 if (asd.p.exists(asd.pageNumber + 1)) {
                     asd.pageNumber++;
                 }
@@ -168,13 +166,13 @@ public class MineBlocksViewer {
             }
 
             @EventHandler
-            public void onClose(InventoryCloseEvent e) {
+            public void onClose(final InventoryCloseEvent e) {
                 if (e.getPlayer() instanceof Player) {
                     if (e.getInventory() == null) {
                         return;
                     }
-                    Player p = (Player) e.getPlayer();
-                    UUID uuid = p.getUniqueId();
+                    final Player p = (Player) e.getPlayer();
+                    final UUID uuid = p.getUniqueId();
                     if (inventories.containsKey(uuid)) {
                         inventories.get(uuid).unregister();
                     }
@@ -184,58 +182,58 @@ public class MineBlocksViewer {
     }
 
     public void load() {
-        p = new Pagination<>(28, ((BlockMine) m).getBlocks());
-        fillChest(p.getPage(pageNumber));
+        this.p = new Pagination<>(28, ((BlockMine) this.m).getBlocks());
+        this.fillChest(this.p.getPage(this.pageNumber));
     }
 
-    public void fillChest(List<MineBlockIcon> items) {
+    public void fillChest(final List<MineBlockIcon> items) {
 
-        inv.clear();
-        display.clear();
+        this.inv.clear();
+        this.display.clear();
 
         for (int i = 0; i < 9; i++) {
-            inv.setItem(i, placeholder);
+            this.inv.setItem(i, placeholder);
         }
-        inv.setItem(4, add);
+        this.inv.setItem(4, add);
 
-        inv.setItem(45, placeholder);
-        inv.setItem(46, placeholder);
-        inv.setItem(47, placeholder);
-        inv.setItem(48, placeholder);
-        inv.setItem(49, placeholder);
-        inv.setItem(50, placeholder);
-        inv.setItem(51, placeholder);
-        inv.setItem(52, placeholder);
-        inv.setItem(53, placeholder);
-        inv.setItem(36, placeholder);
-        inv.setItem(44, placeholder);
-        inv.setItem(9, placeholder);
-        inv.setItem(17, placeholder);
+        this.inv.setItem(45, placeholder);
+        this.inv.setItem(46, placeholder);
+        this.inv.setItem(47, placeholder);
+        this.inv.setItem(48, placeholder);
+        this.inv.setItem(49, placeholder);
+        this.inv.setItem(50, placeholder);
+        this.inv.setItem(51, placeholder);
+        this.inv.setItem(52, placeholder);
+        this.inv.setItem(53, placeholder);
+        this.inv.setItem(36, placeholder);
+        this.inv.setItem(44, placeholder);
+        this.inv.setItem(9, placeholder);
+        this.inv.setItem(17, placeholder);
 
-        inv.setItem(18, back);
-        inv.setItem(27, back);
-        inv.setItem(26, next);
-        inv.setItem(35, next);
+        this.inv.setItem(18, back);
+        this.inv.setItem(27, back);
+        this.inv.setItem(26, next);
+        this.inv.setItem(35, next);
 
         int slot = 0;
-        for (ItemStack i : inv.getContents()) {
+        for (final ItemStack i : this.inv.getContents()) {
             if (i == null && items.size() != 0) {
-                MineBlockIcon s = items.get(0);
-                inv.setItem(slot, s.getItemStack());
-                display.put(slot, s);
+                final MineBlockIcon s = items.get(0);
+                this.inv.setItem(slot, s.getItemStack());
+                this.display.put(slot, s);
                 items.remove(0);
             }
             slot++;
         }
 
-        inv.setItem(49, close);
+        this.inv.setItem(49, close);
     }
 
-    public void openInventory(Player target) {
-        Inventory inv = getInventory();
-        InventoryView openInv = target.getOpenInventory();
+    public void openInventory(final Player target) {
+        final Inventory inv = this.getInventory();
+        final InventoryView openInv = target.getOpenInventory();
         if (openInv != null) {
-            Inventory openTop = target.getOpenInventory().getTopInventory();
+            final Inventory openTop = target.getOpenInventory().getTopInventory();
             if (openTop != null && openTop.getType().name().equalsIgnoreCase(inv.getType().name())) {
                 openTop.setContents(inv.getContents());
             } else {
@@ -244,25 +242,25 @@ public class MineBlocksViewer {
         }
     }
 
-    protected void editPercentage(Player gp, MineBlockIcon a, MineBlocksViewer current) {
+    protected void editPercentage(final Player gp, final MineBlockIcon a, final MineBlocksViewer current) {
         new PlayerInput(gp, s -> {
             double d = 0;
             try {
                 d = Double.parseDouble(s.replace("%", ""));
-            } catch (Exception ex) {
+            } catch (final Exception ex) {
                 gp.sendMessage(Text.color(Language.file().getString("System.Input-Percentage-Error")));
-                editPercentage(gp, a, current);
+                this.editPercentage(gp, a, current);
             }
 
             if (d <= 0) {
                 gp.sendMessage(Text.color(Language.file().getString("System.Input-Percentage-Error-Greater")));
-                editPercentage(gp, a, current);
+                this.editPercentage(gp, a, current);
                 return;
             }
 
             if (d > 100) {
                 gp.sendMessage(Text.color(Language.file().getString("System.Input-Percentage-Error-Lower")));
-                editPercentage(gp, a, current);
+                this.editPercentage(gp, a, current);
                 return;
             }
 
@@ -270,17 +268,17 @@ public class MineBlocksViewer {
 
             a.getMineBlock().setPercentage(d);
             current.m.saveData(BlockMine.Data.BLOCKS);
-            gp.sendMessage(Text.color(Language.file().getString("System.Percentage-Modified").replaceAll("%value%", "" + (d * 100))));
-            MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.m);
+            gp.sendMessage(Text.color(Language.file().getString("System.Percentage-Modified").replaceAll("%value%", String.valueOf(d * 100))));
+            final MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.m);
             v.openInventory(gp);
         }, s -> {
-            MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.m);
+            final MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.m);
             v.openInventory(gp);
         });
     }
 
     public Inventory getInventory() {
-        return inv;
+        return this.inv;
     }
 
     private void register() {

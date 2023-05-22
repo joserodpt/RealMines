@@ -2,10 +2,10 @@ package josegamerpt.realmines.gui;
 
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
-import josegamerpt.realmines.mines.RMine;
-import josegamerpt.realmines.mines.components.MineCuboid;
-import josegamerpt.realmines.utils.Items;
-import josegamerpt.realmines.utils.Text;
+import josegamerpt.realmines.mine.RMine;
+import josegamerpt.realmines.mine.components.MineCuboid;
+import josegamerpt.realmines.util.Items;
+import josegamerpt.realmines.util.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -19,7 +19,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class MineFaces {
 
@@ -30,26 +34,26 @@ public class MineFaces {
     private final UUID uuid;
     private final RMine m;
 
-    private RealMines rm;
+    private final RealMines rm;
 
-    public MineFaces(RealMines rm, Player as, RMine m) {
+    public MineFaces(final RealMines rm, final Player as, final RMine m) {
         this.rm = rm;
         this.m = m;
         this.uuid = as.getUniqueId();
         this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Faces-Name")));
 
-        this.inv.setItem(13, getIcon(m, MineCuboid.CuboidDirection.Up));
-        this.inv.setItem(22, getIcon(m, MineCuboid.CuboidDirection.Down));
-        this.inv.setItem(21, getIcon(m, MineCuboid.CuboidDirection.East));
-        this.inv.setItem(23, getIcon(m, MineCuboid.CuboidDirection.West));
-        this.inv.setItem(31, getIcon(m, MineCuboid.CuboidDirection.North));
-        this.inv.setItem(40, getIcon(m, MineCuboid.CuboidDirection.South));
+        this.inv.setItem(13, this.getIcon(m, MineCuboid.CuboidDirection.Up));
+        this.inv.setItem(22, this.getIcon(m, MineCuboid.CuboidDirection.Down));
+        this.inv.setItem(21, this.getIcon(m, MineCuboid.CuboidDirection.East));
+        this.inv.setItem(23, this.getIcon(m, MineCuboid.CuboidDirection.West));
+        this.inv.setItem(31, this.getIcon(m, MineCuboid.CuboidDirection.North));
+        this.inv.setItem(40, this.getIcon(m, MineCuboid.CuboidDirection.South));
 
-        inv.setItem(53, close);
+        this.inv.setItem(53, close);
         this.register();
     }
 
-    private static MineCuboid.CuboidDirection getDirection(int rawSlot) {
+    private static MineCuboid.CuboidDirection getDirection(final int rawSlot) {
         switch (rawSlot) {
             case 13:
                 return MineCuboid.CuboidDirection.Up;
@@ -71,21 +75,21 @@ public class MineFaces {
     public static Listener getListener() {
         return new Listener() {
             @EventHandler
-            public void onClick(InventoryClickEvent e) {
-                HumanEntity clicker = e.getWhoClicked();
+            public void onClick(final InventoryClickEvent e) {
+                final HumanEntity clicker = e.getWhoClicked();
                 if (clicker instanceof Player) {
                     if (e.getCurrentItem() == null) {
                         return;
                     }
-                    UUID uuid = clicker.getUniqueId();
+                    final UUID uuid = clicker.getUniqueId();
                     if (inventories.containsKey(uuid)) {
-                        MineFaces current = inventories.get(uuid);
+                        final MineFaces current = inventories.get(uuid);
                         if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
                             return;
                         }
 
                         e.setCancelled(true);
-                        Player p = (Player) clicker;
+                        final Player p = (Player) clicker;
 
                         switch (e.getRawSlot()) {
                             case 53:
@@ -102,13 +106,13 @@ public class MineFaces {
                                     current.m.removeFaceblock(getDirection(e.getRawSlot()));
                                     p.closeInventory();
                                     Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
-                                        MineFaces mp = new MineFaces(current.rm, p, current.m);
+                                        final MineFaces mp = new MineFaces(current.rm, p, current.m);
                                         mp.openInventory(p);
                                     }, 3);
                                 } else {
                                     p.closeInventory();
                                     Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
-                                        MaterialPicker mp = new MaterialPicker(current.rm, current.m, p, MaterialPicker.PickType.FACE_MATERIAL, getDirection(e.getRawSlot()).name());
+                                        final MaterialPicker mp = new MaterialPicker(current.rm, current.m, p, MaterialPicker.PickType.FACE_MATERIAL, getDirection(e.getRawSlot()).name());
                                         mp.openInventory(p);
                                     }, 3);
                                 }
@@ -120,13 +124,13 @@ public class MineFaces {
 
 
             @EventHandler
-            public void onClose(InventoryCloseEvent e) {
+            public void onClose(final InventoryCloseEvent e) {
                 if (e.getPlayer() instanceof Player) {
                     if (e.getInventory() == null) {
                         return;
                     }
-                    Player p = (Player) e.getPlayer();
-                    UUID uuid = p.getUniqueId();
+                    final Player p = (Player) e.getPlayer();
+                    final UUID uuid = p.getUniqueId();
                     if (inventories.containsKey(uuid)) {
                         inventories.get(uuid).unregister();
                     }
@@ -135,11 +139,11 @@ public class MineFaces {
         };
     }
 
-    private ItemStack getIcon(RMine m, MineCuboid.CuboidDirection sel) {
-        List<String> faceSelectedDesc = new ArrayList<>();
+    private ItemStack getIcon(final RMine m, final MineCuboid.CuboidDirection sel) {
+        final List<String> faceSelectedDesc = new ArrayList<>();
         if (!faceSelectedDesc.isEmpty()) faceSelectedDesc.clear();
         if (m.hasFaceBlock(sel)) {
-            for (String s : Language.file().getStringList("GUI.Faces.Selected-Description")) {
+            for (final String s : Language.file().getStringList("GUI.Faces.Selected-Description")) {
                 faceSelectedDesc.add(s.replaceAll("%material%", m.getFaceBlock(sel).name()));
             }
             return Items.createItemLore(m.getFaceBlock(sel), 1, Language.file().getString("GUI.Faces.Name").replaceAll("%face%", sel.name()), faceSelectedDesc);
@@ -148,11 +152,11 @@ public class MineFaces {
         }
     }
 
-    public void openInventory(Player target) {
-        Inventory inv = getInventory();
-        InventoryView openInv = target.getOpenInventory();
+    public void openInventory(final Player target) {
+        final Inventory inv = this.getInventory();
+        final InventoryView openInv = target.getOpenInventory();
         if (openInv != null) {
-            Inventory openTop = target.getOpenInventory().getTopInventory();
+            final Inventory openTop = target.getOpenInventory().getTopInventory();
             if (openTop != null && openTop.getType().name().equalsIgnoreCase(inv.getType().name())) {
                 openTop.setContents(inv.getContents());
             } else {
@@ -162,7 +166,7 @@ public class MineFaces {
     }
 
     public Inventory getInventory() {
-        return inv;
+        return this.inv;
     }
 
     private void register() {

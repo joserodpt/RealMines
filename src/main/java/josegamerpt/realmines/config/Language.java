@@ -16,38 +16,38 @@ import java.util.logging.Level;
 
 public class Language implements Listener {
 
-	private static YamlDocument configFile;
-	private static final String name = "language.yml";
+    private static final String name = "language.yml";
+    private static YamlDocument configFile;
 
-	public static void setup(JavaPlugin rm) {
-		try {
-			configFile = YamlDocument.create(new File(rm.getDataFolder(), name), rm.getResource(name),
-					GeneralSettings.DEFAULT,
-					LoaderSettings.builder().setAutoUpdate(true).build(),
-					DumperSettings.DEFAULT,
-					UpdaterSettings.builder().setVersioning(new BasicVersioning("Version")).build());
-		} catch (IOException e) {
-			Bukkit.getLogger().log(Level.SEVERE, "Couldn't setup " + name + "!");
-		}
-	}
+    public static void setup(final JavaPlugin rm) {
+        try {
+            configFile = YamlDocument.create(new File(rm.getDataFolder(), name), rm.getResource(name),
+                    GeneralSettings.DEFAULT,
+                    LoaderSettings.builder().setAutoUpdate(true).build(),
+                    DumperSettings.DEFAULT,
+                    UpdaterSettings.builder().setVersioning(new BasicVersioning("Version")).build());
+        } catch (final IOException e) {
+            Bukkit.getLogger().log(Level.SEVERE, "Couldn't setup " + name + "!");
+        }
+    }
 
-	public static YamlDocument file() {
-		return configFile;
-	}
+    public static YamlDocument file() {
+        return configFile;
+    }
 
-	public static void save() {
-		try {
-			configFile.save();
-		} catch (IOException e) {
-			Bukkit.getLogger().log(Level.SEVERE, "Couldn't save " + name + "!");
-		}
-	}
+    public static void save() {
+        try {
+            configFile.save();
+        } catch (final IOException e) {
+            Bukkit.getLogger().log(Level.SEVERE, "Couldn't save " + name + "!");
+        }
+    }
 
-	public static void reload() {
-		try {
-			configFile.reload();
-		} catch (IOException e) {
-			Bukkit.getLogger().log(Level.SEVERE, "Couldn't reload " + name + "!");
-		}
-	}
+    public static void reload() {
+        try {
+            configFile.reload();
+        } catch (final IOException e) {
+            Bukkit.getLogger().log(Level.SEVERE, "Couldn't reload " + name + "!");
+        }
+    }
 }

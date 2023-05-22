@@ -13,19 +13,19 @@ import java.util.function.Consumer;
 
 public class UpdateChecker {
 
-    private JavaPlugin plugin;
-    private int resourceId;
+    private final JavaPlugin plugin;
+    private final int resourceId;
 
-    public UpdateChecker(JavaPlugin plugin, int resourceId) {
+    public UpdateChecker(final JavaPlugin plugin, final int resourceId) {
         this.plugin = plugin;
         this.resourceId = resourceId;
     }
 
     public void getVersion(final Consumer<String> consumer) {
         Bukkit.getScheduler().runTaskAsynchronously(this.plugin, () -> {
-            try (InputStream inputStream = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + this.resourceId).openStream(); Scanner ignored = new Scanner(inputStream)) {
+            try (final InputStream inputStream = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + this.resourceId).openStream(); final Scanner ignored = new Scanner(inputStream)) {
                 consumer.accept(new BufferedReader(new InputStreamReader(inputStream)).readLine());
-            } catch (IOException exception) {
+            } catch (final IOException exception) {
                 this.plugin.getLogger().info("Cannot look for updates: " + exception.getMessage());
             }
         });

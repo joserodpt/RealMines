@@ -1,6 +1,5 @@
 package josegamerpt.realmines.config;
 
-import josegamerpt.realmines.RealMines;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -13,38 +12,38 @@ import java.util.logging.Level;
 
 public class MineResetTasks implements Listener {
 
-	private static File file;
-	private static FileConfiguration customFile;
-	private static final String name = "mineresettasks.yml";
+    private static final String name = "mineresettasks.yml";
+    private static File file;
+    private static FileConfiguration customFile;
 
-	public static void setup(Plugin p) {
-		file = new File(p.getDataFolder(), name);
+    public static void setup(final Plugin p) {
+        file = new File(p.getDataFolder(), name);
 
-		if (!file.exists()) {
-			try {
-				file.createNewFile();
-			} catch (IOException ignored) {
-			}
-		}
-		customFile = YamlConfiguration.loadConfiguration(file);
+        if (!file.exists()) {
+            try {
+                file.createNewFile();
+            } catch (final IOException ignored) {
+            }
+        }
+        customFile = YamlConfiguration.loadConfiguration(file);
 
         MineResetTasks.save();
-	}
+    }
 
-	public static FileConfiguration file() {
-		return customFile;
-	}
+    public static FileConfiguration file() {
+        return customFile;
+    }
 
-	public static void save() {
-		try {
-			customFile.save(file);
-		} catch (IOException e) {
-			Bukkit.getLogger().log(Level.SEVERE, "[RealMines] Couldn't save " + name + "!");
-		}
-	}
+    public static void save() {
+        try {
+            customFile.save(file);
+        } catch (final IOException e) {
+            Bukkit.getLogger().log(Level.SEVERE, "[RealMines] Couldn't save " + name + "!");
+        }
+    }
 
-	public static void reload() {
-		customFile = YamlConfiguration.loadConfiguration(file);
-	}
+    public static void reload() {
+        customFile = YamlConfiguration.loadConfiguration(file);
+    }
 
 }
