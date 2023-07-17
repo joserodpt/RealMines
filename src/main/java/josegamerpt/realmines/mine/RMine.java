@@ -266,19 +266,19 @@ public abstract class RMine {
                     switch (modif.toLowerCase()) {
                         case "pm":
                             sign.setLine(1, this.getMinedBlocksPer() + "%");
-                            sign.setLine(2, "mined on");
+                            sign.setLine(2, Text.color(Language.file().getString("Signs.Mined-On")));
                             break;
                         case "bm":
                             sign.setLine(1, String.valueOf(this.getMinedBlocks()));
-                            sign.setLine(2, "mined blocks on");
+                            sign.setLine(2, Text.color(Language.file().getString("Signs.Mined-Blocks-On")));
                             break;
                         case "br":
                             sign.setLine(1, String.valueOf(this.getRemainingBlocks()));
-                            sign.setLine(2, "blocks on");
+                            sign.setLine(2, Text.color(Language.file().getString("Signs.Blocks-On")));
                             break;
                         case "pl":
                             sign.setLine(1, this.getRemainingBlocksPer() + "%");
-                            sign.setLine(2, "left on");
+                            sign.setLine(2, Text.color(Language.file().getString("Signs.Left-On")));
                             break;
                     }
 

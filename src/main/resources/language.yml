@@ -208,4 +208,8 @@ Signs:
   # Split lines with |
   Setting-Not-Found: "&4Setting|&4not|&4found"
   Mine-Not-Found: "&4Mine&4|&4not|&4found"
-Version: 2
+  Mined-On: "mined on"
+  Mined-Blocks-On: "mined blocks on"
+  Blocks-On: "blocks on"
+  Left-On: "left on"
+Version: 3
