@@ -225,7 +225,7 @@ public class MaterialPicker {
         this.inv.clear();
         this.display.clear();
 
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 9; ++i) {
             this.inv.setItem(i, placeholder);
         }
 

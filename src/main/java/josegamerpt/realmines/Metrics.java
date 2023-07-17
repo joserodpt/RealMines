@@ -672,7 +672,7 @@ public class Metrics {
          */
         private static String escape(final String value) {
             final StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < value.length(); i++) {
+            for (int i = 0; i < value.length(); ++i) {
                 final char c = value.charAt(i);
                 if (c == '"') {
                     builder.append("\\\"");

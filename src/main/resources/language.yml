@@ -42,13 +42,13 @@ GUI:
       Description:
         - "&7Left click to turn &cOFF"
         - "&fRight Click to input a new time."
-        - "&fCurrent Value: &b%value%%"
+        - "&fCurrent Value: &b%value% seconds."
     Time-Off:
       Name: "&9Reset By Time &7(&c&lOFF&r&7)"
       Description:
         - "&7Left click to turn &aON"
         - "&fRight Click to input a new time."
-        - "&fCurrent Value: &b%value%%"
+        - "&fCurrent Value: &b%value% seconds."
   Items:
     Schematic:
       Name: "&b&lSchematic"

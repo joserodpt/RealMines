@@ -28,14 +28,13 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 
 public class MineManager {
 
-    public final List<String> signset = Arrays.asList("PM", "PL", "BM", "BR");
+    public final List<String> signset = Arrays.asList("pm", "pl", "bm", "br");
     private final ArrayList<RMine> mines = new ArrayList<>();
 
     private static ArrayList<MineBlock> getBlocks(final String s) {
@@ -280,9 +279,7 @@ public class MineManager {
                 break;
             case FACES:
                 Mines.file().set(mine.getName() + ".Faces", null);
-                final Iterator<Map.Entry<MineCuboid.CuboidDirection, Material>> it = mine.getFaces().entrySet().iterator();
-                while (it.hasNext()) {
-                    final Map.Entry<MineCuboid.CuboidDirection, Material> pair = it.next();
+                for (Map.Entry<MineCuboid.CuboidDirection, Material> pair : mine.getFaces().entrySet()) {
                     Mines.file().set(mine.getName() + ".Faces." + pair.getKey().name(), pair.getValue().name());
                 }
                 break;
@@ -332,19 +329,11 @@ public class MineManager {
         return this.mines.stream().filter(o -> o.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
-    public void findBlockUpdate(final Block b) {
+    public void findBlockUpdate(final Block b, final boolean broken) {
         for (final RMine m : this.mines) {
             if (m.getMineCuboid().contains(b)) {
-                Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(m));
+                Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(m, broken));
             }
-        }
-    }
-
-    public void resetPercentage(final RMine m) {
-        m.updateSigns();
-        if (m.isResetBy(RMine.Reset.PERCENTAGE) & ((double) m.getRemainingBlocksPer() < m.getResetValue(RMine.Reset.PERCENTAGE))) {
-            m.kickPlayers(Language.file().getString("Mines.Reset.Percentage"));
-            Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getInstance(), m::reset, 10);
         }
     }
 
@@ -399,6 +388,7 @@ public class MineManager {
                 }
             }
         }
+        assert mine != null;
         this.unregisterMine(mine);
     }
 

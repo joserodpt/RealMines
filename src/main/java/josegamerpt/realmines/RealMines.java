@@ -7,6 +7,7 @@ import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.config.MineResetTasks;
 import josegamerpt.realmines.config.Mines;
 import josegamerpt.realmines.event.BlockEvents;
+import josegamerpt.realmines.event.PlayerEvents;
 import josegamerpt.realmines.gui.GUIManager;
 import josegamerpt.realmines.gui.MaterialPicker;
 import josegamerpt.realmines.gui.MineBlocksViewer;
@@ -28,9 +29,9 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 public class RealMines extends JavaPlugin {
 
@@ -100,6 +101,7 @@ public class RealMines extends JavaPlugin {
         Mines.setup(this);
 
         this.log(Level.INFO, "Registering Events.");
+        this.pm.registerEvents(new PlayerEvents(), this);
         this.pm.registerEvents(new BlockEvents(this), this);
         this.pm.registerEvents(MineViewer.getListener(), this);
         this.pm.registerEvents(GUIBuilder.getListener(), this);
@@ -113,24 +115,15 @@ public class RealMines extends JavaPlugin {
         this.commandManager = new CommandManager(this);
         this.commandManager.hideTabComplete(true);
         //command suggestions
-        this.commandManager.getCompletionHandler().register("#createsuggestions", input -> {
-            final List<String> sugests = new ArrayList<>();
+        this.commandManager.getCompletionHandler().register("#createsuggestions", input -> IntStream.range(0, 100)
+                .mapToObj(i -> "Mine" + i)
+                .collect(Collectors.toList()));
+        this.commandManager.getCompletionHandler().register("#minetasksuggestions", input ->
+                IntStream.range(0, 50)
+                        .mapToObj(i -> "MineResetTask" + i)
+                        .collect(Collectors.toList())
+        );
 
-            for (int i = 0; i < 100; i++) {
-                sugests.add("Mine" + i);
-            }
-
-            return sugests;
-        });
-        this.commandManager.getCompletionHandler().register("#minetasksuggestions", input -> {
-            final List<String> sugests = new ArrayList<>();
-
-            for (int i = 0; i < 50; i++) {
-                sugests.add("MineResetTask" + i);
-            }
-
-            return sugests;
-        });
         this.commandManager.getCompletionHandler().register("#mines", input -> this.mineManager.getRegisteredMines());
         this.commandManager.getCompletionHandler().register("#minetasks", input -> this.mineResetTasksManager.getRegisteredTasks());
 
@@ -168,7 +161,7 @@ public class RealMines extends JavaPlugin {
                 this.getLogger().info("The plugin is updated to the latest version.");
             } else {
                 this.newUpdate = true;
-                this.getLogger().info("There is a new update available! Version: " + version);
+                this.getLogger().info("There is a new update available! Version: " + version + " https://www.spigotmc.org/resources/realmines-1-14-to-1-20-1.73707/");
             }
         });
     }

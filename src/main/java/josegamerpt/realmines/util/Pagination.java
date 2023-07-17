@@ -45,7 +45,7 @@ public class Pagination<T> extends ArrayList<T> {
 
         if (max > this.size()) max = this.size();
 
-        for (int i = min; max > i; i++)
+        for (int i = min; max > i; ++i)
             objects.add(this.get(i));
 
         return objects;

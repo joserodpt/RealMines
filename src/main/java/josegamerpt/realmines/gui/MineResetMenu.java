@@ -121,6 +121,7 @@ public class MineResetMenu {
         final List<String> percentageOffDesc = new ArrayList<>();
         final List<String> timeOnDesc = new ArrayList<>();
         final List<String> timeOffDesc = new ArrayList<>();
+
         for (final String s : Language.file().getStringList("GUI.Resets.Percentage-On.Description")) {
             percentageOnDesc.add(s.replaceAll("%value%", String.valueOf(m.getResetValue(RMine.Reset.PERCENTAGE))));
         }

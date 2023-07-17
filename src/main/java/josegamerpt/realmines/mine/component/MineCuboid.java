@@ -74,7 +74,6 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
     public MineCuboid(final MineCuboid other) {
         this(other.getWorld().getName(), other.x1, other.y1, other.z1, other.x2, other.y2, other.z2);
         this.totalBlocks = this.getVolume();
-
     }
 
     /**
@@ -193,16 +192,6 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
         while (blockI.hasNext())
             copy.add(blockI.next());
         return copy;
-    }
-
-    public int getTotalBlocks() {
-        int tot = 0;
-        for (final Block b : this.getBlocks()) {
-            if (!b.isEmpty()) {
-                tot++;
-            }
-        }
-        return tot;
     }
 
     /**
@@ -557,7 +546,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
     /**
      * Check if the Cuboid contains only blocks of the given type
      *
-     * @param - The block ID to check for
+     * @param m - The block ID to check for
      * @return true if this Cuboid contains only blocks of the given type
      */
     public boolean containsOnly(final Material m) {
@@ -663,7 +652,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
                 + "," + this.y2 + "," + this.z2;
     }
 
-    public int getTotalVolume() {
+    public int getTotalBlocks() {
         return this.totalBlocks;
     }
 

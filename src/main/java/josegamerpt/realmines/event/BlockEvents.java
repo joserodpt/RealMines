@@ -4,11 +4,13 @@ import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mine.RMine;
 import josegamerpt.realmines.util.Text;
+import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
+import org.bukkit.event.entity.EntityExplodeEvent;
 
 public class BlockEvents implements Listener {
 
@@ -22,17 +24,24 @@ public class BlockEvents implements Listener {
 
     @EventHandler
     public void onBlockBreak(final BlockBreakEvent e) {
-        RealMines.getInstance().getMineManager().findBlockUpdate(e.getBlock());
+        RealMines.getInstance().getMineManager().findBlockUpdate(e.getBlock(), true);
+    }
+
+    @EventHandler //for creeper explosions
+    public void onEntityExplode(final EntityExplodeEvent e) {
+        for (Block block : e.blockList()) {
+            RealMines.getInstance().getMineManager().findBlockUpdate(block, true);
+        }
     }
 
     @EventHandler
     public void onBlockPlace(final BlockPlaceEvent e) {
-        RealMines.getInstance().getMineManager().findBlockUpdate(e.getBlock());
+        RealMines.getInstance().getMineManager().findBlockUpdate(e.getBlock(), false);
     }
 
     @EventHandler
     public void mineBlockBreak(final MineBlockBreakEvent e) {
-        RealMines.getInstance().getMineManager().resetPercentage(e.getMine());
+        e.getMine().processBlockBreakEvent(e.isBroken());
     }
 
     @EventHandler
@@ -45,7 +54,8 @@ public class BlockEvents implements Listener {
 
             if (m != null) {
                 final String modif = event.getLine(2);
-                if (RealMines.getInstance().getMineManager().signset.contains(modif)) {
+                assert modif != null;
+                if (RealMines.getInstance().getMineManager().signset.contains(modif.toLowerCase())) {
                     m.addSign(event.getBlock(), modif);
                     m.updateSigns();
                 } else {

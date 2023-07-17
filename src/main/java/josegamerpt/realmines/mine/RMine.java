@@ -40,6 +40,8 @@ public abstract class RMine {
     protected boolean silent;
     protected HashMap<MineCuboid.CuboidDirection, Material> faces;
 
+    protected int minedBlocks;
+
     public RMine(final String n, final String displayname, final ArrayList<MineSign> si, final Material i,
                  final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final String color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent) {
         this.name = ChatColor.stripColor(Text.color(n));
@@ -186,25 +188,29 @@ public abstract class RMine {
         return this.mineCuboid;
     }
 
+    //block counts
     public int getBlockCount() {
-        return this.mineCuboid.getTotalVolume();
-    }
-
-    public int getRemainingBlocks() {
         return this.mineCuboid.getTotalBlocks();
     }
 
-    public int getRemainingBlocksPer() {
-        return (this.mineCuboid.getTotalBlocks() * 100 / this.getBlockCount());
+    public int getMinedBlocks() {
+        return this.minedBlocks;
     }
 
-    public int getMinedBlocks() {
-        return this.getBlockCount() - this.getRemainingBlocks();
+    public int getRemainingBlocks() {
+        return this.mineCuboid.getTotalBlocks() - this.getMinedBlocks();
+    }
+    //block counts
+
+    //block percentages
+    public int getRemainingBlocksPer() {
+        return (this.getRemainingBlocks() * 100 / this.getBlockCount());
     }
 
     public int getMinedBlocksPer() {
         return (this.getMinedBlocks() * 100 / this.getBlockCount());
     }
+    //block percentages
 
     public abstract void fill();
 
@@ -234,6 +240,10 @@ public abstract class RMine {
         if (Bukkit.getOnlinePlayers().size() > 0) {
             this.kickPlayers(Language.file().getString("Mines.Reset.Starting").replace("%mine%", this.getDisplayName()));
             this.fill();
+
+            //reset mined blocks
+            this.minedBlocks = 0;
+
             this.updateSigns();
             if (!this.isSilent()) {
                 Bukkit.broadcastMessage(Text.color(RealMines.getInstance().getPrefix() + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", this.getDisplayName())));
@@ -470,6 +480,20 @@ public abstract class RMine {
     }
 
     public abstract String getType();
+
+    public void processBlockBreakEvent(final boolean broken) {
+        //add or remove to mined blocks
+        this.minedBlocks = this.minedBlocks + (broken ? 1 : -1);
+
+        //if mine reset percentage is lower, reset it
+        if (this.isResetBy(RMine.Reset.PERCENTAGE) & ((double) this.getRemainingBlocksPer() < this.getResetValue(RMine.Reset.PERCENTAGE))) {
+            this.kickPlayers(Language.file().getString("Mines.Reset.Percentage"));
+            Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getInstance(), this::reset, 10);
+        }
+
+        //update min e signs
+        this.updateSigns();
+    }
 
     public enum Reset {PERCENTAGE, TIME, SILENT}
 

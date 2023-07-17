@@ -12,7 +12,7 @@ public class PlayerEvents implements Listener {
     @EventHandler
     public void onJoin(final PlayerJoinEvent e) {
         if (e.getPlayer().isOp() && RealMines.getInstance().newUpdate) {
-            Text.send(e.getPlayer(), Language.file().getString("System.Update-Found"));
+            Text.send(e.getPlayer(), Language.file().getString("System.Update-Found") + " https://www.spigotmc.org/resources/realmines-1-14-to-1-20-1.73707/");
         }
     }
 }
