@@ -1,6 +1,7 @@
 package josegamerpt.realmines.mine;
 
 import josegamerpt.realmines.RealMines;
+import josegamerpt.realmines.manager.MineManager;
 import josegamerpt.realmines.mine.component.MineBlock;
 import josegamerpt.realmines.mine.component.MineCuboid;
 import josegamerpt.realmines.mine.component.MineSign;
@@ -19,8 +20,8 @@ public class BlockMine extends RMine {
     private final ArrayList<Material> sorted = new ArrayList<>();
 
     public BlockMine(final String n, final String displayname, final ArrayList<MineBlock> b, final ArrayList<MineSign> si, final Location p1, final Location p2, final Material i,
-                     final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final String color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent) {
-        super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent);
+                     final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final String color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
+        super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, mm);
 
         this.blocks = b;
 
@@ -34,7 +35,7 @@ public class BlockMine extends RMine {
             this.sortBlocks();
             if (this.blocks.size() != 0) {
 
-                Bukkit.getScheduler().runTask(RealMines.getInstance(), () -> {
+                Bukkit.getScheduler().runTask(RealMines.getPlugin(), () -> {
                     //blocks
                     this.mineCuboid.forEach(block -> block.setType(this.getBlock()));
                     //faces

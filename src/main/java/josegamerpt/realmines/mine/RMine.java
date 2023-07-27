@@ -1,7 +1,9 @@
 package josegamerpt.realmines.mine;
 
 import josegamerpt.realmines.RealMines;
+import josegamerpt.realmines.config.Config;
 import josegamerpt.realmines.config.Language;
+import josegamerpt.realmines.manager.MineManager;
 import josegamerpt.realmines.mine.component.MineCuboid;
 import josegamerpt.realmines.mine.component.MineSign;
 import josegamerpt.realmines.mine.task.MineTimer;
@@ -41,9 +43,11 @@ public abstract class RMine {
     protected HashMap<MineCuboid.CuboidDirection, Material> faces;
 
     protected int minedBlocks;
+    private MineManager mm;
 
     public RMine(final String n, final String displayname, final ArrayList<MineSign> si, final Material i,
-                 final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final String color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent) {
+                 final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final String color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
+        this.mm = mm;
         this.name = ChatColor.stripColor(Text.color(n));
         this.displayName = displayname;
         this.signs = si;
@@ -214,12 +218,8 @@ public abstract class RMine {
 
     public abstract void fill();
 
-    public void register() {
-        RealMines.getInstance().getMineManager().add(this);
-    }
-
     public void saveData(final Data t) {
-        RealMines.getInstance().getMineManager().saveMine(this, t);
+        this.mm.saveMine(this, t);
         if (!this.resetByTime) {
             this.timer.kill();
         } else {
@@ -228,7 +228,7 @@ public abstract class RMine {
     }
 
     public void saveAll() {
-        RealMines.getInstance().getMineManager().saveMine(this);
+        this.mm.saveMine(this);
         if (!this.resetByTime) {
             this.timer.kill();
         } else {
@@ -246,7 +246,7 @@ public abstract class RMine {
 
             this.updateSigns();
             if (!this.isSilent()) {
-                Bukkit.broadcastMessage(Text.color(RealMines.getInstance().getPrefix() + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", this.getDisplayName())));
+                Bukkit.broadcastMessage(Text.color(Config.file().getString("RealMines.Prefix") + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", this.getDisplayName())));
             }
         }
     }
@@ -257,7 +257,7 @@ public abstract class RMine {
     }
 
     public void updateSigns() {
-        Bukkit.getScheduler().runTask(RealMines.getInstance(), () -> {
+        Bukkit.getScheduler().runTask(RealMines.getPlugin(), () -> {
             for (final MineSign ms : this.signs) {
                 if (ms.getBlock().getType().name().contains("SIGN")) {
                     final Sign sign = (Sign) ms.getBlock().getState();
@@ -282,7 +282,7 @@ public abstract class RMine {
                             break;
                     }
 
-                    sign.setLine(0, RealMines.getInstance().getPrefix());
+                    sign.setLine(0, Text.color(Config.file().getString("RealMines.Prefix")));
                     sign.setLine(3, Text.color(this.getDisplayName()));
                     sign.update();
                 }
@@ -299,7 +299,7 @@ public abstract class RMine {
     }
 
     public void kickPlayers(final String s) {
-        this.getPlayersInMine().forEach(player -> RealMines.getInstance().getMineManager().teleport(player, this, this.isSilent()));
+        this.getPlayersInMine().forEach(player -> this.mm.teleport(player, this, this.isSilent()));
         if (!this.isSilent()) {
             this.broadcastMessage(s, true);
         }
@@ -307,7 +307,7 @@ public abstract class RMine {
 
     public void broadcastMessage(String s, final Boolean prefix) {
         if (prefix) {
-            s = RealMines.getInstance().getPrefix() + s;
+            s = Config.file().getString("RealMines.Prefix") + s;
         }
         final String finalS = s;
         this.getPlayersInMine().forEach(player -> player.sendMessage(Text.color(finalS)));
@@ -488,7 +488,7 @@ public abstract class RMine {
         //if mine reset percentage is lower, reset it
         if (this.isResetBy(RMine.Reset.PERCENTAGE) & ((double) this.getRemainingBlocksPer() < this.getResetValue(RMine.Reset.PERCENTAGE))) {
             this.kickPlayers(Language.file().getString("Mines.Reset.Percentage"));
-            Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getInstance(), this::reset, 10);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getPlugin(), this::reset, 10);
         }
 
         //update min e signs

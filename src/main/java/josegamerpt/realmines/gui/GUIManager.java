@@ -51,13 +51,13 @@ public class GUIManager {
 
                 inventory.addItem(e -> {
                             target.closeInventory();
-                            RealMines.getInstance().getMineManager().createMine(target, name);
+                            rm.getMineManager().createMine(target, name);
                         }, Items.createItemLore(Material.CHEST, 1, Language.file().getString("GUI.Items.Blocks.Name"), Collections.emptyList()),
                         11);
 
                 inventory.addItem(e -> {
                             target.closeInventory();
-                            RealMines.getInstance().getMineManager().createSchematicMine(target, name);
+                            rm.getMineManager().createSchematicMine(target, name);
                         }, Items.createItemLore(Material.FILLED_MAP, 1, Language.file().getString("GUI.Items.Schematic.Name"), Collections.emptyList()),
                         15);
 

@@ -47,7 +47,7 @@ public class MineResetTask {
             public void run() {
                 MineResetTask.this.mines.forEach(RMine::reset);
             }
-        }.runTaskTimer(RealMines.getInstance(), 0L, this.delay * 20L);
+        }.runTaskTimer(RealMines.getPlugin(), 0L, this.delay * 20L);
 
     }
 

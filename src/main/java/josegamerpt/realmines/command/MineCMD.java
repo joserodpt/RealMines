@@ -33,7 +33,7 @@ public class MineCMD extends CommandBase {
     @Default
     public void defaultCommand(final CommandSender commandSender) {
         Text.sendList(commandSender,
-                Arrays.asList("", "         &9Real&bMines", "         &7Release &a" + RealMines.getInstance().getDescription().getVersion(), ""));
+                Arrays.asList("", "         &9Real&bMines", "         &7Release &a" + rm.getDescription().getVersion(), ""));
     }
 
     @SubCommand("reload")
@@ -60,7 +60,7 @@ public class MineCMD extends CommandBase {
     @Permission("realmines.admin")
     public void stoptaskscmd(final CommandSender commandSender) {
         if (commandSender instanceof Player) {
-            RealMines.getInstance().getMineManager().stopTasks();
+            rm.getMineManager().stopTasks();
             Text.send(commandSender, Language.file().getString("System.Stopped-Mine-Tasks"));
         } else {
             Text.send(commandSender, this.playerOnly);
@@ -71,7 +71,7 @@ public class MineCMD extends CommandBase {
     @Permission("realmines.admin")
     public void starttaskcmd(final CommandSender commandSender) {
         if (commandSender instanceof Player) {
-            RealMines.getInstance().getMineManager().startTasks();
+            rm.getMineManager().startTasks();
             Text.send(commandSender, Language.file().getString("System.Started-Mine-Tasks"));
         } else {
             Text.send(commandSender, this.playerOnly);
@@ -81,7 +81,7 @@ public class MineCMD extends CommandBase {
     @SubCommand("list")
     @Permission("realmines.admin")
     public void listcmd(final CommandSender commandSender) {
-        RealMines.getInstance().getMineManager().getMines().forEach(mine -> Text.send(commandSender, "&7> &f" + mine.getName() + " &r&7(&f" + mine.getDisplayName() + "&r&7)"));
+        rm.getMineManager().getMines().forEach(mine -> Text.send(commandSender, "&7> &f" + mine.getName() + " &r&7(&f" + mine.getDisplayName() + "&r&7)"));
     }
 
     @SubCommand("create")
@@ -90,9 +90,9 @@ public class MineCMD extends CommandBase {
     @WrongUsage("&c/mine create <name>")
     public void createcmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
-            final RMine m = RealMines.getInstance().getMineManager().get(name);
+            final RMine m = rm.getMineManager().get(name);
             if (m == null) {
-                RealMines.getInstance().getGUIManager().openMineChooserType((Player) commandSender, name);
+                rm.getGUIManager().openMineChooserType((Player) commandSender, name);
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Exists"));
             }
@@ -107,7 +107,7 @@ public class MineCMD extends CommandBase {
     @WrongUsage("&c/mine settp <name>")
     public void settpcmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
-            final RMine m = RealMines.getInstance().getMineManager().get(name);
+            final RMine m = rm.getMineManager().get(name);
             if (m != null) {
                 m.setTeleport(((Player) commandSender).getLocation());
                 m.saveData(RMine.Data.TELEPORT);
@@ -126,9 +126,9 @@ public class MineCMD extends CommandBase {
     @WrongUsage("&c/mine tp <name>")
     public void tpmine(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
-            final RMine m = RealMines.getInstance().getMineManager().get(name);
+            final RMine m = rm.getMineManager().get(name);
             if (m != null) {
-                RealMines.getInstance().getMineManager().teleport(((Player) commandSender), m, m.isSilent());
+                rm.getMineManager().teleport(((Player) commandSender), m, m.isSilent());
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }
@@ -142,7 +142,7 @@ public class MineCMD extends CommandBase {
     @Permission("realmines.silent")
     @WrongUsage("&c/mine silent <name>")
     public void silent(final CommandSender commandSender, final String name) {
-        final RMine m = RealMines.getInstance().getMineManager().get(name);
+        final RMine m = rm.getMineManager().get(name);
         if (m != null) {
             m.setResetStatus(RMine.Reset.SILENT, !m.isSilent());
             m.saveData(RMine.Data.OPTIONS);
@@ -161,7 +161,7 @@ public class MineCMD extends CommandBase {
     @Permission("realmines.silent")
     @WrongUsage("&c/mine silentall <true/false>")
     public void silentall(final CommandSender commandSender, final Boolean bol) {
-        for (final RMine m : RealMines.getInstance().getMineManager().getMines()) {
+        for (final RMine m : rm.getMineManager().getMines()) {
             m.setResetStatus(RMine.Reset.SILENT, bol);
             m.saveData(RMine.Data.OPTIONS);
 
@@ -179,7 +179,7 @@ public class MineCMD extends CommandBase {
     @WrongUsage("&c/mine highlight <name>")
     public void highlight(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
-            final RMine m = RealMines.getInstance().getMineManager().get(name);
+            final RMine m = rm.getMineManager().get(name);
             if (m != null) {
                 m.setHighlight(!m.isHighlighted());
             } else {
@@ -197,7 +197,7 @@ public class MineCMD extends CommandBase {
     @WrongUsage("&c/mine open <name>")
     public void opencmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
-            final RMine m = RealMines.getInstance().getMineManager().get(name);
+            final RMine m = rm.getMineManager().get(name);
             if (m != null) {
                 this.rm.getGUIManager().openMine(m, Bukkit.getPlayer(commandSender.getName()));
             } else {
@@ -213,7 +213,7 @@ public class MineCMD extends CommandBase {
     @Permission("realmines.admin")
     @WrongUsage("&c/mine reset <name>")
     public void resetcmd(final CommandSender commandSender, final String name) {
-        final RMine m = RealMines.getInstance().getMineManager().get(name);
+        final RMine m = rm.getMineManager().get(name);
         if (m != null) {
             m.reset();
         } else {
@@ -227,7 +227,7 @@ public class MineCMD extends CommandBase {
     @Permission("realmines.admin")
     @WrongUsage("&c/mine delete <name>")
     public void deletecmd(final CommandSender commandSender, final String name) {
-        RealMines.getInstance().getMineManager().deleteMine(RealMines.getInstance().getMineManager().get(name));
+        rm.getMineManager().deleteMine(rm.getMineManager().get(name));
         Text.send(commandSender, Language.file().getString("System.Mine-Deleted"));
     }
 
@@ -236,7 +236,7 @@ public class MineCMD extends CommandBase {
     @Permission("realmines.admin")
     @WrongUsage("&c/mine clear <name>")
     public void clearcmd(final CommandSender commandSender, final String name) {
-        final RMine m = RealMines.getInstance().getMineManager().get(name);
+        final RMine m = rm.getMineManager().get(name);
         if (m != null) {
             m.clear();
             Text.send(commandSender, Language.file().getString("System.Mine-Clear"));
@@ -251,9 +251,9 @@ public class MineCMD extends CommandBase {
     @WrongUsage("&c/mine setregion <name>")
     public void setregioncmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
-            final RMine m = RealMines.getInstance().getMineManager().get(name);
+            final RMine m = rm.getMineManager().get(name);
             if (m != null) {
-                RealMines.getInstance().getMineManager().setRegion(name, Bukkit.getPlayer(commandSender.getName()));
+                rm.getMineManager().setRegion(name, Bukkit.getPlayer(commandSender.getName()));
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }

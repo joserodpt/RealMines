@@ -33,6 +33,11 @@ import java.util.Map;
 import java.util.logging.Level;
 
 public class MineManager {
+    
+    private RealMines rm;
+    public MineManager(RealMines rm) {
+        this.rm = rm;
+    }
 
     public final List<String> signset = Arrays.asList("pm", "pl", "bm", "br");
     private final ArrayList<RMine> mines = new ArrayList<>();
@@ -112,7 +117,7 @@ public class MineManager {
             final String type;
             if (mtyp == null || mtyp == "") {
                 type = "BLOCKS";
-                RealMines.getInstance().log(Level.WARNING, s + " converted into the new mine type.");
+                rm.log(Level.WARNING, s + " converted into the new mine type.");
                 saveType = true;
             } else {
                 type = mtyp;
@@ -126,7 +131,7 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
                             Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), color, faces,
-                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"));
+                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), this);
                     break;
                 case "SCHEMATIC":
                     final Location place = new Location(w, Mines.file().getDouble(s + ".Place.X"),
@@ -136,12 +141,12 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
                             Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), color, pos1, pos2, faces,
-                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"));
+                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), this);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + type);
             }
-            m.register();
+            this.addMine(m);
             if (saveType) {
                 m.saveData(RMine.Data.MINE_TYPE);
             }
@@ -158,10 +163,10 @@ public class MineManager {
                 final Location pos2 = new Location(p.getWorld(), r.getMinimumPoint().getBlockX(), r.getMinimumPoint().getBlockY(), r.getMinimumPoint().getBlockZ());
 
                 final BlockMine m = new BlockMine(name, name, new ArrayList<>(), new ArrayList<>(), pos1, pos2,
-                        Material.DIAMOND_ORE, null, false, true, 20, 60, "white", new HashMap<>(), false);
+                        Material.DIAMOND_ORE, null, false, true, 20, 60, "white", new HashMap<>(), false, this);
                 m.saveAll();
 
-                m.register();
+                this.addMine(m);
                 m.addBlock(new MineBlock(Material.STONE, 1D));
                 m.reset();
                 m.setTeleport(p.getLocation());
@@ -192,7 +197,7 @@ public class MineManager {
         Text.send(p, Language.file().getString("System.Input-Schematic"));
 
         new PlayerInput(p, s -> {
-            final File folder = new File(RealMines.getInstance().getDataFolder(), "schematics");
+            final File folder = new File(rm.getDataFolder(), "schematics");
             final File file = new File(folder, s);
 
             if (file.exists()) {
@@ -201,10 +206,10 @@ public class MineManager {
                 final Location loc2 = new Location(p.getWorld(), 0, 0, 0);
 
                 final SchematicMine m = new SchematicMine(name, name, new ArrayList<>(), p.getLocation(), s,
-                        Material.DIAMOND_ORE, null, false, true, 20, 60, "white", loc, loc2, new HashMap<>(), false);
+                        Material.DIAMOND_ORE, null, false, true, 20, 60, "white", loc, loc2, new HashMap<>(), false, this);
                 m.saveAll();
 
-                m.register();
+                this.addMine(m);
                 m.reset();
                 m.setTeleport(p.getLocation());
                 m.saveData(RMine.Data.TELEPORT);
@@ -312,7 +317,7 @@ public class MineManager {
                     }
                 } else {
                     if (Config.file().getBoolean("RealMines.teleportMessage")) {
-                        Text.send(target, RealMines.getInstance().getPrefix() + Language.file().getString("System.Error-Permission"));
+                        Text.send(target, Text.color(Config.file().getString("RealMines.Prefix")) + Language.file().getString("System.Error-Permission"));
                     }
                 }
             } else {
@@ -382,7 +387,7 @@ public class MineManager {
             mine.clear();
             mine.getTimer().kill();
             mine.removeDependencies();
-            for (final MineResetTask task : RealMines.getInstance().getMineResetTasksManager().tasks) {
+            for (final MineResetTask task : rm.getMineResetTasksManager().tasks) {
                 if (task.hasMine(mine)) {
                     task.removeMine(mine);
                 }
@@ -400,7 +405,11 @@ public class MineManager {
         return this.mines;
     }
 
-    public void add(final RMine mine) {
+    public void addMine(final RMine mine) {
         this.mines.add(mine);
+    }
+
+    public File getSchematicFolder() {
+        return rm.getDataFolder();
     }
 }

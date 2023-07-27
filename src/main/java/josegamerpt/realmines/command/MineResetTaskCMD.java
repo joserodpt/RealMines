@@ -34,7 +34,7 @@ public class MineResetTaskCMD extends CommandBase {
     @Default
     public void defaultCommand(final CommandSender commandSender) {
         Text.sendList(commandSender,
-                Arrays.asList("", "         &9Real&bMines", "         &7Release &a" + RealMines.getInstance().getDescription().getVersion(), ""));
+                Arrays.asList("", "         &9Real&bMines", "         &7Release &a" + rm.getDescription().getVersion(), ""));
     }
 
     @SubCommand("create")

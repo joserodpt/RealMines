@@ -1,7 +1,7 @@
 package josegamerpt.realmines.util;
 
 import com.google.common.base.Strings;
-import josegamerpt.realmines.RealMines;
+import josegamerpt.realmines.config.Config;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -26,11 +26,11 @@ public class Text {
     }
 
     public static void send(final Player p, final String string) {
-        p.sendMessage(Text.color(RealMines.getInstance().getPrefix() + string));
+        p.sendMessage(Text.color(Config.file().getString("RealMines.Prefix") + string));
     }
 
     public static void send(final CommandSender p, final String string) {
-        p.sendMessage(Text.color(RealMines.getInstance().getPrefix() + string));
+        p.sendMessage(Text.color(Config.file().getString("RealMines.Prefix") + string));
     }
 
     public static String getProgressBar(final int current, final int max, final int totalBars, final char symbol, final ChatColor completedColor,

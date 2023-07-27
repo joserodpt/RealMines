@@ -1,6 +1,7 @@
 package josegamerpt.realmines.event;
 
 import josegamerpt.realmines.RealMines;
+import josegamerpt.realmines.config.Config;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mine.RMine;
 import josegamerpt.realmines.util.Text;
@@ -24,19 +25,19 @@ public class BlockEvents implements Listener {
 
     @EventHandler
     public void onBlockBreak(final BlockBreakEvent e) {
-        RealMines.getInstance().getMineManager().findBlockUpdate(e.getBlock(), true);
+        rm.getMineManager().findBlockUpdate(e.getBlock(), true);
     }
 
     @EventHandler //for creeper explosions
     public void onEntityExplode(final EntityExplodeEvent e) {
         for (Block block : e.blockList()) {
-            RealMines.getInstance().getMineManager().findBlockUpdate(block, true);
+            rm.getMineManager().findBlockUpdate(block, true);
         }
     }
 
     @EventHandler
     public void onBlockPlace(final BlockPlaceEvent e) {
-        RealMines.getInstance().getMineManager().findBlockUpdate(e.getBlock(), false);
+        rm.getMineManager().findBlockUpdate(e.getBlock(), false);
     }
 
     @EventHandler
@@ -47,15 +48,15 @@ public class BlockEvents implements Listener {
     @EventHandler
     public void onSignChange(final SignChangeEvent event) {
         if (event.getLine(0).contains("[realmines]") || event.getLine(0).contains("[RealMines]")) {
-            event.setLine(0, this.rm.getPrefix());
+            event.setLine(0, Text.color(Config.file().getString("RealMines.Prefix")));
             final String name = event.getLine(1);
 
-            final RMine m = RealMines.getInstance().getMineManager().get(name);
+            final RMine m = rm.getMineManager().get(name);
 
             if (m != null) {
                 final String modif = event.getLine(2);
                 assert modif != null;
-                if (RealMines.getInstance().getMineManager().signset.contains(modif.toLowerCase())) {
+                if (rm.getMineManager().signset.contains(modif.toLowerCase())) {
                     m.addSign(event.getBlock(), modif);
                     m.updateSigns();
                 } else {
