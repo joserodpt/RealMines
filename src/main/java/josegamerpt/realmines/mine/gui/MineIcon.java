@@ -5,11 +5,10 @@ import josegamerpt.realmines.mine.RMine;
 import josegamerpt.realmines.util.Items;
 import josegamerpt.realmines.util.Text;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MineIcon {
 
@@ -22,19 +21,18 @@ public class MineIcon {
 		this.makeIcon();
     }
 
-    public MineIcon() {
-        this.placeholder = true;
-        this.i = Items.createItemLore(Material.DEAD_BUSH, 1, Language.file().getString("GUI.Items.No-Mines-Found.Name"), Language.file().getStringList("GUI.Items.No-Mines-Found.Description"));
-    }
-
     private void makeIcon() {
-        this.i = Items.createItemLore(this.m.getIcon(), 1, this.m.getColorIcon() + " &6&l" + this.m.getDisplayName() + " &f- &b&l" + this.m.getType(), this.var(this.m));
+        this.i = Items.createItemLore(this.m.getIcon(), 1, this.m.getColorIcon() + " &6&l" + this.m.getDisplayName() + " &f- &b&l" + this.m.getType(), this.getIconDescription(this.m));
     }
 
-    private List<String> var(final RMine m) {
-        final List<String> ret = new ArrayList<>();
-        Language.file().getStringList("GUI.Items.Mine.Description").forEach(s -> ret.add(Text.color(s.replaceAll("%remainingblocks%", String.valueOf(m.getRemainingBlocks())).replaceAll("%totalblocks%", String.valueOf(m.getBlockCount())).replaceAll("%bar%", this.getBar(m)))));
-        return ret;
+    private List<String> getIconDescription(final RMine m) {
+        return Language.file().getStringList("GUI.Items.Mine.Description")
+                .stream()
+                .map(s -> Text.color(s
+                        .replaceAll("%remainingblocks%", String.valueOf(m.getRemainingBlocks()))
+                        .replaceAll("%totalblocks%", String.valueOf(m.getBlockCount()))
+                        .replaceAll("%bar%", this.getBar(m))))
+                .collect(Collectors.toList());
     }
 
     private String getBar(final RMine m) {

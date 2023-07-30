@@ -3,7 +3,6 @@ package josegamerpt.realmines.gui;
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mine.BlockMine;
-import josegamerpt.realmines.mine.RMine;
 import josegamerpt.realmines.mine.component.MineBlock;
 import josegamerpt.realmines.mine.gui.MineBlockIcon;
 import josegamerpt.realmines.util.Items;
@@ -45,12 +44,12 @@ public class MineBlocksViewer {
     private final Inventory inv;
     private final UUID uuid;
     private final HashMap<Integer, MineBlockIcon> display = new HashMap<>();
-    private final RMine m;
+    private final BlockMine m;
     int pageNumber = 0;
     Pagination<MineBlockIcon> p;
     private final RealMines rm;
 
-    public MineBlocksViewer(final RealMines rm, final Player target, final RMine min) {
+    public MineBlocksViewer(final RealMines rm, final Player target, final BlockMine min) {
         this.rm = rm;
         this.uuid = target.getUniqueId();
         this.m = min;
@@ -182,12 +181,11 @@ public class MineBlocksViewer {
     }
 
     public void load() {
-        this.p = new Pagination<>(28, ((BlockMine) this.m).getBlocks());
+        this.p = new Pagination<>(28, this.m.getBlockIcons());
         this.fillChest(this.p.getPage(this.pageNumber));
     }
 
     public void fillChest(final List<MineBlockIcon> items) {
-
         this.inv.clear();
         this.display.clear();
 
@@ -217,7 +215,7 @@ public class MineBlocksViewer {
 
         int slot = 0;
         for (final ItemStack i : this.inv.getContents()) {
-            if (i == null && items.size() != 0) {
+            if (i == null && !items.isEmpty()) {
                 final MineBlockIcon s = items.get(0);
                 this.inv.setItem(slot, s.getItemStack());
                 this.display.put(slot, s);

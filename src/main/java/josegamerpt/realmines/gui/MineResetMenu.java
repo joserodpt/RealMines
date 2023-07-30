@@ -134,17 +134,15 @@ public class MineResetMenu {
         for (final String s : Language.file().getStringList("GUI.Resets.Time-Off.Description")) {
             timeOffDesc.add(s.replaceAll("%value%", String.valueOf(m.getResetValue(RMine.Reset.TIME))));
         }
-        if (m.isResetBy(RMine.Reset.PERCENTAGE)) {
-            this.inv.setItem(0, Items.createItemLoreEnchanted(Material.BOOK, 1, Language.file().getString("GUI.Resets.Percentage-On.Name"), percentageOnDesc));
-        } else {
-            this.inv.setItem(0, Items.createItemLore(Material.BOOK, 1, Language.file().getString("GUI.Resets.Percentage-Off.Name"), percentageOffDesc));
-        }
-        if (m.isResetBy(RMine.Reset.TIME)) {
-            this.inv.setItem(4, Items.createItemLoreEnchanted(Material.CLOCK, 1, Language.file().getString("GUI.Resets.Time-On.Name"), timeOnDesc));
-        } else {
-            this.inv.setItem(4, Items.createItemLore(Material.CLOCK, 1, Language.file().getString("GUI.Resets.Time-Off.Name"), timeOffDesc));
 
-        }
+        this.inv.setItem(0, m.isResetBy(RMine.Reset.PERCENTAGE)
+                ? Items.createItemLoreEnchanted(Material.BOOK, 1, Language.file().getString("GUI.Resets.Percentage-On.Name"), percentageOnDesc)
+                : Items.createItemLore(Material.BOOK, 1, Language.file().getString("GUI.Resets.Percentage-Off.Name"), percentageOffDesc));
+
+        this.inv.setItem(4, m.isResetBy(RMine.Reset.TIME)
+                ? Items.createItemLoreEnchanted(Material.CLOCK, 1, Language.file().getString("GUI.Resets.Time-On.Name"), timeOnDesc)
+                : Items.createItemLore(Material.CLOCK, 1, Language.file().getString("GUI.Resets.Time-Off.Name"), timeOffDesc));
+
         this.inv.setItem(2,
                 Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Go-Back.Name"), Language.file().getStringList("GUI.Items.Go-Back.Description")));
     }
@@ -212,7 +210,6 @@ public class MineResetMenu {
                     m.setResetValue(RMine.Reset.TIME, d);
                     m.saveData(RMine.Data.OPTIONS);
                     gp.sendMessage(Text.color(Language.file().getString("System.Time-Modified").replaceAll("%value%", String.valueOf(d))));
-
 
                     final MineResetMenu v = new MineResetMenu(rm, gp, m);
                     v.openInventory(gp);

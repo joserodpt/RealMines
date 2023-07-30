@@ -133,9 +133,7 @@ public class MineViewer {
     }
 
     public void load() {
-        final List<MineIcon> items = this.rm.getMineManager().getMineList();
-
-        this.p = new Pagination<>(28, items);
+        this.p = new Pagination<>(28, this.rm.getMineManager().getMineList());
         this.fillChest(this.p.getPage(this.pageNumber));
     }
 
@@ -169,7 +167,7 @@ public class MineViewer {
 
         int slot = 0;
         for (final ItemStack i : this.inv.getContents()) {
-            if (i == null && items.size() != 0) {
+            if (i == null && !items.isEmpty()) {
                 final MineIcon s = items.get(0);
                 this.inv.setItem(slot, s.getIcon());
                 this.display.put(slot, s);

@@ -1,5 +1,5 @@
 RealMines:
- Prefix: "&7[&9Real&bMines&7] "
+ Prefix: "&9Real&bMines &7> "
  teleportMessage: true
  announceTimes:
   - 30

@@ -25,19 +25,19 @@ public class BlockEvents implements Listener {
 
     @EventHandler
     public void onBlockBreak(final BlockBreakEvent e) {
-        rm.getMineManager().findBlockUpdate(e.getBlock(), true);
+        rm.getMineManager().findBlockUpdate(e, e.getBlock(), true);
+    }
+
+    @EventHandler
+    public void onBlockPlace(final BlockPlaceEvent e) {
+        rm.getMineManager().findBlockUpdate(e, e.getBlock(), false);
     }
 
     @EventHandler //for creeper explosions
     public void onEntityExplode(final EntityExplodeEvent e) {
         for (Block block : e.blockList()) {
-            rm.getMineManager().findBlockUpdate(block, true);
+            rm.getMineManager().findBlockUpdate(e, block, true);
         }
-    }
-
-    @EventHandler
-    public void onBlockPlace(final BlockPlaceEvent e) {
-        rm.getMineManager().findBlockUpdate(e.getBlock(), false);
     }
 
     @EventHandler

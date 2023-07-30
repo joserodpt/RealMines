@@ -7,8 +7,8 @@ import josegamerpt.realmines.util.Text;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MineBlockIcon {
 
@@ -27,14 +27,16 @@ public class MineBlockIcon {
     }
 
     private void makeIcon() {
-        this.i = Items.createItemLore(this.mb.getMaterial(), 1, Language.file().getString("GUI.Items.Mine-Block.Block.Name").replace("%material%", this.getMineBlock().getMaterial().name()), this.var(this.mb));
+        this.i = Items.createItemLore(this.mb.getMaterial(), 1, Language.file().getString("GUI.Items.Mine-Block.Block.Name").replace("%material%", this.getMineBlock().getMaterial().name()), this.makeDescription(this.mb));
     }
 
-    private List<String> var(final MineBlock mb) {
-        final List<String> ret = new ArrayList<>();
-        Language.file().getStringList("GUI.Items.Mine-Block.Block.Description").forEach(s -> ret.add(Text.color(s.replaceAll("%percentage%", String.valueOf(mb.getPercentage() * 100)))));
-        return ret;
+    public List<String> makeDescription(MineBlock mb) {
+        return Language.file().getStringList("GUI.Items.Mine-Block.Block.Description")
+                .stream()
+                .map(s -> Text.color(s.replaceAll("%percentage%", String.valueOf(mb.getPercentage() * 100))))
+                .collect(Collectors.toList());
     }
+
 
     public MineBlock getMineBlock() {
         return this.mb;

@@ -23,6 +23,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Cancellable;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,7 +31,9 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.logging.Level;
+import java.util.stream.Collectors;
 
 public class MineManager {
     
@@ -55,9 +58,9 @@ public class MineManager {
 
     public ArrayList<String> getRegisteredMines() {
         Mines.reload();
-        final ArrayList<String> ret = new ArrayList<>();
-        this.mines.forEach(s -> ret.add(s.getName()));
-        return ret;
+        return this.mines.stream()
+                .map(RMine::getName)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void unregisterMine(final RMine m) {
@@ -107,7 +110,7 @@ public class MineManager {
 
             String color = "white";
 
-            if (!Mines.file().getString(s + ".Color").equals("")) {
+            if (!Objects.requireNonNull(Mines.file().getString(s + ".Color")).isEmpty()) {
                 color = Mines.file().getString(s + ".Color");
             }
 
@@ -173,7 +176,7 @@ public class MineManager {
                 m.saveData(RMine.Data.TELEPORT);
 
                 final ArrayList<Material> mat = m.getMineCuboid().getBlockTypes();
-                if (mat.size() > 0) {
+                if (!mat.isEmpty()) {
                     Text.send(p, Language.file().getString("System.Add-Blocks"));
                     mat.forEach(material -> Text.send(p, " &7> &f" + material.name()));
                     Text.send(p, Language.file().getString("System.Block-Count").replaceAll("%count%", String.valueOf(mat.size())));
@@ -297,13 +300,11 @@ public class MineManager {
     }
 
     public ArrayList<MineIcon> getMineList() {
-        final ArrayList<MineIcon> l = new ArrayList<>();
-        this.mines.forEach(mine -> l.add(new MineIcon(mine)));
-        if (l.size() == 0) {
-            l.add(new MineIcon());
-        }
-        return l;
+        return this.mines.stream()
+                .map(MineIcon::new)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
+
 
     //permission for teleport: realmines.tp.<name>
     public void teleport(final Player target, final RMine m, final Boolean silent) {
@@ -334,18 +335,23 @@ public class MineManager {
         return this.mines.stream().filter(o -> o.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
     }
 
-    public void findBlockUpdate(final Block b, final boolean broken) {
+    public void findBlockUpdate(final Cancellable e, final Block b, final boolean broken) {
         for (final RMine m : this.mines) {
             if (m.getMineCuboid().contains(b)) {
-                Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(m, broken));
+                if (m.isFreezed()) {
+                    e.setCancelled(true);
+                } else {
+                    Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(m, broken));
+                }
             }
+            return;
         }
     }
 
     public ArrayList<MineSign> getSigns() {
-        final ArrayList<MineSign> l = new ArrayList<>();
-        this.mines.forEach(mine -> l.addAll(mine.getSigns()));
-        return l;
+        return this.mines.stream()
+                .flatMap(mine -> mine.getSigns().stream())
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void unloadMines() {

@@ -33,10 +33,11 @@ public class MineCMD extends CommandBase {
     @Default
     public void defaultCommand(final CommandSender commandSender) {
         Text.sendList(commandSender,
-                Arrays.asList("", "         &9Real&bMines", "         &7Release &a" + rm.getDescription().getVersion(), ""));
+                Arrays.asList("         &9Real&bMines", "         &7Release &a" + rm.getDescription().getVersion()));
     }
 
     @SubCommand("reload")
+    @Alias("rl")
     @Permission("realmines.reload")
     public void reloadcmd(final CommandSender commandSender) {
         this.rm.reload();
@@ -79,6 +80,7 @@ public class MineCMD extends CommandBase {
     }
 
     @SubCommand("list")
+    @Alias("l")
     @Permission("realmines.admin")
     public void listcmd(final CommandSender commandSender) {
         rm.getMineManager().getMines().forEach(mine -> Text.send(commandSender, "&7> &f" + mine.getName() + " &r&7(&f" + mine.getDisplayName() + "&r&7)"));
@@ -138,6 +140,7 @@ public class MineCMD extends CommandBase {
     }
 
     @SubCommand("silent")
+    @Alias("s")
     @Completion("#mines")
     @Permission("realmines.silent")
     @WrongUsage("&c/mine silent <name>")
@@ -158,6 +161,7 @@ public class MineCMD extends CommandBase {
     }
 
     @SubCommand("silentall")
+    @Alias("sa")
     @Permission("realmines.silent")
     @WrongUsage("&c/mine silentall <true/false>")
     public void silentall(final CommandSender commandSender, final Boolean bol) {
@@ -209,6 +213,7 @@ public class MineCMD extends CommandBase {
     }
 
     @SubCommand("reset")
+    @Alias("r")
     @Completion("#mines")
     @Permission("realmines.admin")
     @WrongUsage("&c/mine reset <name>")
@@ -232,6 +237,7 @@ public class MineCMD extends CommandBase {
     }
 
     @SubCommand("clear")
+    @Alias("c")
     @Completion("#mines")
     @Permission("realmines.admin")
     @WrongUsage("&c/mine clear <name>")
@@ -259,6 +265,20 @@ public class MineCMD extends CommandBase {
             }
         } else {
             Text.send(commandSender, this.playerOnly);
+        }
+    }
+
+    @SubCommand("freeze")
+    @Completion("#mines")
+    @Permission("realmines.admin")
+    @WrongUsage("&c/mine freeze <name>")
+    public void freezecmd(final CommandSender commandSender, final String name) {
+        final RMine m = rm.getMineManager().get(name);
+        if (m != null) {
+            m.setFreezed(!m.isFreezed());
+            Text.send(commandSender, m.getDisplayName() + " &r&f freeze: " + (m.isFreezed() ? "&aON" : "&cOFF"));
+        } else {
+            Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
         }
     }
 

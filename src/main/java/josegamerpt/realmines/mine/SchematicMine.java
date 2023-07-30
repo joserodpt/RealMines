@@ -54,7 +54,7 @@ public class SchematicMine extends RMine {
 
     @Override
     public void fill() {
-        if (Bukkit.getOnlinePlayers().size() > 0) {
+        if (!Bukkit.getOnlinePlayers().isEmpty()) {
             this.placeSchematic(this.pasteClipboard, this.pasteLocation);
         }
     }

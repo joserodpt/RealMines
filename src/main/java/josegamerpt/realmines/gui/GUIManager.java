@@ -77,7 +77,7 @@ public class GUIManager {
                     inventory.addItem(e -> {
                                 target.closeInventory();
                                 Bukkit.getScheduler().scheduleSyncDelayedTask(GUIManager.this.rm, () -> {
-                                    final MineBlocksViewer v = new MineBlocksViewer(GUIManager.this.rm, target, m);
+                                    final MineBlocksViewer v = new MineBlocksViewer(GUIManager.this.rm, target, (BlockMine) m);
                                     v.openInventory(target);
                                 }, 2);
                             }, Items.createItemLore(Material.CHEST, 1, Language.file().getString("GUI.Items.Blocks.Name"), Language.file().getStringList("GUI.Items.Blocks.Description")),

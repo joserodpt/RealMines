@@ -7,6 +7,7 @@ import josegamerpt.realmines.mine.task.MineResetTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MineResetTasksManager {
 
@@ -39,19 +40,17 @@ public class MineResetTasksManager {
     }
 
     public MineResetTask getTask(final String name) {
-        for (final MineResetTask task : this.tasks) {
-            if (task.getName().equalsIgnoreCase(name)) {
-                return task;
-            }
-        }
-        return null;
+        return this.tasks.stream()
+                .filter(task -> task.getName().equalsIgnoreCase(name))
+                .findFirst()
+                .orElse(null);
     }
 
     public List<String> getRegisteredTasks() {
         MineResetTasks.reload();
-        final ArrayList<String> ret = new ArrayList<>();
-        this.tasks.forEach(s -> ret.add(s.getName()));
-        return ret;
+        return this.tasks.stream()
+                .map(MineResetTask::getName)
+                .collect(Collectors.toList());
     }
 
     public void removeTask(final MineResetTask mrt) {

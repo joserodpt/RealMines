@@ -12,7 +12,7 @@ import java.util.List;
 public class Text {
 
     public static String color(final String string) {
-        return string.isEmpty() ? "empty str" : ChatColor.translateAlternateColorCodes('&', string);
+        return string.isEmpty() ? "" : ChatColor.translateAlternateColorCodes('&', string);
     }
 
     public static void sendList(final CommandSender p, final List<String> list) {

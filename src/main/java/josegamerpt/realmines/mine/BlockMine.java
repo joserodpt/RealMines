@@ -11,9 +11,12 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 public class BlockMine extends RMine {
     private final ArrayList<MineBlock> blocks;
@@ -31,10 +34,9 @@ public class BlockMine extends RMine {
 
     @Override
     public void fill() {
-        if (Bukkit.getOnlinePlayers().size() > 0) {
+        if (!Bukkit.getOnlinePlayers().isEmpty()) {
             this.sortBlocks();
-            if (this.blocks.size() != 0) {
-
+            if (!this.blocks.isEmpty()) {
                 Bukkit.getScheduler().runTask(RealMines.getPlugin(), () -> {
                     //blocks
                     this.mineCuboid.forEach(block -> block.setType(this.getBlock()));
@@ -69,7 +71,7 @@ public class BlockMine extends RMine {
     private Material getBlock() {
         final Material m;
         final Random rand = new Random();
-        if (this.sorted.size() > 0) {
+        if (!this.sorted.isEmpty()) {
             m = this.sorted.get(rand.nextInt(this.sorted.size()));
             this.sorted.remove(m);
         } else {
@@ -79,18 +81,16 @@ public class BlockMine extends RMine {
     }
 
     public ArrayList<String> getBlockList() {
-        final ArrayList<String> l = new ArrayList<>();
-        this.blocks.forEach(mineBlock -> l.add(mineBlock.getMaterial().name() + ";" + mineBlock.getPercentage()));
-        return l;
+        return this.blocks.stream()
+                .map(mineBlock -> mineBlock.getMaterial().name() + ";" + mineBlock.getPercentage())
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public ArrayList<MineBlockIcon> getBlocks() {
-        final ArrayList<MineBlockIcon> l = new ArrayList<>();
-        this.blocks.forEach(mineBlock -> l.add(new MineBlockIcon(mineBlock)));
-        if (l.size() == 0) {
-            l.add(new MineBlockIcon());
-        }
-        return l;
+    public ArrayList<MineBlockIcon> getBlockIcons() {
+        return this.blocks.isEmpty() ?  new ArrayList<>(Collections.singletonList(new MineBlockIcon())) :
+                this.blocks.stream()
+                        .map(MineBlockIcon::new)
+                        .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void removeBlock(final MineBlock mb) {
@@ -112,11 +112,8 @@ public class BlockMine extends RMine {
     }
 
     private boolean contains(final MineBlock mineBlock) {
-        for (final MineBlock block : this.blocks) {
-            if (block.getMaterial() == mineBlock.getMaterial()) {
-                return true;
-            }
-        }
-        return false;
+        return this.blocks.stream()
+                .anyMatch(block -> block.getMaterial() == mineBlock.getMaterial());
     }
+
 }

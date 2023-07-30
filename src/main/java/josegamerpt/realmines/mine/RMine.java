@@ -21,6 +21,7 @@ import org.bukkit.entity.Player;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class RMine {
 
@@ -41,8 +42,8 @@ public abstract class RMine {
     protected Location l2;
     protected boolean silent;
     protected HashMap<MineCuboid.CuboidDirection, Material> faces;
-
     protected int minedBlocks;
+    protected boolean freezed;
     private MineManager mm;
 
     public RMine(final String n, final String displayname, final ArrayList<MineSign> si, final Material i,
@@ -138,7 +139,6 @@ public abstract class RMine {
             case "purple":
                 this.setColor(Color.PURPLE);
                 break;
-            case "white":
             default:
                 this.setColor(Color.WHITE);
                 break;
@@ -237,7 +237,7 @@ public abstract class RMine {
     }
 
     public void reset() {
-        if (Bukkit.getOnlinePlayers().size() > 0) {
+        if (!Bukkit.getOnlinePlayers().isEmpty()) {
             this.kickPlayers(Language.file().getString("Mines.Reset.Starting").replace("%mine%", this.getDisplayName()));
             this.fill();
 
@@ -314,13 +314,9 @@ public abstract class RMine {
     }
 
     public ArrayList<Player> getPlayersInMine() {
-        final ArrayList<Player> ps = new ArrayList<>();
-        for (final Player p : Bukkit.getOnlinePlayers()) {
-            if (this.mineCuboid.contains(p.getLocation())) {
-                ps.add(p);
-            }
-        }
-        return ps;
+        return Bukkit.getOnlinePlayers().stream()
+                .filter(p -> this.mineCuboid.contains(p.getLocation()))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void removeDependencies() {
@@ -493,6 +489,14 @@ public abstract class RMine {
 
         //update min e signs
         this.updateSigns();
+    }
+
+    public boolean isFreezed() {
+        return this.freezed;
+    }
+
+    public void setFreezed(boolean freezed) {
+        this.freezed = freezed;
     }
 
     public enum Reset {PERCENTAGE, TIME, SILENT}

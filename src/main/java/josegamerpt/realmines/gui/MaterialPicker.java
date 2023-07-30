@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class MaterialPicker {
 
@@ -116,7 +117,7 @@ public class MaterialPicker {
                         switch (e.getRawSlot()) {
                             case 4:
                                 new PlayerInput(gp, input -> {
-                                    if (current.searchMaterial(input).size() == 0) {
+                                    if (current.searchMaterial(input).isEmpty()) {
                                         gp.sendMessage(Text.color(Language.file().getString("System.Nothing-Found")));
                                         current.exit(current.rm, gp);
                                         return;
@@ -125,7 +126,7 @@ public class MaterialPicker {
                                     df.openInventory(gp);
                                 }, input -> {
                                     gp.closeInventory();
-                                    final MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.min);
+                                    final MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, (BlockMine) current.min);
                                     v.openInventory(gp);
                                 });
                                 break;
@@ -158,7 +159,7 @@ public class MaterialPicker {
                                     ((BlockMine) current.min).addBlock(new MineBlock(a));
                                     gp.closeInventory();
                                     Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
-                                        final MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.min);
+                                        final MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, (BlockMine) current.min);
                                         v.openInventory(gp);
                                     }, 3);
                                     break;
@@ -212,13 +213,9 @@ public class MaterialPicker {
     }
 
     private ArrayList<Material> searchMaterial(final String s) {
-        final ArrayList<Material> ms = new ArrayList<>();
-        for (final Material m : Items.getValidBlocks()) {
-            if (m.name().toLowerCase().contains(s.toLowerCase())) {
-                ms.add(m);
-            }
-        }
-        return ms;
+        return Items.getValidBlocks().stream()
+                .filter(m -> m.name().toLowerCase().contains(s.toLowerCase()))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void fillChest(final List<Material> items) {
@@ -252,7 +249,7 @@ public class MaterialPicker {
 
         int slot = 0;
         for (final ItemStack i : this.inv.getContents()) {
-            if (i == null && items.size() != 0) {
+            if (i == null && !items.isEmpty()) {
                 final Material s = items.get(0);
                 this.inv.setItem(slot,
                         Items.createItemLore(s, 1, Language.file().getString("GUI.Items.Pick.Name").replaceAll("%material%", s.name()), Language.file().getStringList("GUI.Items.Pick.Description")));
@@ -285,7 +282,7 @@ public class MaterialPicker {
                 rm.getGUIManager().openMine(this.min, gp);
                 break;
             case BLOCK:
-                final MineBlocksViewer v = new MineBlocksViewer(rm, gp, this.min);
+                final MineBlocksViewer v = new MineBlocksViewer(rm, gp, (BlockMine) this.min);
                 v.openInventory(gp);
                 break;
         }
