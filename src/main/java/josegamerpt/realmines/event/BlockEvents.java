@@ -7,6 +7,7 @@ import josegamerpt.realmines.mine.RMine;
 import josegamerpt.realmines.util.Text;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
@@ -23,12 +24,12 @@ public class BlockEvents implements Listener {
         this.rm = rm;
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockBreak(final BlockBreakEvent e) {
         rm.getMineManager().findBlockUpdate(e, e.getBlock(), true);
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockPlace(final BlockPlaceEvent e) {
         rm.getMineManager().findBlockUpdate(e, e.getBlock(), false);
     }
