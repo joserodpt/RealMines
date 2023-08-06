@@ -44,7 +44,7 @@ public abstract class RMine {
     protected HashMap<MineCuboid.CuboidDirection, Material> faces;
     protected int minedBlocks;
     protected boolean freezed;
-    private MineManager mm;
+    private final MineManager mm;
 
     public RMine(final String n, final String displayname, final ArrayList<MineSign> si, final Material i,
                  final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final String color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
@@ -299,7 +299,9 @@ public abstract class RMine {
     }
 
     public void kickPlayers(final String s) {
-        this.getPlayersInMine().forEach(player -> this.mm.teleport(player, this, this.isSilent()));
+        if (Config.file().getBoolean("RealMines.teleportPlayers")) {
+            this.getPlayersInMine().forEach(player -> this.mm.teleport(player, this, this.isSilent()));
+        }
         if (!this.isSilent()) {
             this.broadcastMessage(s, true);
         }
