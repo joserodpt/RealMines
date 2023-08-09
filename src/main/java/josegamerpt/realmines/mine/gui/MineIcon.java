@@ -1,5 +1,18 @@
 package josegamerpt.realmines.mine.gui;
 
+/*
+ *  ______           ____  ____
+ *  | ___ \         | |  \/  (_)
+ *  | |_/ /___  __ _| | .  . |_ _ __   ___  ___
+ *  |    // _ \/ _` | | |\/| | | '_ \ / _ \/ __|
+ *  | |\ \  __/ (_| | | |  | | | | | |  __/\__ \
+ *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
+ *
+ * Licensed under the MIT License
+ * @author José Rodrigues
+ * @link https://github.com/joserodpt/RealMines
+ */
+
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mine.RMine;
 import josegamerpt.realmines.util.Items;
@@ -14,7 +27,6 @@ public class MineIcon {
 
     private RMine m;
     private ItemStack i;
-    private Boolean placeholder = false;
 
     public MineIcon(final RMine min) {
         this.m = min;
@@ -37,11 +49,6 @@ public class MineIcon {
 
     private String getBar(final RMine m) {
         return Text.getProgressBar(m.getRemainingBlocks(), m.getBlockCount(), 10, '■', ChatColor.GREEN, ChatColor.RED);
-    }
-
-
-    public boolean isPlaceholder() {
-        return this.placeholder;
     }
 
     public RMine getMine() {

@@ -1,5 +1,18 @@
 package josegamerpt.realmines.gui;
 
+/*
+ *  ______           ____  ____
+ *  | ___ \         | |  \/  (_)
+ *  | |_/ /___  __ _| | .  . |_ _ __   ___  ___
+ *  |    // _ \/ _` | | |\/| | | '_ \ / _ \/ __|
+ *  | |\ \  __/ (_| | | |  | | | | | |  __/\__ \
+ *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
+ *
+ * Licensed under the MIT License
+ * @author José Rodrigues
+ * @link https://github.com/joserodpt/RealMines
+ */
+
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
 import josegamerpt.realmines.mine.gui.MineIcon;
@@ -87,14 +100,8 @@ public class MineViewer {
                         }
 
                         if (current.display.containsKey(e.getRawSlot())) {
-                            final MineIcon a = current.display.get(e.getRawSlot());
-
-                            if (a.isPlaceholder()) {
-                                return;
-                            }
-
                             gp.closeInventory();
-                            current.rm.getGUIManager().openMine(a.getMine(), gp);
+                            current.rm.getGUIManager().openMine(current.display.get(e.getRawSlot()).getMine(), gp);
                         }
                     }
                 }

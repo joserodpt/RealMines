@@ -1,15 +1,24 @@
 package josegamerpt.realmines;
 
+/*
+ *  ______           ____  ____
+ *  | ___ \         | |  \/  (_)
+ *  | |_/ /___  __ _| | .  . |_ _ __   ___  ___
+ *  |    // _ \/ _` | | |\/| | | '_ \ / _ \/ __|
+ *  | |\ \  __/ (_| | | |  | | | | | |  __/\__ \
+ *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
+ *
+ * Licensed under the MIT License
+ * @author José Rodrigues
+ * @link https://github.com/joserodpt/RealMines
+ */
+
 import josegamerpt.realmines.gui.GUIManager;
 import josegamerpt.realmines.mine.RMine;
 import josegamerpt.realmines.util.Countdown;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 
-/**
- * This class will be registered through the register-method in the
- * plugins onEnable-method.
- */
 public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
 
     private final RealMines plugin;

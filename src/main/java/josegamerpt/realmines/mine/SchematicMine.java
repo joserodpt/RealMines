@@ -1,5 +1,18 @@
 package josegamerpt.realmines.mine;
 
+/*
+ *  ______           ____  ____
+ *  | ___ \         | |  \/  (_)
+ *  | |_/ /___  __ _| | .  . |_ _ __   ___  ___
+ *  |    // _ \/ _` | | |\/| | | '_ \ / _ \/ __|
+ *  | |\ \  __/ (_| | | |  | | | | | |  __/\__ \
+ *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
+ *
+ * Licensed under the MIT License
+ * @author José Rodrigues
+ * @link https://github.com/joserodpt/RealMines
+ */
+
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.WorldEditException;
@@ -12,6 +25,7 @@ import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
+import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.manager.MineManager;
 import josegamerpt.realmines.mine.component.MineCuboid;
 import josegamerpt.realmines.mine.component.MineSign;
@@ -24,6 +38,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
 
 public class SchematicMine extends RMine {
 
@@ -83,7 +98,8 @@ public class SchematicMine extends RMine {
         try (final ClipboardReader reader = format.getReader(Files.newInputStream(file.toPath()))) {
             clipboard = reader.read();
         } catch (final IOException e) {
-            e.printStackTrace();
+            RealMines.getPlugin().log(Level.SEVERE, "Failed to load schematic named " + name);
+            RealMines.getPlugin().log(Level.SEVERE, e.getMessage());
         }
 
         return clipboard;
@@ -102,7 +118,8 @@ public class SchematicMine extends RMine {
 
                 return editSession;
             } catch (final WorldEditException e) {
-                e.printStackTrace();
+                RealMines.getPlugin().log(Level.SEVERE, "Failed to paste schematic named " + name);
+                RealMines.getPlugin().log(Level.SEVERE, e.getMessage());
             }
         }
         return null;

@@ -1,5 +1,18 @@
 package josegamerpt.realmines.util;
 
+/*
+ *  ______           ____  ____
+ *  | ___ \         | |  \/  (_)
+ *  | |_/ /___  __ _| | .  . |_ _ __   ___  ___
+ *  |    // _ \/ _` | | |\/| | | '_ \ / _ \/ __|
+ *  | |\ \  __/ (_| | | |  | | | | | |  __/\__ \
+ *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
+ *
+ * Licensed under the MIT License
+ * @author José Rodrigues
+ * @link https://github.com/joserodpt/RealMines
+ */
+
 import josegamerpt.realmines.RealMines;
 import josegamerpt.realmines.config.Language;
 import org.bukkit.Bukkit;
@@ -14,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.logging.Level;
 
 public class PlayerInput implements Listener {
 
@@ -67,7 +81,7 @@ public class PlayerInput implements Listener {
                         current.unregister();
                     } catch (final Exception e) {
                         Text.send(p, Language.file().getString("System.Error-Occurred"));
-                        e.printStackTrace();
+                        RealMines.getPlugin().log(Level.WARNING, e.getMessage());
                     }
                 }
             }
