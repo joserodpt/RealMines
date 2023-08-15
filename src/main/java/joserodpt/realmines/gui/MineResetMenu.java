@@ -186,7 +186,7 @@ public class MineResetMenu {
                         return;
                     }
 
-                    if (d >= 1 || d <= 100) {
+                    if (d < 1 || d > 100) {
                         gp.sendMessage(Text.color(Language.file().getString("System.Input-Limit-Error")));
                         this.editSetting(rm, 0, gp, m);
                         return;

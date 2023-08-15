@@ -142,7 +142,7 @@ public class MineBlocksViewer {
 
                                 if (e.getClick() == ClickType.DROP) {
                                     // eliminar
-                                    ((BlockMine) current.m).removeBlock(a.getMineBlock());
+                                    current.m.removeBlock(a.getMineBlock());
                                     Text.send(p, Language.file().getString("System.Remove").replace("%object%", a.getMineBlock().getMaterial().name()));
                                     p.closeInventory();
                                     Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
@@ -255,7 +255,7 @@ public class MineBlocksViewer {
 
     protected void editPercentage(final Player gp, final MineBlockIcon a, final MineBlocksViewer current) {
         new PlayerInput(gp, s -> {
-            double d = 0;
+            Double d = 0D;
             try {
                 d = Double.parseDouble(s.replace("%", ""));
             } catch (final Exception ex) {
@@ -263,13 +263,13 @@ public class MineBlocksViewer {
                 this.editPercentage(gp, a, current);
             }
 
-            if (d <= 0) {
+            if (d < 1D) {
                 gp.sendMessage(Text.color(Language.file().getString("System.Input-Percentage-Error-Greater")));
                 this.editPercentage(gp, a, current);
                 return;
             }
 
-            if (d > 100) {
+            if (d > 100D) {
                 gp.sendMessage(Text.color(Language.file().getString("System.Input-Percentage-Error-Lower")));
                 this.editPercentage(gp, a, current);
                 return;

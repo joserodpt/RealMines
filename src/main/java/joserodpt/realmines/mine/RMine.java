@@ -435,8 +435,10 @@ public abstract class RMine {
         switch (e) {
             case PERCENTAGE:
                 this.resetByPercentageValue = d;
+                break;
             case TIME:
                 this.resetByTimeValue = d;
+                break;
         }
     }
 

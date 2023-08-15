@@ -18,6 +18,7 @@ import joserodpt.realmines.config.Language;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -57,14 +58,15 @@ public class PlayerInput implements Listener {
 
     public static Listener getListener() {
         return new Listener() {
-            @EventHandler
+            @EventHandler(priority = EventPriority.HIGHEST)
             public void onPlayerChat(final AsyncPlayerChatEvent event) {
                 final Player p = event.getPlayer();
                 final String input = event.getMessage();
                 final UUID uuid = p.getUniqueId();
                 if (inputs.containsKey(uuid)) {
-                    final PlayerInput current = inputs.get(uuid);
                     event.setCancelled(true);
+
+                    final PlayerInput current = inputs.get(uuid);
                     try {
                         if (input.equalsIgnoreCase("cancel")) {
                             Text.send(p, Language.file().getString("System.Input-Cancelled"));
