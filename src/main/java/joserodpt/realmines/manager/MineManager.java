@@ -19,16 +19,23 @@ import joserodpt.realmines.config.Config;
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.config.Mines;
 import joserodpt.realmines.event.MineBlockBreakEvent;
-import joserodpt.realmines.mine.BlockMine;
+import joserodpt.realmines.mine.components.MineColor;
+import joserodpt.realmines.mine.icons.MineIcon;
+import joserodpt.realmines.mine.icons.MineBlockItem;
+import joserodpt.realmines.mine.icons.MineFarmItem;
+import joserodpt.realmines.mine.icons.MineItem;
+import joserodpt.realmines.mine.types.BlockMine;
+import joserodpt.realmines.mine.types.farm.FarmItem;
+import joserodpt.realmines.mine.types.farm.FarmMine;
 import joserodpt.realmines.mine.RMine;
-import joserodpt.realmines.mine.SchematicMine;
-import joserodpt.realmines.mine.component.MineBlock;
-import joserodpt.realmines.mine.component.MineCuboid;
-import joserodpt.realmines.mine.component.MineSign;
-import joserodpt.realmines.mine.gui.MineIcon;
+import joserodpt.realmines.mine.types.SchematicMine;
+import joserodpt.realmines.mine.components.MineCuboid;
+import joserodpt.realmines.mine.components.MineSign;
 import joserodpt.realmines.mine.task.MineResetTask;
 import joserodpt.realmines.util.PlayerInput;
 import joserodpt.realmines.util.Text;
+import joserodpt.realmines.util.converters.mrl.MRLconverter;
+import joserodpt.realmines.util.converters.RMConverterBase;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -41,37 +48,47 @@ import org.bukkit.event.Cancellable;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 public class MineManager {
     
     private RealMines rm;
+    public final List<String> signset = Arrays.asList("pm", "pl", "bm", "br");
+    private final Map<String, RMine> mines = new HashMap<>();
+    private final Map<String, RMConverterBase> converters = new HashMap<>();
+
     public MineManager(RealMines rm) {
         this.rm = rm;
+
+        this.converters.put("MRL", new MRLconverter(rm));
     }
 
-    public final List<String> signset = Arrays.asList("pm", "pl", "bm", "br");
-    private final ArrayList<RMine> mines = new ArrayList<>();
-
-    private static ArrayList<MineBlock> getBlocks(final String s) {
-        final ArrayList<MineBlock> list = new ArrayList<>();
+    private static ArrayList<MineItem> getBlocks(final String s, final RMine.Type type) {
+        final ArrayList<MineItem> list = new ArrayList<>();
         for (final String a : Mines.file().getStringList(s + ".Blocks")) {
             final String[] content = a.split(";");
-            final Material mat = Material.valueOf(content[0]);
             final Double per = Double.parseDouble(content[1]);
-            list.add(new MineBlock(mat, per));
+            switch (type) {
+                case BLOCKS:
+                    final Material mat = Material.valueOf(content[0]);
+                    list.add(new MineBlockItem(mat, per));
+                    break;
+                case FARM:
+                    list.add(new MineFarmItem(FarmItem.valueOf(content[0]), per, Integer.parseInt(content[2])));
+                    break;
+            }
         }
         return list;
     }
 
     public ArrayList<String> getRegisteredMines() {
         Mines.reload();
-        return this.mines.stream()
+        return this.getMines().values().stream()
                 .map(RMine::getName)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
@@ -79,7 +96,7 @@ public class MineManager {
     public void unregisterMine(final RMine m) {
         Mines.file().set(m.getName(), null);
         Mines.save();
-        this.mines.remove(m);
+        this.getMines().remove(m.getName());
     }
 
     public void loadMines() {
@@ -119,12 +136,11 @@ public class MineManager {
             }
 
             final Material ic = Material.valueOf(Mines.file().getString(s + ".Icon"));
-            final ArrayList<MineBlock> blocks = getBlocks(s);
 
-            String color = "white";
-
-            if (!Objects.requireNonNull(Mines.file().getString(s + ".Color")).isEmpty()) {
-                color = Mines.file().getString(s + ".Color");
+            MineColor mineColor = MineColor.WHITE;
+            String color = Mines.file().getString(s + ".Color");
+            if (color != null && !color.isEmpty()) {
+                mineColor = MineColor.valueOf(color);
             }
 
             boolean saveType = false;
@@ -133,11 +149,13 @@ public class MineManager {
             final String type;
             if (mtyp == null || mtyp == "") {
                 type = "BLOCKS";
-                rm.log(Level.WARNING, s + " converted into the new mine type.");
+                rm.log(Level.WARNING, s + " converted into the new mine block type.");
                 saveType = true;
             } else {
                 type = mtyp;
             }
+
+            final ArrayList<MineItem> blocks = getBlocks(s, RMine.Type.valueOf(type));
 
             final RMine m;
             switch (type) {
@@ -146,7 +164,7 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByPercentage"),
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
-                            Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), color, faces,
+                            Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), mineColor, faces,
                             Mines.file().getBoolean(s + ".Settings.Reset.Silent"), this);
                     break;
                 case "SCHEMATIC":
@@ -156,7 +174,15 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByPercentage"),
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
-                            Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), color, pos1, pos2, faces,
+                            Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), mineColor, pos1, pos2, faces,
+                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), this);
+                    break;
+                case "FARM":
+                    m = new FarmMine(s, Mines.file().getString(s + ".Display-Name"), blocks, signs, pos1, pos2, ic, tp,
+                            Mines.file().getBoolean(s + ".Settings.Reset.ByPercentage"),
+                            Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
+                            Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
+                            Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), mineColor, faces,
                             Mines.file().getBoolean(s + ".Settings.Reset.Silent"), this);
                     break;
                 default:
@@ -179,14 +205,14 @@ public class MineManager {
                 final Location pos2 = new Location(p.getWorld(), r.getMinimumPoint().getBlockX(), r.getMinimumPoint().getBlockY(), r.getMinimumPoint().getBlockZ());
 
                 final BlockMine m = new BlockMine(name, name, new ArrayList<>(), new ArrayList<>(), pos1, pos2,
-                        Material.DIAMOND_ORE, null, false, true, 20, 60, "white", new HashMap<>(), false, this);
-                m.saveAll();
+                        Material.DIAMOND_ORE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, this);
 
                 this.addMine(m);
-                m.addBlock(new MineBlock(Material.STONE, 1D));
+                m.addItem(new MineBlockItem(Material.STONE, 1D));
                 m.reset();
                 m.setTeleport(p.getLocation());
-                m.saveData(RMine.Data.TELEPORT);
+
+                m.saveAll();
 
                 final ArrayList<Material> mat = m.getMineCuboid().getBlockTypes();
                 if (!mat.isEmpty()) {
@@ -196,7 +222,52 @@ public class MineManager {
 
                     new PlayerInput(p, input -> {
                         if (input.equalsIgnoreCase("yes")) {
-                            mat.forEach(material -> m.addBlock(new MineBlock(material, 0.1D)));
+                            mat.forEach(material -> m.addItem(new MineBlockItem(material, 0.1D)));
+                            Text.send(p, Language.file().getString("System.Blocks-Added").replaceAll("%count%", String.valueOf(mat.size())));
+                        }
+                        Text.send(p, Language.file().getString("System.Mine-Created").replaceAll("%mine%", name));
+                    }, input -> Text.send(p, Language.file().getString("System.Mine-Created").replaceAll("%mine%", name)));
+                }
+            }
+        } catch (final Exception e) {
+            Text.send(p, Language.file().getString("System.Boundaries-Not-Set"));
+            e.printStackTrace();
+        }
+    }
+
+    public void createCropsMine(final Player p, final String name) {
+        final WorldEditPlugin w = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
+        try {
+            final com.sk89q.worldedit.regions.Region r = w.getSession(p.getPlayer()).getSelection(w.getSession(p.getPlayer()).getSelectionWorld());
+
+            if (r != null) {
+                final Location pos1 = new Location(p.getWorld(), r.getMaximumPoint().getBlockX(), r.getMaximumPoint().getBlockY(), r.getMaximumPoint().getBlockZ());
+                final Location pos2 = new Location(p.getWorld(), r.getMinimumPoint().getBlockX(), r.getMinimumPoint().getBlockY(), r.getMinimumPoint().getBlockZ());
+
+                if (pos1.getY() != pos2.getY()) {
+                    Text.send(p, Language.file().getString("System.Mine-Same-Height"));
+                    return;
+                }
+
+                final FarmMine m = new FarmMine(name, name, new ArrayList<>(), new ArrayList<>(), pos1, pos2,
+                        Material.WHEAT, null, false, true, 20, 60, MineColor.GREEN, new HashMap<>(), false, this);
+                m.addFarmItem(new MineFarmItem(FarmItem.WHEAT, 1D));
+
+                this.addMine(m);
+                m.reset();
+                m.setTeleport(p.getLocation());
+
+                m.saveAll();
+
+                final ArrayList<Material> mat = m.getMineCuboid().getBlockTypes();
+                if (!mat.isEmpty()) {
+                    Text.send(p, Language.file().getString("System.Add-Blocks"));
+                    mat.forEach(material -> Text.send(p, " &7> &f" + material.name()));
+                    Text.send(p, Language.file().getString("System.Block-Count").replaceAll("%count%", String.valueOf(mat.size())));
+
+                    new PlayerInput(p, input -> {
+                        if (input.equalsIgnoreCase("yes")) {
+                            mat.forEach(material ->   m.addFarmItem(new MineFarmItem(FarmItem.valueOf(Material.WHEAT))));
                             Text.send(p, Language.file().getString("System.Blocks-Added").replaceAll("%count%", String.valueOf(mat.size())));
                         }
                         Text.send(p, Language.file().getString("System.Mine-Created").replaceAll("%mine%", name));
@@ -217,18 +288,17 @@ public class MineManager {
             final File file = new File(folder, s);
 
             if (file.exists()) {
-
                 final Location loc = new Location(p.getWorld(), 0, 0, 0);
                 final Location loc2 = new Location(p.getWorld(), 0, 0, 0);
 
                 final SchematicMine m = new SchematicMine(name, name, new ArrayList<>(), p.getLocation(), s,
-                        Material.DIAMOND_ORE, null, false, true, 20, 60, "white", loc, loc2, new HashMap<>(), false, this);
-                m.saveAll();
+                        Material.FILLED_MAP, null, false, true, 20, 60, MineColor.ORANGE, loc, loc2, new HashMap<>(), false, this);
 
                 this.addMine(m);
                 m.reset();
                 m.setTeleport(p.getLocation());
-                m.saveData(RMine.Data.TELEPORT);
+                m.saveAll();
+
                 Text.send(p, Language.file().getString("System.Input-Schematic-Warn").replaceAll("%action%", "/mine setregion " + ChatColor.stripColor(name)));
             } else {
                 Text.send(p, Language.file().getString("System.Invalid-Schematic"));
@@ -244,19 +314,26 @@ public class MineManager {
         }
     }
 
-    public void saveMine(final RMine mine, final BlockMine.Data t) {
+    public void saveMine(final RMine mine, final RMine.Data t) {
         switch (t) {
             case NAME:
                 Mines.file().set(mine.getName() + ".Display-Name", mine.getDisplayName());
                 break;
             case COLOR:
-                Mines.file().set(mine.getName() + ".Color", mine.getColor().name());
+                Mines.file().set(mine.getName() + ".Color", mine.getMineColor().name());
                 break;
             case BLOCKS:
                 if (mine instanceof SchematicMine) {
                     Mines.file().set(mine.getName() + ".Schematic-Filename", ((SchematicMine) mine).getSchematicFilename());
                 } else {
-                    Mines.file().set(mine.getName() + ".Blocks", ((BlockMine) mine).getBlockList());
+                    switch (mine.getType()) {
+                        case BLOCKS:
+                            Mines.file().set(mine.getName() + ".Blocks", ((BlockMine) mine).getBlockList());
+                            break;
+                        case FARM:
+                            Mines.file().set(mine.getName() + ".Blocks", ((FarmMine) mine).getFarmItems());
+                            break;
+                    }
                 }
                 break;
             case ICON:
@@ -305,19 +382,18 @@ public class MineManager {
                 }
                 break;
             case MINE_TYPE:
-                Mines.file().set(mine.getName() + ".Type", mine.getType());
+                Mines.file().set(mine.getName() + ".Type", mine.getType().name());
                 break;
         }
 
         Mines.save();
     }
 
-    public ArrayList<MineIcon> getMineList() {
-        return this.mines.stream()
+    public List<MineIcon> getMineList() {
+        return this.getMines().isEmpty() ? Collections.singletonList(new MineIcon()) : this.getMines().values().stream()
                 .map(MineIcon::new)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
-
 
     //permission for teleport: realmines.tp.<name>
     public void teleport(final Player target, final RMine m, final Boolean silent) {
@@ -344,36 +420,36 @@ public class MineManager {
         }
     }
 
-    public RMine get(final String name) {
-        return this.mines.stream().filter(o -> o.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
+    public RMine getMine(final String name) {
+        return this.getMines().getOrDefault(name, null);
     }
 
     public void findBlockUpdate(final Cancellable e, final Block b, final boolean broken) {
-        for (final RMine m : this.mines) {
+        for (final RMine m : this.getMines().values()) {
             if (m.getMineCuboid().contains(b)) {
                 if (m.isFreezed()) {
                     e.setCancelled(true);
                 } else {
                     Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(m, broken));
                 }
+                return;
             }
-            return;
         }
     }
 
     public ArrayList<MineSign> getSigns() {
-        return this.mines.stream()
+        return this.getMines().values().stream()
                 .flatMap(mine -> mine.getSigns().stream())
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void unloadMines() {
-        this.mines.forEach(mine -> mine.getTimer().kill());
+        this.getMines().values().forEach(mine -> mine.getTimer().kill());
         this.clearMemory();
     }
 
     public void setRegion(final String name, final Player p) {
-        final RMine m = this.get(name);
+        final RMine m = this.getMine(name);
 
         final WorldEditPlugin w = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
         try {
@@ -394,11 +470,11 @@ public class MineManager {
     }
 
     public void stopTasks() {
-        this.mines.forEach(mine -> mine.getTimer().kill());
+        this.getMines().values().forEach(mine -> mine.getTimer().kill());
     }
 
     public void startTasks() {
-        this.mines.forEach(mine -> mine.getTimer().start());
+        this.getMines().values().forEach(mine -> mine.getTimer().start());
     }
 
     public void deleteMine(final RMine mine) {
@@ -420,15 +496,19 @@ public class MineManager {
         this.mines.clear();
     }
 
-    public ArrayList<RMine> getMines() {
+    public Map<String, RMine> getMines() {
         return this.mines;
     }
 
     public void addMine(final RMine mine) {
-        this.mines.add(mine);
+        this.mines.put(mine.getName(), mine);
     }
 
     public File getSchematicFolder() {
         return rm.getDataFolder();
+    }
+
+    public Map<String, RMConverterBase> getConverters() {
+        return this.converters;
     }
 }

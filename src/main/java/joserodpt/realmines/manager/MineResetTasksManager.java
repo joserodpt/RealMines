@@ -42,7 +42,7 @@ public class MineResetTasksManager {
             final MineResetTask mrt = new MineResetTask(s, interval, false);
 
             for (final String s1 : MineResetTasks.file().getStringList(s + ".LinkedMines")) {
-                final RMine m = this.rm.getMineManager().get(s1);
+                final RMine m = this.rm.getMineManager().getMine(s1);
                 if (m != null) {
                     mrt.addMine(m);
                 }

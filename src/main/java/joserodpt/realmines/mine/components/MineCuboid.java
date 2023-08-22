@@ -1,4 +1,4 @@
-package joserodpt.realmines.mine.component;
+package joserodpt.realmines.mine.components;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -74,29 +74,6 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
     public MineCuboid(final MineCuboid other) {
         this(other.getWorld().getName(), other.x1, other.y1, other.z1, other.x2, other.y2, other.z2);
         this.totalBlocks = this.getVolume();
-    }
-
-    /**
-     * Construct a Cuboid in the given World and xyz co-ordinates
-     *
-     * @param world - The Cuboid's world
-     * @param x1    - X co-ordinate of corner 1
-     * @param y1    - Y co-ordinate of corner 1
-     * @param z1    - Z co-ordinate of corner 1
-     * @param x2    - X co-ordinate of corner 2
-     * @param y2    - Y co-ordinate of corner 2
-     * @param z2    - Z co-ordinate of corner 2
-     */
-    public MineCuboid(final World world, final int x1, final int y1, final int z1, final int x2, final int y2, final int z2) {
-        this.worldName = world.getName();
-        this.x1 = Math.min(x1, x2);
-        this.x2 = Math.max(x1, x2);
-        this.y1 = Math.min(y1, y2);
-        this.y2 = Math.max(y1, y2);
-        this.z1 = Math.min(z1, z2);
-        this.z2 = Math.max(z1, z2);
-		this.totalBlocks = this.getVolume();
-
     }
 
     /**

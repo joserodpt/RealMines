@@ -16,7 +16,7 @@ package joserodpt.realmines.gui;
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.mine.RMine;
-import joserodpt.realmines.util.Items;
+import joserodpt.realmines.mine.components.MineColor;
 import joserodpt.realmines.util.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -35,16 +35,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class MineColorPicker {
+public class MineColorPickerGUI {
 
-    private static final Map<UUID, MineColorPicker> inventories = new HashMap<>();
+    private static final Map<UUID, MineColorPickerGUI> inventories = new HashMap<>();
     private final Inventory inv;
     private final UUID uuid;
     private final RMine mi;
     private final RealMines rm;
     private final List<String> colorsDescription = Language.file().getStringList("GUI.Items.Colors.Description");
 
-    public MineColorPicker(final RealMines rm, final Player as, final RMine mi) {
+    public MineColorPickerGUI(final RealMines rm, final Player as, final RMine mi) {
         this.rm = rm;
         this.uuid = as.getUniqueId();
         this.inv = Bukkit.getServer().createInventory(null, InventoryType.DROPPER, Text.color(Language.file().getString("GUI.Color-Picker-Name")));
@@ -66,7 +66,7 @@ public class MineColorPicker {
                     }
                     final UUID uuid = clicker.getUniqueId();
                     if (inventories.containsKey(uuid)) {
-                        final MineColorPicker current = inventories.get(uuid);
+                        final MineColorPickerGUI current = inventories.get(uuid);
                         if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
                             return;
                         }
@@ -76,31 +76,31 @@ public class MineColorPicker {
 
                         switch (e.getRawSlot()) {
                             case 0:
-                                current.mi.setColor(RMine.Color.RED);
+                                current.mi.setMineColor(MineColor.RED);
                                 break;
                             case 1:
-                                current.mi.setColor(RMine.Color.GREEN);
+                                current.mi.setMineColor(MineColor.GREEN);
                                 break;
                             case 2:
-                                current.mi.setColor(RMine.Color.BLUE);
+                                current.mi.setMineColor(MineColor.BLUE);
                                 break;
                             case 3:
-                                current.mi.setColor(RMine.Color.BROWN);
+                                current.mi.setMineColor(MineColor.BROWN);
                                 break;
                             case 4:
-                                current.mi.setColor(RMine.Color.GRAY);
+                                current.mi.setMineColor(MineColor.GRAY);
                                 break;
                             case 5:
-                                current.mi.setColor(RMine.Color.WHITE);
+                                current.mi.setMineColor(MineColor.WHITE);
                                 break;
                             case 6:
-                                current.mi.setColor(RMine.Color.ORANGE);
+                                current.mi.setMineColor(MineColor.ORANGE);
                                 break;
                             case 7:
-                                current.mi.setColor(RMine.Color.YELLOW);
+                                current.mi.setMineColor(MineColor.YELLOW);
                                 break;
                             case 8:
-                                current.mi.setColor(RMine.Color.PURPLE);
+                                current.mi.setMineColor(MineColor.PURPLE);
                                 break;
                         }
                         gp.playSound(gp.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 50, 50);
@@ -128,15 +128,15 @@ public class MineColorPicker {
     }
 
     public void load() {
-        this.inv.setItem(0, Items.getMineColor(RMine.Color.RED, Language.file().getString("GUI.Items.Colors.Red"), this.colorsDescription));
-        this.inv.setItem(1, Items.getMineColor(RMine.Color.GREEN, Language.file().getString("GUI.Items.Colors.Green"), this.colorsDescription));
-        this.inv.setItem(2, Items.getMineColor(RMine.Color.BLUE, Language.file().getString("GUI.Items.Colors.Blue"), this.colorsDescription));
-        this.inv.setItem(3, Items.getMineColor(RMine.Color.BROWN, Language.file().getString("GUI.Items.Colors.Brown"), this.colorsDescription));
-        this.inv.setItem(4, Items.getMineColor(RMine.Color.GRAY, Language.file().getString("GUI.Items.Colors.Gray"), this.colorsDescription));
-        this.inv.setItem(5, Items.getMineColor(RMine.Color.WHITE, Language.file().getString("GUI.Items.Colors.White"), this.colorsDescription));
-        this.inv.setItem(6, Items.getMineColor(RMine.Color.ORANGE, Language.file().getString("GUI.Items.Colors.Orange"), this.colorsDescription));
-        this.inv.setItem(7, Items.getMineColor(RMine.Color.YELLOW, Language.file().getString("GUI.Items.Colors.Yellow"), this.colorsDescription));
-        this.inv.setItem(8, Items.getMineColor(RMine.Color.PURPLE, Language.file().getString("GUI.Items.Colors.Purple"), this.colorsDescription));
+        this.inv.setItem(0, MineColor.RED.getItem(Language.file().getString("GUI.Items.Colors.Red"), this.colorsDescription));
+        this.inv.setItem(1, MineColor.GREEN.getItem(Language.file().getString("GUI.Items.Colors.Green"), this.colorsDescription));
+        this.inv.setItem(2, MineColor.BLUE.getItem(Language.file().getString("GUI.Items.Colors.Blue"), this.colorsDescription));
+        this.inv.setItem(3, MineColor.BROWN.getItem(Language.file().getString("GUI.Items.Colors.Brown"), this.colorsDescription));
+        this.inv.setItem(4, MineColor.GRAY.getItem(Language.file().getString("GUI.Items.Colors.Gray"), this.colorsDescription));
+        this.inv.setItem(5, MineColor.WHITE.getItem(Language.file().getString("GUI.Items.Colors.White"), this.colorsDescription));
+        this.inv.setItem(6, MineColor.ORANGE.getItem(Language.file().getString("GUI.Items.Colors.Orange"), this.colorsDescription));
+        this.inv.setItem(7, MineColor.YELLOW.getItem(Language.file().getString("GUI.Items.Colors.Yellow"), this.colorsDescription));
+        this.inv.setItem(8, MineColor.PURPLE.getItem(Language.file().getString("GUI.Items.Colors.Purple"), this.colorsDescription));
     }
 
     public void openInventory(final Player target) {

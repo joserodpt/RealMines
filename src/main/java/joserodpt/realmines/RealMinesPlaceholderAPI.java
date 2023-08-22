@@ -13,7 +13,6 @@ package joserodpt.realmines;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.gui.GUIManager;
 import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.util.Countdown;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
@@ -101,9 +100,9 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         if (identifier.startsWith("totalblocks")) {
             final String[] split = identifier.split("_");
             final String mine = split[mineIndex];
-            final RMine m = this.plugin.getMineManager().get(mine);
+            final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
-                return String.valueOf(plugin.getMineManager().get(mine).getBlockCount());
+                return String.valueOf(plugin.getMineManager().getMine(mine).getBlockCount());
             } else {
                 return "No mine named: " + mine;
             }
@@ -112,9 +111,9 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         if (identifier.startsWith("minedblocks")) {
             final String[] split = identifier.split("_");
             final String mine = split[mineIndex];
-            final RMine m = this.plugin.getMineManager().get(mine);
+            final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
-                return String.valueOf(plugin.getMineManager().get(mine).getMinedBlocks());
+                return String.valueOf(plugin.getMineManager().getMine(mine).getMinedBlocks());
             } else {
                 return "No mine named: " + mine;
             }
@@ -123,9 +122,9 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         if (identifier.startsWith("remainingblocks")) {
             final String[] split = identifier.split("_");
             final String mine = split[mineIndex];
-            final RMine m = this.plugin.getMineManager().get(mine);
+            final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
-                return String.valueOf(plugin.getMineManager().get(mine).getRemainingBlocks());
+                return String.valueOf(plugin.getMineManager().getMine(mine).getRemainingBlocks());
             } else {
                 return "No mine named: " + mine;
             }
@@ -134,9 +133,9 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         if (identifier.startsWith("perremainingblocks")) {
             final String[] split = identifier.split("_");
             final String mine = split[mineIndex];
-            final RMine m = this.plugin.getMineManager().get(mine);
+            final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
-                return String.valueOf(plugin.getMineManager().get(mine).getRemainingBlocksPer());
+                return String.valueOf(plugin.getMineManager().getMine(mine).getRemainingBlocksPer());
             } else {
                 return "No mine named: " + mine;
             }
@@ -145,9 +144,9 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         if (identifier.startsWith("perminedblocks")) {
             final String[] split = identifier.split("_");
             final String mine = split[mineIndex];
-            final RMine m = this.plugin.getMineManager().get(mine);
+            final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
-                return String.valueOf(plugin.getMineManager().get(mine).getMinedBlocksPer());
+                return String.valueOf(plugin.getMineManager().getMine(mine).getMinedBlocksPer());
             } else {
                 return "No mine named: " + mine;
             }
@@ -156,9 +155,9 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         if (identifier.startsWith("secondsleft")) {
             final String[] split = identifier.split("_");
             final String mine = split[mineIndex];
-            final RMine m = this.plugin.getMineManager().get(mine);
+            final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
-                return String.valueOf(plugin.getMineManager().get(mine).getMineTimer().getCountdown().getSecondsLeft());
+                return String.valueOf(plugin.getMineManager().getMine(mine).getMineTimer().getCountdown().getSecondsLeft());
             } else {
                 return "No mine named: " + mine;
             }
@@ -167,9 +166,9 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         if (identifier.startsWith("timeleft")) {
             final String[] split = identifier.split("_");
             final String mine = split[mineIndex];
-            final RMine m = this.plugin.getMineManager().get(mine);
+            final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
-                return Countdown.format(this.plugin.getMineManager().get(mine).getMineTimer().getCountdown().getSecondsLeft() * 1000L);
+                return Countdown.format(this.plugin.getMineManager().getMine(mine).getMineTimer().getCountdown().getSecondsLeft() * 1000L);
             } else {
                 return "No mine named: " + mine;
             }
@@ -178,9 +177,9 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         if (identifier.startsWith("bar")) {
             final String[] split = identifier.split("_");
             final String mine = split[mineIndex];
-            final RMine m = this.plugin.getMineManager().get(mine);
+            final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
-                return GUIManager.getBar(m);
+                return m.getBar();
             } else {
                 return "No mine named: " + mine;
             }

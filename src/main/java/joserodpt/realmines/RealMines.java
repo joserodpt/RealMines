@@ -22,12 +22,12 @@ import joserodpt.realmines.config.Mines;
 import joserodpt.realmines.event.BlockEvents;
 import joserodpt.realmines.event.PlayerEvents;
 import joserodpt.realmines.gui.GUIManager;
-import joserodpt.realmines.gui.MaterialPicker;
-import joserodpt.realmines.gui.MineBlocksViewer;
-import joserodpt.realmines.gui.MineColorPicker;
-import joserodpt.realmines.gui.MineFaces;
-import joserodpt.realmines.gui.MineResetMenu;
-import joserodpt.realmines.gui.MineViewer;
+import joserodpt.realmines.gui.BlockPickerGUI;
+import joserodpt.realmines.gui.MineItensGUI;
+import joserodpt.realmines.gui.MineColorPickerGUI;
+import joserodpt.realmines.gui.MineFacesGUI;
+import joserodpt.realmines.gui.MineResetGUI;
+import joserodpt.realmines.gui.MineListGUI;
 import joserodpt.realmines.manager.MineManager;
 import joserodpt.realmines.manager.MineResetTasksManager;
 import joserodpt.realmines.mine.RMine;
@@ -42,6 +42,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -99,9 +100,6 @@ public class RealMines extends JavaPlugin {
         MineResetTasks.setup(this);
         Language.setup(this);
 
-        this.log(Level.INFO, "Your config file version is: " + Config.file().getString("Version"));
-        this.log(Level.INFO, "Your language file version is: " + Language.file().getString("Version"));
-
         //mkdir folder
         final File folder = new File(this.getDataFolder(), "schematics");
         if (!folder.exists()) {
@@ -109,17 +107,16 @@ public class RealMines extends JavaPlugin {
         }
         Mines.setup(this);
 
-        this.log(Level.INFO, "Registering Events.");
         this.pm.registerEvents(new PlayerEvents(this), this);
         this.pm.registerEvents(new BlockEvents(this), this);
-        this.pm.registerEvents(MineViewer.getListener(), this);
+        this.pm.registerEvents(MineListGUI.getListener(), this);
         this.pm.registerEvents(GUIBuilder.getListener(), this);
-        this.pm.registerEvents(MineFaces.getListener(), this);
-        this.pm.registerEvents(MaterialPicker.getListener(), this);
-        this.pm.registerEvents(MineBlocksViewer.getListener(), this);
+        this.pm.registerEvents(MineFacesGUI.getListener(), this);
+        this.pm.registerEvents(BlockPickerGUI.getListener(), this);
+        this.pm.registerEvents(MineItensGUI.getListener(), this);
         this.pm.registerEvents(PlayerInput.getListener(), this);
-        this.pm.registerEvents(MineResetMenu.getListener(), this);
-        this.pm.registerEvents(MineColorPicker.getListener(), this);
+        this.pm.registerEvents(MineResetGUI.getListener(), this);
+        this.pm.registerEvents(MineColorPickerGUI.getListener(), this);
 
         this.commandManager = new CommandManager(this);
 
@@ -134,13 +131,17 @@ public class RealMines extends JavaPlugin {
                         .collect(Collectors.toList())
         );
 
+        this.commandManager.getCompletionHandler().register("#converters", input ->
+                new ArrayList<>(this.mineManager.getConverters().keySet())
+        );
+
         this.commandManager.getCompletionHandler().register("#mines", input -> this.mineManager.getRegisteredMines());
         this.commandManager.getCompletionHandler().register("#minetasks", input -> this.mineResetTasksManager.getRegisteredTasks());
 
         //command messages
-        this.commandManager.getMessageHandler().register("cmd.no.exists", sender -> sender.sendMessage(Text.color(Config.file().getString("RealMines.Prefix")) + Text.color(Language.file().getString("System.Error-Command"))));
-        this.commandManager.getMessageHandler().register("cmd.no.permission", sender -> sender.sendMessage(Text.color(Config.file().getString("RealMines.Prefix")) + Text.color(Language.file().getString("System.Error-Permission"))));
-        this.commandManager.getMessageHandler().register("cmd.wrong.usage", sender -> sender.sendMessage(Text.color(Config.file().getString("RealMines.Prefix")) + Text.color(Language.file().getString("System.Error-Usage"))));
+        this.commandManager.getMessageHandler().register("cmd.no.exists", sender -> Text.send(sender, Language.file().getString("System.Error-Command")));
+        this.commandManager.getMessageHandler().register("cmd.no.permission", sender -> Text.send(sender, Language.file().getString("System.Error-Permission")));
+        this.commandManager.getMessageHandler().register("cmd.wrong.usage", sender -> Text.send(sender, Language.file().getString("System.Error-Usage")));
 
         //registo de comandos #portugal
         this.commandManager.register(new MineCMD(this));
@@ -153,13 +154,15 @@ public class RealMines extends JavaPlugin {
         this.mineHighlight = new BukkitRunnable() {
             @Override
             public void run() {
-                RealMines.this.mineManager.getMines().forEach(RMine::highlight);
+                mineManager.getMines().values().forEach(RMine::highlight);
             }
 
         }.runTaskTimerAsynchronously(this, 0, 10);
 
+
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new RealMinesPlaceholderAPI(this).register();
+            this.log(Level.INFO, "Hooked onto PlaceholderAPI!");
         }
 
         this.log(Level.INFO, "Plugin has been loaded.");

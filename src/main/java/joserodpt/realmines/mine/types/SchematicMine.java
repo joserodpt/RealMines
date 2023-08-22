@@ -1,4 +1,4 @@
-package joserodpt.realmines.mine;
+package joserodpt.realmines.mine.types;
 
 /*
  *  ______           ____  ____
@@ -26,9 +26,12 @@ import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import joserodpt.realmines.RealMines;
+import joserodpt.realmines.gui.BlockPickerGUI;
 import joserodpt.realmines.manager.MineManager;
-import joserodpt.realmines.mine.component.MineCuboid;
-import joserodpt.realmines.mine.component.MineSign;
+import joserodpt.realmines.mine.RMine;
+import joserodpt.realmines.mine.components.MineColor;
+import joserodpt.realmines.mine.components.MineCuboid;
+import joserodpt.realmines.mine.components.MineSign;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -48,7 +51,7 @@ public class SchematicMine extends RMine {
     private final MineManager mm;
 
     public SchematicMine(final String n, final String displayname, final ArrayList<MineSign> si, final Location pasteLocation, final String schematicFile, final Material i,
-                         final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final String color, final Location pos1, final Location pos2, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
+                         final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final Location pos1, final Location pos2, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
 
         super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, mm);
 
@@ -75,8 +78,8 @@ public class SchematicMine extends RMine {
     }
 
     @Override
-    public String getType() {
-        return "SCHEMATIC";
+    public RMine.Type getType() {
+        return Type.SCHEMATIC;
     }
 
     public Location getSchematicPlace() {
@@ -125,4 +128,8 @@ public class SchematicMine extends RMine {
         return null;
     }
 
+    @Override
+    public BlockPickerGUI.PickType getBlockPickType() {
+        return null;
+    }
 }

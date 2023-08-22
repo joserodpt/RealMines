@@ -37,16 +37,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class MineResetMenu {
+public class MineResetGUI {
 
-    private static final Map<UUID, MineResetMenu> inventories = new HashMap<>();
+    private static final Map<UUID, MineResetGUI> inventories = new HashMap<>();
     private final Inventory inv;
 
     private final UUID uuid;
     private final RMine min;
     private final RealMines rm;
 
-    public MineResetMenu(final RealMines rm, final Player as, final RMine m) {
+    public MineResetGUI(final RealMines rm, final Player as, final RMine m) {
         this.rm = rm;
         this.uuid = as.getUniqueId();
         this.inv = Bukkit.getServer().createInventory(null, InventoryType.HOPPER, Text.color(Language.file().getString("GUI.Reset-Name").replaceAll("%mine%", m.getDisplayName())));
@@ -68,7 +68,7 @@ public class MineResetMenu {
                     }
                     final UUID uuid = clicker.getUniqueId();
                     if (inventories.containsKey(uuid)) {
-                        final MineResetMenu current = inventories.get(uuid);
+                        final MineResetGUI current = inventories.get(uuid);
                         if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
                             return;
                         }
@@ -173,62 +173,62 @@ public class MineResetMenu {
         }
     }
 
-    protected void editSetting(final RealMines rm, final int i, final Player gp, final RMine m) {
+    protected void editSetting(final RealMines rm, final int i, final Player p, final RMine m) {
         switch (i) {
             case 0:
-                new PlayerInput(gp, s -> {
+                new PlayerInput(p, s -> {
                     final int d;
                     try {
                         d = Integer.parseInt(s.replace("%", ""));
                     } catch (final Exception ex) {
-                        gp.sendMessage(Text.color(Language.file().getString("System.Input-Parse")));
-                        this.editSetting(rm, 0, gp, m);
+                        Text.send(p, Language.file().getString("System.Input-Parse"));
+                        this.editSetting(rm, 0, p, m);
                         return;
                     }
 
                     if (d < 1 || d > 100) {
-                        gp.sendMessage(Text.color(Language.file().getString("System.Input-Limit-Error")));
-                        this.editSetting(rm, 0, gp, m);
+                        Text.send(p, Language.file().getString("System.Input-Limit-Error"));
+                        this.editSetting(rm, 0, p, m);
                         return;
                     }
 
                     m.setResetValue(RMine.Reset.PERCENTAGE, d);
                     m.saveData(RMine.Data.OPTIONS);
-                    gp.sendMessage(Text.color(Language.file().getString("System.Percentage-Modified").replaceAll("%value%", String.valueOf(d))));
+                    Text.send(p, Language.file().getString("System.Percentage-Modified").replaceAll("%value%", String.valueOf(d)));
 
-                    final MineResetMenu v = new MineResetMenu(rm, gp, m);
-                    v.openInventory(gp);
+                    final MineResetGUI v = new MineResetGUI(rm, p, m);
+                    v.openInventory(p);
                 }, s -> {
-                    final MineResetMenu v = new MineResetMenu(rm, gp, m);
-                    v.openInventory(gp);
+                    final MineResetGUI v = new MineResetGUI(rm, p, m);
+                    v.openInventory(p);
                 });
                 break;
             case 1:
-                new PlayerInput(gp, s -> {
+                new PlayerInput(p, s -> {
                     final int d;
                     try {
                         d = Integer.parseInt(s.replace("%", ""));
                     } catch (final Exception ex) {
-                        gp.sendMessage(Text.color(Language.file().getString("System.Input-Seconds")));
-                        this.editSetting(rm, 1, gp, m);
+                        Text.send(p, Language.file().getString("System.Input-Seconds"));
+                        this.editSetting(rm, 1, p, m);
                         return;
                     }
 
                     if (d < 1) {
-                        gp.sendMessage(Text.color(Language.file().getString("System.Input-Limit-Error-Greater")));
-                        this.editSetting(rm, 1, gp, m);
+                        Text.send(p, Language.file().getString("System.Input-Limit-Error-Greater"));
+                        this.editSetting(rm, 1, p, m);
                         return;
                     }
 
                     m.setResetValue(RMine.Reset.TIME, d);
                     m.saveData(RMine.Data.OPTIONS);
-                    gp.sendMessage(Text.color(Language.file().getString("System.Time-Modified").replaceAll("%value%", String.valueOf(d))));
+                    Text.send(p, Language.file().getString("System.Time-Modified").replaceAll("%value%", String.valueOf(d)));
 
-                    final MineResetMenu v = new MineResetMenu(rm, gp, m);
-                    v.openInventory(gp);
+                    final MineResetGUI v = new MineResetGUI(rm, p, m);
+                    v.openInventory(p);
                 }, s -> {
-                    final MineResetMenu v = new MineResetMenu(rm, gp, m);
-                    v.openInventory(gp);
+                    final MineResetGUI v = new MineResetGUI(rm, p, m);
+                    v.openInventory(p);
                 });
                 break;
             default:

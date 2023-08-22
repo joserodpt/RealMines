@@ -20,10 +20,10 @@ GUI:
     Name: "&3&l%face%"
     Selected-Description:
       - "&7Selected Block: &f%material%"
-      - "&7Press &fQ &7to &cdelete."
+      - "&7Press &fQ (Drop) &7to &cdelete."
     None-Description:
       - "&7Selected Block: &fNone"
-      - "&7Press &fQ &7to &cdelete."
+      - "&7Press &fQ (Drop) &7to &cdelete."
   Resets:
     Percentage-On:
       Name: "&9Reset By Percentage &7(&a&lON&r&7)"
@@ -52,6 +52,8 @@ GUI:
   Items:
     Schematic:
       Name: "&b&lSchematic"
+    Farm:
+      Name: "&a&lFarm"
     Blocks:
       Name: "&9&lBlocks"
       Description:
@@ -123,18 +125,25 @@ GUI:
         Description:
           - "&fPercentage: &b%percentage%%"
           - "&fClick to edit the percentage."
-          - "&f(Q) to remove this block."
-      No-Blocks:
-        Name: "&3&l%material%"
+          - "&c&n(Q) Drop&r&f to remove this block."
+      Farm-Item:
+        Name: "&3&l%material% &r&7- &fAge: &3%age%"
         Description:
           - "&fPercentage: &b%percentage%%"
           - "&fClick to edit the percentage."
-          - "&f(Q) to remove this block."
+          - "&a&nShift-Left&r&f to increase the age."
+          - "&e&nShift-Right&r&f to decrease the age."
+          - "&c&n(Q) Drop&r&f to remove this block."
+    No-Blocks:
+      Name: "&f&lNo blocks in this mine!"
+      Description:
+        - "&fClick on the upper icon to add a new block!"
     Mine:
       Description:
         - "&3%remainingblocks%&7/&b%totalblocks% &fblocks"
         - "&f%bar%"
-        - "&fClick here to edit this mine."
+        - "&a&nClick&r&f to edit this mine."
+        - "&c&nQ (Drop)&r&f to delete this mine"
     No-Mines-Found:
       Name: "&9&lNo Mines Found"
       Description:
@@ -160,7 +169,7 @@ System:
   Player-Only: "&cOnly players can run this command."
   Invalid-Arguments: "&cInvalid arguments."
   Boundaries-Not-Set: "&fYour boundaries &care not set."
-  Cant-Add-Item: "&fThat item &ccant &fbe added to the mine."
+  Cant-Add-Item: "&fThat item &ccan't &fbe added to the mine."
   Mine-Created: "&fMine &b%mine% &acreated."
   Reloaded: "&aReloaded."
   Mine-Task-Created: "&fMine task &b%task% &fwith delay &e%delay% &fcreated."
@@ -172,6 +181,7 @@ System:
   Mine-Task-Doesnt-Exist: "&cNo mine task exists with that name."
   Mine-Doesnt-Exist: "&cNo mine exists with that name."
   Mine-Clear: "&fMine has been &acleared."
+  Mine-Same-Height: "&cThis mine has to have the same height in the two points."
   Stopped-Mine-Tasks: "&cStopped &fall mine tasks."
   Started-Mine-Tasks: "&aStarted &fall mine tasks."
   Remove: "&fYou removed &b%object%"

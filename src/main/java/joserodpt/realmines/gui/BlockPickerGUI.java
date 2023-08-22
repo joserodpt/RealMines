@@ -15,10 +15,13 @@ package joserodpt.realmines.gui;
 
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
-import joserodpt.realmines.mine.BlockMine;
+import joserodpt.realmines.mine.icons.MineBlockItem;
+import joserodpt.realmines.mine.icons.MineFarmItem;
+import joserodpt.realmines.mine.types.BlockMine;
 import joserodpt.realmines.mine.RMine;
-import joserodpt.realmines.mine.component.MineBlock;
-import joserodpt.realmines.mine.component.MineCuboid;
+import joserodpt.realmines.mine.components.MineCuboid;
+import joserodpt.realmines.mine.types.farm.FarmItem;
+import joserodpt.realmines.mine.types.farm.FarmMine;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Pagination;
 import joserodpt.realmines.util.PlayerInput;
@@ -44,9 +47,9 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class MaterialPicker {
+public class BlockPickerGUI {
 
-    private static final Map<UUID, MaterialPicker> inventories = new HashMap<>();
+    private static final Map<UUID, BlockPickerGUI> inventories = new HashMap<>();
     static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
     static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
             Language.file().getStringList("GUI.Items.Next.Description"));
@@ -58,7 +61,7 @@ public class MaterialPicker {
             Language.file().getStringList("GUI.Items.Close.Description"));
     private final RealMines rm;
     private final UUID uuid;
-    private final ArrayList<Material> items;
+    private final List<Material> items;
     private final HashMap<Integer, Material> display = new HashMap<>();
     private final RMine min;
     private final PickType pt;
@@ -67,19 +70,21 @@ public class MaterialPicker {
     private final Inventory inv;
     private final String add;
 
-    public MaterialPicker(final RealMines rm, final RMine m, final Player pl, final PickType block, final String additional) {
+    public BlockPickerGUI(final RealMines rm, final RMine m, final Player pl, final PickType pickType, final String additional) {
         this.add = additional;
         this.rm = rm;
         this.uuid = pl.getUniqueId();
         this.min = m;
-        this.pt = block;
+        this.pt = pickType;
 
-        if (Objects.requireNonNull(block) == PickType.ICON) {
+        if (Objects.requireNonNull(pickType) == PickType.ICON) {
             this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Select-Icon-Name").replaceAll("%mine%", m.getDisplayName())));
         } else {
             this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Pick-New-Block-Name")));
         }
-        this.items = Items.getValidBlocks();
+
+
+        this.items = Items.getValidBlocks(pt);
 
         this.p = new Pagination<>(28, this.items);
         this.fillChest(this.p.getPage(this.pageNumber));
@@ -87,26 +92,29 @@ public class MaterialPicker {
         this.register();
     }
 
-    public MaterialPicker(final RealMines rm, final RMine m, final Player pl, final PickType block, final String search, final String additional) {
+    public BlockPickerGUI(final RealMines rm, final RMine m, final Player pl, final PickType pickType, final String search, final String additional) {
         this.add = additional;
         this.rm = rm;
 
         this.uuid = pl.getUniqueId();
         this.min = m;
-        this.pt = block;
+        this.pt = pickType;
 
-        if (Objects.requireNonNull(block) == PickType.ICON) {
-            this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Select-Icon-Name").replaceAll("%mine%", m.getDisplayName())));
-        } else {
-            this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Pick-New-Block-Name")));
-        }
+        this.inv = Bukkit.getServer().createInventory(null, 54, (Objects.requireNonNull(pickType) == PickType.ICON) ? Text.color(Language.file().getString("GUI.Select-Icon-Name").replaceAll("%mine%", m.getDisplayName()))
+        : Text.color(Language.file().getString("GUI.Pick-New-Block-Name")));
 
-        this.items = this.searchMaterial(search);
+        this.items = this.searchMaterial(search, pickType);
 
         this.p = new Pagination<>(28, this.items);
         this.fillChest(this.p.getPage(this.pageNumber));
 
         this.register();
+    }
+
+    private List<Material> searchMaterial(final String s, final PickType pt) {
+        return Items.getValidBlocks(pt).stream()
+                .filter(m -> m.name().toLowerCase().contains(s.toLowerCase()))
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public static Listener getListener() {
@@ -120,41 +128,41 @@ public class MaterialPicker {
                     }
                     final UUID uuid = clicker.getUniqueId();
                     if (inventories.containsKey(uuid)) {
-                        final MaterialPicker current = inventories.get(uuid);
+                        final BlockPickerGUI current = inventories.get(uuid);
                         if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
                             return;
                         }
 
-                        final Player gp = (Player) clicker;
+                        final Player p = (Player) clicker;
 
                         switch (e.getRawSlot()) {
                             case 4:
-                                new PlayerInput(gp, input -> {
-                                    if (current.searchMaterial(input).isEmpty()) {
-                                        gp.sendMessage(Text.color(Language.file().getString("System.Nothing-Found")));
-                                        current.exit(current.rm, gp);
+                                new PlayerInput(p, input -> {
+                                    if (current.searchMaterial(input, current.pt).isEmpty()) {
+                                        Text.send(p, Language.file().getString("System.Nothing-Found"));
+                                        current.exit(current.rm, p);
                                         return;
                                     }
-                                    final MaterialPicker df = new MaterialPicker(current.rm, current.min, gp, current.pt, input, current.add);
-                                    df.openInventory(gp);
+                                    final BlockPickerGUI df = new BlockPickerGUI(current.rm, current.min, p, current.pt, input, current.add);
+                                    df.openInventory(p);
                                 }, input -> {
-                                    gp.closeInventory();
-                                    final MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, (BlockMine) current.min);
-                                    v.openInventory(gp);
+                                    p.closeInventory();
+                                    final MineItensGUI v = new MineItensGUI(current.rm, p, current.min);
+                                    v.openInventory(p);
                                 });
                                 break;
                             case 49:
-                                current.exit(current.rm, gp);
+                                current.exit(current.rm, p);
                                 break;
                             case 26:
                             case 35:
                                 this.nextPage(current);
-                                gp.playSound(gp.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
+                                p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
                                 break;
                             case 18:
                             case 27:
                                 this.backPage(current);
-                                gp.playSound(gp.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
+                                p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
                                 break;
                         }
 
@@ -165,25 +173,25 @@ public class MaterialPicker {
                                 case ICON:
                                     current.min.setIcon(a);
                                     current.min.saveData(BlockMine.Data.ICON);
-                                    gp.closeInventory();
-                                    current.rm.getGUIManager().openMine(current.min, gp);
+                                    current.exit(current.rm, p);
                                     break;
+                                case FARM_ITEM:
                                 case BLOCK:
-                                    ((BlockMine) current.min).addBlock(new MineBlock(a));
-                                    gp.closeInventory();
-                                    Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
-                                        final MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, (BlockMine) current.min);
-                                        v.openInventory(gp);
-                                    }, 3);
+                                    switch (current.min.getType()) {
+                                        case BLOCKS:
+                                            ((BlockMine) current.min).addItem(new MineBlockItem(a));
+                                            break;
+                                        case FARM:
+                                            ((FarmMine) current.min).addFarmItem(new MineFarmItem(FarmItem.valueOf(a)));
+                                            break;
+                                    }
+                                    current.exit(current.rm, p);
                                     break;
                                 case FACE_MATERIAL:
                                     final MineCuboid.CuboidDirection cd = MineCuboid.CuboidDirection.valueOf(current.add);
                                     current.min.setFaceBlock(cd, a);
-                                    gp.closeInventory();
-                                    Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
-                                        final MineFaces v = new MineFaces(current.rm, gp, current.min);
-                                        v.openInventory(gp);
-                                    }, 3);
+
+                                    current.exit(current.rm, p);
                                     break;
                             }
                         }
@@ -193,7 +201,7 @@ public class MaterialPicker {
                 }
             }
 
-            private void backPage(final MaterialPicker asd) {
+            private void backPage(final BlockPickerGUI asd) {
                 if (asd.p.exists(asd.pageNumber - 1)) {
                     asd.pageNumber--;
                 }
@@ -201,7 +209,7 @@ public class MaterialPicker {
                 asd.fillChest(asd.p.getPage(asd.pageNumber));
             }
 
-            private void nextPage(final MaterialPicker asd) {
+            private void nextPage(final BlockPickerGUI asd) {
                 if (asd.p.exists(asd.pageNumber + 1)) {
                     asd.pageNumber++;
                 }
@@ -223,12 +231,6 @@ public class MaterialPicker {
                 }
             }
         };
-    }
-
-    private ArrayList<Material> searchMaterial(final String s) {
-        return Items.getValidBlocks().stream()
-                .filter(m -> m.name().toLowerCase().contains(s.toLowerCase()))
-                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void fillChest(final List<Material> items) {
@@ -288,15 +290,27 @@ public class MaterialPicker {
         }
     }
 
-    protected void exit(final RealMines rm, final Player gp) {
+    protected void exit(final RealMines rm, final Player p) {
+        unregister();
+        p.closeInventory();
+
         switch (this.pt) {
             case ICON:
-                gp.closeInventory();
-                rm.getGUIManager().openMine(this.min, gp);
+                rm.getGUIManager().openMine(this.min, p);
                 break;
+            case FARM_ITEM:
             case BLOCK:
-                final MineBlocksViewer v = new MineBlocksViewer(rm, gp, (BlockMine) this.min);
-                v.openInventory(gp);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(rm, () -> {
+                    final MineItensGUI v = new MineItensGUI(rm, p, this.min);
+                    v.openInventory(p);
+                }, 1);
+
+                break;
+            case FACE_MATERIAL:
+                Bukkit.getScheduler().scheduleSyncDelayedTask(rm, () -> {
+                    final MineFacesGUI va = new MineFacesGUI(rm, p, min);
+                    va.openInventory(p);
+                }, 1);
                 break;
         }
     }
@@ -313,5 +327,5 @@ public class MaterialPicker {
         inventories.remove(this.uuid);
     }
 
-    public enum PickType {ICON, BLOCK, FACE_MATERIAL}
+    public enum PickType {ICON, BLOCK, FACE_MATERIAL, FARM_ITEM}
 }

@@ -1,4 +1,4 @@
-package joserodpt.realmines.mine.component;
+package joserodpt.realmines.mine.components;
 
 /*
  *  ______           ____  ____
@@ -13,24 +13,20 @@ package joserodpt.realmines.mine.component;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import org.bukkit.block.Block;
+public class FarmItemGrowth {
 
-public class MineSign {
+    private final int min, max;
 
-    private final Block block;
-    private final String mod;
-
-    public MineSign(final Block b, final String m) {
-        this.block = b;
-        this.mod = m;
+    public FarmItemGrowth(int min, int max) {
+        this.min = min;
+        this.max = max;
     }
 
-    public Block getBlock() {
-        return this.block;
+    public int getMax() {
+        return max;
     }
 
-    public String getModifier() {
-        return this.mod;
+    public int getMin() {
+        return min;
     }
-
 }

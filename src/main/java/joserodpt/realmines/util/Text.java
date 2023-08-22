@@ -43,7 +43,7 @@ public class Text {
     }
 
     public static void send(final CommandSender p, final String string) {
-        p.sendMessage(Text.color(Config.file().getString("RealMines.Prefix") + string));
+        p.sendMessage(Text.color(Config.file().getString("RealMines.Prefix") + "&f" + string));
     }
 
     public static String getProgressBar(final int current, final int max, final int totalBars, final char symbol, final ChatColor completedColor,

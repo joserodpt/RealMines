@@ -16,7 +16,7 @@ package joserodpt.realmines.gui;
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.mine.RMine;
-import joserodpt.realmines.mine.component.MineCuboid;
+import joserodpt.realmines.mine.components.MineCuboid;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Text;
 import org.bukkit.Bukkit;
@@ -38,9 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class MineFaces {
+public class MineFacesGUI {
 
-    private static final Map<UUID, MineFaces> inventories = new HashMap<>();
+    private static final Map<UUID, MineFacesGUI> inventories = new HashMap<>();
     static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
             Language.file().getStringList("GUI.Items.Close.Description"));
     private final Inventory inv;
@@ -49,7 +49,7 @@ public class MineFaces {
 
     private final RealMines rm;
 
-    public MineFaces(final RealMines rm, final Player as, final RMine m) {
+    public MineFacesGUI(final RealMines rm, final Player as, final RMine m) {
         this.rm = rm;
         this.m = m;
         this.uuid = as.getUniqueId();
@@ -96,7 +96,7 @@ public class MineFaces {
                     }
                     final UUID uuid = clicker.getUniqueId();
                     if (inventories.containsKey(uuid)) {
-                        final MineFaces current = inventories.get(uuid);
+                        final MineFacesGUI current = inventories.get(uuid);
                         if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
                             return;
                         }
@@ -119,15 +119,15 @@ public class MineFaces {
                                     current.m.removeFaceblock(getDirection(e.getRawSlot()));
                                     p.closeInventory();
                                     Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
-                                        final MineFaces mp = new MineFaces(current.rm, p, current.m);
+                                        final MineFacesGUI mp = new MineFacesGUI(current.rm, p, current.m);
                                         mp.openInventory(p);
-                                    }, 3);
+                                    }, 1);
                                 } else {
                                     p.closeInventory();
                                     Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
-                                        final MaterialPicker mp = new MaterialPicker(current.rm, current.m, p, MaterialPicker.PickType.FACE_MATERIAL, getDirection(e.getRawSlot()).name());
+                                        final BlockPickerGUI mp = new BlockPickerGUI(current.rm, current.m, p, BlockPickerGUI.PickType.FACE_MATERIAL, getDirection(e.getRawSlot()).name());
                                         mp.openInventory(p);
-                                    }, 3);
+                                    }, 1);
                                 }
                         }
 

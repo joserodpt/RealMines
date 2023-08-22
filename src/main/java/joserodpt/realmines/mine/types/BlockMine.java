@@ -1,4 +1,4 @@
-package joserodpt.realmines.mine;
+package joserodpt.realmines.mine.types;
 
 /*
  *  ______           ____  ____
@@ -14,14 +14,18 @@ package joserodpt.realmines.mine;
  */
 
 import joserodpt.realmines.RealMines;
+import joserodpt.realmines.gui.BlockPickerGUI;
 import joserodpt.realmines.manager.MineManager;
-import joserodpt.realmines.mine.component.MineBlock;
-import joserodpt.realmines.mine.component.MineCuboid;
-import joserodpt.realmines.mine.component.MineSign;
-import joserodpt.realmines.mine.gui.MineBlockIcon;
+import joserodpt.realmines.mine.RMine;
+import joserodpt.realmines.mine.components.MineColor;
+import joserodpt.realmines.mine.components.MineCuboid;
+import joserodpt.realmines.mine.components.MineSign;
+import joserodpt.realmines.mine.icons.MineBlockItem;
+import joserodpt.realmines.mine.icons.MineItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,11 +35,11 @@ import java.util.Random;
 import java.util.stream.Collectors;
 
 public class BlockMine extends RMine {
-    private final ArrayList<MineBlock> blocks;
+    private final ArrayList<MineItem> blocks;
     private final ArrayList<Material> sorted = new ArrayList<>();
 
-    public BlockMine(final String n, final String displayname, final ArrayList<MineBlock> b, final ArrayList<MineSign> si, final Location p1, final Location p2, final Material i,
-                     final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final String color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
+    public BlockMine(final String n, final String displayname, final ArrayList<MineItem> b, final ArrayList<MineSign> si, final Location p1, final Location p2, final Material i,
+                     final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
         super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, mm);
 
         this.blocks = b;
@@ -51,7 +55,13 @@ public class BlockMine extends RMine {
             if (!this.blocks.isEmpty()) {
                 Bukkit.getScheduler().runTask(RealMines.getPlugin(), () -> {
                     //blocks
-                    this.mineCuboid.forEach(block -> block.setType(this.getBlock()));
+                    for (Block block : this.mineCuboid) {
+                        Material set = this.getBlock();
+                        if (block.getType() != set) {
+                            block.setType(set);
+                        }
+                    }
+
                     //faces
                     for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
                         this.mineCuboid.getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
@@ -62,14 +72,14 @@ public class BlockMine extends RMine {
     }
 
     @Override
-    public String getType() {
-        return "BLOCKS";
+    public RMine.Type getType() {
+        return Type.BLOCKS;
     }
 
     private void sortBlocks() {
         this.sorted.clear();
 
-        for (final MineBlock d : this.blocks) {
+        for (final MineItem d : this.blocks) {
             final double percentage = d.getPercentage() * this.getBlockCount();
 
             for (int i = 0; i <= (int) percentage; ++i) {
@@ -94,38 +104,37 @@ public class BlockMine extends RMine {
 
     public ArrayList<String> getBlockList() {
         return this.blocks.stream()
-                .map(mineBlock -> mineBlock.getMaterial().name() + ";" + mineBlock.getPercentage())
+                .map(Object::toString)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public ArrayList<MineBlockIcon> getBlockIcons() {
-        return this.blocks.isEmpty() ?  new ArrayList<>(Collections.singletonList(new MineBlockIcon())) :
-                this.blocks.stream()
-                        .map(MineBlockIcon::new)
-                        .collect(Collectors.toCollection(ArrayList::new));
+    public ArrayList<MineItem> getBlockIcons() {
+        return this.blocks.isEmpty() ? new ArrayList<>(Collections.singletonList(new MineItem())) :
+                this.blocks;
     }
 
-    public void removeBlock(final MineBlock mb) {
+    public void removeMineBlockItem(final MineItem mb) {
         this.blocks.remove(mb);
         this.saveData(Data.BLOCKS);
     }
 
-    public void addBlock(final MineBlock mineBlock) {
+    public void addItem(final MineBlockItem mineBlock) {
         if (!this.contains(mineBlock)) {
             this.blocks.add(mineBlock);
             this.saveData(Data.BLOCKS);
 
-            this.blocks.sort((a, b) -> {
-                // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
-                return Double.compare(b.getPercentage(), a.getPercentage());
-            });
-
+            this.blocks.sort((a, b) -> Double.compare(b.getPercentage(), a.getPercentage()));
         }
     }
 
-    private boolean contains(final MineBlock mineBlock) {
+    private boolean contains(final MineBlockItem mineBlock) {
         return this.blocks.stream()
                 .anyMatch(block -> block.getMaterial() == mineBlock.getMaterial());
+    }
+
+    @Override
+    public BlockPickerGUI.PickType getBlockPickType() {
+        return BlockPickerGUI.PickType.BLOCK;
     }
 
 }

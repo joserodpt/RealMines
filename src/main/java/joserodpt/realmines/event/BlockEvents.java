@@ -56,7 +56,7 @@ public class BlockEvents implements Listener {
 
     @EventHandler
     public void mineBlockBreak(final MineBlockBreakEvent e) {
-        e.getMine().processBlockBreakEvent(e.isBroken());
+        e.getMine().processBlockBreakEvent(e.isBroken(), true);
     }
 
     @EventHandler
@@ -65,7 +65,7 @@ public class BlockEvents implements Listener {
             event.setLine(0, Text.color(Config.file().getString("RealMines.Prefix")));
             final String name = event.getLine(1);
 
-            final RMine m = rm.getMineManager().get(name);
+            final RMine m = rm.getMineManager().getMine(name);
 
             if (m != null) {
                 final String modif = event.getLine(2);

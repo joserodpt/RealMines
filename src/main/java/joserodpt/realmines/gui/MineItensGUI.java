@@ -15,9 +15,13 @@ package joserodpt.realmines.gui;
 
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
-import joserodpt.realmines.mine.BlockMine;
-import joserodpt.realmines.mine.component.MineBlock;
-import joserodpt.realmines.mine.gui.MineBlockIcon;
+import joserodpt.realmines.mine.RMine;
+import joserodpt.realmines.mine.icons.MineFarmItem;
+import joserodpt.realmines.mine.icons.MineItem;
+import joserodpt.realmines.mine.types.BlockMine;
+import joserodpt.realmines.mine.icons.MineBlockItem;
+import joserodpt.realmines.mine.types.farm.FarmItem;
+import joserodpt.realmines.mine.types.farm.FarmMine;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Pagination;
 import joserodpt.realmines.util.PlayerInput;
@@ -29,7 +33,6 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryType;
@@ -42,9 +45,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class MineBlocksViewer {
+public class MineItensGUI {
 
-    private static final Map<UUID, MineBlocksViewer> inventories = new HashMap<>();
+    private static final Map<UUID, MineItensGUI> inventories = new HashMap<>();
     static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
     static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
             Language.file().getStringList("GUI.Items.Next.Description"));
@@ -56,13 +59,13 @@ public class MineBlocksViewer {
             Language.file().getStringList("GUI.Items.Add.Description"));
     private final Inventory inv;
     private final UUID uuid;
-    private final HashMap<Integer, MineBlockIcon> display = new HashMap<>();
-    private final BlockMine m;
+    private final HashMap<Integer, MineItem> display = new HashMap<>();
+    private final RMine m;
     int pageNumber = 0;
-    Pagination<MineBlockIcon> p;
+    Pagination<MineItem> p;
     private final RealMines rm;
 
-    public MineBlocksViewer(final RealMines rm, final Player target, final BlockMine min) {
+    public MineItensGUI(final RealMines rm, final Player target, final RMine min) {
         this.rm = rm;
         this.uuid = target.getUniqueId();
         this.m = min;
@@ -87,30 +90,41 @@ public class MineBlocksViewer {
                     if (inventories.containsKey(uuid)) {
                         final Player p = (Player) clicker;
 
-                        final MineBlocksViewer current = inventories.get(uuid);
+                        e.setCancelled(true);
+
+                        final MineItensGUI current = inventories.get(uuid);
                         if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
                             return;
                         }
 
                         if (e.getClickedInventory().getType() == InventoryType.PLAYER) {
 
-                            if (Items.getValidBlocks().contains(e.getCurrentItem().getType())) {
-                                ((BlockMine) current.m).addBlock(new MineBlock(e.getCurrentItem().getType(), 0.1D));
+                            if (Items.getValidBlocks(current.m.getBlockPickType()).contains(e.getCurrentItem().getType())) {
+
+                                switch (current.m.getType()) {
+                                    case BLOCKS:
+                                        ((BlockMine) current.m).addItem(new MineBlockItem(e.getCurrentItem().getType()));
+                                        break;
+                                    case FARM:
+                                        FarmItem fi = FarmItem.valueOf(e.getCurrentItem().getType());
+                                        if (fi == null) {
+                                            return;
+                                        }
+                                        ((FarmMine) current.m).addFarmItem(new MineFarmItem(fi));
+                                        break;
+                                }
+
                                 p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 50, 50);
                                 p.closeInventory();
                                 Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
-                                    final MineBlocksViewer v = new MineBlocksViewer(current.rm, p, current.m);
+                                    final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
                                     v.openInventory(p);
-                                }, 3);
+                                }, 1);
                             } else {
                                 Text.send(clicker, Language.file().getString("System.Cant-Add-Item"));
                             }
 
-                            e.setCancelled(true);
                         } else {
-
-                            e.setCancelled(true);
-
                             switch (e.getRawSlot()) {
                                 case 49:
                                     p.closeInventory();
@@ -118,8 +132,17 @@ public class MineBlocksViewer {
                                     break;
                                 case 4:
                                     p.closeInventory();
-                                    final MaterialPicker mp = new MaterialPicker(current.rm, current.m, p, MaterialPicker.PickType.BLOCK, "");
-                                    mp.openInventory(p);
+                                    BlockPickerGUI mp = null;
+                                    switch (current.m.getType()) {
+                                        case BLOCKS:
+                                            mp = new BlockPickerGUI(current.rm, current.m, p, BlockPickerGUI.PickType.BLOCK, "");
+                                            break;
+                                        case FARM:
+                                            mp = new BlockPickerGUI(current.rm, current.m, p, BlockPickerGUI.PickType.FARM_ITEM, "");
+                                            break;
+                                    }
+                                    if (mp != null)
+                                        mp.openInventory(p);
                                     break;
                                 case 26:
                                 case 35:
@@ -134,34 +157,54 @@ public class MineBlocksViewer {
                             }
 
                             if (current.display.containsKey(e.getRawSlot())) {
-                                final MineBlockIcon a = current.display.get(e.getRawSlot());
+                                final MineItem a = current.display.get(e.getRawSlot());
 
-                                if (a.isPlaceholder()) {
+                                if (!a.isInteractable()) {
                                     return;
                                 }
 
-                                if (e.getClick() == ClickType.DROP) {
-                                    // eliminar
-                                    current.m.removeBlock(a.getMineBlock());
-                                    Text.send(p, Language.file().getString("System.Remove").replace("%object%", a.getMineBlock().getMaterial().name()));
-                                    p.closeInventory();
-                                    Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> {
-                                        final MineBlocksViewer v = new MineBlocksViewer(current.rm, p, current.m);
-                                        v.openInventory(p);
-                                    }, 3);
-                                } else {
-                                    // resto
-                                    current.editPercentage(p, a, current);
-                                }
+                                switch (e.getClick()) {
+                                    case DROP:
+                                        // eliminar
+                                        switch (current.m.getType()) {
+                                            case BLOCKS:
+                                                ((BlockMine) current.m).removeMineBlockItem(a);
+                                                break;
+                                            case FARM:
+                                                ((FarmMine) current.m).removeMineFarmItem(a);
+                                                break;
+                                        }
 
-                                p.closeInventory();
+                                        Text.send(p, Language.file().getString("System.Remove").replace("%object%", a.getMaterial().name()));
+                                        current.load();
+                                        break;
+                                    case SHIFT_RIGHT:
+                                        if (a instanceof MineFarmItem) {
+                                            ((MineFarmItem) a).addAge(-1);
+                                            current.m.saveData(RMine.Data.BLOCKS);
+                                            current.load();
+                                        }
+                                        break;
+                                    case SHIFT_LEFT:
+                                        if (a instanceof MineFarmItem) {
+                                            ((MineFarmItem) a).addAge(1);
+                                            current.m.saveData(RMine.Data.BLOCKS);
+                                            current.load();
+                                        }
+                                        current.load();
+                                        break;
+                                    default:
+                                        // resto
+                                        current.editPercentage(p, a, current);
+                                        break;
+                                }
                             }
                         }
                     }
                 }
             }
 
-            private void backPage(final MineBlocksViewer asd) {
+            private void backPage(final MineItensGUI asd) {
                 if (asd.p.exists(asd.pageNumber - 1)) {
                     asd.pageNumber--;
                 }
@@ -169,7 +212,7 @@ public class MineBlocksViewer {
                 asd.fillChest(asd.p.getPage(asd.pageNumber));
             }
 
-            private void nextPage(final MineBlocksViewer asd) {
+            private void nextPage(final MineItensGUI asd) {
                 if (asd.p.exists(asd.pageNumber + 1)) {
                     asd.pageNumber++;
                 }
@@ -194,11 +237,19 @@ public class MineBlocksViewer {
     }
 
     public void load() {
-        this.p = new Pagination<>(28, this.m.getBlockIcons());
+        switch (this.m.getType()) {
+            case BLOCKS:
+                this.p = new Pagination<>(28, ((BlockMine) this.m).getBlockIcons());
+                break;
+            case FARM:
+                this.p = new Pagination<>(28, ((FarmMine) this.m).getBlockIcons());
+                break;
+        }
+
         this.fillChest(this.p.getPage(this.pageNumber));
     }
 
-    public void fillChest(final List<MineBlockIcon> items) {
+    public void fillChest(final List<MineItem> items) {
         this.inv.clear();
         this.display.clear();
 
@@ -229,8 +280,8 @@ public class MineBlocksViewer {
         int slot = 0;
         for (final ItemStack i : this.inv.getContents()) {
             if (i == null && !items.isEmpty()) {
-                final MineBlockIcon s = items.get(0);
-                this.inv.setItem(slot, s.getItemStack());
+                final MineItem s = items.get(0);
+                this.inv.setItem(slot, s.getItem());
                 this.display.put(slot, s);
                 items.remove(0);
             }
@@ -253,38 +304,40 @@ public class MineBlocksViewer {
         }
     }
 
-    protected void editPercentage(final Player gp, final MineBlockIcon a, final MineBlocksViewer current) {
-        new PlayerInput(gp, s -> {
+    protected void editPercentage(final Player p, final MineItem a, final MineItensGUI current) {
+        new PlayerInput(p, s -> {
             Double d = 0D;
             try {
                 d = Double.parseDouble(s.replace("%", ""));
             } catch (final Exception ex) {
-                gp.sendMessage(Text.color(Language.file().getString("System.Input-Percentage-Error")));
-                this.editPercentage(gp, a, current);
+                Text.send(p, Language.file().getString("System.Input-Percentage-Error"));
+                this.editPercentage(p, a, current);
             }
 
             if (d < 1D) {
-                gp.sendMessage(Text.color(Language.file().getString("System.Input-Percentage-Error-Greater")));
-                this.editPercentage(gp, a, current);
+                Text.send(p, Language.file().getString("System.Input-Percentage-Error-Greater"));
+                this.editPercentage(p, a, current);
                 return;
             }
 
             if (d > 100D) {
-                gp.sendMessage(Text.color(Language.file().getString("System.Input-Percentage-Error-Lower")));
-                this.editPercentage(gp, a, current);
+                Text.send(p, Language.file().getString("System.Input-Percentage-Error-Lower"));
+                this.editPercentage(p, a, current);
                 return;
             }
 
             d /= 100;
 
-            a.getMineBlock().setPercentage(d);
+            a.setPercentage(d);
             current.m.saveData(BlockMine.Data.BLOCKS);
-            gp.sendMessage(Text.color(Language.file().getString("System.Percentage-Modified").replaceAll("%value%", String.valueOf(d * 100))));
-            final MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.m);
-            v.openInventory(gp);
+
+            Text.send(p, Language.file().getString("System.Percentage-Modified").replaceAll("%value%", String.valueOf(d * 100)));
+
+            final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
+            v.openInventory(p);
         }, s -> {
-            final MineBlocksViewer v = new MineBlocksViewer(current.rm, gp, current.m);
-            v.openInventory(gp);
+            final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
+            v.openInventory(p);
         });
     }
 

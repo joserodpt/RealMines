@@ -41,7 +41,7 @@ public class MineTimer {
         }, (t) -> {
             if (Config.file().getStringList("RealMines.announceTimes") != null && Config.file().getStringList("RealMines.announceTimes").contains(String.valueOf(count.getSecondsLeft()))) {
                 if (this.m.isSilent()) return;
-                this.m.broadcastMessage(Language.file().getString("Mines.Reset.Warning").replaceAll("%mine%", this.m.getDisplayName()).replaceAll("%time%", String.valueOf(count.getSecondsLeft())), false);
+                this.m.broadcastMessage(Language.file().getString("Mines.Reset.Warning").replaceAll("%mine%", this.m.getDisplayName()).replaceAll("%time%", String.valueOf(count.getSecondsLeft())));
             }
         });
 

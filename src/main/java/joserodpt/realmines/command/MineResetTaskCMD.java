@@ -64,7 +64,7 @@ public class MineResetTaskCMD extends CommandBase {
                 Text.send(commandSender, Language.file().getString("System.Mine-Task-Exists"));
             }
         } else {
-            commandSender.sendMessage(this.playerOnly);
+            Text.send(commandSender, this.playerOnly);
         }
     }
 
@@ -82,7 +82,7 @@ public class MineResetTaskCMD extends CommandBase {
                 Text.send(commandSender, Language.file().getString("System.Mine-Task-Doesnt-Exist"));
             }
         } else {
-            commandSender.sendMessage(this.playerOnly);
+            Text.send(commandSender, this.playerOnly);
         }
     }
 
@@ -94,7 +94,7 @@ public class MineResetTaskCMD extends CommandBase {
         if (commandSender instanceof Player) {
             final MineResetTask mrt = this.rm.getMineResetTasksManager().getTask(name);
             if (mrt != null) {
-                final RMine m = this.rm.getMineManager().get(mine);
+                final RMine m = this.rm.getMineManager().getMine(mine);
                 if (m != null) {
                     mrt.addMine(m);
                     Text.send(commandSender, Language.file().getString("System.Mine-Linked"));
@@ -105,7 +105,7 @@ public class MineResetTaskCMD extends CommandBase {
                 Text.send(commandSender, Language.file().getString("System.Mine-Task-Doesnt-Exist"));
             }
         } else {
-            commandSender.sendMessage(this.playerOnly);
+            Text.send(commandSender, this.playerOnly);
         }
     }
 
@@ -117,7 +117,7 @@ public class MineResetTaskCMD extends CommandBase {
         if (commandSender instanceof Player) {
             final MineResetTask mrt = this.rm.getMineResetTasksManager().getTask(name);
             if (mrt != null) {
-                final RMine m = this.rm.getMineManager().get(mine);
+                final RMine m = this.rm.getMineManager().getMine(mine);
                 if (m != null) {
                     mrt.removeMine(m);
                     Text.send(commandSender, Language.file().getString("System.Mine-Unlinked"));
@@ -128,7 +128,7 @@ public class MineResetTaskCMD extends CommandBase {
                 Text.send(commandSender, Language.file().getString("System.Mine-Task-Doesnt-Exist"));
             }
         } else {
-            commandSender.sendMessage(this.playerOnly);
+            Text.send(commandSender, this.playerOnly);
         }
     }
 

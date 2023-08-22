@@ -15,7 +15,7 @@ package joserodpt.realmines.gui;
 
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
-import joserodpt.realmines.mine.gui.MineIcon;
+import joserodpt.realmines.mine.icons.MineIcon;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Pagination;
 import joserodpt.realmines.util.Text;
@@ -26,6 +26,7 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
@@ -37,9 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-public class MineViewer {
+public class MineListGUI {
 
-    private static final Map<UUID, MineViewer> inventories = new HashMap<>();
+    private static final Map<UUID, MineListGUI> inventories = new HashMap<>();
     static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
     static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
             Language.file().getStringList("GUI.Items.Next.Description"));
@@ -54,7 +55,7 @@ public class MineViewer {
     Pagination<MineIcon> p;
     private final RealMines rm;
 
-    public MineViewer(final RealMines rm, final Player as) {
+    public MineListGUI(final RealMines rm, final Player as) {
         this.rm = rm;
         this.uuid = as.getUniqueId();
         this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Panel-Name")));
@@ -62,6 +63,11 @@ public class MineViewer {
         this.load();
 
         this.register();
+    }
+
+    public void load() {
+        this.p = new Pagination<>(28, this.rm.getMineManager().getMineList());
+        this.fillChest(this.p.getPage(this.pageNumber));
     }
 
     public static Listener getListener() {
@@ -75,39 +81,49 @@ public class MineViewer {
                     }
                     final UUID uuid = clicker.getUniqueId();
                     if (inventories.containsKey(uuid)) {
-                        final MineViewer current = inventories.get(uuid);
+                        final MineListGUI current = inventories.get(uuid);
                         if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
                             return;
                         }
 
                         e.setCancelled(true);
-                        final Player gp = (Player) clicker;
+                        final Player p = (Player) clicker;
 
                         switch (e.getRawSlot()) {
                             case 49:
-                                gp.closeInventory();
+                                p.closeInventory();
                                 break;
                             case 26:
                             case 35:
                                 this.nextPage(current);
-                                gp.playSound(gp.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
+                                p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
                                 break;
                             case 18:
                             case 27:
                                 this.backPage(current);
-                                gp.playSound(gp.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
+                                p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
                                 break;
                         }
 
                         if (current.display.containsKey(e.getRawSlot())) {
-                            gp.closeInventory();
-                            current.rm.getGUIManager().openMine(current.display.get(e.getRawSlot()).getMine(), gp);
+                            MineIcon icon = current.display.get(e.getRawSlot());
+                            if (icon.getMine() == null) {
+                                return;
+                            }
+                            if (e.getClick() == ClickType.DROP) {
+                                current.rm.getMineManager().deleteMine(icon.getMine());
+                                Text.send(p, Language.file().getString("System.Mine-Deleted"));
+                                current.load();
+                            } else {
+                                p.closeInventory();
+                                current.rm.getGUIManager().openMine(current.display.get(e.getRawSlot()).getMine(), p);
+                            }
                         }
                     }
                 }
             }
 
-            private void backPage(final MineViewer asd) {
+            private void backPage(final MineListGUI asd) {
                 if (asd.p.exists(asd.pageNumber - 1)) {
                     asd.pageNumber--;
                 }
@@ -115,7 +131,7 @@ public class MineViewer {
                 asd.fillChest(asd.p.getPage(asd.pageNumber));
             }
 
-            private void nextPage(final MineViewer asd) {
+            private void nextPage(final MineListGUI asd) {
                 if (asd.p.exists(asd.pageNumber + 1)) {
                     asd.pageNumber++;
                 }
@@ -139,13 +155,7 @@ public class MineViewer {
         };
     }
 
-    public void load() {
-        this.p = new Pagination<>(28, this.rm.getMineManager().getMineList());
-        this.fillChest(this.p.getPage(this.pageNumber));
-    }
-
     public void fillChest(final List<MineIcon> items) {
-
         this.inv.clear();
         this.display.clear();
 
@@ -176,7 +186,7 @@ public class MineViewer {
         for (final ItemStack i : this.inv.getContents()) {
             if (i == null && !items.isEmpty()) {
                 final MineIcon s = items.get(0);
-                this.inv.setItem(slot, s.getIcon());
+                this.inv.setItem(slot, s.getMineItem());
                 this.display.put(slot, s);
                 items.remove(0);
             }

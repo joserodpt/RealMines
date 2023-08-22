@@ -16,10 +16,13 @@ package joserodpt.realmines.mine;
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Config;
 import joserodpt.realmines.config.Language;
+import joserodpt.realmines.gui.BlockPickerGUI;
 import joserodpt.realmines.manager.MineManager;
-import joserodpt.realmines.mine.component.MineCuboid;
-import joserodpt.realmines.mine.component.MineSign;
+import joserodpt.realmines.mine.components.MineColor;
+import joserodpt.realmines.mine.components.MineCuboid;
+import joserodpt.realmines.mine.components.MineSign;
 import joserodpt.realmines.mine.task.MineTimer;
+import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -30,6 +33,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,8 +42,10 @@ import java.util.stream.Collectors;
 
 public abstract class RMine {
 
+    public enum Type { BLOCKS, SCHEMATIC, FARM }
+
     protected String name;
-    protected Color color = Color.WHITE;
+    protected MineColor color;
     protected String displayName;
     protected ArrayList<MineSign> signs;
     protected Location teleport;
@@ -60,9 +66,10 @@ public abstract class RMine {
     private final MineManager mm;
 
     public RMine(final String n, final String displayname, final ArrayList<MineSign> si, final Material i,
-                 final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final String color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
+                 final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
         this.mm = mm;
         this.name = ChatColor.stripColor(Text.color(n));
+        this.color = color;
         this.displayName = displayname;
         this.signs = si;
         this.icon = i;
@@ -74,88 +81,18 @@ public abstract class RMine {
         this.silent = silent;
         this.faces = faces;
 
-        this.setColor(color);
-
         this.timer = new MineTimer(this);
         if (this.resetByTime) {
             this.timer.start();
         }
     }
 
-    public String getColorIcon() {
-        String color = "";
-
-        switch (this.color) {
-            case PURPLE:
-                color = "&d";
-                break;
-            case RED:
-                color = "&c";
-                break;
-            case BLUE:
-                color = "&9";
-                break;
-            case GRAY:
-                color = "&8";
-                break;
-            case BROWN:
-                color = "&4";
-                break;
-            case GREEN:
-                color = "&2";
-                break;
-            case WHITE:
-                color = "&f";
-                break;
-            case ORANGE:
-                color = "&6";
-                break;
-            case YELLOW:
-                color = "&e";
-                break;
-        }
-
-        return color + "●";
-    }
-
-    public Color getColor() {
+    public MineColor getMineColor() {
         return this.color;
     }
 
-    public void setColor(final Color c) {
-        this.color = c;
-    }
-
-    public void setColor(final String s) {
-        switch (s.toLowerCase()) {
-            case "yellow":
-                this.setColor(Color.YELLOW);
-                break;
-            case "orange":
-                this.setColor(Color.ORANGE);
-                break;
-            case "red":
-                this.setColor(Color.RED);
-                break;
-            case "green":
-                this.setColor(Color.GREEN);
-                break;
-            case "gray":
-                this.setColor(Color.GRAY);
-                break;
-            case "blue":
-                this.setColor(Color.BLUE);
-                break;
-            case "brown":
-                this.setColor(Color.BROWN);
-                break;
-            case "purple":
-                this.setColor(Color.PURPLE);
-                break;
-            default:
-                this.setColor(Color.WHITE);
-                break;
-        }
+    public void setMineColor(MineColor color) {
+        this.color = color;
     }
 
     public boolean hasFaceBlock(final MineCuboid.CuboidDirection up) {
@@ -192,6 +129,10 @@ public abstract class RMine {
         return l;
     }
 
+    public String getBar() {
+        return Text.getProgressBar(this.getRemainingBlocks(), this.getBlockCount(), 10, '■', ChatColor.GREEN, ChatColor.RED);
+    }
+
     public String getDisplayName() {
         return this.displayName;
     }
@@ -207,7 +148,7 @@ public abstract class RMine {
 
     //block counts
     public int getBlockCount() {
-        return this.mineCuboid.getTotalBlocks();
+        return this.getMineCuboid().getTotalBlocks();
     }
 
     public int getMinedBlocks() {
@@ -215,17 +156,17 @@ public abstract class RMine {
     }
 
     public int getRemainingBlocks() {
-        return this.mineCuboid.getTotalBlocks() - this.getMinedBlocks();
+        return this.getBlockCount() - this.getMinedBlocks();
     }
     //block counts
 
     //block percentages
     public int getRemainingBlocksPer() {
-        return (this.getRemainingBlocks() * 100 / this.getBlockCount());
+        return this.getBlockCount() == 0 ? 0 : (this.getRemainingBlocks() * 100 / this.getBlockCount());
     }
 
     public int getMinedBlocksPer() {
-        return (this.getMinedBlocks() * 100 / this.getBlockCount());
+        return this.getBlockCount() == 0 ? 0 : (this.getMinedBlocks() * 100 / this.getBlockCount());
     }
     //block percentages
 
@@ -256,8 +197,8 @@ public abstract class RMine {
 
             //reset mined blocks
             this.minedBlocks = 0;
+            processBlockBreakEvent(false);
 
-            this.updateSigns();
             if (!this.isSilent()) {
                 Bukkit.broadcastMessage(Text.color(Config.file().getString("RealMines.Prefix") + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", this.getDisplayName())));
             }
@@ -304,6 +245,8 @@ public abstract class RMine {
     }
 
     public void clear() {
+        this.minedBlocks = 0;
+        processBlockBreakEvent(false);
         this.mineCuboid.forEach(block -> block.setType(Material.AIR));
     }
 
@@ -316,16 +259,13 @@ public abstract class RMine {
             this.getPlayersInMine().forEach(player -> this.mm.teleport(player, this, this.isSilent()));
         }
         if (!this.isSilent()) {
-            this.broadcastMessage(s, true);
+            this.broadcastMessage(s);
         }
     }
 
-    public void broadcastMessage(String s, final Boolean prefix) {
-        if (prefix) {
-            s = Config.file().getString("RealMines.Prefix") + s;
-        }
+    public void broadcastMessage(String s) {
         final String finalS = s;
-        this.getPlayersInMine().forEach(player -> player.sendMessage(Text.color(finalS)));
+        this.getPlayersInMine().forEach(p -> Text.send(p, finalS));
     }
 
     public ArrayList<Player> getPlayersInMine() {
@@ -366,32 +306,8 @@ public abstract class RMine {
 
     public void highlight() {
         if (this.highlight) {
-            this.getCube().forEach(location -> location.getWorld().spawnParticle(Particle.REDSTONE, location.getX(), location.getY(), location.getZ(), 0, 0.001, 1, 0, 1, new Particle.DustOptions(this.convertColor(this.color), 1)));
+            this.getCube().forEach(location -> location.getWorld().spawnParticle(Particle.REDSTONE, location.getX(), location.getY(), location.getZ(), 0, 0.001, 1, 0, 1, new Particle.DustOptions(this.getMineColor().getColor(), 1)));
         }
-    }
-
-    private org.bukkit.Color convertColor(final Color color) {
-        switch (color) {
-            case RED:
-                return org.bukkit.Color.RED;
-            case YELLOW:
-                return org.bukkit.Color.YELLOW;
-            case GRAY:
-                return org.bukkit.Color.GRAY;
-            case GREEN:
-                return org.bukkit.Color.GREEN;
-            case BLUE:
-                return org.bukkit.Color.fromRGB(51, 153, 255);
-            case WHITE:
-                return org.bukkit.Color.WHITE;
-            case BROWN:
-                return org.bukkit.Color.fromRGB(153, 102, 51);
-            case ORANGE:
-                return org.bukkit.Color.ORANGE;
-            case PURPLE:
-                return org.bukkit.Color.PURPLE;
-        }
-        return org.bukkit.Color.fromRGB(0, 153, 204);
     }
 
     public String getName() {
@@ -446,6 +362,16 @@ public abstract class RMine {
         return this.icon;
     }
 
+    public ItemStack getMineIcon() {
+        return Items.createItemLore(this.getIcon(), 1, this.getMineColor().getColorPrefix() + " &f&l" + this.getDisplayName() + " &7[&b&l" + this.getType().name() + "&r&7]", Language.file().getStringList("GUI.Items.Mine.Description")
+                .stream()
+                .map(s -> Text.color(s
+                        .replaceAll("%remainingblocks%", String.valueOf(this.getRemainingBlocks()))
+                        .replaceAll("%totalblocks%", String.valueOf(this.getBlockCount()))
+                        .replaceAll("%bar%", this.getBar())))
+                .collect(Collectors.toList()));
+    }
+
     public void setIcon(final Material a) {
         this.icon = a;
     }
@@ -492,21 +418,29 @@ public abstract class RMine {
         return this.faces;
     }
 
-    public abstract String getType();
+    public abstract RMine.Type getType();
 
-    public void processBlockBreakEvent(final boolean broken) {
+    public void processBlockBreakEvent(final boolean broken, final boolean reset) {
         //add or remove to mined blocks
         this.minedBlocks = this.minedBlocks + (broken ? 1 : -1);
 
-        //if mine reset percentage is lower, reset it
-        if (this.isResetBy(RMine.Reset.PERCENTAGE) & ((double) this.getRemainingBlocksPer() < this.getResetValue(RMine.Reset.PERCENTAGE))) {
-            this.kickPlayers(Language.file().getString("Mines.Reset.Percentage"));
-            Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getPlugin(), this::reset, 10);
+        processBlockBreakEvent(reset);
+    }
+
+    private void processBlockBreakEvent(boolean reset) {
+        if (reset) {
+            //if mine reset percentage is lower, reset it
+            if (this.isResetBy(RMine.Reset.PERCENTAGE) & ((double) this.getRemainingBlocksPer() < this.getResetValue(RMine.Reset.PERCENTAGE))) {
+                this.kickPlayers(Language.file().getString("Mines.Reset.Percentage"));
+                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getPlugin(), this::reset, 10);
+            }
         }
 
         //update min e signs
         this.updateSigns();
     }
+
+    public abstract BlockPickerGUI.PickType getBlockPickType();
 
     public boolean isFreezed() {
         return this.freezed;
@@ -519,6 +453,4 @@ public abstract class RMine {
     public enum Reset {PERCENTAGE, TIME, SILENT}
 
     public enum Data {BLOCKS, ICON, TELEPORT, SIGNS, PLACE, OPTIONS, NAME, FACES, COLOR, MINE_TYPE}
-
-    public enum Color {YELLOW, ORANGE, RED, GREEN, WHITE, GRAY, BLUE, PURPLE, BROWN}
 }
