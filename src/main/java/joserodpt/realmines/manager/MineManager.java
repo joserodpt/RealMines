@@ -105,7 +105,13 @@ public class MineManager {
 
     public void loadMines() {
         for (final String s : Mines.file().getConfigurationSection("").getKeys(false)) {
-            final World w = Bukkit.getWorld(Mines.file().getString(s + ".World"));
+            final String worldName = Mines.file().getString(s + ".World");
+            final World w = Bukkit.getWorld(worldName);
+
+            if (w == null) {
+                Bukkit.getLogger().severe("[RealMines] Could not load world " + worldName + ". Does the world exist and is loded? Skipping mine named: " + s);
+                continue;
+            }
 
             final Location pos1 = new Location(w, Mines.file().getDouble(s + ".POS1.X"),
                     Mines.file().getDouble(s + ".POS1.Y"), Mines.file().getDouble(s + ".POS1.Z"));
@@ -151,7 +157,7 @@ public class MineManager {
 
             final String mtyp = Mines.file().getString(s + ".Type");
             final String type;
-            if (mtyp == null || mtyp == "") {
+            if (mtyp == null || mtyp.isEmpty()) {
                 type = "BLOCKS";
                 rm.log(Level.WARNING, s + " converted into the new mine block type.");
                 saveType = true;
@@ -233,9 +239,8 @@ public class MineManager {
                     }, input -> Text.send(p, Language.file().getString("System.Mine-Created").replaceAll("%mine%", name)));
                 }
             }
-        } catch (final Exception e) {
+        } catch (final Exception ignored) {
             Text.send(p, Language.file().getString("System.Boundaries-Not-Set"));
-            e.printStackTrace();
         }
     }
 
@@ -278,9 +283,8 @@ public class MineManager {
                     }, input -> Text.send(p, Language.file().getString("System.Mine-Created").replaceAll("%mine%", name)));
                 }
             }
-        } catch (final Exception e) {
+        } catch (final Exception ignored) {
             Text.send(p, Language.file().getString("System.Boundaries-Not-Set"));
-            e.printStackTrace();
         }
     }
 
