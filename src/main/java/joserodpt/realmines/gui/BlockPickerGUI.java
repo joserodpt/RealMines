@@ -15,8 +15,8 @@ package joserodpt.realmines.gui;
 
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
-import joserodpt.realmines.mine.icons.MineBlockItem;
-import joserodpt.realmines.mine.icons.MineFarmItem;
+import joserodpt.realmines.mine.components.items.MineBlockItem;
+import joserodpt.realmines.mine.components.items.MineFarmItem;
 import joserodpt.realmines.mine.types.BlockMine;
 import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.mine.components.MineCuboid;

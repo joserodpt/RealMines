@@ -15,7 +15,7 @@ package joserodpt.realmines.gui;
 
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
-import joserodpt.realmines.mine.icons.MineIcon;
+import joserodpt.realmines.mine.components.MineIcon;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Pagination;
 import joserodpt.realmines.util.Text;

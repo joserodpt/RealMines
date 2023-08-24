@@ -16,7 +16,7 @@ package joserodpt.realmines.util.converters.mrl;
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.mine.components.MineColor;
-import joserodpt.realmines.mine.icons.MineBlockItem;
+import joserodpt.realmines.mine.components.items.MineBlockItem;
 import joserodpt.realmines.mine.types.BlockMine;
 import joserodpt.realmines.util.Text;
 import joserodpt.realmines.util.converters.RMConverterBase;

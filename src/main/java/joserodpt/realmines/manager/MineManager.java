@@ -20,10 +20,10 @@ import joserodpt.realmines.config.Language;
 import joserodpt.realmines.config.Mines;
 import joserodpt.realmines.event.MineBlockBreakEvent;
 import joserodpt.realmines.mine.components.MineColor;
-import joserodpt.realmines.mine.icons.MineIcon;
-import joserodpt.realmines.mine.icons.MineBlockItem;
-import joserodpt.realmines.mine.icons.MineFarmItem;
-import joserodpt.realmines.mine.icons.MineItem;
+import joserodpt.realmines.mine.components.MineIcon;
+import joserodpt.realmines.mine.components.items.MineBlockItem;
+import joserodpt.realmines.mine.components.items.MineFarmItem;
+import joserodpt.realmines.mine.components.items.MineItem;
 import joserodpt.realmines.mine.types.BlockMine;
 import joserodpt.realmines.mine.types.farm.FarmItem;
 import joserodpt.realmines.mine.types.farm.FarmMine;
@@ -75,8 +75,12 @@ public class MineManager {
             final Double per = Double.parseDouble(content[1]);
             switch (type) {
                 case BLOCKS:
-                    final Material mat = Material.valueOf(content[0]);
-                    list.add(new MineBlockItem(mat, per));
+                    try {
+                        list.add(new MineBlockItem(Material.valueOf(content[0]), per));
+                    } catch (Exception e) {
+                        Bukkit.getLogger().severe("[RealMines] Material type" + content[0] + " is invalid! Skipping. This material is in mine: " + s);
+                        continue;
+                    }
                     break;
                 case FARM:
                     list.add(new MineFarmItem(FarmItem.valueOf(content[0]), per, Integer.parseInt(content[2])));
