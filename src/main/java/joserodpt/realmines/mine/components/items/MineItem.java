@@ -57,4 +57,12 @@ public class MineItem {
     public Type getType() {
         return Type.NONE;
     }
+
+    @Override
+    public String toString() {
+        return "MineItem{" +
+                "material=" + material +
+                ", percentage=" + percentage +
+                '}';
+    }
 }

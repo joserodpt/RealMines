@@ -14,6 +14,7 @@ package joserodpt.realmines.mine.types.farm;
  */
 
 import joserodpt.realmines.RealMines;
+import joserodpt.realmines.config.Config;
 import joserodpt.realmines.gui.BlockPickerGUI;
 import joserodpt.realmines.manager.MineManager;
 import joserodpt.realmines.mine.RMine;
@@ -64,9 +65,11 @@ public class FarmMine extends RMine {
 
                         if (fi.getFarmItem().canBePlaced(block, under)) {
                             if (under.getType() != Material.WATER) {
-                                Material underMat = fi.getFarmItem().getUnderMaterial();
-                                if (under.getType() != underMat) {
-                                    under.setType(underMat);
+                                if (Config.file().getBoolean("RealMines.placeFarmLandBelowCrop")) {
+                                    Material underMat = fi.getFarmItem().getUnderMaterial();
+                                    if (under.getType() != underMat) {
+                                        under.setType(underMat);
+                                    }
                                 }
 
                                 Material mat = fi.getFarmItem().getMaterial();

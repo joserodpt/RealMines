@@ -22,14 +22,14 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PlayerEvents implements Listener {
 
-    private RealMines rm;
+    private final RealMines rm;
     public PlayerEvents(RealMines rm) {
         this.rm = rm;
     }
 
     @EventHandler
     public void onJoin(final PlayerJoinEvent e) {
-        if (e.getPlayer().isOp() && rm.hasNewUpdate()) {
+        if ((e.getPlayer().isOp() || e.getPlayer().hasPermission("realmines.update.notify") || e.getPlayer().hasPermission("realmines.admin")) && rm.hasNewUpdate()) {
             Text.send(e.getPlayer(), Language.file().getString("System.Update-Found") + " https://www.spigotmc.org/resources/realmines-1-14-to-1-20-1.73707/");
         }
     }

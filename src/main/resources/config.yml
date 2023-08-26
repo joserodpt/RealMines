@@ -2,6 +2,7 @@ RealMines:
  Prefix: "&9Real&bMines &7> "
  teleportPlayers: true
  teleportMessage: true
+ placeFarmLandBelowCrop: true
  announceTimes:
   - 30
   - 20
