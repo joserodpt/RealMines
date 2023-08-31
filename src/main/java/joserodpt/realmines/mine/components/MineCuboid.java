@@ -534,8 +534,8 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
         return true;
     }
 
-    public ArrayList<Material> getBlockTypes() {
-        final ArrayList<Material> retm = new ArrayList<>();
+    public List<Material> getBlockTypes() {
+        final List<Material> retm = new ArrayList<>();
 
         for (final Block b : this) {
             if (!retm.contains(b.getType()) && !b.getType().name().contains("AIR") && b.getType() != Material.STONE) {
@@ -633,6 +633,10 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
         return this.totalBlocks;
     }
 
+    public void clear() {
+        this.forEach(block -> block.setType(Material.AIR));
+    }
+
     public enum CuboidDirection {
         North, East, South, West, Up, Down, Horizontal, Vertical, Both, Unknown;
 
@@ -660,7 +664,6 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
                     return Unknown;
             }
         }
-
     }
 
     public class CuboidIterator implements Iterator<Block> {

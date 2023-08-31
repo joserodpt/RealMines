@@ -14,7 +14,6 @@ package joserodpt.realmines.mine.types.farm;
  */
 
 import joserodpt.realmines.RealMines;
-import joserodpt.realmines.config.Config;
 import joserodpt.realmines.gui.BlockPickerGUI;
 import joserodpt.realmines.manager.MineManager;
 import joserodpt.realmines.mine.RMine;
@@ -34,66 +33,117 @@ import org.bukkit.block.data.BlockData;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 public class FarmMine extends RMine {
 
-    private final ArrayList<MineItem> farmItems;
-    private final ArrayList<MineItem> sorted = new ArrayList<>();
+    private final List<MineItem> farmItems;
+    private final List<MineItem> sorted = new ArrayList<>();
+    private List<Block> mineGroundBlocks = new ArrayList<>();
 
-    public FarmMine(final String n, final String displayname, final ArrayList<MineItem> b, final ArrayList<MineSign> si, final Location p1, final Location p2, final Material i,
+    public FarmMine(final String n, final String displayname, final List<MineItem> b, final List<MineSign> si, final Location p1, final Location p2, final Material i,
                     final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
         super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, mm);
 
         this.farmItems = b;
-        super.setPOS(p1, p2);
+        setPOS(p1, p2);
         this.updateSigns();
+    }
 
+    public void setPOS(Location p1, Location p2) {
+        super.setPOS(p1, p2);
+        this.checkFarmBlocks();
+    }
+
+    private void checkFarmBlocks() {
+        //check farm blocks
+        if (!this.oneBlockHeight()) {
+            this.mineGroundBlocks.clear();
+            List<Block> underBlocks = new ArrayList<>(this.getMineCuboid().getFace(MineCuboid.CuboidDirection.Down).getBlocks());
+            while (!underBlocks.isEmpty()) {
+                Block block = underBlocks.get(0);
+                Material upMat = block.getRelative(BlockFace.UP).getType();
+                if (block.getType() != Material.WATER && (upMat == Material.AIR || upMat == Material.GRASS || upMat == Material.TALL_GRASS || FarmItem.getCrops().contains(upMat))) {
+                    this.mineGroundBlocks.add(block);
+                } else {
+                    if (block.getType() != Material.WATER) {
+                        underBlocks.add(block.getRelative(BlockFace.UP));
+                    }
+                }
+                underBlocks.remove(block);
+            }
+        }
+    }
+
+    @Override
+    public void clearContents() {
+        if (this.oneBlockHeight()) {
+            this.getMineCuboid().clear();
+        } else {
+            this.mineGroundBlocks.forEach(block -> block.getRelative(BlockFace.UP).setType(Material.AIR));
+        }
     }
 
     @Override
     public void fill() {
         this.sortCrops();
+
         if (!this.farmItems.isEmpty()) {
             Bukkit.getScheduler().runTask(RealMines.getPlugin(), () -> {
-                for (Block block : this.mineCuboid) {
-                    MineFarmItem fi = this.getFarmBlock();
-                    if (fi.getMaterial() != Material.AIR) {
-                        final Block under = block.getRelative(BlockFace.DOWN);
-
-                        if (fi.getFarmItem().canBePlaced(block, under)) {
-                            if (under.getType() != Material.WATER) {
-                                if (Config.file().getBoolean("RealMines.placeFarmLandBelowCrop")) {
-                                    Material underMat = fi.getFarmItem().getUnderMaterial();
-                                    if (under.getType() != underMat) {
-                                        under.setType(underMat);
-                                    }
-                                }
-
-                                Material mat = fi.getFarmItem().getMaterial();
-                                if (block.getType() != mat) {
-                                    block.setType(mat);
-                                }
-
-                                BlockData data = block.getBlockData();
-                                if (data instanceof Ageable) {
-                                    Ageable ag = (Ageable) data;
-                                    ag.setAge(fi.getAge());
-                                    block.setBlockData(ag);
-                                }
-                            }
-                        }
+                if (this.oneBlockHeight()) {
+                    for (Block target : this.getMineCuboid()) {
+                        MineFarmItem fi = this.getFarmBlock();
+                        Block under = target.getRelative(BlockFace.DOWN);
+                        placeFarmItems(target, under, fi);
+                    }
+                } else {
+                    for (Block under : this.mineGroundBlocks) {
+                        Block target = under.getRelative(BlockFace.UP);
+                        MineFarmItem fi = this.getFarmBlock();
+                        placeFarmItems(target, under, fi);
                     }
                 }
 
-                //faces
-                for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
+                // Set faces
+                for (Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
                     this.mineCuboid.getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
                 }
             });
         }
+    }
+
+    private void placeFarmItems(Block target, Block under, MineFarmItem fi) {
+        if (fi.getMaterial() != Material.AIR) {
+            if (fi.getFarmItem().canBePlaced(target, under)) {
+                if (under.getType() != Material.WATER) {
+                    boolean placeFarmLandBelowCrop = fi.getFarmItem().canBePlaced(target, under);
+
+                    Material underMat = fi.getFarmItem().getUnderMaterial();
+                    if (placeFarmLandBelowCrop && under.getType() != underMat) {
+                        under.setType(underMat);
+                    }
+
+                    Material mat = fi.getFarmItem().getCrop();
+                    if (target.getType() != mat) {
+                        target.setType(mat);
+                    }
+
+                    BlockData data = target.getBlockData();
+                    if (data instanceof Ageable) {
+                        Ageable ag = (Ageable) data;
+                        ag.setAge(fi.getAge());
+                        target.setBlockData(ag);
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean oneBlockHeight() {
+        return getPOS1().getY() == getPOS2().getY();
     }
 
     @Override
@@ -124,7 +174,7 @@ public class FarmMine extends RMine {
         }
     }
 
-    public ArrayList<String> getFarmItems() {
+    public List<String> getFarmItems() {
         return this.farmItems.stream()
                 .map(Object::toString)
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -152,7 +202,7 @@ public class FarmMine extends RMine {
                 .anyMatch(item -> ((MineFarmItem) item).getFarmItem() == fi.getFarmItem());
     }
 
-    public ArrayList<MineItem> getBlockIcons() {
+    public List<MineItem> getBlockIcons() {
         return this.farmItems.isEmpty() ? new ArrayList<>(Collections.singletonList(new MineItem())) :
                 this.farmItems;
     }

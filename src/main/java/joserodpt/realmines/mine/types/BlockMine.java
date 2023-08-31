@@ -30,15 +30,16 @@ import org.bukkit.block.Block;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.stream.Collectors;
 
 public class BlockMine extends RMine {
-    private final ArrayList<MineItem> blocks;
-    private final ArrayList<Material> sorted = new ArrayList<>();
+    private final List<MineItem> blocks;
+    private final List<Material> sorted = new ArrayList<>();
 
-    public BlockMine(final String n, final String displayname, final ArrayList<MineItem> b, final ArrayList<MineSign> si, final Location p1, final Location p2, final Material i,
+    public BlockMine(final String n, final String displayname, final List<MineItem> b, final List<MineSign> si, final Location p1, final Location p2, final Material i,
                      final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
         super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, mm);
 
@@ -102,13 +103,13 @@ public class BlockMine extends RMine {
         return m;
     }
 
-    public ArrayList<String> getBlockList() {
+    public List<String> getBlockList() {
         return this.blocks.stream()
                 .map(Object::toString)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public ArrayList<MineItem> getBlockIcons() {
+    public List<MineItem> getBlockIcons() {
         return this.blocks.isEmpty() ? new ArrayList<>(Collections.singletonList(new MineItem())) :
                 this.blocks;
     }
@@ -137,4 +138,8 @@ public class BlockMine extends RMine {
         return BlockPickerGUI.PickType.BLOCK;
     }
 
+    @Override
+    public void clearContents() {
+        this.getMineCuboid().forEach(block -> block.setType(Material.AIR));
+    }
 }

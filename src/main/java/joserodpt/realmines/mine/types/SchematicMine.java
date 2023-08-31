@@ -39,8 +39,8 @@ import org.bukkit.Material;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 
 public class SchematicMine extends RMine {
@@ -50,7 +50,7 @@ public class SchematicMine extends RMine {
     private final Clipboard pasteClipboard;
     private final MineManager mm;
 
-    public SchematicMine(final String n, final String displayname, final ArrayList<MineSign> si, final Location pasteLocation, final String schematicFile, final Material i,
+    public SchematicMine(final String n, final String displayname, final List<MineSign> si, final Location pasteLocation, final String schematicFile, final Material i,
                          final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final Location pos1, final Location pos2, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
 
         super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, mm);
@@ -131,5 +131,10 @@ public class SchematicMine extends RMine {
     @Override
     public BlockPickerGUI.PickType getBlockPickType() {
         return null;
+    }
+
+    @Override
+    public void clearContents() {
+        this.getMineCuboid().clear();
     }
 }

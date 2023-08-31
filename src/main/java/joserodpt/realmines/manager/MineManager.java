@@ -68,8 +68,8 @@ public class MineManager {
         this.converters.put("MRL", new MRLconverter(rm));
     }
 
-    private static ArrayList<MineItem> getBlocks(final String s, final RMine.Type type) {
-        final ArrayList<MineItem> list = new ArrayList<>();
+    private static List<MineItem> getBlocks(final String s, final RMine.Type type) {
+        final List<MineItem> list = new ArrayList<>();
         for (final String a : Mines.file().getStringList(s + ".Blocks")) {
             final String[] content = a.split(";");
             final Double per = Double.parseDouble(content[1]);
@@ -90,7 +90,7 @@ public class MineManager {
         return list;
     }
 
-    public ArrayList<String> getRegisteredMines() {
+    public List<String> getRegisteredMines() {
         Mines.reload();
         return this.getMines().values().stream()
                 .map(RMine::getName)
@@ -125,7 +125,7 @@ public class MineManager {
                         Float.parseFloat(Mines.file().getString(s + ".Teleport.Yaw")),
                         Float.parseFloat(Mines.file().getString(s + ".Teleport.Pitch")));
             }
-            final ArrayList<MineSign> signs = new ArrayList<>();
+            final List<MineSign> signs = new ArrayList<>();
             if (Mines.file().get(s + ".Signs") != null) {
                 for (final String sig : Mines.file().getStringList(s + ".Signs")) {
                     final String[] parse = sig.split(";");
@@ -165,7 +165,7 @@ public class MineManager {
                 type = mtyp;
             }
 
-            final ArrayList<MineItem> blocks = getBlocks(s, RMine.Type.valueOf(type));
+            final List<MineItem> blocks = getBlocks(s, RMine.Type.valueOf(type));
 
             final RMine m;
             switch (type) {
@@ -224,7 +224,7 @@ public class MineManager {
 
                 m.saveAll();
 
-                final ArrayList<Material> mat = m.getMineCuboid().getBlockTypes();
+                final List<Material> mat = m.getMineCuboid().getBlockTypes();
                 if (!mat.isEmpty()) {
                     Text.send(p, Language.file().getString("System.Add-Blocks"));
                     mat.forEach(material -> Text.send(p, " &7> &f" + material.name()));
@@ -254,8 +254,8 @@ public class MineManager {
                 final Location pos2 = new Location(p.getWorld(), r.getMinimumPoint().getBlockX(), r.getMinimumPoint().getBlockY(), r.getMinimumPoint().getBlockZ());
 
                 if (pos1.getY() != pos2.getY()) {
-                    Text.send(p, Language.file().getString("System.Mine-Same-Height"));
-                    return;
+                    //+1 in maximum point (pos1) because it has to count that block too
+                    pos1.add(0,1,0);
                 }
 
                 final FarmMine m = new FarmMine(name, name, new ArrayList<>(), new ArrayList<>(), pos1, pos2,
@@ -268,7 +268,7 @@ public class MineManager {
 
                 m.saveAll();
 
-                final ArrayList<Material> mat = m.getMineCuboid().getBlockTypes();
+                final List<Material> mat = m.getMineCuboid().getBlockTypes();
                 if (!mat.isEmpty()) {
                     Text.send(p, Language.file().getString("System.Add-Blocks"));
                     mat.forEach(material -> Text.send(p, " &7> &f" + material.name()));
@@ -445,7 +445,7 @@ public class MineManager {
         }
     }
 
-    public ArrayList<MineSign> getSigns() {
+    public List<MineSign> getSigns() {
         return this.getMines().values().stream()
                 .flatMap(mine -> mine.getSigns().stream())
                 .collect(Collectors.toCollection(ArrayList::new));

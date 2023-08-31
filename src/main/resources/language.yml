@@ -181,7 +181,6 @@ System:
   Mine-Task-Doesnt-Exist: "&cNo mine task exists with that name."
   Mine-Doesnt-Exist: "&cNo mine exists with that name."
   Mine-Clear: "&fMine has been &acleared."
-  Mine-Same-Height: "&cThis mine has to have the same height in the two points."
   Stopped-Mine-Tasks: "&cStopped &fall mine tasks."
   Started-Mine-Tasks: "&aStarted &fall mine tasks."
   Remove: "&fYou removed &b%object%"

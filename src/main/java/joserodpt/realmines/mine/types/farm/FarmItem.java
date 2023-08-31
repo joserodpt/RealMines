@@ -40,13 +40,13 @@ public enum FarmItem {
     //NO ITEM
     AIR(Material.AIR);
 
-    private final Material icon, material, underMaterial;
+    private final Material icon, crop, underMaterial;
     private final FarmItemGrowth fig;
     private final Boolean needsWaterNearby, canHaveNeighbours;
 
-    FarmItem(final Material icon, final Material material, final Material underMaterial, final FarmItemGrowth fie, final boolean needsWaterNearby, final boolean canHaveNeighbours) {
+    FarmItem(final Material icon, final Material crop, final Material underMaterial, final FarmItemGrowth fie, final boolean needsWaterNearby, final boolean canHaveNeighbours) {
         this.icon = icon;
-        this.material = material;
+        this.crop = crop;
         this.underMaterial = underMaterial;
         this.needsWaterNearby = needsWaterNearby;
         this.canHaveNeighbours = canHaveNeighbours;
@@ -54,9 +54,9 @@ public enum FarmItem {
         this.fig = fie;
     }
 
-    FarmItem(final Material material, final Material underMaterial , final FarmItemGrowth fie, final boolean needsWaterNearby, final boolean canHaveNeighbours) {
-        this.icon = material;
-        this.material = material;
+    FarmItem(final Material crop, final Material underMaterial , final FarmItemGrowth fie, final boolean needsWaterNearby, final boolean canHaveNeighbours) {
+        this.icon = crop;
+        this.crop = crop;
         this.underMaterial = underMaterial;
         this.needsWaterNearby = needsWaterNearby;
         this.canHaveNeighbours = canHaveNeighbours;
@@ -64,9 +64,9 @@ public enum FarmItem {
         this.fig = fie;
     }
 
-    FarmItem(final Material material, final Material underMaterial, final boolean needsWaterNearby, final boolean canHaveNeighbours) {
-        this.icon = material;
-        this.material = material;
+    FarmItem(final Material crop, final Material underMaterial, final boolean needsWaterNearby, final boolean canHaveNeighbours) {
+        this.icon = crop;
+        this.crop = crop;
         this.underMaterial = underMaterial;
         this.needsWaterNearby = needsWaterNearby;
         this.canHaveNeighbours = canHaveNeighbours;
@@ -74,10 +74,10 @@ public enum FarmItem {
         this.fig = null;
     }
 
-    FarmItem(final Material material) {
-        this.icon = material;
-        this.material = material;
-        this.underMaterial = material;
+    FarmItem(final Material crop) {
+        this.icon = crop;
+        this.crop = crop;
+        this.underMaterial = crop;
 
         this.needsWaterNearby = true;
         this.canHaveNeighbours = true;
@@ -89,12 +89,16 @@ public enum FarmItem {
         return Arrays.stream(FarmItem.values()).map(FarmItem::getIcon).collect(Collectors.toList());
     }
 
+    public static List<Material> getCrops() {
+        return Arrays.stream(FarmItem.values()).map(FarmItem::getCrop).collect(Collectors.toList());
+    }
+
     public Material getIcon() {
         return this.icon;
     }
 
-    public Material getMaterial() {
-        return this.material;
+    public Material getCrop() {
+        return this.crop;
     }
 
     public Material getUnderMaterial() {

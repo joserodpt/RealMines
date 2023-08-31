@@ -25,7 +25,7 @@ import java.util.stream.Collectors;
 public class MineResetTasksManager {
 
     private final RealMines rm;
-    public ArrayList<MineResetTask> tasks = new ArrayList<>();
+    public List<MineResetTask> tasks = new ArrayList<>();
 
     public MineResetTasksManager(final RealMines rm) {
         this.rm = rm;
@@ -75,7 +75,7 @@ public class MineResetTasksManager {
         MineResetTasks.save();
     }
 
-    public ArrayList<MineResetTask> getTasks() {
+    public List<MineResetTask> getTasks() {
         return this.tasks;
     }
 }

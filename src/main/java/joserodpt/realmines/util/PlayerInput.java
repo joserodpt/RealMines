@@ -24,8 +24,8 @@ import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.logging.Level;
@@ -35,7 +35,7 @@ public class PlayerInput implements Listener {
     private static final Map<UUID, PlayerInput> inputs = new HashMap<>();
     private final UUID uuid;
 
-    private final ArrayList<String> texts = Text
+    private final List<String> texts = Text
             .color(Language.file().getStringList("System.Type-Input"));
 
     private final InputRunnable runGo;

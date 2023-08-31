@@ -21,6 +21,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MineResetTask {
 
@@ -40,10 +41,7 @@ public class MineResetTask {
 
     private void save() {
         MineResetTasks.file().set(this.name + ".Delay", this.delay);
-
-        final ArrayList<String> tmp = new ArrayList<>();
-        this.mines.forEach(mine -> tmp.add(mine.getName()));
-        MineResetTasks.file().set(this.name + ".LinkedMines", tmp);
+        MineResetTasks.file().set(this.name + ".LinkedMines", this.mines.stream().map(RMine::getName).collect(Collectors.toList()));
 
         MineResetTasks.save();
     }

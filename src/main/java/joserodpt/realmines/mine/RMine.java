@@ -47,7 +47,7 @@ public abstract class RMine {
     protected String name;
     protected MineColor color;
     protected String displayName;
-    protected ArrayList<MineSign> signs;
+    protected List<MineSign> signs;
     protected Location teleport;
     protected Material icon;
     protected MineCuboid mineCuboid;
@@ -65,7 +65,7 @@ public abstract class RMine {
     protected boolean freezed;
     private final MineManager mm;
 
-    public RMine(final String n, final String displayname, final ArrayList<MineSign> si, final Material i,
+    public RMine(final String n, final String displayname, final List<MineSign> si, final Material i,
                  final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
         this.mm = mm;
         this.name = ChatColor.stripColor(Text.color(n));
@@ -123,10 +123,8 @@ public abstract class RMine {
         return this.teleport != null;
     }
 
-    public ArrayList<String> getSignList() {
-        final ArrayList<String> l = new ArrayList<>();
-        this.signs.forEach(mineSign -> l.add(mineSign.getBlock().getWorld().getName() + ";" + mineSign.getBlock().getX() + ";" + mineSign.getBlock().getY() + ";" + mineSign.getBlock().getZ() + ";" + mineSign.getModifier()));
-        return l;
+    public List<String> getSignList() {
+        return this.getSigns().stream().map(mineSign -> mineSign.getBlock().getWorld().getName() + ";" + mineSign.getBlock().getX() + ";" + mineSign.getBlock().getY() + ";" + mineSign.getBlock().getZ() + ";" + mineSign.getModifier()).collect(Collectors.toList());
     }
 
     public String getBar() {
@@ -247,7 +245,8 @@ public abstract class RMine {
     public void clear() {
         this.minedBlocks = 0;
         processBlockBreakEvent(false);
-        this.mineCuboid.forEach(block -> block.setType(Material.AIR));
+
+        this.clearContents();
     }
 
     public boolean isSilent() {
@@ -255,8 +254,10 @@ public abstract class RMine {
     }
 
     public void kickPlayers(final String s) {
-        if (Config.file().getBoolean("RealMines.teleportPlayers")) {
-            this.getPlayersInMine().forEach(player -> this.mm.teleport(player, this, this.isSilent()));
+        if (this.getType() != Type.FARM) {
+            if (Config.file().getBoolean("RealMines.teleportPlayers")) {
+                this.getPlayersInMine().forEach(player -> this.mm.teleport(player, this, this.isSilent()));
+            }
         }
         if (!this.isSilent()) {
             this.broadcastMessage(s);
@@ -268,7 +269,7 @@ public abstract class RMine {
         this.getPlayersInMine().forEach(p -> Text.send(p, finalS));
     }
 
-    public ArrayList<Player> getPlayersInMine() {
+    public List<Player> getPlayersInMine() {
         return Bukkit.getOnlinePlayers().stream()
                 .filter(p -> this.mineCuboid.contains(p.getLocation()))
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -392,7 +393,7 @@ public abstract class RMine {
         this.teleport = location;
     }
 
-    public ArrayList<MineSign> getSigns() {
+    public List<MineSign> getSigns() {
         return this.signs;
     }
 
@@ -441,6 +442,8 @@ public abstract class RMine {
     }
 
     public abstract BlockPickerGUI.PickType getBlockPickType();
+
+    public abstract void clearContents();
 
     public boolean isFreezed() {
         return this.freezed;

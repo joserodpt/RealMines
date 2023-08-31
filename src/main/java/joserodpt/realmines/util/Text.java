@@ -32,8 +32,8 @@ public class Text {
         list.forEach(s -> p.sendMessage(color(s)));
     }
 
-    public static ArrayList<String> color(final List<?> list) {
-        final ArrayList<String> color = new ArrayList<>();
+    public static List<String> color(final List<?> list) {
+        final List<String> color = new ArrayList<>();
         list.forEach(o -> color.add(Text.color((String) o)));
         return color;
     }
