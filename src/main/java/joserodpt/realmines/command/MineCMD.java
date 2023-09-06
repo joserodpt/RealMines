@@ -263,7 +263,7 @@ public class MineCMD extends CommandBase {
     @SubCommand("reset")
     @Alias("r")
     @Completion("#mines")
-    @Permission("realmines.admin")
+    @Permission("realmines.reset")
     @WrongUsage("&c/mine reset <name>")
     public void resetcmd(final CommandSender commandSender, final String name) {
         final RMine m = rm.getMineManager().getMine(name);
