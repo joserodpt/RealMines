@@ -438,7 +438,11 @@ public class MineManager {
                 if (m.isFreezed()) {
                     e.setCancelled(true);
                 } else {
-                    Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(m, broken));
+                    if (m.getType() == RMine.Type.FARM && !FarmItem.getCrops().contains(b.getType())) {
+                        e.setCancelled(true);
+                    } else {
+                        Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(m, broken));
+                    }
                 }
                 return;
             }
