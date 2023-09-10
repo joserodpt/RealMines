@@ -198,7 +198,11 @@ public abstract class RMine {
             processBlockBreakEvent(false);
 
             if (!this.isSilent()) {
-                Bukkit.broadcastMessage(Text.color(Config.file().getString("RealMines.Prefix") + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", this.getDisplayName())));
+                if (Config.file().getBoolean("RealMines.broadcastResetMessageOnlyInWorld")) {
+                    this.getMineCuboid().getWorld().getPlayers().forEach(player -> Text.send(player, Language.file().getString("Mines.Reset.Announcement").replace("%mine%", this.getDisplayName())));
+                } else {
+                    Bukkit.broadcastMessage(Text.color(Config.file().getString("RealMines.Prefix") + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", this.getDisplayName())));
+                }
             }
         }
     }
@@ -265,8 +269,7 @@ public abstract class RMine {
     }
 
     public void broadcastMessage(String s) {
-        final String finalS = s;
-        this.getPlayersInMine().forEach(p -> Text.send(p, finalS));
+        this.getPlayersInMine().forEach(p -> Text.send(p, s));
     }
 
     public List<Player> getPlayersInMine() {
