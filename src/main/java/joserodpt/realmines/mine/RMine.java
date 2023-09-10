@@ -189,7 +189,7 @@ public abstract class RMine {
     }
 
     public void reset() {
-        if (!Bukkit.getOnlinePlayers().isEmpty()) {
+        if (!Bukkit.getOnlinePlayers().isEmpty() || Config.file().getBoolean("RealMines.resetMinesWhenNoPlayers")) {
             this.kickPlayers(Language.file().getString("Mines.Reset.Starting").replace("%mine%", this.getDisplayName()));
             this.fill();
 

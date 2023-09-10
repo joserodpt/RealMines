@@ -3,6 +3,7 @@ RealMines:
  teleportPlayers: true
  teleportMessage: true
  placeFarmLandBelowCrop: true
+ resetMinesWhenNoPlayers: false
  announceTimes:
   - 30
   - 20
