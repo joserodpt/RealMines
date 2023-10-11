@@ -2,6 +2,7 @@ RealMines:
  Prefix: "&9Real&bMines &7> "
  teleportPlayers: true
  teleportMessage: true
+ actionbarMessages: true
  placeFarmLandBelowCrop: true
  resetMinesWhenNoPlayers: false
  broadcastResetMessageOnlyInWorld: false
@@ -14,4 +15,4 @@ RealMines:
   - 3
   - 2
   - 1
-Version: 5
+Version: 6

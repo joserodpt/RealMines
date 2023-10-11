@@ -24,6 +24,8 @@ import joserodpt.realmines.mine.components.MineSign;
 import joserodpt.realmines.mine.task.MineTimer;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Text;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -270,6 +272,8 @@ public abstract class RMine {
 
     public void broadcastMessage(String s) {
         this.getPlayersInMine().forEach(p -> Text.send(p, s));
+        if (Config.file().getBoolean("RealMines.actionbarMessages"))
+            this.getPlayersInMine().forEach(p -> p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(s)));
     }
 
     public List<Player> getPlayersInMine() {
