@@ -13,6 +13,7 @@ package joserodpt.realmines;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import com.google.gson.Gson;
 import joserodpt.realmines.command.MineCMD;
 import joserodpt.realmines.command.MineResetTaskCMD;
 import joserodpt.realmines.config.Config;
@@ -35,14 +36,17 @@ import joserodpt.realmines.util.GUIBuilder;
 import joserodpt.realmines.util.PlayerInput;
 import joserodpt.realmines.util.Text;
 import me.mattstudios.mf.base.CommandManager;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -50,13 +54,23 @@ import java.util.stream.IntStream;
 public class RealMines extends JavaPlugin {
 
     static RealMines pl;
+    private Random rand = new Random();
     public Boolean newUpdate = false;
-    PluginManager pm = Bukkit.getPluginManager();
-    CommandManager commandManager;
+    private PluginManager pm = Bukkit.getPluginManager();
+    private CommandManager commandManager;
     private BukkitTask mineHighlight;
     private final MineManager mineManager = new MineManager(this);
     private final MineResetTasksManager mineResetTasksManager = new MineResetTasksManager(this);
     private final GUIManager guiManager = new GUIManager(this);
+    private Economy econ;
+
+    public Random getRand() {
+        return rand;
+    }
+
+    public Economy getEconomy() {
+        return econ;
+    }
 
     public static RealMines getPlugin() {
         return pl;
@@ -117,6 +131,18 @@ public class RealMines extends JavaPlugin {
         this.pm.registerEvents(PlayerInput.getListener(), this);
         this.pm.registerEvents(MineResetGUI.getListener(), this);
         this.pm.registerEvents(MineColorPickerGUI.getListener(), this);
+
+        //vault hook
+        if (getServer().getPluginManager().getPlugin("Vault") != null) {
+            RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+            if (rsp != null) {
+                econ = rsp.getProvider();
+
+                if (econ != null) {
+                    getLogger().info("Hooked into Vault!");
+                }
+            }
+        }
 
         this.commandManager = new CommandManager(this);
 

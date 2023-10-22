@@ -16,11 +16,13 @@ package joserodpt.realmines.mine;
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Config;
 import joserodpt.realmines.config.Language;
+import joserodpt.realmines.event.MineBlockBreakEvent;
 import joserodpt.realmines.gui.BlockPickerGUI;
 import joserodpt.realmines.manager.MineManager;
 import joserodpt.realmines.mine.components.MineColor;
 import joserodpt.realmines.mine.components.MineCuboid;
 import joserodpt.realmines.mine.components.MineSign;
+import joserodpt.realmines.mine.components.actions.MineAction;
 import joserodpt.realmines.mine.task.MineTimer;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Text;
@@ -40,6 +42,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 public abstract class RMine {
@@ -67,12 +71,15 @@ public abstract class RMine {
     protected boolean freezed;
     private final MineManager mm;
 
+    private final Map<Material, List<MineAction>> breakActions;
+
     public RMine(final String n, final String displayname, final List<MineSign> si, final Material i,
-                 final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
+                 final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final Map<Material, List<MineAction>> breakActions, final MineManager mm) {
         this.mm = mm;
         this.name = ChatColor.stripColor(Text.color(n));
         this.color = color;
         this.displayName = displayname;
+        this.silent = silent;
         this.signs = si;
         this.icon = i;
         this.teleport = t;
@@ -80,8 +87,8 @@ public abstract class RMine {
         this.resetByTime = resetByTim;
         this.resetByPercentageValue = rbpv;
         this.resetByTimeValue = rbtv;
-        this.silent = silent;
         this.faces = faces;
+        this.breakActions = breakActions;
 
         this.timer = new MineTimer(this);
         if (this.resetByTime) {
@@ -366,6 +373,10 @@ public abstract class RMine {
         }
     }
 
+    public Map<Material, List<MineAction>> getBreakActions() {
+        return breakActions;
+    }
+
     public Material getIcon() {
         return this.icon;
     }
@@ -428,9 +439,16 @@ public abstract class RMine {
 
     public abstract RMine.Type getType();
 
-    public void processBlockBreakEvent(final boolean broken, final boolean reset) {
+    public void processBlockBreakEvent(final MineBlockBreakEvent event, final boolean reset) {
         //add or remove to mined blocks
-        this.minedBlocks = this.minedBlocks + (broken ? 1 : -1);
+        this.minedBlocks = this.minedBlocks + (event.isBroken() ? 1 : -1);
+
+        if (event.getPlayer() != null) {
+            final double d = RealMines.getPlugin().getRand().nextDouble();
+            if (this.getBreakActions().containsKey(event.getMaterial())) {
+                this.getBreakActions().get(event.getMaterial()).forEach(mineAction -> mineAction.execute(event.getPlayer(), event.getBlock().getLocation(), d));
+            }
+        }
 
         processBlockBreakEvent(reset);
     }

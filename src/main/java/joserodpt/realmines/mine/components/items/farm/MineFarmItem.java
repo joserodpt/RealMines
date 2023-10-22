@@ -1,4 +1,4 @@
-package joserodpt.realmines.mine.components.items;
+package joserodpt.realmines.mine.components.items.farm;
 
 /*
  *  ______           ____  ____
@@ -14,6 +14,7 @@ package joserodpt.realmines.mine.components.items;
  */
 
 import joserodpt.realmines.config.Language;
+import joserodpt.realmines.mine.components.items.MineItem;
 import joserodpt.realmines.mine.types.farm.FarmItem;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Text;

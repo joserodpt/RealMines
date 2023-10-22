@@ -20,6 +20,7 @@ import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.mine.components.MineColor;
 import joserodpt.realmines.mine.components.MineCuboid;
 import joserodpt.realmines.mine.components.MineSign;
+import joserodpt.realmines.mine.components.actions.MineAction;
 import joserodpt.realmines.mine.components.items.MineBlockItem;
 import joserodpt.realmines.mine.components.items.MineItem;
 import org.bukkit.Bukkit;
@@ -40,8 +41,11 @@ public class BlockMine extends RMine {
     private final List<Material> sorted = new ArrayList<>();
 
     public BlockMine(final String n, final String displayname, final List<MineItem> b, final List<MineSign> si, final Location p1, final Location p2, final Material i,
-                     final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
-        super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, mm);
+                     final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final Map<Material, List<MineAction>> blockActions, final MineManager mm) {
+
+        super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, blockActions, mm);
+
+        Bukkit.getLogger().warning(blockActions.toString());
 
         this.blocks = b;
 
@@ -93,9 +97,8 @@ public class BlockMine extends RMine {
 
     private Material getBlock() {
         final Material m;
-        final Random rand = new Random();
         if (!this.sorted.isEmpty()) {
-            m = this.sorted.get(rand.nextInt(this.sorted.size()));
+            m = this.sorted.get(RealMines.getPlugin().getRand().nextInt(this.sorted.size()));
             this.sorted.remove(m);
         } else {
             m = Material.AIR;

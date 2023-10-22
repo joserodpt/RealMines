@@ -20,7 +20,8 @@ import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.mine.components.MineColor;
 import joserodpt.realmines.mine.components.MineCuboid;
 import joserodpt.realmines.mine.components.MineSign;
-import joserodpt.realmines.mine.components.items.MineFarmItem;
+import joserodpt.realmines.mine.components.actions.MineAction;
+import joserodpt.realmines.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.mine.components.items.MineItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -45,8 +46,8 @@ public class FarmMine extends RMine {
     private List<Block> mineGroundBlocks = new ArrayList<>();
 
     public FarmMine(final String n, final String displayname, final List<MineItem> b, final List<MineSign> si, final Location p1, final Location p2, final Material i,
-                    final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
-        super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, mm);
+                    final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final Map<Material, List<MineAction>> blockActions, final MineManager mm) {
+        super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, blockActions, mm);
 
         this.farmItems = b;
         setPOS(p1, p2);

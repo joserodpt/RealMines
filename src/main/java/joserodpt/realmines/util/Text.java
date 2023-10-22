@@ -19,6 +19,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,6 +45,16 @@ public class Text {
 
     public static void send(final CommandSender p, final String string) {
         p.sendMessage(Text.color(Config.file().getString("RealMines.Prefix") + "&f" + string));
+    }
+
+    public static String formatNumber(double number) {
+        String[] suffixes = {"", "k", "M", "T"};
+        int index = 0;
+        while (number >= 1_000 && index < suffixes.length - 1) {
+            number /= 1_000;
+            index++;
+        }
+        return new DecimalFormat("#.#").format(number) + suffixes[index];
     }
 
     public static String getProgressBar(final int current, final int max, final int totalBars, final char symbol, final ChatColor completedColor,

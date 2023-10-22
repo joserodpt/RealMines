@@ -13,7 +13,7 @@ package joserodpt.realmines.mine.types.farm;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.mine.components.FarmItemGrowth;
+import joserodpt.realmines.mine.components.items.farm.FarmItemGrowth;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;

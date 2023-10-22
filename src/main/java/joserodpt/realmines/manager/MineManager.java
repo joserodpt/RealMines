@@ -21,8 +21,11 @@ import joserodpt.realmines.config.Mines;
 import joserodpt.realmines.event.MineBlockBreakEvent;
 import joserodpt.realmines.mine.components.MineColor;
 import joserodpt.realmines.mine.components.MineIcon;
+import joserodpt.realmines.mine.components.actions.MineAction;
+import joserodpt.realmines.mine.components.actions.MineActionItem;
+import joserodpt.realmines.mine.components.actions.MineActionMoney;
 import joserodpt.realmines.mine.components.items.MineBlockItem;
-import joserodpt.realmines.mine.components.items.MineFarmItem;
+import joserodpt.realmines.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.mine.components.items.MineItem;
 import joserodpt.realmines.mine.types.BlockMine;
 import joserodpt.realmines.mine.types.farm.FarmItem;
@@ -32,6 +35,7 @@ import joserodpt.realmines.mine.types.SchematicMine;
 import joserodpt.realmines.mine.components.MineCuboid;
 import joserodpt.realmines.mine.components.MineSign;
 import joserodpt.realmines.mine.task.MineResetTask;
+import joserodpt.realmines.util.ItemStackSpringer;
 import joserodpt.realmines.util.PlayerInput;
 import joserodpt.realmines.util.Text;
 import joserodpt.realmines.util.converters.mrl.MRLconverter;
@@ -44,6 +48,7 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
+import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -68,7 +73,7 @@ public class MineManager {
         this.converters.put("MRL", new MRLconverter(rm));
     }
 
-    private static List<MineItem> getBlocks(final String s, final RMine.Type type) {
+    private List<MineItem> getBlocks(final String s, final RMine.Type type) {
         final List<MineItem> list = new ArrayList<>();
         for (final String a : Mines.file().getStringList(s + ".Blocks")) {
             final String[] content = a.split(";");
@@ -104,7 +109,7 @@ public class MineManager {
     }
 
     public void loadMines() {
-        for (final String s : Mines.file().getConfigurationSection("").getKeys(false)) {
+        for (final String s : Mines.file().getRoot().getRoutesAsStrings(false)) {
             final String worldName = Mines.file().getString(s + ".World");
             final World w = Bukkit.getWorld(worldName);
 
@@ -125,6 +130,7 @@ public class MineManager {
                         Float.parseFloat(Mines.file().getString(s + ".Teleport.Yaw")),
                         Float.parseFloat(Mines.file().getString(s + ".Teleport.Pitch")));
             }
+
             final List<MineSign> signs = new ArrayList<>();
             if (Mines.file().get(s + ".Signs") != null) {
                 for (final String sig : Mines.file().getStringList(s + ".Signs")) {
@@ -139,8 +145,8 @@ public class MineManager {
             }
 
             final HashMap<MineCuboid.CuboidDirection, Material> faces = new HashMap<>();
-            if (Mines.file().get(s + ".Faces") != null) {
-                for (final String sig : Mines.file().getConfigurationSection(s + ".Faces").getKeys(false)) {
+            if (Mines.file().isSection(s + ".Faces")) {
+                for (final String sig : Mines.file().getSection(s + ".Faces").getRoutesAsStrings(false)) {
                     faces.put(MineCuboid.CuboidDirection.valueOf(sig), Material.valueOf(Mines.file().getString(s + ".Faces." + sig)));
                 }
             }
@@ -167,6 +173,49 @@ public class MineManager {
 
             final List<MineItem> blocks = getBlocks(s, RMine.Type.valueOf(type));
 
+            final Map<Material, List<MineAction>> blockActions = new HashMap<>();
+
+            for (final String mat : Mines.file().getSection(s +".Settings.Break-Actions").getRoutesAsStrings(false)) {
+                try {
+                    Material m = Material.valueOf(mat);
+                    List<MineAction> actionsList = new ArrayList<>();
+
+                    for (final String actionStr : Mines.file().getSection(s +".Settings.Break-Actions." + mat).getRoutesAsStrings(false)) {
+                        Bukkit.getLogger().warning(actionStr);
+                        String[] split = actionStr.split(";");
+
+                        Double chance = Double.parseDouble(split[0]);
+
+                        switch (split[1]) {
+                            case "money":
+                                if (RealMines.getPlugin().getEconomy() == null) {
+                                    RealMines.getPlugin().getLogger().warning("Money Break Action for " + mat + " will be ignored because Vault isn't installed on this server.");
+                                    continue;
+                                }
+
+                                actionsList.add(new MineActionMoney(chance, Mines.file().getDouble(s + ".Settings.Break-Actions." + mat + "." + actionStr)));
+                                break;
+                            case "drop-item":
+                            case "give-item":
+                                ItemStack i = ItemStackSpringer.getItemDeSerializedJSON(Mines.file().getString(s + ".Settings.Break-Actions." + mat + "." + actionStr));
+
+                                if (i == null) {
+                                    RealMines.getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
+                                    continue;
+                                } else {
+                                    actionsList.add(new MineActionItem(chance, i, split[1].equals("drop-item")));
+                                }
+                                break;
+                        }
+                    }
+
+                    blockActions.put(m, actionsList);
+                } catch (Exception e) {
+                        e.printStackTrace();
+                        RealMines.getPlugin().getLogger().severe(mat + " isn't a valid material type for break actions!");
+                    }
+                }
+
             final RMine m;
             switch (type) {
                 case "BLOCKS":
@@ -175,7 +224,7 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
                             Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), mineColor, faces,
-                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), this);
+                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), blockActions, this);
                     break;
                 case "SCHEMATIC":
                     final Location place = new Location(w, Mines.file().getDouble(s + ".Place.X"),
@@ -185,7 +234,7 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
                             Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), mineColor, pos1, pos2, faces,
-                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), this);
+                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), blockActions, this);
                     break;
                 case "FARM":
                     m = new FarmMine(s, Mines.file().getString(s + ".Display-Name"), blocks, signs, pos1, pos2, ic, tp,
@@ -193,7 +242,7 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
                             Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), mineColor, faces,
-                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), this);
+                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), blockActions, this);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + type);
@@ -215,7 +264,7 @@ public class MineManager {
                 final Location pos2 = new Location(p.getWorld(), r.getMinimumPoint().getBlockX(), r.getMinimumPoint().getBlockY(), r.getMinimumPoint().getBlockZ());
 
                 final BlockMine m = new BlockMine(name, name, new ArrayList<>(), new ArrayList<>(), pos1, pos2,
-                        Material.DIAMOND_ORE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, this);
+                        Material.DIAMOND_ORE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, new HashMap<>(),this);
 
                 this.addMine(m);
                 m.addItem(new MineBlockItem(Material.STONE, 1D));
@@ -259,7 +308,7 @@ public class MineManager {
                 }
 
                 final FarmMine m = new FarmMine(name, name, new ArrayList<>(), new ArrayList<>(), pos1, pos2,
-                        Material.WHEAT, null, false, true, 20, 60, MineColor.GREEN, new HashMap<>(), false, this);
+                        Material.WHEAT, null, false, true, 20, 60, MineColor.GREEN, new HashMap<>(), false, new HashMap<>(), this);
                 m.addFarmItem(new MineFarmItem(FarmItem.WHEAT, 1D));
 
                 this.addMine(m);
@@ -300,7 +349,7 @@ public class MineManager {
                 final Location loc2 = new Location(p.getWorld(), 0, 0, 0);
 
                 final SchematicMine m = new SchematicMine(name, name, new ArrayList<>(), p.getLocation(), s,
-                        Material.FILLED_MAP, null, false, true, 20, 60, MineColor.ORANGE, loc, loc2, new HashMap<>(), false, this);
+                        Material.FILLED_MAP, null, false, true, 20, 60, MineColor.ORANGE, loc, loc2, new HashMap<>(), false, new HashMap<>(), this);
 
                 this.addMine(m);
                 m.reset();
@@ -432,7 +481,7 @@ public class MineManager {
         return this.getMines().getOrDefault(name, null);
     }
 
-    public void findBlockUpdate(final Cancellable e, final Block b, final boolean broken) {
+    public void findBlockUpdate(final Player p, final Cancellable e, final Block b, final boolean broken) {
         for (final RMine m : this.getMines().values()) {
             if (m.getMineCuboid().contains(b)) {
                 if (m.isFreezed()) {
@@ -441,7 +490,7 @@ public class MineManager {
                     if (m.getType() == RMine.Type.FARM && !FarmItem.getCrops().contains(b.getType())) {
                         e.setCancelled(true);
                     } else {
-                        Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(m, broken));
+                        Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(p, m, b, broken));
                     }
                 }
                 return;

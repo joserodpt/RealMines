@@ -36,19 +36,21 @@ public class MineResetTasksManager {
     }
 
     public void loadTasks() {
-        for (final String s : MineResetTasks.file().getConfigurationSection("").getKeys(false)) {
-            final int interval = MineResetTasks.file().getInt(s + ".Delay");
+        if (MineResetTasks.file().isSection("")) {
+            for (final String s : MineResetTasks.file().getSection("").getRoutesAsStrings(false)) {
+                final int interval = MineResetTasks.file().getInt(s + ".Delay");
 
-            final MineResetTask mrt = new MineResetTask(s, interval, false);
+                final MineResetTask mrt = new MineResetTask(s, interval, false);
 
-            for (final String s1 : MineResetTasks.file().getStringList(s + ".LinkedMines")) {
-                final RMine m = this.rm.getMineManager().getMine(s1);
-                if (m != null) {
-                    mrt.addMine(m);
+                for (final String s1 : MineResetTasks.file().getStringList(s + ".LinkedMines")) {
+                    final RMine m = this.rm.getMineManager().getMine(s1);
+                    if (m != null) {
+                        mrt.addMine(m);
+                    }
                 }
-            }
 
-            this.tasks.add(mrt);
+                this.tasks.add(mrt);
+            }
         }
     }
 

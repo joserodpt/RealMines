@@ -13,11 +13,14 @@ package joserodpt.realmines.command;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import com.google.gson.Gson;
 import joserodpt.realmines.RealMines;
+import joserodpt.realmines.config.Config;
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.gui.MineItensGUI;
 import joserodpt.realmines.gui.MineListGUI;
 import joserodpt.realmines.mine.RMine;
+import joserodpt.realmines.util.ItemStackSpringer;
 import joserodpt.realmines.util.Text;
 import joserodpt.realmines.util.converters.RMConverterBase;
 import me.mattstudios.mf.annotations.Alias;
@@ -64,7 +67,7 @@ public class MineCMD extends CommandBase {
     @Permission("realmines.panel")
     public void panelcmd(final CommandSender commandSender) {
         if (commandSender instanceof Player) {
-            final Player p = Bukkit.getPlayer(commandSender.getName());
+            final Player p = (Player) commandSender;
             final MineListGUI v = new MineListGUI(this.rm, p);
             v.openInventory(p);
         } else {
@@ -251,7 +254,7 @@ public class MineCMD extends CommandBase {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
             if (m != null) {
-                this.rm.getGUIManager().openMine(m, Bukkit.getPlayer(commandSender.getName()));
+                this.rm.getGUIManager().openMine(m, (Player) commandSender);
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }
@@ -312,7 +315,7 @@ public class MineCMD extends CommandBase {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
             if (m != null) {
-                rm.getMineManager().setRegion(name, Bukkit.getPlayer(commandSender.getName()));
+                rm.getMineManager().setRegion(name, (Player) commandSender);
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }
@@ -335,4 +338,14 @@ public class MineCMD extends CommandBase {
         }
     }
 
+    @SubCommand("registeritem")
+    @Alias("ri")
+    @Permission("realmines.admin")
+    @WrongUsage("&c/mine ri <item name>")
+    public void acmd(final CommandSender commandSender, final String name) {
+        final Player p = (Player) commandSender;
+
+        Config.file().set("Items." + name, ItemStackSpringer.getItemSerializedJSON(p.getInventory().getItemInMainHand()));
+        Config.save();
+    }
 }

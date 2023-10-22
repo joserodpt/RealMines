@@ -7,6 +7,10 @@ Mines:
   Teleport: "&fTeleported to mine &9%mine%"
   Teleport-Set: "&fTeleport &Aset &fon mine %mine%"
   No-Teleport-Location: "&fThis mine &cdoesnt have a teleport location."
+  Break-Actions:
+    Give-Money: "&fYou just recieved &b%money% coins &ffor breaking this block! &eLucky you!"
+    Drop-Item: "&fAn item has dropped when you broke this block! &eLucky you!"
+    Give-Item: "&fAn item was added to your inventory when you broke this block! &eLucky you!"
 GUI:
   Panel-Name: "&9Mines"
   Reset-Name: "%mine% &rReset Options"
@@ -125,7 +129,7 @@ GUI:
         Description:
           - "&fPercentage: &b%percentage%%"
           - "&fClick to edit the percentage."
-          - "&c&n(Q) Drop&r&f to remove this block."
+          - "&c&nQ (Drop)&r&f to remove this block."
       Farm-Item:
         Name: "&3&l%material% &r&7- &fAge: &3%age%"
         Description:
@@ -133,7 +137,7 @@ GUI:
           - "&fClick to edit the percentage."
           - "&a&nShift-Left&r&f to increase the age."
           - "&e&nShift-Right&r&f to decrease the age."
-          - "&c&n(Q) Drop&r&f to remove this block."
+          - "&c&nQ (Drop)&r&f to remove this block."
     No-Blocks:
       Name: "&f&lNo blocks in this mine!"
       Description:

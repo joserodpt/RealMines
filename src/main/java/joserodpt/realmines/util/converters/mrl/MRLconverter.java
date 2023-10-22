@@ -71,7 +71,7 @@ public class MRLconverter implements RMConverterBase {
             Text.send(cmd, " &f> Mine has &b" + blocks.size() + "&f blocks.");
 
             final BlockMine m = new BlockMine(ChatColor.stripColor(Text.color(MRLmine.getName())), MRLmine.getName(), new ArrayList<>(), new ArrayList<>(), MRLmine.getMin(), MRLmine.getMax(),
-                    Material.COBBLESTONE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, rm.getMineManager());
+                    Material.COBBLESTONE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, new HashMap<>(), rm.getMineManager());
 
             blocks.forEach((material, aDouble) -> m.addItem(new MineBlockItem(material, aDouble / 100)));
 

@@ -1,4 +1,4 @@
-package joserodpt.realmines.mine.components;
+package joserodpt.realmines.mine.components.items.farm;
 
 /*
  *  ______           ____  ____

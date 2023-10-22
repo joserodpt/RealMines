@@ -14,6 +14,9 @@ package joserodpt.realmines.event;
  */
 
 import joserodpt.realmines.mine.RMine;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -24,10 +27,26 @@ public class MineBlockBreakEvent extends Event {
 
     private final RMine mine;
     private final boolean broken;
+    private final Block b;
+    private final Player p;
 
-    public MineBlockBreakEvent(final RMine m, final boolean broken) {
+    public MineBlockBreakEvent(final Player p, final RMine m, final Block b, final boolean broken) {
+        this.p = p;
         this.mine = m;
+        this.b = b;
         this.broken = broken;
+    }
+
+    public Block getBlock() {
+        return b;
+    }
+
+    public Material getMaterial() {
+        return b.getType();
+    }
+
+    public Player getPlayer() {
+        return p;
     }
 
     public static HandlerList getHandlerList() {

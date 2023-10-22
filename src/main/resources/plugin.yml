@@ -6,5 +6,5 @@ website: www.spigotmc.org/members/josegamer_pt.40267/
 main: joserodpt.realmines.RealMines
 api-version: 1.14
 depend: [WorldEdit]
-softdepend: [Multiverse-Core, WorldManager, My_Worlds, RealRegions]
+softdepend: [Multiverse-Core, WorldManager, My_Worlds, RealRegions, Vault]
 load: POSTWORLD
