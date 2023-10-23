@@ -20,32 +20,28 @@ import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.mine.components.MineColor;
 import joserodpt.realmines.mine.components.MineCuboid;
 import joserodpt.realmines.mine.components.MineSign;
-import joserodpt.realmines.mine.components.actions.MineAction;
 import joserodpt.realmines.mine.components.items.MineBlockItem;
 import joserodpt.realmines.mine.components.items.MineItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.stream.Collectors;
 
 public class BlockMine extends RMine {
-    private final List<MineItem> blocks;
+    private final Map<Material, MineItem> blocks;
     private final List<Material> sorted = new ArrayList<>();
 
-    public BlockMine(final String n, final String displayname, final List<MineItem> b, final List<MineSign> si, final Location p1, final Location p2, final Material i,
-                     final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final Map<Material, List<MineAction>> blockActions, final MineManager mm) {
+    public BlockMine(final String n, final String displayname, final Map<Material, MineItem> b, final List<MineSign> si, final Location p1, final Location p2, final Material i,
+                     final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
 
-        super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, blockActions, mm);
-
-        Bukkit.getLogger().warning(blockActions.toString());
+        super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, mm);
 
         this.blocks = b;
 
@@ -77,14 +73,26 @@ public class BlockMine extends RMine {
     }
 
     @Override
+    public Map<Material, MineItem> getMineItems() {
+        return this.blocks;
+    }
+
+    @Override
     public RMine.Type getType() {
         return Type.BLOCKS;
+    }
+
+    @Override
+    public void processBlockBreakAction(Material m, Player p, Location l, Double random) {
+        if (this.getMineItems().containsKey(m)) {
+            this.getMineItems().get(m).getBreakActions().forEach(mineAction -> mineAction.execute(p, l, random));
+        }
     }
 
     private void sortBlocks() {
         this.sorted.clear();
 
-        for (final MineItem d : this.blocks) {
+        for (final MineItem d : this.blocks.values()) {
             final double percentage = d.getPercentage() * this.getBlockCount();
 
             for (int i = 0; i <= (int) percentage; ++i) {
@@ -106,34 +114,27 @@ public class BlockMine extends RMine {
         return m;
     }
 
-    public List<String> getBlockList() {
-        return this.blocks.stream()
-                .map(Object::toString)
-                .collect(Collectors.toCollection(ArrayList::new));
-    }
-
     public List<MineItem> getBlockIcons() {
         return this.blocks.isEmpty() ? new ArrayList<>(Collections.singletonList(new MineItem())) :
-                this.blocks;
+                new ArrayList<>(this.blocks.values());
     }
 
     public void removeMineBlockItem(final MineItem mb) {
-        this.blocks.remove(mb);
+        this.blocks.remove(mb.getMaterial());
         this.saveData(Data.BLOCKS);
     }
 
     public void addItem(final MineBlockItem mineBlock) {
         if (!this.contains(mineBlock)) {
-            this.blocks.add(mineBlock);
+            this.blocks.put(mineBlock.getMaterial(), mineBlock);
             this.saveData(Data.BLOCKS);
 
-            this.blocks.sort((a, b) -> Double.compare(b.getPercentage(), a.getPercentage()));
+            //TODO: ver this.blocks.sort((a, b) -> Double.compare(b.getPercentage(), a.getPercentage()));
         }
     }
 
     private boolean contains(final MineBlockItem mineBlock) {
-        return this.blocks.stream()
-                .anyMatch(block -> block.getMaterial() == mineBlock.getMaterial());
+        return this.blocks.containsKey(mineBlock.getMaterial());
     }
 
     @Override

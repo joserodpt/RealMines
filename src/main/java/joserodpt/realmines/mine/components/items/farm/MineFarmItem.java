@@ -14,12 +14,15 @@ package joserodpt.realmines.mine.components.items.farm;
  */
 
 import joserodpt.realmines.config.Language;
+import joserodpt.realmines.mine.components.actions.MineAction;
 import joserodpt.realmines.mine.components.items.MineItem;
 import joserodpt.realmines.mine.types.farm.FarmItem;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Text;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class MineFarmItem extends MineItem {
@@ -33,17 +36,23 @@ public class MineFarmItem extends MineItem {
     }
 
     public MineFarmItem(final FarmItem fi) {
-        super(fi.getIcon(), 0.1D);
+        super(fi.getIcon(), 0.1D, new ArrayList<>());
         this.fi = fi;
     }
 
     public MineFarmItem(final FarmItem fi, final Double percentage) {
-        super(fi.getIcon(), percentage);
+        super(fi.getIcon(), percentage, new ArrayList<>());
         this.fi = fi;
     }
 
     public MineFarmItem(final FarmItem c, final Double percentage, final int age) {
-        super(c.getIcon(), percentage);
+        super(c.getIcon(), percentage, new ArrayList<>());
+        this.fi = c;
+        this.age = age;
+    }
+
+    public MineFarmItem(final FarmItem c, final Double percentage, final int age, final List<MineAction> breakActions) {
+        super(c.getIcon(), percentage, breakActions);
         this.fi = c;
         this.age = age;
     }
@@ -67,11 +76,6 @@ public class MineFarmItem extends MineItem {
     @Override
     public Type getType() {
         return Type.FARM;
-    }
-
-    @Override
-    public String toString() {
-        return fi.name() + ";" + super.getPercentage() + ";" + this.getAge();
     }
 
     public void addAge(int i) {

@@ -22,7 +22,8 @@ import joserodpt.realmines.event.MineBlockBreakEvent;
 import joserodpt.realmines.mine.components.MineColor;
 import joserodpt.realmines.mine.components.MineIcon;
 import joserodpt.realmines.mine.components.actions.MineAction;
-import joserodpt.realmines.mine.components.actions.MineActionItem;
+import joserodpt.realmines.mine.components.actions.MineActionDropItem;
+import joserodpt.realmines.mine.components.actions.MineActionGiveItem;
 import joserodpt.realmines.mine.components.actions.MineActionMoney;
 import joserodpt.realmines.mine.components.items.MineBlockItem;
 import joserodpt.realmines.mine.components.items.farm.MineFarmItem;
@@ -48,7 +49,6 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
-import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -73,25 +73,130 @@ public class MineManager {
         this.converters.put("MRL", new MRLconverter(rm));
     }
 
-    private List<MineItem> getBlocks(final String s, final RMine.Type type) {
-        final List<MineItem> list = new ArrayList<>();
-        for (final String a : Mines.file().getStringList(s + ".Blocks")) {
-            final String[] content = a.split(";");
-            final Double per = Double.parseDouble(content[1]);
-            switch (type) {
-                case BLOCKS:
-                    try {
-                        list.add(new MineBlockItem(Material.valueOf(content[0]), per));
-                    } catch (Exception e) {
-                        Bukkit.getLogger().severe("[RealMines] Material type" + content[0] + " is invalid! Skipping. This material is in mine: " + s);
-                        continue;
+    private Map<Material, MineItem> getBlocks(final String mineName, final RMine.Type type) {
+        final Map<Material, MineItem> list = new HashMap<>();
+
+        if (Mines.file().isList(mineName + ".Blocks")) {
+            RealMines.getPlugin().getLogger().warning("Starting block conversion from pre 1.6 version...");
+            /*since version 1.6, blocks have a new format
+            convert old block format, like:
+            - STONE;0.9
+            - DIAMOND_ORE;0.1
+            into:
+            STONE:
+              Chance: 0.9
+              Break-Actions: ...
+            DIAMOND_ORE:
+              Chance: 0.1
+              Break-Actions: ...
+             */
+
+            for (final String a : Mines.file().getStringList(mineName + ".Blocks")) {
+                final String[] content = a.split(";");
+                final Double per = Double.parseDouble(content[1]);
+                final String mat = content[0];
+                try {
+                    Material m = Material.valueOf(mat);
+                    switch (type) {
+                        case BLOCKS:
+                            try {
+                                list.put(m, new MineBlockItem(m, per));
+                            } catch (Exception e) {
+                                Bukkit.getLogger().severe("[RealMines] Material type" + mat + " is invalid! Skipping. This material is in mine: " + mineName);
+                                continue;
+                            }
+                            break;
+                        case FARM:
+                            list.put(m, new MineFarmItem(FarmItem.valueOf(mat), per, Integer.parseInt(content[2])));
+                            break;
                     }
-                    break;
-                case FARM:
-                    list.add(new MineFarmItem(FarmItem.valueOf(content[0]), per, Integer.parseInt(content[2])));
-                    break;
+                } catch (Exception e) {
+                    Bukkit.getLogger().severe("[RealMines] Material type" + mat + " is invalid! Skipping. This material is in mine: " + mineName);
+                }
+
+            }
+
+            //remove old config and save new
+            Mines.file().remove(mineName + ".Blocks");
+            for (MineItem mineItem : list.values()) {
+                switch (mineItem.getType()) {
+                    case FARM:
+                        Mines.file().set(mineName + ".Blocks." + mineItem.getMaterial().name() + ".Age", ((MineFarmItem) mineItem).getAge());
+                    case BLOCK:
+                        Mines.file().set(mineName + ".Blocks." + mineItem.getMaterial().name() + ".Chance", mineItem.getPercentage());
+                        break;
+                }
+            }
+            Mines.save();
+
+            RealMines.getPlugin().getLogger().warning("Conversion finished with success.");
+        } else {
+            //since version 1.6, there's a new way to load the blocks
+            for (final String mat : Mines.file().getSection(mineName + ".Blocks").getRoutesAsStrings(false)) {
+                final Double per = Mines.file().getDouble(mineName + ".Blocks." + mat + ".Chance");
+
+                try {
+                    Material m = Material.valueOf(mat);
+
+                    List<MineAction> actionsList = new ArrayList<>();
+
+                    if (Mines.file().getSection(mineName + ".Blocks." + mat).getKeys().contains("Break-Actions")) {
+                        for (final String actionID : Mines.file().getSection(mineName + ".Blocks." + mat + ".Break-Actions").getRoutesAsStrings(false)) {
+                            final String actionRoute = mineName + ".Blocks." + mat + ".Break-Actions." + actionID;
+                            final Double chance = Mines.file().getDouble(actionRoute + ".Chance");
+                            try {
+                                MineAction.Type mineactiontype = MineAction.Type.valueOf(Mines.file().getString(actionRoute + ".Type"));
+                                switch (mineactiontype) {
+                                    case DROP_ITEM:
+                                        String data = Mines.file().getString(actionRoute + ".Item");
+                                        try {
+                                            actionsList.add(new MineActionDropItem(actionID, chance, ItemStackSpringer.getItemDeSerializedJSON(data)));
+                                        } catch (Exception e) {
+                                            RealMines.getPlugin().getLogger().severe("Badly formatted ItemStack: " + data);
+                                            RealMines.getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
+                                            continue;
+                                        }
+                                        break;
+                                    case GIVE_ITEM:
+                                        String data2 = Mines.file().getString(actionRoute + ".Item");
+                                        try {
+                                            actionsList.add(new MineActionGiveItem(actionID, chance, ItemStackSpringer.getItemDeSerializedJSON(data2)));
+                                        } catch (Exception e) {
+                                            RealMines.getPlugin().getLogger().severe("Badly formatted ItemStack: " + data2);
+                                            RealMines.getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
+                                            continue;
+                                        }
+                                        break;
+                                    case GIVE_MONEY:
+                                        if (RealMines.getPlugin().getEconomy() == null) {
+                                            RealMines.getPlugin().getLogger().warning("Money Break Action for " + mat + " will be ignored because Vault isn't installed on this server.");
+                                            continue;
+                                        }
+
+                                        actionsList.add(new MineActionMoney(actionID, chance, Mines.file().getDouble(actionRoute + ".Amount")));
+                                        break;
+                                }
+                            } catch (Exception e) {
+                                RealMines.getPlugin().getLogger().severe("Break Action Type " + Mines.file().getString(actionRoute + ".Type") + " is invalid! Skipping. This action is in mine: " + mineName);
+                            }
+                        }
+                    }
+
+                    switch (type) {
+                        case BLOCKS:
+                            list.put(m, new MineBlockItem(m, per, actionsList));
+                            break;
+                        case FARM:
+                            list.put(m, new MineFarmItem(FarmItem.valueOf(mat), per, Mines.file().getInt(mineName + ".Blocks." + mat + ".Age"), actionsList));
+                            break;
+                    }
+                } catch (Exception e) {
+                    RealMines.getPlugin().getLogger().severe("Material type " + mat + " is invalid! Skipping. This material is in mine: " + mineName);
+                }
             }
         }
+
+
         return list;
     }
 
@@ -171,50 +276,7 @@ public class MineManager {
                 type = mtyp;
             }
 
-            final List<MineItem> blocks = getBlocks(s, RMine.Type.valueOf(type));
-
-            final Map<Material, List<MineAction>> blockActions = new HashMap<>();
-
-            for (final String mat : Mines.file().getSection(s +".Settings.Break-Actions").getRoutesAsStrings(false)) {
-                try {
-                    Material m = Material.valueOf(mat);
-                    List<MineAction> actionsList = new ArrayList<>();
-
-                    for (final String actionStr : Mines.file().getSection(s +".Settings.Break-Actions." + mat).getRoutesAsStrings(false)) {
-                        Bukkit.getLogger().warning(actionStr);
-                        String[] split = actionStr.split(";");
-
-                        Double chance = Double.parseDouble(split[0]);
-
-                        switch (split[1]) {
-                            case "money":
-                                if (RealMines.getPlugin().getEconomy() == null) {
-                                    RealMines.getPlugin().getLogger().warning("Money Break Action for " + mat + " will be ignored because Vault isn't installed on this server.");
-                                    continue;
-                                }
-
-                                actionsList.add(new MineActionMoney(chance, Mines.file().getDouble(s + ".Settings.Break-Actions." + mat + "." + actionStr)));
-                                break;
-                            case "drop-item":
-                            case "give-item":
-                                ItemStack i = ItemStackSpringer.getItemDeSerializedJSON(Mines.file().getString(s + ".Settings.Break-Actions." + mat + "." + actionStr));
-
-                                if (i == null) {
-                                    RealMines.getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
-                                    continue;
-                                } else {
-                                    actionsList.add(new MineActionItem(chance, i, split[1].equals("drop-item")));
-                                }
-                                break;
-                        }
-                    }
-
-                    blockActions.put(m, actionsList);
-                } catch (Exception e) {
-                        e.printStackTrace();
-                        RealMines.getPlugin().getLogger().severe(mat + " isn't a valid material type for break actions!");
-                    }
-                }
+            final Map<Material, MineItem> blocks = getBlocks(s, RMine.Type.valueOf(type));
 
             final RMine m;
             switch (type) {
@@ -224,7 +286,7 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
                             Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), mineColor, faces,
-                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), blockActions, this);
+                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), this);
                     break;
                 case "SCHEMATIC":
                     final Location place = new Location(w, Mines.file().getDouble(s + ".Place.X"),
@@ -234,7 +296,7 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
                             Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), mineColor, pos1, pos2, faces,
-                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), blockActions, this);
+                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), this);
                     break;
                 case "FARM":
                     m = new FarmMine(s, Mines.file().getString(s + ".Display-Name"), blocks, signs, pos1, pos2, ic, tp,
@@ -242,7 +304,7 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
                             Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), mineColor, faces,
-                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), blockActions, this);
+                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"),this);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + type);
@@ -263,8 +325,8 @@ public class MineManager {
                 final Location pos1 = new Location(p.getWorld(), r.getMaximumPoint().getBlockX(), r.getMaximumPoint().getBlockY(), r.getMaximumPoint().getBlockZ());
                 final Location pos2 = new Location(p.getWorld(), r.getMinimumPoint().getBlockX(), r.getMinimumPoint().getBlockY(), r.getMinimumPoint().getBlockZ());
 
-                final BlockMine m = new BlockMine(name, name, new ArrayList<>(), new ArrayList<>(), pos1, pos2,
-                        Material.DIAMOND_ORE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, new HashMap<>(),this);
+                final BlockMine m = new BlockMine(name, name, new HashMap<>(), new ArrayList<>(), pos1, pos2,
+                        Material.DIAMOND_ORE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, this);
 
                 this.addMine(m);
                 m.addItem(new MineBlockItem(Material.STONE, 1D));
@@ -307,8 +369,8 @@ public class MineManager {
                     pos1.add(0,1,0);
                 }
 
-                final FarmMine m = new FarmMine(name, name, new ArrayList<>(), new ArrayList<>(), pos1, pos2,
-                        Material.WHEAT, null, false, true, 20, 60, MineColor.GREEN, new HashMap<>(), false, new HashMap<>(), this);
+                final FarmMine m = new FarmMine(name, name, new HashMap<>(), new ArrayList<>(), pos1, pos2,
+                        Material.WHEAT, null, false, true, 20, 60, MineColor.GREEN, new HashMap<>(), false, this);
                 m.addFarmItem(new MineFarmItem(FarmItem.WHEAT, 1D));
 
                 this.addMine(m);
@@ -349,7 +411,7 @@ public class MineManager {
                 final Location loc2 = new Location(p.getWorld(), 0, 0, 0);
 
                 final SchematicMine m = new SchematicMine(name, name, new ArrayList<>(), p.getLocation(), s,
-                        Material.FILLED_MAP, null, false, true, 20, 60, MineColor.ORANGE, loc, loc2, new HashMap<>(), false, new HashMap<>(), this);
+                        Material.FILLED_MAP, null, false, true, 20, 60, MineColor.ORANGE, loc, loc2, new HashMap<>(), false, this);
 
                 this.addMine(m);
                 m.reset();
@@ -380,17 +442,34 @@ public class MineManager {
                 Mines.file().set(mine.getName() + ".Color", mine.getMineColor().name());
                 break;
             case BLOCKS:
-                if (mine instanceof SchematicMine) {
-                    Mines.file().set(mine.getName() + ".Schematic-Filename", ((SchematicMine) mine).getSchematicFilename());
-                } else {
-                    switch (mine.getType()) {
-                        case BLOCKS:
-                            Mines.file().set(mine.getName() + ".Blocks", ((BlockMine) mine).getBlockList());
-                            break;
-                        case FARM:
-                            Mines.file().set(mine.getName() + ".Blocks", ((FarmMine) mine).getFarmItems());
-                            break;
-                    }
+                switch (mine.getType()) {
+                    case SCHEMATIC:
+                        Mines.file().set(mine.getName() + ".Schematic-Filename", ((SchematicMine) mine).getSchematicFilename());
+                        break;
+                    default:
+                        for (MineItem mineItem : mine.getMineItems().values()) {
+                            Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Chance", mineItem.getPercentage());
+                            if (mine.getType() == RMine.Type.FARM) {
+                                Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Age", ((MineFarmItem) mineItem).getAge());
+                            }
+                            if (!mineItem.getBreakActions().isEmpty())
+                            {
+                                for (MineAction ba : mineItem.getBreakActions()) {
+                                    Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Type", ba.getType().name());
+                                    Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Chance", ba.getChance());
+                                    switch (ba.getType()) {
+                                        case GIVE_MONEY:
+                                            Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Amount", ba.getValue());
+                                            break;
+                                        case GIVE_ITEM:
+                                        case DROP_ITEM:
+                                            Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Item", ba.getValue());
+                                            break;
+                                    }
+                                }
+                            }
+                        }
+                        break;
                 }
                 break;
             case ICON:

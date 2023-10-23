@@ -14,11 +14,14 @@ package joserodpt.realmines.mine.components.items;
  */
 
 import joserodpt.realmines.config.Language;
+import joserodpt.realmines.mine.components.actions.MineAction;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Text;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class MineBlockItem extends MineItem {
@@ -28,7 +31,11 @@ public class MineBlockItem extends MineItem {
     }
 
     public MineBlockItem(final Material m, final Double percentage) {
-        super(m, percentage);
+        super(m, percentage, new ArrayList<>());
+    }
+
+    public MineBlockItem(final Material m, final Double percentage, final List<MineAction> breakActions) {
+        super(m, percentage, breakActions);
     }
 
     @Override
@@ -42,10 +49,5 @@ public class MineBlockItem extends MineItem {
     @Override
     public Type getType() {
         return Type.BLOCK;
-    }
-
-    @Override
-    public String toString() {
-        return super.getMaterial().name() + ";" + super.getPercentage();
     }
 }

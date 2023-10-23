@@ -14,9 +14,13 @@ package joserodpt.realmines.mine.components.items;
  */
 
 import joserodpt.realmines.config.Language;
+import joserodpt.realmines.mine.components.actions.MineAction;
 import joserodpt.realmines.util.Items;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class MineItem {
 
@@ -24,24 +28,31 @@ public class MineItem {
 
     private Material material = null;
     private Double percentage;
+    private List<MineAction> breakActions;
 
     public MineItem() {}
 
     public MineItem(Material material) {
         this.material = material;
         this.percentage = 0.1D;
+        this.breakActions = new ArrayList<>();
     }
-    public MineItem(Material material, Double percentage) {
+    public MineItem(Material material, Double percentage, final List<MineAction> breakActions) {
         this.material = material;
         this.percentage = percentage;
+        this.breakActions = breakActions;
     }
 
     public ItemStack getItem() {
         return Items.createItemLore(Material.DEAD_BUSH, 1, Language.file().getString("GUI.Items.Mine-Block.No-Blocks.Name"), Language.file().getStringList("GUI.Items.Mine-Block.No-Blocks.Description"));
     }
 
+    public List<MineAction> getBreakActions() {
+        return this.breakActions;
+    }
+
     public boolean isInteractable() {
-        return material != null;
+        return this.material != null;
     }
 
     public Material getMaterial() {
@@ -63,6 +74,7 @@ public class MineItem {
         return "MineItem{" +
                 "material=" + material +
                 ", percentage=" + percentage +
+                ", breakActions=" + breakActions +
                 '}';
     }
 }

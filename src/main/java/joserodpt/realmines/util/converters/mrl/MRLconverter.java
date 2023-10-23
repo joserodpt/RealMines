@@ -70,13 +70,13 @@ public class MRLconverter implements RMConverterBase {
 
             Text.send(cmd, " &f> Mine has &b" + blocks.size() + "&f blocks.");
 
-            final BlockMine m = new BlockMine(ChatColor.stripColor(Text.color(MRLmine.getName())), MRLmine.getName(), new ArrayList<>(), new ArrayList<>(), MRLmine.getMin(), MRLmine.getMax(),
-                    Material.COBBLESTONE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, new HashMap<>(), rm.getMineManager());
+            final BlockMine m = new BlockMine(ChatColor.stripColor(Text.color(MRLmine.getName())), MRLmine.getName(), new HashMap<>(), new ArrayList<>(), MRLmine.getMin(), MRLmine.getMax(),
+                    Material.COBBLESTONE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, rm.getMineManager());
 
             blocks.forEach((material, aDouble) -> m.addItem(new MineBlockItem(material, aDouble / 100)));
 
-            final Double value2 = MRLmine.getResetPercent();
-            if (value2.intValue() != -1) {
+            final double value2 = MRLmine.getResetPercent();
+            if ((int) value2 != -1) {
                 m.setResetStatus(RMine.Reset.PERCENTAGE, true);
                 m.setResetValue(RMine.Reset.PERCENTAGE, (int) (value2 * 100.0));
                 Text.send(cmd, " &f> Importing reset percentage of: &b" + (value2 * 100.0) + "%");

@@ -5,12 +5,20 @@ import org.bukkit.entity.Player;
 
 public abstract class MineAction {
 
-    public enum Type { MONEY, ITEM }
+    public enum Type { GIVE_MONEY, DROP_ITEM, GIVE_ITEM }
 
-    private Double chance;
+    private final String id;
+    private final Double chance;
 
-    public MineAction(final Double chance) {
+    //TODO: make gui for adding mine actions
+
+    public MineAction(final String id, final Double chance) {
+        this.id = id;
         this.chance = chance;
+    }
+
+    public String getID() {
+        return id;
     }
 
     public Double getChance() {
@@ -20,4 +28,6 @@ public abstract class MineAction {
     public abstract void execute(final Player p, final Location loc, double randomChance);
 
     public abstract Type getType();
+
+    public abstract Object getValue();
 }

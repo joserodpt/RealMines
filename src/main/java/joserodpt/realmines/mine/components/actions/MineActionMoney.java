@@ -8,12 +8,10 @@ import org.bukkit.entity.Player;
 
 public class MineActionMoney extends MineAction {
 
-    public enum Type { MONEY, DROP_ITEM, GIVE_ITEM }
-
     private Double money;
 
-    public MineActionMoney(final Double chance, final Double money) {
-        super(chance);
+    public MineActionMoney(final String id, final Double chance, final Double money) {
+        super(id, chance);
         this.money = money;
     }
 
@@ -26,7 +24,12 @@ public class MineActionMoney extends MineAction {
 
     @Override
     public MineAction.Type getType() {
-        return MineAction.Type.MONEY;
+        return MineAction.Type.GIVE_MONEY;
+    }
+
+    @Override
+    public Double getValue() {
+        return this.money;
     }
 
     @Override

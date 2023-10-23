@@ -32,10 +32,11 @@ import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.mine.components.MineColor;
 import joserodpt.realmines.mine.components.MineCuboid;
 import joserodpt.realmines.mine.components.MineSign;
-import joserodpt.realmines.mine.components.actions.MineAction;
+import joserodpt.realmines.mine.components.items.MineItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.io.IOException;
@@ -53,9 +54,9 @@ public class SchematicMine extends RMine {
     private final MineManager mm;
 
     public SchematicMine(final String n, final String displayname, final List<MineSign> si, final Location pasteLocation, final String schematicFile, final Material i,
-                         final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final Location pos1, final Location pos2, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final Map<Material, List<MineAction>> blockActions, final MineManager mm) {
+                         final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final Location pos1, final Location pos2, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
 
-        super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, blockActions, mm);
+        super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, mm);
 
         this.mm = mm;
 
@@ -80,8 +81,18 @@ public class SchematicMine extends RMine {
     }
 
     @Override
+    public Map<Material, MineItem> getMineItems() {
+        return new HashMap<>();
+    }
+
+    @Override
     public RMine.Type getType() {
         return Type.SCHEMATIC;
+    }
+
+    @Override
+    public void processBlockBreakAction(Material m, Player p, Location l, Double random) {
+
     }
 
     public Location getSchematicPlace() {
