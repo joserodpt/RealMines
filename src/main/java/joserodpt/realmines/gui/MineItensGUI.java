@@ -40,10 +40,12 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class MineItensGUI {
 
@@ -239,10 +241,10 @@ public class MineItensGUI {
     public void load() {
         switch (this.m.getType()) {
             case BLOCKS:
-                this.p = new Pagination<>(28, ((BlockMine) this.m).getBlockIcons());
+                this.p = new Pagination<>(28, ((BlockMine) this.m).getBlockIcons().stream().sorted(Comparator.comparingDouble(MineItem::getPercentage)).collect(Collectors.toList()));
                 break;
             case FARM:
-                this.p = new Pagination<>(28, ((FarmMine) this.m).getBlockIcons());
+                this.p = new Pagination<>(28, ((FarmMine) this.m).getBlockIcons().stream().sorted(Comparator.comparingDouble(MineItem::getPercentage)).collect(Collectors.toList()));
                 break;
         }
 

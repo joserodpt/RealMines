@@ -128,8 +128,6 @@ public class BlockMine extends RMine {
         if (!this.contains(mineBlock)) {
             this.blocks.put(mineBlock.getMaterial(), mineBlock);
             this.saveData(Data.BLOCKS);
-
-            //TODO: ver this.blocks.sort((a, b) -> Double.compare(b.getPercentage(), a.getPercentage()));
         }
     }
 

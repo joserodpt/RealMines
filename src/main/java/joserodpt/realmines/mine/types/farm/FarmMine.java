@@ -195,12 +195,6 @@ public class FarmMine extends RMine {
         if (!this.contains(mineFarmItem)) {
             this.farmItems.put(mineFarmItem.getMaterial(), mineFarmItem);
             this.saveData(Data.BLOCKS);
-
-            //TODO: SORT
-            //this.farmItems.sort((a, b) -> {
-            //     // -1 - less than, 1 - greater than, 0 - equal, all inversed for descending
-            //     return Double.compare(b.getPercentage(), a.getPercentage());
-            // });
         }
     }
 

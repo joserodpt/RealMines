@@ -22,6 +22,7 @@ import joserodpt.realmines.event.MineBlockBreakEvent;
 import joserodpt.realmines.mine.components.MineColor;
 import joserodpt.realmines.mine.components.MineIcon;
 import joserodpt.realmines.mine.components.actions.MineAction;
+import joserodpt.realmines.mine.components.actions.MineActionCommand;
 import joserodpt.realmines.mine.components.actions.MineActionDropItem;
 import joserodpt.realmines.mine.components.actions.MineActionGiveItem;
 import joserodpt.realmines.mine.components.actions.MineActionMoney;
@@ -147,6 +148,9 @@ public class MineManager {
                             try {
                                 MineAction.Type mineactiontype = MineAction.Type.valueOf(Mines.file().getString(actionRoute + ".Type"));
                                 switch (mineactiontype) {
+                                    case EXECUTE_COMMAND:
+                                        actionsList.add(new MineActionCommand(actionID, chance, Mines.file().getString(actionRoute + ".Command")));
+                                        break;
                                     case DROP_ITEM:
                                         String data = Mines.file().getString(actionRoute + ".Item");
                                         try {
@@ -458,6 +462,9 @@ public class MineManager {
                                     Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Type", ba.getType().name());
                                     Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Chance", ba.getChance());
                                     switch (ba.getType()) {
+                                        case EXECUTE_COMMAND:
+                                            Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Command", ba.getValue());
+                                            break;
                                         case GIVE_MONEY:
                                             Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Amount", ba.getValue());
                                             break;

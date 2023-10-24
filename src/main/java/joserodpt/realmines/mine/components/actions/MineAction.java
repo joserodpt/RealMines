@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 
 public abstract class MineAction {
 
-    public enum Type { GIVE_MONEY, DROP_ITEM, GIVE_ITEM }
+    public enum Type { GIVE_MONEY, DROP_ITEM, GIVE_ITEM, EXECUTE_COMMAND }
 
     private final String id;
     private final Double chance;

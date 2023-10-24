@@ -440,8 +440,7 @@ public abstract class RMine {
         this.minedBlocks = this.minedBlocks + (event.isBroken() ? 1 : -1);
 
         if (event.getPlayer() != null) {
-            //TODO: fix random percentages
-            processBlockBreakAction(event.getBlock().getType(), event.getPlayer(), event.getBlock().getLocation(), RealMines.getPlugin().getRand().nextDouble());
+            processBlockBreakAction(event.getBlock().getType(), event.getPlayer(), event.getBlock().getLocation(), RealMines.getPlugin().getRand().nextDouble() * 100);
         }
 
         processBlockBreakEvent(reset);
