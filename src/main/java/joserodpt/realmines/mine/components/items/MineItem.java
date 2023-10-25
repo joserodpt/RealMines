@@ -27,8 +27,15 @@ import java.util.stream.Collectors;
 
 public class MineItem {
 
-    public String getNewBrkActCode() {
+    public String getNewBrkActCode(final String mineName, final String material) {
         final String characters = "abcdefghijklmnopqrstuvwxyz";
+
+        if (!Mines.file().getSection(mineName + ".Blocks." + material).getKeys().contains("Break-Actions")) {
+            return RealMines.getPlugin().getRand().ints(8, 0, characters.length())
+                    .mapToObj(characters::charAt)
+                    .map(Object::toString)
+                    .collect(Collectors.joining());
+        }
 
         String ret;
         do {
@@ -36,7 +43,7 @@ public class MineItem {
                     .mapToObj(characters::charAt)
                     .map(Object::toString)
                     .collect(Collectors.joining());
-        } while (Mines.file().getSection("").getRoutesAsStrings(false).contains(ret));
+        } while (Mines.file().getSection(mineName + ".Blocks." + material + ".Break-Actions").getRoutesAsStrings(false).contains(ret));
 
         return ret;
     }

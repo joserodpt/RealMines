@@ -127,6 +127,7 @@ public class MineBreakActionsGUI {
                                     case DROP:
                                         current.mineItem.getBreakActions().remove(a);
                                         current.mine.saveData(RMine.Data.BLOCKS);
+                                        current.load();
                                         break;
                                     default:
                                         //TODO: other actions

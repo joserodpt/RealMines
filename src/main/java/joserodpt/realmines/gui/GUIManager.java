@@ -103,7 +103,12 @@ public class GUIManager {
                                     return;
                                 }
 
-                                mi.getBreakActions().add(new MineActionMoney(mi.getNewBrkActCode(), 50D, d));
+                                if (target.getInventory().getItemInMainHand() == null) {
+                                    Text.send(target, "&cYou don't have an item in your main hand.");
+                                    return;
+                                }
+
+                                mi.getBreakActions().add(new MineActionMoney(mi.getNewBrkActCode(r.getName(), mi.getMaterial().name()), 50D, d));
                                 r.saveData(RMine.Data.BLOCKS);
 
                                 final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
@@ -128,7 +133,13 @@ public class GUIManager {
                                     return;
                                 }
 
-                                mi.getBreakActions().add(new MineActionDropItem(mi.getNewBrkActCode(), d, target.getInventory().getItemInMainHand()));
+                                //TODO: better item handle checking
+                                if (target.getInventory().getItemInMainHand() == null) {
+                                    Text.send(target, "&cYou don't have an item in your main hand.");
+                                    return;
+                                }
+
+                                mi.getBreakActions().add(new MineActionDropItem(mi.getNewBrkActCode(r.getName(), mi.getMaterial().name()), d, target.getInventory().getItemInMainHand()));
                                 r.saveData(RMine.Data.BLOCKS);
 
                                 final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
@@ -153,7 +164,7 @@ public class GUIManager {
                                     return;
                                 }
 
-                                mi.getBreakActions().add(new MineActionGiveItem(mi.getNewBrkActCode(), d, target.getInventory().getItemInMainHand()));
+                                mi.getBreakActions().add(new MineActionGiveItem(mi.getNewBrkActCode(r.getName(), mi.getMaterial().name()), d, target.getInventory().getItemInMainHand()));
                                 r.saveData(RMine.Data.BLOCKS);
 
                                 final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
@@ -170,7 +181,7 @@ public class GUIManager {
 
                             Text.send(target, "Input in the chat the command for the break action to execute:");
                             new PlayerInput(target, s -> {
-                                mi.getBreakActions().add(new MineActionCommand(mi.getNewBrkActCode(), 50D, s));
+                                mi.getBreakActions().add(new MineActionCommand(mi.getNewBrkActCode(r.getName(), mi.getMaterial().name()), 50D, s));
                                 r.saveData(RMine.Data.BLOCKS);
 
                                 final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
