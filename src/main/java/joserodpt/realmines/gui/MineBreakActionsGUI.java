@@ -15,10 +15,12 @@ package joserodpt.realmines.gui;
 
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
-import joserodpt.realmines.mine.components.MineIcon;
+import joserodpt.realmines.mine.RMine;
+import joserodpt.realmines.mine.components.actions.MineAction;
+import joserodpt.realmines.mine.components.actions.MineActionDummy;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Pagination;
-import joserodpt.realmines.util.Text;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -26,21 +28,23 @@ import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
-public class MineListGUI {
+public class MineBreakActionsGUI {
 
-    private static final Map<UUID, MineListGUI> inventories = new HashMap<>();
+    private static final Map<UUID, MineBreakActionsGUI> inventories = new HashMap<>();
     static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
     static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
             Language.file().getStringList("GUI.Items.Next.Description"));
@@ -48,26 +52,29 @@ public class MineListGUI {
             Language.file().getStringList("GUI.Items.Back.Description"));
     static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
             Language.file().getStringList("GUI.Items.Close.Description"));
+    static ItemStack add = Items.createItemLore(Material.OBSERVER, 1, "&b&LAdd a New Break Action",
+            Collections.singletonList("&fClick here to add a new break action to this item."));
     private final Inventory inv;
     private final UUID uuid;
-    private final HashMap<Integer, MineIcon> display = new HashMap<>();
-    int pageNumber = 0;
-    Pagination<MineIcon> p;
+    private final HashMap<Integer, MineAction> display = new HashMap<>();
+    private final RMine m;
+    private final Material mat;
+    private int pageNumber = 0;
+    private Pagination<MineAction> p;
     private final RealMines rm;
 
-    public MineListGUI(final RealMines rm, final Player as) {
+    //TODO: add option to add new break actions
+
+    public MineBreakActionsGUI(final RealMines rm, final Player target, final RMine min, final Material mat) {
         this.rm = rm;
-        this.uuid = as.getUniqueId();
-        this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Panel-Name")));
+        this.uuid = target.getUniqueId();
+        this.m = min;
+        this.mat = mat;
+        this.inv = Bukkit.getServer().createInventory(null, 54, WordUtils.capitalizeFully(mat.name().replace("_", " ")) + " break actions");
 
         this.load();
 
         this.register();
-    }
-
-    public void load() {
-        this.p = new Pagination<>(28, this.rm.getMineManager().getMineList());
-        this.fillChest(this.p.getPage(this.pageNumber));
     }
 
     public static Listener getListener() {
@@ -79,19 +86,37 @@ public class MineListGUI {
                     if (e.getCurrentItem() == null) {
                         return;
                     }
+
                     final UUID uuid = clicker.getUniqueId();
                     if (inventories.containsKey(uuid)) {
-                        final MineListGUI current = inventories.get(uuid);
+                        final Player p = (Player) clicker;
+
+                        e.setCancelled(true);
+
+                        final MineBreakActionsGUI current = inventories.get(uuid);
                         if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
                             return;
                         }
 
-                        e.setCancelled(true);
-                        final Player p = (Player) clicker;
-
                         switch (e.getRawSlot()) {
                             case 49:
                                 p.closeInventory();
+                                final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
+                                v.openInventory(p);
+                                break;
+                            case 4:
+                                p.closeInventory();
+                                BlockPickerGUI mp = null;
+                                switch (current.m.getType()) {
+                                    case BLOCKS:
+                                        mp = new BlockPickerGUI(current.rm, current.m, p, BlockPickerGUI.PickType.BLOCK, "");
+                                        break;
+                                    case FARM:
+                                        mp = new BlockPickerGUI(current.rm, current.m, p, BlockPickerGUI.PickType.FARM_ITEM, "");
+                                        break;
+                                }
+                                if (mp != null)
+                                    mp.openInventory(p);
                                 break;
                             case 26:
                             case 35:
@@ -106,24 +131,18 @@ public class MineListGUI {
                         }
 
                         if (current.display.containsKey(e.getRawSlot())) {
-                            MineIcon icon = current.display.get(e.getRawSlot());
-                            if (icon.getMine() == null) {
-                                return;
+                            final MineAction a = current.display.get(e.getRawSlot());
+
+                            if (a.isInteractable()) {
+
                             }
-                            if (e.getClick() == ClickType.DROP) {
-                                current.rm.getMineManager().deleteMine(icon.getMine());
-                                Text.send(p, Language.file().getString("System.Mine-Deleted"));
-                                current.load();
-                            } else {
-                                p.closeInventory();
-                                current.rm.getGUIManager().openMine(current.display.get(e.getRawSlot()).getMine(), p);
-                            }
+                            //aaaa
                         }
                     }
                 }
             }
 
-            private void backPage(final MineListGUI asd) {
+            private void backPage(final MineBreakActionsGUI asd) {
                 if (asd.p.exists(asd.pageNumber - 1)) {
                     --asd.pageNumber;
                 }
@@ -131,7 +150,7 @@ public class MineListGUI {
                 asd.fillChest(asd.p.getPage(asd.pageNumber));
             }
 
-            private void nextPage(final MineListGUI asd) {
+            private void nextPage(final MineBreakActionsGUI asd) {
                 if (asd.p.exists(asd.pageNumber + 1)) {
                     ++asd.pageNumber;
                 }
@@ -155,13 +174,24 @@ public class MineListGUI {
         };
     }
 
-    public void fillChest(final List<MineIcon> items) {
+    public void load() {
+        if (this.m.getMineItems().get(this.mat).getBreakActions().isEmpty()) {
+            this.p = new Pagination<>(28, Collections.singletonList(new MineActionDummy()));
+        } else {
+            this.p = new Pagination<>(28, this.m.getMineItems().get(this.mat).getBreakActions().stream().sorted(Comparator.comparingDouble(MineAction::getChance).reversed()).collect(Collectors.toList()));
+        }
+
+        this.fillChest(this.p.getPage(this.pageNumber));
+    }
+
+    public void fillChest(final List<MineAction> items) {
         this.inv.clear();
         this.display.clear();
 
         for (int i = 0; i < 9; ++i) {
             this.inv.setItem(i, placeholder);
         }
+        this.inv.setItem(4, add);
 
         this.inv.setItem(45, placeholder);
         this.inv.setItem(46, placeholder);
@@ -185,8 +215,8 @@ public class MineListGUI {
         int slot = 0;
         for (final ItemStack i : this.inv.getContents()) {
             if (i == null && !items.isEmpty()) {
-                final MineIcon s = items.get(0);
-                this.inv.setItem(slot, s.getMineItem());
+                final MineAction s = items.get(0);
+                this.inv.setItem(slot, s.getItem());
                 this.display.put(slot, s);
                 items.remove(0);
             }

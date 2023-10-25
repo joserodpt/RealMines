@@ -40,7 +40,7 @@ public class MineBlockItem extends MineItem {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItemLore(super.getMaterial(), 1, Language.file().getString("GUI.Items.Mine-Block.Block.Name").replace("%material%", super.getMaterial().name()), Language.file().getStringList("GUI.Items.Mine-Block.Block.Description")
+        return Items.createItemLore(super.getMaterial(), 1, Language.file().getString("GUI.Items.Mine-Block.Block.Name").replace("%material%", Text.beautifyMaterialName(super.getMaterial())), Language.file().getStringList("GUI.Items.Mine-Block.Block.Description")
                 .stream()
                 .map(s -> Text.color(s.replaceAll("%percentage%", String.valueOf(super.getPercentage() * 100))))
                 .collect(Collectors.toList()));

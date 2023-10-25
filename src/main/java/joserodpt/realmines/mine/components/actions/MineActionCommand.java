@@ -1,11 +1,18 @@
 package joserodpt.realmines.mine.components.actions;
 
+import joserodpt.realmines.util.Items;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
 
 public class MineActionCommand extends MineAction {
 
+    private final CommandSender cmdSndr = Bukkit.getServer().getConsoleSender();
     private String command;
     public MineActionCommand(final String id, final Double chance, final String command) {
         super(id, chance);
@@ -14,18 +21,23 @@ public class MineActionCommand extends MineAction {
 
     public void execute(final Player p, final Location l, final double randomChance) {
         if (randomChance < super.getChance()) {
-            Bukkit.getServer().dispatchCommand(Bukkit.getServer().getConsoleSender(), this.command.replace("%player%", p.getName()));
+            Bukkit.getServer().dispatchCommand(cmdSndr, this.command.replace("%player%", p.getName()));
         }
     }
 
     @Override
     public Type getType() {
-        return Type.DROP_ITEM;
+        return Type.EXECUTE_COMMAND;
     }
 
     @Override
     public String getValue() {
         return this.command;
+    }
+
+    @Override
+    public ItemStack getItem() {
+        return Items.createItemLore(Material.COMMAND_BLOCK, 1, "&b&lExecute Command &r&f- " + super.getChance() + "%", Arrays.asList("&fCommand: &b/" + this.command, "", "&b&nLeft-Click&r&f to change the chance.","&e&nRight-Click&r&f to change the command.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 
     @Override

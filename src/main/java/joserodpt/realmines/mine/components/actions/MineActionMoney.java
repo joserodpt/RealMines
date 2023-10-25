@@ -2,9 +2,14 @@ package joserodpt.realmines.mine.components.actions;
 
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
+import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Text;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+
+import java.util.Arrays;
 
 public class MineActionMoney extends MineAction {
 
@@ -30,6 +35,11 @@ public class MineActionMoney extends MineAction {
     @Override
     public Double getValue() {
         return this.money;
+    }
+
+    @Override
+    public ItemStack getItem() {
+        return Items.createItemLore(Material.EMERALD, 1, "&b&lGive Money &r&f- " + super.getChance() + "%", Arrays.asList("&fAmount: &b" + Text.formatNumber(this.money), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nClick&r&f to change the amount.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 
     @Override

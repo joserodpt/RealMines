@@ -177,7 +177,7 @@ public class MineItensGUI {
                                                 break;
                                         }
 
-                                        Text.send(p, Language.file().getString("System.Remove").replace("%object%", a.getMaterial().name()));
+                                        Text.send(p, Language.file().getString("System.Remove").replace("%object%", Text.beautifyMaterialName(a.getMaterial())));
                                         current.load();
                                         break;
                                     case SHIFT_RIGHT:
@@ -195,6 +195,11 @@ public class MineItensGUI {
                                         }
                                         current.load();
                                         break;
+                                    case RIGHT:
+                                        p.closeInventory();
+                                        final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.m, a.getMaterial());
+                                        v.openInventory(p);
+                                        break;
                                     default:
                                         // resto
                                         current.editPercentage(p, a, current);
@@ -208,7 +213,7 @@ public class MineItensGUI {
 
             private void backPage(final MineItensGUI asd) {
                 if (asd.p.exists(asd.pageNumber - 1)) {
-                    asd.pageNumber--;
+                    --asd.pageNumber;
                 }
 
                 asd.fillChest(asd.p.getPage(asd.pageNumber));
@@ -216,7 +221,7 @@ public class MineItensGUI {
 
             private void nextPage(final MineItensGUI asd) {
                 if (asd.p.exists(asd.pageNumber + 1)) {
-                    asd.pageNumber++;
+                    ++asd.pageNumber;
                 }
 
                 asd.fillChest(asd.p.getPage(asd.pageNumber));
@@ -241,10 +246,10 @@ public class MineItensGUI {
     public void load() {
         switch (this.m.getType()) {
             case BLOCKS:
-                this.p = new Pagination<>(28, ((BlockMine) this.m).getBlockIcons().stream().sorted(Comparator.comparingDouble(MineItem::getPercentage)).collect(Collectors.toList()));
+                this.p = new Pagination<>(28, ((BlockMine) this.m).getBlockIcons().stream().sorted(Comparator.comparingDouble(MineItem::getPercentage).reversed()).collect(Collectors.toList()));
                 break;
             case FARM:
-                this.p = new Pagination<>(28, ((FarmMine) this.m).getBlockIcons().stream().sorted(Comparator.comparingDouble(MineItem::getPercentage)).collect(Collectors.toList()));
+                this.p = new Pagination<>(28, ((FarmMine) this.m).getBlockIcons().stream().sorted(Comparator.comparingDouble(MineItem::getPercentage).reversed()).collect(Collectors.toList()));
                 break;
         }
 

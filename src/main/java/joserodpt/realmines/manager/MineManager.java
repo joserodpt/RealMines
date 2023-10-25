@@ -451,6 +451,7 @@ public class MineManager {
                         Mines.file().set(mine.getName() + ".Schematic-Filename", ((SchematicMine) mine).getSchematicFilename());
                         break;
                     default:
+                        Mines.file().remove(mine.getName() + ".Blocks");
                         for (MineItem mineItem : mine.getMineItems().values()) {
                             Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Chance", mineItem.getPercentage());
                             if (mine.getType() == RMine.Type.FARM) {

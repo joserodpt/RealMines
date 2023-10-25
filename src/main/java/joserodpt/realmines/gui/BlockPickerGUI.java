@@ -203,7 +203,7 @@ public class BlockPickerGUI {
 
             private void backPage(final BlockPickerGUI asd) {
                 if (asd.p.exists(asd.pageNumber - 1)) {
-                    asd.pageNumber--;
+                    --asd.pageNumber;
                 }
 
                 asd.fillChest(asd.p.getPage(asd.pageNumber));
@@ -211,7 +211,7 @@ public class BlockPickerGUI {
 
             private void nextPage(final BlockPickerGUI asd) {
                 if (asd.p.exists(asd.pageNumber + 1)) {
-                    asd.pageNumber++;
+                    ++asd.pageNumber;
                 }
 
                 asd.fillChest(asd.p.getPage(asd.pageNumber));
@@ -267,7 +267,7 @@ public class BlockPickerGUI {
             if (i == null && !items.isEmpty()) {
                 final Material s = items.get(0);
                 this.inv.setItem(slot,
-                        Items.createItemLore(s, 1, Language.file().getString("GUI.Items.Pick.Name").replaceAll("%material%", s.name()), Language.file().getStringList("GUI.Items.Pick.Description")));
+                        Items.createItemLore(s, 1, Language.file().getString("GUI.Items.Pick.Name").replaceAll("%material%", Text.beautifyMaterialName(s)), Language.file().getStringList("GUI.Items.Pick.Description")));
                 this.display.put(slot, s);
                 items.remove(0);
             }

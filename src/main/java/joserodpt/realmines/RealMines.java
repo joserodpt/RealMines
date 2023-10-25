@@ -13,7 +13,6 @@ package joserodpt.realmines;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import com.google.gson.Gson;
 import joserodpt.realmines.command.MineCMD;
 import joserodpt.realmines.command.MineResetTaskCMD;
 import joserodpt.realmines.config.Config;
@@ -24,6 +23,7 @@ import joserodpt.realmines.event.BlockEvents;
 import joserodpt.realmines.event.PlayerEvents;
 import joserodpt.realmines.gui.GUIManager;
 import joserodpt.realmines.gui.BlockPickerGUI;
+import joserodpt.realmines.gui.MineBreakActionsGUI;
 import joserodpt.realmines.gui.MineItensGUI;
 import joserodpt.realmines.gui.MineColorPickerGUI;
 import joserodpt.realmines.gui.MineFacesGUI;
@@ -131,6 +131,7 @@ public class RealMines extends JavaPlugin {
         this.pm.registerEvents(PlayerInput.getListener(), this);
         this.pm.registerEvents(MineResetGUI.getListener(), this);
         this.pm.registerEvents(MineColorPickerGUI.getListener(), this);
+        this.pm.registerEvents(MineBreakActionsGUI.getListener(), this);
 
         //vault hook
         if (getServer().getPluginManager().getPlugin("Vault") != null) {

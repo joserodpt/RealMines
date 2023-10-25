@@ -128,7 +128,8 @@ GUI:
         Name: "&3&l%material%"
         Description:
           - "&fPercentage: &b%percentage%%"
-          - "&fClick to edit the percentage."
+          - "&a&nLeft-Click&r&f to edit the percentage."
+          - "&e&nRight-Click&r&f to edit this block's break actions."
           - "&c&nQ (Drop)&r&f to remove this block."
       Farm-Item:
         Name: "&3&l%material% &r&7- &fAge: &3%age%"
@@ -225,4 +226,4 @@ Signs:
   Mined-Blocks-On: "mined blocks on"
   Blocks-On: "blocks on"
   Left-On: "left on"
-Version: 3
+Version: 4

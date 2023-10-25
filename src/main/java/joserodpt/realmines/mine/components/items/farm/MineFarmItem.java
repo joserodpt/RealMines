@@ -59,7 +59,7 @@ public class MineFarmItem extends MineItem {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItemLore(super.getMaterial(), 1, Language.file().getString("GUI.Items.Mine-Block.Farm-Item.Name").replace("%material%", this.fi.name()).replace("%age%", String.valueOf(this.getAge())), Language.file().getStringList("GUI.Items.Mine-Block.Farm-Item.Description")
+        return Items.createItemLore(super.getMaterial(), 1, Language.file().getString("GUI.Items.Mine-Block.Farm-Item.Name").replace("%material%", Text.beautifyMaterialName(this.fi.getIcon())).replace("%age%", String.valueOf(this.getAge())), Language.file().getStringList("GUI.Items.Mine-Block.Farm-Item.Description")
                 .stream()
                 .map(s -> Text.color(s.replaceAll("%percentage%", String.valueOf(super.getPercentage() * 100))))
                 .collect(Collectors.toList()));

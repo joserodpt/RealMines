@@ -2,19 +2,27 @@ package joserodpt.realmines.mine.components.actions;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 public abstract class MineAction {
 
-    public enum Type { GIVE_MONEY, DROP_ITEM, GIVE_ITEM, EXECUTE_COMMAND }
+    public enum Type { GIVE_MONEY, DROP_ITEM, GIVE_ITEM, EXECUTE_COMMAND, DUMMY }
 
-    private final String id;
-    private final Double chance;
+    private String id = "";
+    private Double chance = 0D;
+    private boolean interactable = true;
 
-    //TODO: make gui for adding mine actions
+    public MineAction() {
+        this.interactable = false;
+    }
 
     public MineAction(final String id, final Double chance) {
         this.id = id;
         this.chance = chance;
+    }
+
+    public boolean isInteractable() {
+        return interactable;
     }
 
     public String getID() {
@@ -30,4 +38,6 @@ public abstract class MineAction {
     public abstract Type getType();
 
     public abstract Object getValue();
+
+    public abstract ItemStack getItem();
 }

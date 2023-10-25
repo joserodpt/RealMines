@@ -2,12 +2,14 @@ package joserodpt.realmines.mine.components.actions;
 
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.util.ItemStackSpringer;
+import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Text;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.Objects;
+import java.util.Arrays;
 
 public class MineActionGiveItem extends MineAction {
 
@@ -32,6 +34,11 @@ public class MineActionGiveItem extends MineAction {
     @Override
     public String getValue() {
         return ItemStackSpringer.getItemSerializedJSON(this.i);
+    }
+
+    @Override
+    public ItemStack getItem() {
+        return Items.createItemLore(Material.CHEST, 1, "&b&lGive Item &r&f- " + super.getChance() + "%", Arrays.asList("&fItem: &bx" + this.i.getAmount() + " " + Text.beautifyMaterialName(this.i.getType()), "", "&b&nLeft-Click&r&f to change the chance.","&e&nClick&r&f to change the item.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 
     @Override

@@ -1,5 +1,5 @@
 RealMines:
- Prefix: "&9Real&bMines &7> "
+ Prefix: "&fReal&9Mines &7> "
  teleportPlayers: true
  teleportMessage: true
  actionbarMessages: true

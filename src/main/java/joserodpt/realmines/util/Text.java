@@ -15,7 +15,9 @@ package joserodpt.realmines.util;
 
 import com.google.common.base.Strings;
 import joserodpt.realmines.config.Config;
+import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -55,6 +57,10 @@ public class Text {
             index++;
         }
         return new DecimalFormat("#.#").format(number) + suffixes[index];
+    }
+
+    public static String beautifyMaterialName(Material m) {
+        return WordUtils.capitalizeFully(m.name().replace("_", " "));
     }
 
     public static String getProgressBar(final int current, final int max, final int totalBars, final char symbol, final ChatColor completedColor,
