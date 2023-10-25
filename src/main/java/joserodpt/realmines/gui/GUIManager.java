@@ -15,6 +15,11 @@ package joserodpt.realmines.gui;
 
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
+import joserodpt.realmines.mine.components.actions.MineActionCommand;
+import joserodpt.realmines.mine.components.actions.MineActionDropItem;
+import joserodpt.realmines.mine.components.actions.MineActionGiveItem;
+import joserodpt.realmines.mine.components.actions.MineActionMoney;
+import joserodpt.realmines.mine.components.items.MineItem;
 import joserodpt.realmines.mine.types.BlockMine;
 import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.util.GUIBuilder;
@@ -60,20 +65,123 @@ public class GUIManager {
                 inventory.addItem(e -> {
                             target.closeInventory();
                             rm.getMineManager().createMine(target, name);
-                        }, Items.createItemLore(Material.CHEST, 1, Language.file().getString("GUI.Items.Blocks.Name"), Collections.emptyList()),
+                        }, Items.createItem(Material.CHEST, 1, Language.file().getString("GUI.Items.Blocks.Name")),
                         11);
 
                 inventory.addItem(e -> {
                             target.closeInventory();
                             rm.getMineManager().createSchematicMine(target, name);
-                        }, Items.createItemLore(Material.FILLED_MAP, 1, Language.file().getString("GUI.Items.Schematic.Name"), Collections.emptyList()),
+                        }, Items.createItem(Material.FILLED_MAP, 1, Language.file().getString("GUI.Items.Schematic.Name")),
                         13);
 
                 inventory.addItem(e -> {
                             target.closeInventory();
                             rm.getMineManager().createCropsMine(target, name);
-                        }, Items.createItemLore(Material.WHEAT, 1, Language.file().getString("GUI.Items.Farm.Name"), Collections.emptyList()),
+                        }, Items.createItem(Material.WHEAT, 1, Language.file().getString("GUI.Items.Farm.Name")),
                         15);
+
+                inventory.openInventory(target);
+            }
+        }.runTaskLater(this.rm, 2);
+    }
+
+    public void openBreakActionChooser(final Player target, final RMine r, final MineItem mi) {
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                final GUIBuilder inventory = new GUIBuilder(Text.color("New Action for: " + Text.beautifyMaterialName(mi.getMaterial())), 27, target.getUniqueId());
+
+                inventory.addItem(e -> {
+
+                            Text.send(target, "Input in the chat the amount to give:");
+                            new PlayerInput(target, s -> {
+                                final Double d;
+                                try {
+                                    d = Double.parseDouble(s);
+                                } catch (final Exception ex) {
+                                    Text.send(target, "&cWhat you inserted is not a valid double.");
+                                    return;
+                                }
+
+                                mi.getBreakActions().add(new MineActionMoney(mi.getNewBrkActCode(), 50D, d));
+                                r.saveData(RMine.Data.BLOCKS);
+
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                v.openInventory(target);
+                            }, s -> {
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                v.openInventory(target);
+                            });
+
+                        }, Items.createItem(Material.EMERALD, 1, "&b&lGive Money"),
+                        10);
+
+                inventory.addItem(e -> {
+
+                            Text.send(target, "Input in the chat the chance for the break action (0-100%):");
+                            new PlayerInput(target, s -> {
+                                final double d;
+                                try {
+                                    d = Double.parseDouble(s);
+                                } catch (final Exception ex) {
+                                    Text.send(target, "&cWhat you inserted is not a valid double.");
+                                    return;
+                                }
+
+                                mi.getBreakActions().add(new MineActionDropItem(mi.getNewBrkActCode(), d, target.getInventory().getItemInMainHand()));
+                                r.saveData(RMine.Data.BLOCKS);
+
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                v.openInventory(target);
+                            }, s -> {
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                v.openInventory(target);
+                            });
+
+                        }, Items.createItem(Material.DROPPER, 1,"&b&lDrop Item"),
+                        12);
+
+                inventory.addItem(e -> {
+
+                            Text.send(target, "Input in the chat the chance for the break action (0-100%):");
+                            new PlayerInput(target, s -> {
+                                final double d;
+                                try {
+                                    d = Double.parseDouble(s);
+                                } catch (final Exception ex) {
+                                    Text.send(target, "&cWhat you inserted is not a valid double.");
+                                    return;
+                                }
+
+                                mi.getBreakActions().add(new MineActionGiveItem(mi.getNewBrkActCode(), d, target.getInventory().getItemInMainHand()));
+                                r.saveData(RMine.Data.BLOCKS);
+
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                v.openInventory(target);
+                            }, s -> {
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                v.openInventory(target);
+                            });
+
+                        }, Items.createItem(Material.CHEST, 1, "&b&lGive Item"),
+                        14);
+
+                inventory.addItem(e -> {
+
+                            Text.send(target, "Input in the chat the command for the break action to execute:");
+                            new PlayerInput(target, s -> {
+                                mi.getBreakActions().add(new MineActionCommand(mi.getNewBrkActCode(), 50D, s));
+                                r.saveData(RMine.Data.BLOCKS);
+
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                v.openInventory(target);
+                            }, s -> {
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                v.openInventory(target);
+                            });
+
+                        }, Items.createItem(Material.COMMAND_BLOCK, 1, "&b&lExecute Command"),
+                        16);
 
                 inventory.openInventory(target);
             }

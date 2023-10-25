@@ -18,9 +18,10 @@ import joserodpt.realmines.config.Language;
 import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.mine.components.actions.MineAction;
 import joserodpt.realmines.mine.components.actions.MineActionDummy;
+import joserodpt.realmines.mine.components.items.MineItem;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Pagination;
-import org.apache.commons.lang.WordUtils;
+import joserodpt.realmines.util.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -57,20 +58,18 @@ public class MineBreakActionsGUI {
     private final Inventory inv;
     private final UUID uuid;
     private final HashMap<Integer, MineAction> display = new HashMap<>();
-    private final RMine m;
-    private final Material mat;
+    private final RMine mine;
+    private final MineItem mineItem;
     private int pageNumber = 0;
     private Pagination<MineAction> p;
     private final RealMines rm;
 
-    //TODO: add option to add new break actions
-
-    public MineBreakActionsGUI(final RealMines rm, final Player target, final RMine min, final Material mat) {
+    public MineBreakActionsGUI(final RealMines rm, final Player target, final RMine min, final MineItem mineItem) {
         this.rm = rm;
         this.uuid = target.getUniqueId();
-        this.m = min;
-        this.mat = mat;
-        this.inv = Bukkit.getServer().createInventory(null, 54, WordUtils.capitalizeFully(mat.name().replace("_", " ")) + " break actions");
+        this.mine = min;
+        this.mineItem = mineItem;
+        this.inv = Bukkit.getServer().createInventory(null, 54, Text.beautifyMaterialName(mineItem.getMaterial()) + " break actions");
 
         this.load();
 
@@ -101,22 +100,12 @@ public class MineBreakActionsGUI {
                         switch (e.getRawSlot()) {
                             case 49:
                                 p.closeInventory();
-                                final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
+                                final MineItensGUI v = new MineItensGUI(current.rm, p, current.mine);
                                 v.openInventory(p);
                                 break;
                             case 4:
                                 p.closeInventory();
-                                BlockPickerGUI mp = null;
-                                switch (current.m.getType()) {
-                                    case BLOCKS:
-                                        mp = new BlockPickerGUI(current.rm, current.m, p, BlockPickerGUI.PickType.BLOCK, "");
-                                        break;
-                                    case FARM:
-                                        mp = new BlockPickerGUI(current.rm, current.m, p, BlockPickerGUI.PickType.FARM_ITEM, "");
-                                        break;
-                                }
-                                if (mp != null)
-                                    mp.openInventory(p);
+                                current.rm.getGUIManager().openBreakActionChooser(p, current.mine, current.mineItem);
                                 break;
                             case 26:
                             case 35:
@@ -134,9 +123,16 @@ public class MineBreakActionsGUI {
                             final MineAction a = current.display.get(e.getRawSlot());
 
                             if (a.isInteractable()) {
-
+                                switch (e.getClick()) {
+                                    case DROP:
+                                        current.mineItem.getBreakActions().remove(a);
+                                        current.mine.saveData(RMine.Data.BLOCKS);
+                                        break;
+                                    default:
+                                        //TODO: other actions
+                                        break;
+                                }
                             }
-                            //aaaa
                         }
                     }
                 }
@@ -175,10 +171,10 @@ public class MineBreakActionsGUI {
     }
 
     public void load() {
-        if (this.m.getMineItems().get(this.mat).getBreakActions().isEmpty()) {
+        if (this.mine.getMineItems().get(this.mineItem.getMaterial()).getBreakActions().isEmpty()) {
             this.p = new Pagination<>(28, Collections.singletonList(new MineActionDummy()));
         } else {
-            this.p = new Pagination<>(28, this.m.getMineItems().get(this.mat).getBreakActions().stream().sorted(Comparator.comparingDouble(MineAction::getChance).reversed()).collect(Collectors.toList()));
+            this.p = new Pagination<>(28, this.mine.getMineItems().get(this.mineItem.getMaterial()).getBreakActions().stream().sorted(Comparator.comparingDouble(MineAction::getChance).reversed()).collect(Collectors.toList()));
         }
 
         this.fillChest(this.p.getPage(this.pageNumber));

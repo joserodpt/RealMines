@@ -159,9 +159,9 @@ public class MineItensGUI {
                             }
 
                             if (current.display.containsKey(e.getRawSlot())) {
-                                final MineItem a = current.display.get(e.getRawSlot());
+                                final MineItem minItem = current.display.get(e.getRawSlot());
 
-                                if (!a.isInteractable()) {
+                                if (!minItem.isInteractable()) {
                                     return;
                                 }
 
@@ -170,26 +170,26 @@ public class MineItensGUI {
                                         // eliminar
                                         switch (current.m.getType()) {
                                             case BLOCKS:
-                                                ((BlockMine) current.m).removeMineBlockItem(a);
+                                                ((BlockMine) current.m).removeMineBlockItem(minItem);
                                                 break;
                                             case FARM:
-                                                ((FarmMine) current.m).removeMineFarmItem(a);
+                                                ((FarmMine) current.m).removeMineFarmItem(minItem);
                                                 break;
                                         }
 
-                                        Text.send(p, Language.file().getString("System.Remove").replace("%object%", Text.beautifyMaterialName(a.getMaterial())));
+                                        Text.send(p, Language.file().getString("System.Remove").replace("%object%", Text.beautifyMaterialName(minItem.getMaterial())));
                                         current.load();
                                         break;
                                     case SHIFT_RIGHT:
-                                        if (a instanceof MineFarmItem) {
-                                            ((MineFarmItem) a).addAge(-1);
+                                        if (minItem instanceof MineFarmItem) {
+                                            ((MineFarmItem) minItem).addAge(-1);
                                             current.m.saveData(RMine.Data.BLOCKS);
                                             current.load();
                                         }
                                         break;
                                     case SHIFT_LEFT:
-                                        if (a instanceof MineFarmItem) {
-                                            ((MineFarmItem) a).addAge(1);
+                                        if (minItem instanceof MineFarmItem) {
+                                            ((MineFarmItem) minItem).addAge(1);
                                             current.m.saveData(RMine.Data.BLOCKS);
                                             current.load();
                                         }
@@ -197,12 +197,12 @@ public class MineItensGUI {
                                         break;
                                     case RIGHT:
                                         p.closeInventory();
-                                        final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.m, a.getMaterial());
+                                        final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.m, minItem);
                                         v.openInventory(p);
                                         break;
                                     default:
                                         // resto
-                                        current.editPercentage(p, a, current);
+                                        current.editPercentage(p, minItem, current);
                                         break;
                                 }
                             }

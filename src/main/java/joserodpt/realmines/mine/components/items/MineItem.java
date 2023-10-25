@@ -13,7 +13,9 @@ package joserodpt.realmines.mine.components.items;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
+import joserodpt.realmines.config.Mines;
 import joserodpt.realmines.mine.components.actions.MineAction;
 import joserodpt.realmines.util.Items;
 import org.bukkit.Material;
@@ -21,8 +23,23 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MineItem {
+
+    public String getNewBrkActCode() {
+        final String characters = "abcdefghijklmnopqrstuvwxyz";
+
+        String ret;
+        do {
+            ret = RealMines.getPlugin().getRand().ints(8, 0, characters.length())
+                    .mapToObj(characters::charAt)
+                    .map(Object::toString)
+                    .collect(Collectors.joining());
+        } while (Mines.file().getSection("").getRoutesAsStrings(false).contains(ret));
+
+        return ret;
+    }
 
     public enum Type { BLOCK, FARM, NONE }
 
