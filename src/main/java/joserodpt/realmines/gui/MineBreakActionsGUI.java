@@ -138,6 +138,10 @@ public class MineBreakActionsGUI {
                                         switch (a.getType()) {
                                             case DROP_ITEM:
                                             case GIVE_ITEM:
+                                                if (p.getInventory().getItemInMainHand().getType() == Material.AIR) {
+                                                    return;
+                                                }
+
                                                 switch (a.getType()) {
                                                     case GIVE_ITEM:
                                                         ((MineActionGiveItem) a).setItem(p.getInventory().getItemInMainHand());
@@ -167,7 +171,7 @@ public class MineBreakActionsGUI {
                                                 p.closeInventory();
                                                 Text.send(p, "Input in the chat the amount to give:");
                                                 new PlayerInput(p, s -> {
-                                                    final Double d;
+                                                    final double d;
                                                     try {
                                                         d = Double.parseDouble(s);
                                                     } catch (final Exception ex) {
@@ -186,6 +190,7 @@ public class MineBreakActionsGUI {
                                                 });
                                                 break;
                                         }
+                                        current.load();
                                         break;
 
                                     default:

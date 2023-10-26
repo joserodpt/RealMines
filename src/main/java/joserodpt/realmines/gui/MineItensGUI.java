@@ -197,8 +197,10 @@ public class MineItensGUI {
                                         break;
                                     case RIGHT:
                                         p.closeInventory();
-                                        final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.m, minItem);
-                                        v.openInventory(p);
+                                        Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getPlugin(), () -> {
+                                            final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.m, minItem);
+                                            v.openInventory(p);
+                                        }, 2);
                                         break;
                                     default:
                                         // resto
@@ -313,7 +315,7 @@ public class MineItensGUI {
 
     protected void editPercentage(final Player p, final MineItem a, final MineItensGUI current) {
         new PlayerInput(p, s -> {
-            Double d = 0D;
+            double d = 0D;
             try {
                 d = Double.parseDouble(s.replace("%", ""));
             } catch (final Exception ex) {

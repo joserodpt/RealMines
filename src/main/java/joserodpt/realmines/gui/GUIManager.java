@@ -127,8 +127,7 @@ public class GUIManager {
                                     return;
                                 }
 
-                                //TODO: better item handle checking
-                                if (target.getInventory().getItemInMainHand() == null) {
+                                if (target.getInventory().getItemInMainHand().getType() == Material.AIR) {
                                     Text.send(target, "&cYou don't have an item in your main hand.");
                                     return;
                                 }

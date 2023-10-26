@@ -42,6 +42,9 @@ public class MineActionGiveItem extends MineAction {
     }
 
     public void setItem(ItemStack itemInMainHand) {
+        if (itemInMainHand.getType() == Material.AIR) {
+            return;
+        }
         this.i = itemInMainHand;
     }
 

@@ -278,7 +278,7 @@ public abstract class RMine {
     public void broadcastMessage(String s) {
         this.getPlayersInMine().forEach(p -> Text.send(p, s));
         if (Config.file().getBoolean("RealMines.actionbarMessages"))
-            this.getPlayersInMine().forEach(p -> p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(s)));
+            this.getPlayersInMine().forEach(p -> p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(Text.color(s))));
     }
 
     public List<Player> getPlayersInMine() {
