@@ -33,7 +33,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class GUIManager {
@@ -95,16 +94,11 @@ public class GUIManager {
 
                             Text.send(target, "Input in the chat the amount to give:");
                             new PlayerInput(target, s -> {
-                                final Double d;
+                                final double d;
                                 try {
                                     d = Double.parseDouble(s);
                                 } catch (final Exception ex) {
                                     Text.send(target, "&cWhat you inserted is not a valid double.");
-                                    return;
-                                }
-
-                                if (target.getInventory().getItemInMainHand() == null) {
-                                    Text.send(target, "&cYou don't have an item in your main hand.");
                                     return;
                                 }
 

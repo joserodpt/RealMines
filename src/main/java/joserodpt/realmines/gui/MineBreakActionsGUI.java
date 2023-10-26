@@ -17,10 +17,15 @@ import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.mine.components.actions.MineAction;
+import joserodpt.realmines.mine.components.actions.MineActionCommand;
+import joserodpt.realmines.mine.components.actions.MineActionDropItem;
 import joserodpt.realmines.mine.components.actions.MineActionDummy;
+import joserodpt.realmines.mine.components.actions.MineActionGiveItem;
+import joserodpt.realmines.mine.components.actions.MineActionMoney;
 import joserodpt.realmines.mine.components.items.MineItem;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Pagination;
+import joserodpt.realmines.util.PlayerInput;
 import joserodpt.realmines.util.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -129,8 +134,81 @@ public class MineBreakActionsGUI {
                                         current.mine.saveData(RMine.Data.BLOCKS);
                                         current.load();
                                         break;
+                                    case RIGHT:
+                                        switch (a.getType()) {
+                                            case DROP_ITEM:
+                                            case GIVE_ITEM:
+                                                switch (a.getType()) {
+                                                    case GIVE_ITEM:
+                                                        ((MineActionGiveItem) a).setItem(p.getInventory().getItemInMainHand());
+                                                        break;
+                                                    case DROP_ITEM:
+                                                        ((MineActionDropItem) a).setItem(p.getInventory().getItemInMainHand());
+                                                        break;
+                                                }
+
+                                                current.mine.saveData(RMine.Data.BLOCKS);
+                                                break;
+                                            case EXECUTE_COMMAND:
+                                                p.closeInventory();
+                                                Text.send(p, "Input in the chat the command for the break action to execute:");
+                                                new PlayerInput(p, s -> {
+                                                    ((MineActionCommand) a).setCommand(s);
+                                                    current.mine.saveData(RMine.Data.BLOCKS);
+
+                                                    final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
+                                                    v.openInventory(p);
+                                                }, s -> {
+                                                    final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
+                                                    v.openInventory(p);
+                                                });
+                                                break;
+                                            case GIVE_MONEY:
+                                                p.closeInventory();
+                                                Text.send(p, "Input in the chat the amount to give:");
+                                                new PlayerInput(p, s -> {
+                                                    final Double d;
+                                                    try {
+                                                        d = Double.parseDouble(s);
+                                                    } catch (final Exception ex) {
+                                                        Text.send(p, "&cWhat you inserted is not a valid double.");
+                                                        return;
+                                                    }
+
+                                                    ((MineActionMoney) a).setAmount(d);
+                                                    current.mine.saveData(RMine.Data.BLOCKS);
+
+                                                    final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
+                                                    v.openInventory(p);
+                                                }, s -> {
+                                                    final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
+                                                    v.openInventory(p);
+                                                });
+                                                break;
+                                        }
+                                        break;
+
                                     default:
-                                        //TODO: other actions
+                                        //chance chance
+                                        Text.send(p, "Input in the chat the chance for the break action (0-100%):");
+                                        new PlayerInput(p, s -> {
+                                            final double d;
+                                            try {
+                                                d = Double.parseDouble(s);
+                                            } catch (final Exception ex) {
+                                                Text.send(p, "&cWhat you inserted is not a valid double.");
+                                                return;
+                                            }
+
+                                            a.setChance(d);
+                                            current.mine.saveData(RMine.Data.BLOCKS);
+
+                                            final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
+                                            v.openInventory(p);
+                                        }, s -> {
+                                            final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
+                                            v.openInventory(p);
+                                        });
                                         break;
                                 }
                             }

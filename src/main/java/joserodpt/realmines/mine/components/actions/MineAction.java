@@ -33,6 +33,10 @@ public abstract class MineAction {
         return chance;
     }
 
+    public void setChance(Double d) {
+        this.chance = d;
+    }
+
     public abstract void execute(final Player p, final Location loc, double randomChance);
 
     public abstract Type getType();

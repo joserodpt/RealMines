@@ -40,6 +40,10 @@ public class MineActionCommand extends MineAction {
         return Items.createItemLore(Material.COMMAND_BLOCK, 1, "&b&lExecute Command &r&f- " + super.getChance() + "%", Arrays.asList("&fCommand: &b/" + this.command, "", "&b&nLeft-Click&r&f to change the chance.","&e&nRight-Click&r&f to change the command.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 
+    public void setCommand(String s) {
+        this.command = s;
+    }
+
     @Override
     public String toString() {
         return "MineActionCommand{" +
