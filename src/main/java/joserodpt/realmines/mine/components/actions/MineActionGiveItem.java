@@ -1,6 +1,7 @@
 package joserodpt.realmines.mine.components.actions;
 
 import joserodpt.realmines.config.Language;
+import joserodpt.realmines.config.Mines;
 import joserodpt.realmines.util.ItemStackSpringer;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Text;
@@ -14,15 +15,16 @@ import java.util.Arrays;
 public class MineActionGiveItem extends MineAction {
 
     private ItemStack i;
-    public MineActionGiveItem(final String id, final Double chance, final ItemStack i) {
-        super(id, chance);
+    public MineActionGiveItem(final String id, final String mineID, final Double chance, final ItemStack i) {
+        super(id, mineID, chance);
         this.i = i;
     }
 
     public void execute(final Player p, final Location l, final double randomChance) {
         if (randomChance < super.getChance()) {
             p.getInventory().addItem(i);
-            Text.send(p, Language.file().getString("Mines.Break-Actions.Give-Item"));
+            if (Mines.file().getBoolean(super.getMineID() + ".Settings.Discard-Break-Action-Messages"))
+                Text.send(p, Language.file().getString("Mines.Break-Actions.Give-Item"));
         }
     }
 

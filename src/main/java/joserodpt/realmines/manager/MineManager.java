@@ -149,12 +149,12 @@ public class MineManager {
                                 MineAction.Type mineactiontype = MineAction.Type.valueOf(Mines.file().getString(actionRoute + ".Type"));
                                 switch (mineactiontype) {
                                     case EXECUTE_COMMAND:
-                                        actionsList.add(new MineActionCommand(actionID, chance, Mines.file().getString(actionRoute + ".Command")));
+                                        actionsList.add(new MineActionCommand(actionID, mineName, chance, Mines.file().getString(actionRoute + ".Command")));
                                         break;
                                     case DROP_ITEM:
                                         String data = Mines.file().getString(actionRoute + ".Item");
                                         try {
-                                            actionsList.add(new MineActionDropItem(actionID, chance, ItemStackSpringer.getItemDeSerializedJSON(data)));
+                                            actionsList.add(new MineActionDropItem(actionID, mineName, chance, ItemStackSpringer.getItemDeSerializedJSON(data)));
                                         } catch (Exception e) {
                                             RealMines.getPlugin().getLogger().severe("Badly formatted ItemStack: " + data);
                                             RealMines.getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
@@ -164,7 +164,7 @@ public class MineManager {
                                     case GIVE_ITEM:
                                         String data2 = Mines.file().getString(actionRoute + ".Item");
                                         try {
-                                            actionsList.add(new MineActionGiveItem(actionID, chance, ItemStackSpringer.getItemDeSerializedJSON(data2)));
+                                            actionsList.add(new MineActionGiveItem(actionID, mineName, chance, ItemStackSpringer.getItemDeSerializedJSON(data2)));
                                         } catch (Exception e) {
                                             RealMines.getPlugin().getLogger().severe("Badly formatted ItemStack: " + data2);
                                             RealMines.getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
@@ -177,7 +177,7 @@ public class MineManager {
                                             continue;
                                         }
 
-                                        actionsList.add(new MineActionMoney(actionID, chance, Mines.file().getDouble(actionRoute + ".Amount")));
+                                        actionsList.add(new MineActionMoney(actionID, mineName, chance, Mines.file().getDouble(actionRoute + ".Amount")));
                                         break;
                                 }
                             } catch (Exception e) {

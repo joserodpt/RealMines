@@ -8,7 +8,7 @@ public abstract class MineAction {
 
     public enum Type { GIVE_MONEY, DROP_ITEM, GIVE_ITEM, EXECUTE_COMMAND, DUMMY }
 
-    private String id = "";
+    private String id, mineID;
     private Double chance = 0D;
     private boolean interactable = true;
 
@@ -16,8 +16,9 @@ public abstract class MineAction {
         this.interactable = false;
     }
 
-    public MineAction(final String id, final Double chance) {
+    public MineAction(final String id, final String mineID, final Double chance) {
         this.id = id;
+        this.mineID = mineID;
         this.chance = chance;
     }
 
@@ -31,6 +32,10 @@ public abstract class MineAction {
 
     public Double getChance() {
         return chance;
+    }
+
+    public String getMineID() {
+        return mineID;
     }
 
     public void setChance(Double d) {

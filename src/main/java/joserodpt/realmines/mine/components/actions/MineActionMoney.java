@@ -2,6 +2,7 @@ package joserodpt.realmines.mine.components.actions;
 
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
+import joserodpt.realmines.config.Mines;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.Text;
 import org.bukkit.Location;
@@ -15,15 +16,16 @@ public class MineActionMoney extends MineAction {
 
     private Double money;
 
-    public MineActionMoney(final String id, final Double chance, final Double money) {
-        super(id, chance);
+    public MineActionMoney(final String id, final String mineID, final Double chance, final Double money) {
+        super(id, mineID, chance);
         this.money = money;
     }
 
     public void execute(final Player p, final Location l, double randomChance) {
         if (randomChance < super.getChance()) {
             RealMines.getPlugin().getEconomy().depositPlayer(p, money);
-            Text.send(p, Language.file().getString("Mines.Break-Actions.Give-Money").replace("%money%", Text.formatNumber(money)));
+            if (Mines.file().getBoolean(super.getMineID() + ".Settings.Discard-Break-Action-Messages"))
+                Text.send(p, Language.file().getString("Mines.Break-Actions.Give-Money").replace("%money%", Text.formatNumber(money)));
         }
     }
 

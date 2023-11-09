@@ -15,6 +15,7 @@ package joserodpt.realmines.gui;
 
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
+import joserodpt.realmines.config.Mines;
 import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.mine.components.items.MineItem;
@@ -40,6 +41,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -145,6 +147,11 @@ public class MineItensGUI {
                                     }
                                     if (mp != null)
                                         mp.openInventory(p);
+                                    break;
+                                case 8:
+                                    Mines.file().set(current.m.getName() + ".Settings.Discard-Break-Action-Messages", !Mines.file().getBoolean(current.m.getName() + ".Settings.Discard-Break-Action-Messages"));
+                                    Mines.save();
+                                    current.load();
                                     break;
                                 case 26:
                                 case 35:
@@ -262,9 +269,11 @@ public class MineItensGUI {
         this.inv.clear();
         this.display.clear();
 
-        for (int i = 0; i < 9; ++i) {
+        for (int i = 0; i < 8; ++i) {
             this.inv.setItem(i, placeholder);
         }
+
+        this.inv.setItem(8, Items.createItemLore(Material.FILLED_MAP, 1, "&e&lDiscard Break Action Messages", Arrays.asList("&fClick here to toggle the messages.", "&7State: " + (Mines.file().getBoolean(this.m.getName() + ".Settings.Discard-Break-Action-Messages") ? "&a&lON" : "&c&lOFF"))));
         this.inv.setItem(4, add);
 
         this.inv.setItem(45, placeholder);
