@@ -48,10 +48,15 @@ public class MineItem {
         return ret;
     }
 
+    public void toggleVanillaBlockDrop() {
+        this.disabledVanillaDrop = !this.disabledVanillaDrop();
+    }
+
     public enum Type { BLOCK, FARM, NONE }
 
     private Material material = null;
     private Double percentage;
+    private Boolean disabledVanillaDrop;
     private List<MineAction> breakActions;
 
     public MineItem() {}
@@ -61,10 +66,15 @@ public class MineItem {
         this.percentage = 0.1D;
         this.breakActions = new ArrayList<>();
     }
-    public MineItem(Material material, Double percentage, final List<MineAction> breakActions) {
+    public MineItem(Material material, Double percentage, boolean disabledVanillaDrop, final List<MineAction> breakActions) {
         this.material = material;
         this.percentage = percentage;
         this.breakActions = breakActions;
+        this.disabledVanillaDrop = disabledVanillaDrop;
+    }
+
+    public Boolean disabledVanillaDrop() {
+        return disabledVanillaDrop;
     }
 
     public ItemStack getItem() {

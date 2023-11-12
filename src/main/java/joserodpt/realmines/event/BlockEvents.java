@@ -17,6 +17,7 @@ import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Config;
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.mine.RMine;
+import joserodpt.realmines.mine.components.items.MineItem;
 import joserodpt.realmines.util.Text;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
@@ -39,7 +40,10 @@ public class BlockEvents implements Listener {
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockBreak(final BlockBreakEvent e) {
-        rm.getMineManager().findBlockUpdate(e.getPlayer(), e, e.getBlock(), true);
+        final MineItem mi = rm.getMineManager().findBlockUpdate(e.getPlayer(), e, e.getBlock(), true);
+        if (mi != null && mi.disabledVanillaDrop()) {
+            e.setDropItems(false);
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)

@@ -190,7 +190,7 @@ public class MineListGUI {
                 this.display.put(slot, s);
                 items.remove(0);
             }
-            slot++;
+            ++slot;
         }
 
         this.inv.setItem(49, close);

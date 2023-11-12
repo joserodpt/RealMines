@@ -31,16 +31,16 @@ public class MineBlockItem extends MineItem {
     }
 
     public MineBlockItem(final Material m, final Double percentage) {
-        super(m, percentage, new ArrayList<>());
+        super(m, percentage, false, new ArrayList<>());
     }
 
-    public MineBlockItem(final Material m, final Double percentage, final List<MineAction> breakActions) {
-        super(m, percentage, breakActions);
+    public MineBlockItem(final Material m, final Double percentage, final Boolean disabledVanillaDrop, final List<MineAction> breakActions) {
+        super(m, percentage, disabledVanillaDrop, breakActions);
     }
 
     @Override
     public ItemStack getItem() {
-        return Items.createItemLore(super.getMaterial(), 1, Language.file().getString("GUI.Items.Mine-Block.Block.Name").replace("%material%", Text.beautifyMaterialName(super.getMaterial())), Language.file().getStringList("GUI.Items.Mine-Block.Block.Description")
+        return Items.createItemLore(super.getMaterial(), 1, Language.file().getString("GUI.Items.Mine-Block.Block.Name").replace("%material%", Text.beautifyMaterialName(super.getMaterial())) + (super.disabledVanillaDrop() ? " &c&lNo-DROP" : ""), Language.file().getStringList("GUI.Items.Mine-Block.Block.Description")
                 .stream()
                 .map(s -> Text.color(s.replaceAll("%percentage%", String.valueOf(super.getPercentage() * 100))))
                 .collect(Collectors.toList()));

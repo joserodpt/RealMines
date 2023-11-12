@@ -13,7 +13,6 @@ package joserodpt.realmines.command;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import com.google.gson.Gson;
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Config;
 import joserodpt.realmines.config.Language;
@@ -31,7 +30,6 @@ import me.mattstudios.mf.annotations.Permission;
 import me.mattstudios.mf.annotations.SubCommand;
 import me.mattstudios.mf.annotations.WrongUsage;
 import me.mattstudios.mf.base.CommandBase;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -235,8 +233,10 @@ public class MineCMD extends CommandBase {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
             if (m != null) {
-                final MineItensGUI v = new MineItensGUI(rm, (Player) commandSender, m);
-                v.openInventory((Player) commandSender);
+                if (m.getType() != RMine.Type.SCHEMATIC) { //TODO: add block support for schematic mines in order to be possible to add break actions to the schematic's blocks.
+                    final MineItensGUI v = new MineItensGUI(rm, (Player) commandSender, m);
+                    v.openInventory((Player) commandSender);
+                }
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }
@@ -315,7 +315,7 @@ public class MineCMD extends CommandBase {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
             if (m != null) {
-                rm.getMineManager().setRegion(name, (Player) commandSender);
+                rm.getMineManager().setRegion(m, (Player) commandSender);
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }

@@ -25,8 +25,8 @@ import joserodpt.realmines.mine.components.items.MineItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,14 +38,15 @@ public class BlockMine extends RMine {
     private final Map<Material, MineItem> blocks;
     private final List<Material> sorted = new ArrayList<>();
 
-    public BlockMine(final String n, final String displayname, final Map<Material, MineItem> b, final List<MineSign> si, final Location p1, final Location p2, final Material i,
+    public BlockMine(final World w, final String n, final String displayname, final Map<Material, MineItem> b, final List<MineSign> si, final Location p1, final Location p2, final Material i,
                      final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
 
-        super(n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, mm);
+        super(w, n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, mm);
 
         this.blocks = b;
 
         super.setPOS(p1, p2);
+        this.fill();
         this.updateSigns();
     }
 
@@ -80,13 +81,6 @@ public class BlockMine extends RMine {
     @Override
     public RMine.Type getType() {
         return Type.BLOCKS;
-    }
-
-    @Override
-    public void processBlockBreakAction(Material m, Player p, Location l, Double random) {
-        if (this.getMineItems().containsKey(m)) {
-            this.getMineItems().get(m).getBreakActions().forEach(mineAction -> mineAction.execute(p, l, random));
-        }
     }
 
     private void sortBlocks() {

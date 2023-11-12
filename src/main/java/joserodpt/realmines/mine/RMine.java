@@ -62,17 +62,17 @@ public abstract class RMine {
     protected int resetByTimeValue;
     protected MineTimer timer;
     protected boolean highlight = false;
-    protected Location l1;
-    protected Location l2;
     protected boolean silent;
     protected HashMap<MineCuboid.CuboidDirection, Material> faces;
     protected int minedBlocks;
     protected boolean freezed;
     private final MineManager mm;
+    private World w;
 
-    public RMine(final String n, final String displayname, final List<MineSign> si, final Material i,
+    public RMine(final World w, final String n, final String displayname, final List<MineSign> si, final Material i,
                  final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
         this.mm = mm;
+        this.w = w;
         this.name = ChatColor.stripColor(Text.color(n));
         this.color = color;
         this.displayName = displayname;
@@ -104,24 +104,18 @@ public abstract class RMine {
         return this.faces.get(up) != null;
     }
 
-    public Location getPOS1() {
-        return this.l1;
-    }
-
     public MineTimer getMineTimer() {
         return this.timer;
     }
 
+    public Location getPOS1() { return this.getMineCuboid().getPOS1(); }
+
     public Location getPOS2() {
-        return this.l2;
+        return this.getMineCuboid().getPOS2();
     }
 
     public void setPOS(final Location p1, final Location p2) {
-        this.l1 = p1;
-        this.l2 = p2;
-        this.mineCuboid = new MineCuboid(this.getPOS1(), this.getPOS2());
-
-        this.fill();
+        this.mineCuboid = new MineCuboid(p1, p2);
     }
 
     public boolean hasTP() {
@@ -305,9 +299,9 @@ public abstract class RMine {
             for (double y = minY; y <= maxY; y += dist) {
                 for (double z = minZ; z <= maxZ; z += dist) {
                     int components = 0;
-                    if (x == minX || x == maxX) components++;
-                    if (y == minY || y == maxY) components++;
-                    if (z == minZ || z == maxZ) components++;
+                    if (x == minX || x == maxX) ++components;
+                    if (y == minY || y == maxY) ++components;
+                    if (z == minZ || z == maxZ) ++components;
                     if (components >= 2) {
                         result.add(new Location(world, x, y, z));
                     }
@@ -315,6 +309,10 @@ public abstract class RMine {
             }
         }
         return result;
+    }
+
+    public World getWorld() {
+        return this.w;
     }
 
     public void highlight() {
@@ -433,7 +431,11 @@ public abstract class RMine {
 
     public abstract RMine.Type getType();
 
-    public abstract void processBlockBreakAction(final Material m, final Player p, final Location l, final Double random);
+    public void processBlockBreakAction(final Material m, final Player p, final Location l, final Double random) {
+        if (this.getMineItems().containsKey(m)) {
+            this.getMineItems().get(m).getBreakActions().forEach(mineAction -> mineAction.execute(p, l, random));
+        }
+    }
 
     public void processBlockBreakEvent(final MineBlockBreakEvent event, final boolean reset) {
         //add or remove to mined blocks
@@ -473,5 +475,5 @@ public abstract class RMine {
 
     public enum Reset {PERCENTAGE, TIME, SILENT}
 
-    public enum Data {BLOCKS, ICON, TELEPORT, SIGNS, PLACE, OPTIONS, NAME, FACES, COLOR, MINE_TYPE}
+    public enum Data {BLOCKS, ICON, TELEPORT, SIGNS, LOCATION, OPTIONS, NAME, FACES, COLOR, MINE_TYPE}
 }

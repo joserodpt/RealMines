@@ -198,10 +198,14 @@ public class MineItensGUI {
                                         if (minItem instanceof MineFarmItem) {
                                             ((MineFarmItem) minItem).addAge(1);
                                             current.m.saveData(RMine.Data.BLOCKS);
-                                            current.load();
+                                        } else {
+                                            //disable block drop
+                                            minItem.toggleVanillaBlockDrop();
+                                            current.m.saveData(RMine.Data.BLOCKS);
                                         }
                                         current.load();
                                         break;
+
                                     case RIGHT:
                                         p.closeInventory();
                                         Bukkit.getScheduler().scheduleSyncDelayedTask(RealMines.getPlugin(), () -> {
@@ -303,7 +307,7 @@ public class MineItensGUI {
                 this.display.put(slot, s);
                 items.remove(0);
             }
-            slot++;
+            ++slot;
         }
 
         this.inv.setItem(49, close);

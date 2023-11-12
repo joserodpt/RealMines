@@ -54,7 +54,7 @@ public class Text {
         int index = 0;
         while (number >= 1_000 && index < suffixes.length - 1) {
             number /= 1_000;
-            index++;
+            ++index;
         }
         return new DecimalFormat("#.#").format(number) + suffixes[index];
     }

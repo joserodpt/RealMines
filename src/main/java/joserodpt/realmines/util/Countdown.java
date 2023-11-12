@@ -79,7 +79,7 @@ public class Countdown implements Runnable {
         this.everySecond.accept(this);
 
         // Decrement the seconds left
-        this.secondsLeft--;
+        --this.secondsLeft;
     }
 
     /**
