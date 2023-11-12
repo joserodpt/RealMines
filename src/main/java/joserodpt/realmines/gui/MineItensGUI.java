@@ -148,6 +148,11 @@ public class MineItensGUI {
                                     if (mp != null)
                                         mp.openInventory(p);
                                     break;
+                                case 0:
+                                    current.m.setBreakingPermissionOn(!current.m.isBreakingPermissionOn());
+                                    current.m.saveData(RMine.Data.SETTINGS);
+                                    current.load();
+                                    break;
                                 case 8:
                                     Mines.file().set(current.m.getName() + ".Settings.Discard-Break-Action-Messages", !Mines.file().getBoolean(current.m.getName() + ".Settings.Discard-Break-Action-Messages"));
                                     Mines.save();
@@ -277,7 +282,8 @@ public class MineItensGUI {
             this.inv.setItem(i, placeholder);
         }
 
-        this.inv.setItem(8, Items.createItemLore(Material.FILLED_MAP, 1, "&e&lDiscard Break Action Messages", Arrays.asList("&fClick here to toggle the messages.", "&7State: " + (Mines.file().getBoolean(this.m.getName() + ".Settings.Discard-Break-Action-Messages") ? "&a&lON" : "&c&lOFF"))));
+        this.inv.setItem(0, Items.createItemLore(Material.FILLED_MAP, 1, "&e&lToggle Break Permission", Arrays.asList("&fClick here to toggle the break permission:", "&f" + this.m.getBreakPermission(), "&7State: " + (this.m.isBreakingPermissionOn() ? "&a&lON" : "&c&lOFF"))));
+        this.inv.setItem(8, Items.createItemLore(Material.COMPARATOR, 1, "&e&lDiscard Break Action Messages", Arrays.asList("&fClick here to toggle the messages.", "&7State: " + (Mines.file().getBoolean(this.m.getName() + ".Settings.Discard-Break-Action-Messages") ? "&a&lON" : "&c&lOFF"))));
         this.inv.setItem(4, add);
 
         this.inv.setItem(45, placeholder);

@@ -294,7 +294,7 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
                             Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), mineColor, faces,
-                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), this);
+                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), Mines.file().getBoolean(s + ".Settings.Break-Permission"), this);
                     break;
                 case "SCHEMATIC":
                     final Location place = new Location(w, Mines.file().getDouble(s + ".Place.X"),
@@ -304,7 +304,7 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
                             Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), mineColor, faces,
-                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), this);
+                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), Mines.file().getBoolean(s + ".Settings.Break-Permission"), this);
                     break;
                 case "FARM":
                     m = new FarmMine(w, s, Mines.file().getString(s + ".Display-Name"), blocks, signs, pos1, pos2, ic, tp,
@@ -312,7 +312,7 @@ public class MineManager {
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
                             Mines.file().getInt(s + ".Settings.Reset.ByTimeValue"), mineColor, faces,
-                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"),this);
+                            Mines.file().getBoolean(s + ".Settings.Reset.Silent"), Mines.file().getBoolean(s + ".Settings.Break-Permission"), this);
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + type);
@@ -334,7 +334,7 @@ public class MineManager {
                 final Location pos2 = new Location(p.getWorld(), r.getMinimumPoint().getBlockX(), r.getMinimumPoint().getBlockY(), r.getMinimumPoint().getBlockZ());
 
                 final BlockMine m = new BlockMine(p.getWorld(), name, name, new HashMap<>(), new ArrayList<>(), pos1, pos2,
-                        Material.DIAMOND_ORE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, this);
+                        Material.DIAMOND_ORE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, false,this);
 
                 this.addMine(m);
                 m.addItem(new MineBlockItem(Material.STONE, 1D));
@@ -378,7 +378,7 @@ public class MineManager {
                 }
 
                 final FarmMine m = new FarmMine(p.getWorld(), name, name, new HashMap<>(), new ArrayList<>(), pos1, pos2,
-                        Material.WHEAT, null, false, true, 20, 60, MineColor.GREEN, new HashMap<>(), false, this);
+                        Material.WHEAT, null, false, true, 20, 60, MineColor.GREEN, new HashMap<>(), false, false,this);
                 m.addFarmItem(new MineFarmItem(FarmItem.WHEAT, 1D));
 
                 this.addMine(m);
@@ -416,7 +416,7 @@ public class MineManager {
 
             if (file.exists()) {
                 final SchematicMine m = new SchematicMine(p.getWorld(), name, name, new ArrayList<>(), p.getLocation(), s,
-                        Material.FILLED_MAP, null, false, true, 20, 60, MineColor.ORANGE, new HashMap<>(), false, this);
+                        Material.FILLED_MAP, null, false, true, 20, 60, MineColor.ORANGE, new HashMap<>(), false, false,this);
 
                 this.addMine(m);
                 m.reset();
@@ -482,7 +482,8 @@ public class MineManager {
             case ICON:
                 Mines.file().set(mine.getName() + ".Icon", mine.getIcon().name());
                 break;
-            case OPTIONS:
+            case SETTINGS:
+                Mines.file().set(mine.getName() + ".Settings.Break-Permission", mine.isBreakingPermissionOn());
                 Mines.file().set(mine.getName() + ".Settings.Reset.ByPercentage", mine.isResetBy(RMine.Reset.PERCENTAGE));
                 Mines.file().set(mine.getName() + ".Settings.Reset.ByTime", mine.isResetBy(RMine.Reset.TIME));
                 Mines.file().set(mine.getName() + ".Settings.Reset.ByPercentageValue", mine.getResetValue(RMine.Reset.PERCENTAGE));
@@ -567,10 +568,9 @@ public class MineManager {
     }
 
     public MineItem findBlockUpdate(final Player p, final Cancellable e, final Block b, final boolean broken) {
-        //return true to clear drops
         for (final RMine m : this.getMines().values()) {
             if (m.getMineCuboid().contains(b)) {
-                if (m.isFreezed()) {
+                if (m.isFreezed() || (m.isBreakingPermissionOn() && !p.hasPermission(m.getBreakPermission()))) {
                     e.setCancelled(true);
                 } else {
                     if (m.getType() == RMine.Type.FARM && !FarmItem.getCrops().contains(b.getType())) {

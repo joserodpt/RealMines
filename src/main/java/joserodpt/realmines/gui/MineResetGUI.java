@@ -86,7 +86,7 @@ public class MineResetGUI {
                                     case LEFT:
                                         current.min.setResetStatus(RMine.Reset.PERCENTAGE, !current.min.isResetBy(RMine.Reset.PERCENTAGE));
                                         current.load(current.min);
-                                        current.min.saveData(RMine.Data.OPTIONS);
+                                        current.min.saveData(RMine.Data.SETTINGS);
                                         break;
                                     case RIGHT:
                                         current.editSetting(current.rm, 0, gp, current.min);
@@ -98,7 +98,7 @@ public class MineResetGUI {
                                     case LEFT:
                                         current.min.setResetStatus(RMine.Reset.TIME, !current.min.isResetBy(RMine.Reset.TIME));
                                         current.load(current.min);
-                                        current.min.saveData(RMine.Data.OPTIONS);
+                                        current.min.saveData(RMine.Data.SETTINGS);
                                         break;
                                     case RIGHT:
                                         current.editSetting(current.rm, 1, gp, current.min);
@@ -193,7 +193,7 @@ public class MineResetGUI {
                     }
 
                     m.setResetValue(RMine.Reset.PERCENTAGE, d);
-                    m.saveData(RMine.Data.OPTIONS);
+                    m.saveData(RMine.Data.SETTINGS);
                     Text.send(p, Language.file().getString("System.Percentage-Modified").replaceAll("%value%", String.valueOf(d)));
 
                     final MineResetGUI v = new MineResetGUI(rm, p, m);
@@ -221,7 +221,7 @@ public class MineResetGUI {
                     }
 
                     m.setResetValue(RMine.Reset.TIME, d);
-                    m.saveData(RMine.Data.OPTIONS);
+                    m.saveData(RMine.Data.SETTINGS);
                     Text.send(p, Language.file().getString("System.Time-Modified").replaceAll("%value%", String.valueOf(d)));
 
                     final MineResetGUI v = new MineResetGUI(rm, p, m);

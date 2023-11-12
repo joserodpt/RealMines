@@ -65,12 +65,12 @@ public abstract class RMine {
     protected boolean silent;
     protected HashMap<MineCuboid.CuboidDirection, Material> faces;
     protected int minedBlocks;
-    protected boolean freezed;
+    protected boolean freezed, breakingPermissionOn;
     private final MineManager mm;
     private World w;
 
     public RMine(final World w, final String n, final String displayname, final List<MineSign> si, final Material i,
-                 final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final MineManager mm) {
+                 final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final boolean breakingPermissionOn, final MineManager mm) {
         this.mm = mm;
         this.w = w;
         this.name = ChatColor.stripColor(Text.color(n));
@@ -85,6 +85,7 @@ public abstract class RMine {
         this.resetByPercentageValue = rbpv;
         this.resetByTimeValue = rbtv;
         this.faces = faces;
+        this.breakingPermissionOn = breakingPermissionOn;
 
         this.timer = new MineTimer(this);
         if (this.resetByTime) {
@@ -473,7 +474,19 @@ public abstract class RMine {
         this.freezed = freezed;
     }
 
+    public void setBreakingPermissionOn(boolean breakingPermissionOn) {
+        this.breakingPermissionOn = breakingPermissionOn;
+    }
+
+    public boolean isBreakingPermissionOn() {
+        return this.breakingPermissionOn;
+    }
+
+    public String getBreakPermission() {
+        return "realmines." + this.getName() + ".break";
+    }
+
     public enum Reset {PERCENTAGE, TIME, SILENT}
 
-    public enum Data {BLOCKS, ICON, TELEPORT, SIGNS, LOCATION, OPTIONS, NAME, FACES, COLOR, MINE_TYPE}
+    public enum Data {BLOCKS, ICON, TELEPORT, SIGNS, LOCATION, SETTINGS, NAME, FACES, COLOR, MINE_TYPE}
 }

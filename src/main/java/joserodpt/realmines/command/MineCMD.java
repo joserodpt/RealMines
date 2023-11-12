@@ -39,7 +39,7 @@ import java.util.Arrays;
 @Alias({"mine", "rm"})
 public class MineCMD extends CommandBase {
 
-    private String playerOnly = Language.file().getString("System.Player-Only");
+    private final String playerOnly = Language.file().getString("System.Player-Only");
     private final RealMines rm;
 
     public MineCMD(final RealMines rm) {
@@ -179,7 +179,7 @@ public class MineCMD extends CommandBase {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
             m.setResetStatus(RMine.Reset.SILENT, !m.isSilent());
-            m.saveData(RMine.Data.OPTIONS);
+            m.saveData(RMine.Data.SETTINGS);
 
             if (!m.isSilent()) {
                 Text.send(commandSender, Language.file().getString("System.Silent-Off").replaceAll("%mine%", name));
@@ -198,7 +198,7 @@ public class MineCMD extends CommandBase {
     public void silentall(final CommandSender commandSender, final Boolean bol) {
         for (final RMine m : rm.getMineManager().getMines().values()) {
             m.setResetStatus(RMine.Reset.SILENT, bol);
-            m.saveData(RMine.Data.OPTIONS);
+            m.saveData(RMine.Data.SETTINGS);
 
             if (!m.isSilent()) {
                 Text.send(commandSender, Language.file().getString("System.Silent-Off").replaceAll("%mine%", m.getName()));
@@ -233,7 +233,7 @@ public class MineCMD extends CommandBase {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
             if (m != null) {
-                if (m.getType() != RMine.Type.SCHEMATIC) { //TODO: add block support for schematic mines in order to be possible to add break actions to the schematic's blocks.
+                if (m.getType() != RMine.Type.SCHEMATIC) {
                     final MineItensGUI v = new MineItensGUI(rm, (Player) commandSender, m);
                     v.openInventory((Player) commandSender);
                 }
