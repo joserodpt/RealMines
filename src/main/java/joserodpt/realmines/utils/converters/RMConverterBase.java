@@ -1,4 +1,4 @@
-package joserodpt.realmines.util.converters;
+package joserodpt.realmines.utils.converters;
 
 /*
  *  ______           ____  ____

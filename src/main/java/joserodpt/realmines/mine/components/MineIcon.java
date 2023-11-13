@@ -15,7 +15,7 @@ package joserodpt.realmines.mine.components;
 
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.mine.RMine;
-import joserodpt.realmines.util.Items;
+import joserodpt.realmines.utils.Items;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 

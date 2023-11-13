@@ -29,12 +29,14 @@ import joserodpt.realmines.gui.MineColorPickerGUI;
 import joserodpt.realmines.gui.MineFacesGUI;
 import joserodpt.realmines.gui.MineResetGUI;
 import joserodpt.realmines.gui.MineListGUI;
+import joserodpt.realmines.gui.RealMinesGUI;
+import joserodpt.realmines.gui.SettingsGUI;
 import joserodpt.realmines.manager.MineManager;
 import joserodpt.realmines.manager.MineResetTasksManager;
 import joserodpt.realmines.mine.RMine;
-import joserodpt.realmines.util.GUIBuilder;
-import joserodpt.realmines.util.PlayerInput;
-import joserodpt.realmines.util.Text;
+import joserodpt.realmines.utils.GUIBuilder;
+import joserodpt.realmines.utils.PlayerInput;
+import joserodpt.realmines.utils.Text;
 import me.mattstudios.mf.base.CommandManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
@@ -132,6 +134,8 @@ public class RealMines extends JavaPlugin {
         this.pm.registerEvents(MineResetGUI.getListener(), this);
         this.pm.registerEvents(MineColorPickerGUI.getListener(), this);
         this.pm.registerEvents(MineBreakActionsGUI.getListener(), this);
+        this.pm.registerEvents(RealMinesGUI.getListener(), this);
+        this.pm.registerEvents(SettingsGUI.getListener(), this);
 
         //vault hook
         if (getServer().getPluginManager().getPlugin("Vault") != null) {

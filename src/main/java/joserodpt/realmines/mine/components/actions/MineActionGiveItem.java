@@ -2,9 +2,9 @@ package joserodpt.realmines.mine.components.actions;
 
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.config.Mines;
-import joserodpt.realmines.util.ItemStackSpringer;
-import joserodpt.realmines.util.Items;
-import joserodpt.realmines.util.Text;
+import joserodpt.realmines.utils.ItemStackSpringer;
+import joserodpt.realmines.utils.Items;
+import joserodpt.realmines.utils.Text;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

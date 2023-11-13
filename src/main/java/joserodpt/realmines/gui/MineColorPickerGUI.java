@@ -17,7 +17,7 @@ import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.mine.components.MineColor;
-import joserodpt.realmines.util.Text;
+import joserodpt.realmines.utils.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.entity.HumanEntity;

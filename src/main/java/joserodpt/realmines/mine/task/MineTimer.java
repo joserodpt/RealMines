@@ -17,7 +17,7 @@ import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Config;
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.mine.RMine;
-import joserodpt.realmines.util.Countdown;
+import joserodpt.realmines.utils.Countdown;
 
 public class MineTimer {
 

@@ -17,7 +17,7 @@ import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.mine.task.MineResetTask;
-import joserodpt.realmines.util.Text;
+import joserodpt.realmines.utils.Text;
 import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Command;
 import me.mattstudios.mf.annotations.Completion;

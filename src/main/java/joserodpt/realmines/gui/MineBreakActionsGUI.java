@@ -23,10 +23,10 @@ import joserodpt.realmines.mine.components.actions.MineActionDummy;
 import joserodpt.realmines.mine.components.actions.MineActionGiveItem;
 import joserodpt.realmines.mine.components.actions.MineActionMoney;
 import joserodpt.realmines.mine.components.items.MineItem;
-import joserodpt.realmines.util.Items;
-import joserodpt.realmines.util.Pagination;
-import joserodpt.realmines.util.PlayerInput;
-import joserodpt.realmines.util.Text;
+import joserodpt.realmines.utils.Items;
+import joserodpt.realmines.utils.Pagination;
+import joserodpt.realmines.utils.PlayerInput;
+import joserodpt.realmines.utils.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -273,19 +273,9 @@ public class MineBreakActionsGUI {
         }
         this.inv.setItem(4, add);
 
-        this.inv.setItem(45, placeholder);
-        this.inv.setItem(46, placeholder);
-        this.inv.setItem(47, placeholder);
-        this.inv.setItem(48, placeholder);
-        this.inv.setItem(49, placeholder);
-        this.inv.setItem(50, placeholder);
-        this.inv.setItem(51, placeholder);
-        this.inv.setItem(52, placeholder);
-        this.inv.setItem(53, placeholder);
-        this.inv.setItem(36, placeholder);
-        this.inv.setItem(44, placeholder);
-        this.inv.setItem(9, placeholder);
-        this.inv.setItem(17, placeholder);
+        for (int slot : new int[]{45, 46, 47, 48, 49, 50, 51, 52, 53, 36, 44, 9, 17}) {
+            this.inv.setItem(slot, placeholder);
+        }
 
         this.inv.setItem(18, back);
         this.inv.setItem(27, back);

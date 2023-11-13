@@ -1,4 +1,4 @@
-package joserodpt.realmines.util;
+package joserodpt.realmines.utils;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;

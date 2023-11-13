@@ -23,10 +23,10 @@ import joserodpt.realmines.mine.types.BlockMine;
 import joserodpt.realmines.mine.components.items.MineBlockItem;
 import joserodpt.realmines.mine.types.farm.FarmItem;
 import joserodpt.realmines.mine.types.farm.FarmMine;
-import joserodpt.realmines.util.Items;
-import joserodpt.realmines.util.Pagination;
-import joserodpt.realmines.util.PlayerInput;
-import joserodpt.realmines.util.Text;
+import joserodpt.realmines.utils.Items;
+import joserodpt.realmines.utils.Pagination;
+import joserodpt.realmines.utils.PlayerInput;
+import joserodpt.realmines.utils.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -135,6 +135,8 @@ public class MineItensGUI {
                                     current.rm.getGUIManager().openMine(current.m, p);
                                     break;
                                 case 4:
+                                    if (current.m.getType() == RMine.Type.SCHEMATIC) { return; }
+
                                     p.closeInventory();
                                     BlockPickerGUI mp = null;
                                     switch (current.m.getType()) {
@@ -292,21 +294,12 @@ public class MineItensGUI {
 
         this.inv.setItem(0, Items.createItemLore(Material.FILLED_MAP, 1, "&e&lToggle Break Permission", Arrays.asList("&fClick here to toggle the break permission:", "&f" + this.m.getBreakPermission(), "&7State: " + (this.m.isBreakingPermissionOn() ? "&a&lON" : "&c&lOFF"))));
         this.inv.setItem(8, Items.createItemLore(Material.COMPARATOR, 1, "&e&lDiscard Break Action Messages", Arrays.asList("&fClick here to toggle the messages.", "&7State: " + (Mines.file().getBoolean(this.m.getName() + ".Settings.Discard-Break-Action-Messages") ? "&a&lON" : "&c&lOFF"))));
-        this.inv.setItem(4, add);
 
-        this.inv.setItem(45, placeholder);
-        this.inv.setItem(46, placeholder);
-        this.inv.setItem(47, placeholder);
-        this.inv.setItem(48, placeholder);
-        this.inv.setItem(49, placeholder);
-        this.inv.setItem(50, placeholder);
-        this.inv.setItem(51, placeholder);
-        this.inv.setItem(52, placeholder);
-        this.inv.setItem(53, placeholder);
-        this.inv.setItem(36, placeholder);
-        this.inv.setItem(44, placeholder);
-        this.inv.setItem(9, placeholder);
-        this.inv.setItem(17, placeholder);
+        this.inv.setItem(4, this.m.getType() != RMine.Type.SCHEMATIC ? add : placeholder);
+
+        for (int slot : new int[]{45, 46, 47, 48, 49, 50, 51, 52, 53, 36, 44, 9, 17}) {
+            this.inv.setItem(slot, placeholder);
+        }
 
         this.inv.setItem(18, back);
         this.inv.setItem(27, back);

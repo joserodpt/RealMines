@@ -18,10 +18,12 @@ import joserodpt.realmines.config.Config;
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.gui.MineItensGUI;
 import joserodpt.realmines.gui.MineListGUI;
+import joserodpt.realmines.gui.RealMinesGUI;
+import joserodpt.realmines.gui.SettingsGUI;
 import joserodpt.realmines.mine.RMine;
-import joserodpt.realmines.util.ItemStackSpringer;
-import joserodpt.realmines.util.Text;
-import joserodpt.realmines.util.converters.RMConverterBase;
+import joserodpt.realmines.utils.ItemStackSpringer;
+import joserodpt.realmines.utils.Text;
+import joserodpt.realmines.utils.converters.RMConverterBase;
 import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Command;
 import me.mattstudios.mf.annotations.Completion;
@@ -49,7 +51,14 @@ public class MineCMD extends CommandBase {
     @Default
     public void defaultCommand(final CommandSender commandSender) {
         Text.sendList(commandSender,
-                Arrays.asList("         &9Real&bMines", "         &7Release &a" + rm.getDescription().getVersion()));
+                Arrays.asList("         &fReal&9Mines", "         &7Release &a" + rm.getDescription().getVersion()));
+        if (commandSender instanceof Player) {
+            Player p = (Player) commandSender;
+            if (p.hasPermission("realmines.admin") || p.isOp()) {
+                final RealMinesGUI rmg = new RealMinesGUI(p, rm);
+                rmg.openInventory(p);
+            }
+        }
     }
 
     @SubCommand("reload")
@@ -60,10 +69,10 @@ public class MineCMD extends CommandBase {
         Text.send(commandSender, Language.file().getString("System.Reloaded"));
     }
 
-    @SubCommand("panel")
-    @Alias("p")
-    @Permission("realmines.panel")
-    public void panelcmd(final CommandSender commandSender) {
+    @SubCommand("mines")
+    @Alias({"p", "panel"})
+    @Permission("realmines.admin")
+    public void minescmd(final CommandSender commandSender) {
         if (commandSender instanceof Player) {
             final Player p = (Player) commandSender;
             final MineListGUI v = new MineListGUI(this.rm, p);
@@ -114,6 +123,19 @@ public class MineCMD extends CommandBase {
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Exists"));
             }
+        } else {
+            Text.send(commandSender, this.playerOnly);
+        }
+    }
+
+    @SubCommand("settings")
+    @Permission("realmines.admin")
+    @WrongUsage("&c/mine settings")
+    public void settingscmd(final CommandSender commandSender) {
+        if (commandSender instanceof Player) {
+            final Player p = (Player) commandSender;
+            final SettingsGUI v2 = new SettingsGUI(p, rm);
+            v2.openInventory(p);
         } else {
             Text.send(commandSender, this.playerOnly);
         }

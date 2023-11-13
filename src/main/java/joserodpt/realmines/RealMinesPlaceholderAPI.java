@@ -14,7 +14,7 @@ package joserodpt.realmines;
  */
 
 import joserodpt.realmines.mine.RMine;
-import joserodpt.realmines.util.Countdown;
+import joserodpt.realmines.utils.Countdown;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 

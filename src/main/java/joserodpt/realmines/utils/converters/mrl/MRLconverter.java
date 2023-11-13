@@ -1,4 +1,4 @@
-package joserodpt.realmines.util.converters.mrl;
+package joserodpt.realmines.utils.converters.mrl;
 
 /*
  *  ______           ____  ____
@@ -18,8 +18,8 @@ import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.mine.components.MineColor;
 import joserodpt.realmines.mine.components.items.MineBlockItem;
 import joserodpt.realmines.mine.types.BlockMine;
-import joserodpt.realmines.util.Text;
-import joserodpt.realmines.util.converters.RMConverterBase;
+import joserodpt.realmines.utils.Text;
+import joserodpt.realmines.utils.converters.RMConverterBase;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;

@@ -1,6 +1,6 @@
 package joserodpt.realmines.mine.components.actions;
 
-import joserodpt.realmines.util.Items;
+import joserodpt.realmines.utils.Items;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;

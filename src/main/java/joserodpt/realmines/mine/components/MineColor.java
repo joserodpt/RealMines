@@ -13,10 +13,9 @@ package joserodpt.realmines.mine.components;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.util.Items;
-import joserodpt.realmines.util.SkullCreator;
+import joserodpt.realmines.utils.Items;
+import joserodpt.realmines.utils.SkullCreator;
 import org.bukkit.Color;
-import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;

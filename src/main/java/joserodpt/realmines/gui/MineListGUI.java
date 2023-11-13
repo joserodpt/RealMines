@@ -16,9 +16,9 @@ package joserodpt.realmines.gui;
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.mine.components.MineIcon;
-import joserodpt.realmines.util.Items;
-import joserodpt.realmines.util.Pagination;
-import joserodpt.realmines.util.Text;
+import joserodpt.realmines.utils.Items;
+import joserodpt.realmines.utils.Pagination;
+import joserodpt.realmines.utils.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -92,6 +92,8 @@ public class MineListGUI {
                         switch (e.getRawSlot()) {
                             case 49:
                                 p.closeInventory();
+                                final RealMinesGUI rmg = new RealMinesGUI(p, current.rm);
+                                rmg.openInventory(p);
                                 break;
                             case 26:
                             case 35:

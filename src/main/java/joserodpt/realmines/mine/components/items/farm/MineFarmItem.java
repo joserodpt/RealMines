@@ -17,8 +17,8 @@ import joserodpt.realmines.config.Language;
 import joserodpt.realmines.mine.components.actions.MineAction;
 import joserodpt.realmines.mine.components.items.MineItem;
 import joserodpt.realmines.mine.types.farm.FarmItem;
-import joserodpt.realmines.util.Items;
-import joserodpt.realmines.util.Text;
+import joserodpt.realmines.utils.Items;
+import joserodpt.realmines.utils.Text;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;

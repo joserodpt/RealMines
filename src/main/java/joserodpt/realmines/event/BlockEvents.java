@@ -18,7 +18,7 @@ import joserodpt.realmines.config.Config;
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.mine.components.items.MineItem;
-import joserodpt.realmines.util.Text;
+import joserodpt.realmines.utils.Text;
 import org.bukkit.block.Block;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

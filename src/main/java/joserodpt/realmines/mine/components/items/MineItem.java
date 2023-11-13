@@ -17,7 +17,7 @@ import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
 import joserodpt.realmines.config.Mines;
 import joserodpt.realmines.mine.components.actions.MineAction;
-import joserodpt.realmines.util.Items;
+import joserodpt.realmines.utils.Items;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 

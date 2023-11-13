@@ -1,4 +1,4 @@
-package joserodpt.realmines.util;
+package joserodpt.realmines.utils;
 
 /*
  *  ______           ____  ____
