@@ -28,6 +28,9 @@ import java.util.List;
 public class Text {
 
     public static String color(final String string) {
+        if (string == null) {
+            return "";
+        }
         return string.isEmpty() ? "" : ChatColor.translateAlternateColorCodes('&', string);
     }
 

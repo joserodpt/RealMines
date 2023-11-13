@@ -179,6 +179,8 @@ public class MineItensGUI {
 
                                 switch (e.getClick()) {
                                     case DROP:
+                                        if (minItem.isSchematicBlock()) { return; }
+
                                         // eliminar
                                         switch (current.m.getType()) {
                                             case BLOCKS:
@@ -193,6 +195,8 @@ public class MineItensGUI {
                                         current.load();
                                         break;
                                     case SHIFT_RIGHT:
+                                        if (minItem.isSchematicBlock()) { return; }
+
                                         if (minItem instanceof MineFarmItem) {
                                             ((MineFarmItem) minItem).addAge(-1);
                                             current.m.saveData(RMine.Data.BLOCKS);
@@ -200,6 +204,8 @@ public class MineItensGUI {
                                         }
                                         break;
                                     case SHIFT_LEFT:
+                                        if (minItem.isSchematicBlock()) { return; }
+
                                         if (minItem instanceof MineFarmItem) {
                                             ((MineFarmItem) minItem).addAge(1);
                                             current.m.saveData(RMine.Data.BLOCKS);
@@ -219,6 +225,8 @@ public class MineItensGUI {
                                         }, 2);
                                         break;
                                     default:
+                                        if (minItem.isSchematicBlock()) { return; }
+
                                         // resto
                                         current.editPercentage(p, minItem, current);
                                         break;
@@ -264,10 +272,12 @@ public class MineItensGUI {
     public void load() {
         switch (this.m.getType()) {
             case BLOCKS:
-                this.p = new Pagination<>(28, ((BlockMine) this.m).getBlockIcons().stream().sorted(Comparator.comparingDouble(MineItem::getPercentage).reversed()).collect(Collectors.toList()));
-                break;
             case FARM:
-                this.p = new Pagination<>(28, ((FarmMine) this.m).getBlockIcons().stream().sorted(Comparator.comparingDouble(MineItem::getPercentage).reversed()).collect(Collectors.toList()));
+            case SCHEMATIC:
+                this.p = new Pagination<>(28, this.m.getBlockIcons().stream().sorted(Comparator.comparingDouble(MineItem::getPercentage).reversed()).collect(Collectors.toList()));
+                break;
+            default:
+                RealMines.getPlugin().getLogger().warning("Unexpected value for mine items gui: " + this.m.getType().name());
                 break;
         }
 

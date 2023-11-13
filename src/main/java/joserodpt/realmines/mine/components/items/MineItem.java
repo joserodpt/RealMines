@@ -52,12 +52,14 @@ public class MineItem {
         this.disabledVanillaDrop = !this.disabledVanillaDrop();
     }
 
-    public enum Type { BLOCK, FARM, NONE }
+    public enum Type { SCHEMATIC_BLOCK, BLOCK, FARM, NONE }
 
     private Material material = null;
     private Double percentage;
-    private Boolean disabledVanillaDrop;
+    private Boolean disabledVanillaDrop = false;
     private List<MineAction> breakActions;
+
+    private boolean isSchematicBlock = false;
 
     public MineItem() {}
 
@@ -66,19 +68,32 @@ public class MineItem {
         this.percentage = 0.1D;
         this.breakActions = new ArrayList<>();
     }
-    public MineItem(Material material, Double percentage, boolean disabledVanillaDrop, final List<MineAction> breakActions) {
+
+    public MineItem(Material material, Double percentage) {
+        //schematic block
+        this.material = material;
+        this.percentage = percentage;
+        this.breakActions = new ArrayList<>();
+    }
+    public MineItem(Material material, Double percentage, boolean disabledVanillaDrop, final List<MineAction> breakActions, boolean isSchematicBlock) {
         this.material = material;
         this.percentage = percentage;
         this.breakActions = breakActions;
         this.disabledVanillaDrop = disabledVanillaDrop;
+
+        this.isSchematicBlock = isSchematicBlock;
     }
 
     public Boolean disabledVanillaDrop() {
         return disabledVanillaDrop;
     }
 
+    public boolean isSchematicBlock() {
+        return isSchematicBlock;
+    }
+
     public ItemStack getItem() {
-        return Items.createItemLore(Material.DEAD_BUSH, 1, Language.file().getString("GUI.Items.Mine-Block.No-Blocks.Name"), Language.file().getStringList("GUI.Items.Mine-Block.No-Blocks.Description"));
+        return Items.createItemLore(Material.DEAD_BUSH, 1, Language.file().getString("GUI.Items.No-Blocks.Name"), Language.file().getStringList("GUI.Items.No-Blocks.Description"));
     }
 
     public List<MineAction> getBreakActions() {

@@ -36,23 +36,23 @@ public class MineFarmItem extends MineItem {
     }
 
     public MineFarmItem(final FarmItem fi) {
-        super(fi.getIcon(), 0.1D, false, new ArrayList<>());
+        super(fi.getIcon(), 0.1D, false, new ArrayList<>(), false);
         this.fi = fi;
     }
 
     public MineFarmItem(final FarmItem fi, final Double percentage) {
-        super(fi.getIcon(), percentage, false, new ArrayList<>());
+        super(fi.getIcon(), percentage, false, new ArrayList<>(), false);
         this.fi = fi;
     }
 
     public MineFarmItem(final FarmItem c, final Double percentage, final int age) {
-        super(c.getIcon(), percentage, false, new ArrayList<>());
+        super(c.getIcon(), percentage, false, new ArrayList<>(), false);
         this.fi = c;
         this.age = age;
     }
 
     public MineFarmItem(final FarmItem c, final Double percentage, final Boolean disab, final int age, final List<MineAction> breakActions) {
-        super(c.getIcon(), percentage, disab, breakActions);
+        super(c.getIcon(), percentage, disab, breakActions, false);
         this.fi = c;
         this.age = age;
     }

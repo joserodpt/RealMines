@@ -29,22 +29,18 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 public class BlockMine extends RMine {
-    private final Map<Material, MineItem> blocks;
     private final List<Material> sorted = new ArrayList<>();
 
     public BlockMine(final World w, final String n, final String displayname, final Map<Material, MineItem> b, final List<MineSign> si, final Location p1, final Location p2, final Material i,
                      final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final boolean breakingPermissionOn, final MineManager mm) {
 
-        super(w, n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
-
-        this.blocks = b;
-
+        super(w, n, displayname, si, b, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
+        
         super.setPOS(p1, p2);
         this.fill();
         this.updateSigns();
@@ -54,10 +50,10 @@ public class BlockMine extends RMine {
     public void fill() {
         if (!Bukkit.getOnlinePlayers().isEmpty()) {
             this.sortBlocks();
-            if (!this.blocks.isEmpty()) {
+            if (!super.getMineItems().isEmpty()) {
                 Bukkit.getScheduler().runTask(RealMines.getPlugin(), () -> {
                     //blocks
-                    for (Block block : this.mineCuboid) {
+                    for (Block block : this.getMineCuboid()) {
                         Material set = this.getBlock();
                         if (block.getType() != set) {
                             block.setType(set);
@@ -66,17 +62,13 @@ public class BlockMine extends RMine {
 
                     //faces
                     for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
-                        this.mineCuboid.getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
+                        this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
                     }
                 });
             }
         }
     }
 
-    @Override
-    public Map<Material, MineItem> getMineItems() {
-        return this.blocks;
-    }
 
     @Override
     public RMine.Type getType() {
@@ -86,7 +78,7 @@ public class BlockMine extends RMine {
     private void sortBlocks() {
         this.sorted.clear();
 
-        for (final MineItem d : this.blocks.values()) {
+        for (final MineItem d : super.getMineItems().values()) {
             final double percentage = d.getPercentage() * this.getBlockCount();
 
             for (int i = 0; i <= (int) percentage; ++i) {
@@ -108,25 +100,20 @@ public class BlockMine extends RMine {
         return m;
     }
 
-    public List<MineItem> getBlockIcons() {
-        return this.blocks.isEmpty() ? new ArrayList<>(Collections.singletonList(new MineItem())) :
-                new ArrayList<>(this.blocks.values());
-    }
-
     public void removeMineBlockItem(final MineItem mb) {
-        this.blocks.remove(mb.getMaterial());
+        super.getMineItems().remove(mb.getMaterial());
         this.saveData(Data.BLOCKS);
     }
 
     public void addItem(final MineBlockItem mineBlock) {
         if (!this.contains(mineBlock)) {
-            this.blocks.put(mineBlock.getMaterial(), mineBlock);
+            super.getMineItems().put(mineBlock.getMaterial(), mineBlock);
             this.saveData(Data.BLOCKS);
         }
     }
 
     private boolean contains(final MineBlockItem mineBlock) {
-        return this.blocks.containsKey(mineBlock.getMaterial());
+        return super.getMineItems().containsKey(mineBlock.getMaterial());
     }
 
     @Override

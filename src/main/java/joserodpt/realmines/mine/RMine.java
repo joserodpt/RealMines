@@ -40,6 +40,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +54,7 @@ public abstract class RMine {
     protected MineColor color;
     protected String displayName;
     protected List<MineSign> signs;
+    protected Map<Material, MineItem> mineItems;
     protected Location teleport;
     protected Material icon;
     protected MineCuboid mineCuboid;
@@ -69,7 +71,7 @@ public abstract class RMine {
     private final MineManager mm;
     private World w;
 
-    public RMine(final World w, final String n, final String displayname, final List<MineSign> si, final Material i,
+    public RMine(final World w, final String n, final String displayname, final List<MineSign> si, final Map<Material, MineItem> b, final Material i,
                  final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final boolean breakingPermissionOn, final MineManager mm) {
         this.mm = mm;
         this.w = w;
@@ -78,6 +80,7 @@ public abstract class RMine {
         this.displayName = displayname;
         this.silent = silent;
         this.signs = si;
+        this.mineItems = b;
         this.icon = i;
         this.teleport = t;
         this.resetByPercentage = resetByPercentag;
@@ -170,7 +173,14 @@ public abstract class RMine {
 
     public abstract void fill();
 
-    public abstract Map<Material, MineItem> getMineItems();
+    public Map<Material, MineItem> getMineItems() {
+        return this.mineItems;
+    }
+
+    public List<MineItem> getBlockIcons() {
+        return this.getMineItems().isEmpty() ? new ArrayList<>(Collections.singletonList(new MineItem())) :
+                new ArrayList<>(this.getMineItems().values());
+    }
 
     public void saveData(final Data t) {
         this.mm.saveMine(this, t);
@@ -286,7 +296,7 @@ public abstract class RMine {
         this.signs.forEach(ms -> ms.getBlock().getLocation().getWorld().getBlockAt(ms.getBlock().getLocation()).setType(Material.AIR));
     }
 
-    public List<Location> getCube() {
+    public List<Location> getHighlightedCube() {
         final List<Location> result = new ArrayList<>();
         final World world = this.mineCuboid.getPOS1().getWorld();
         final double minX = Math.min(this.mineCuboid.getPOS1().getX(), this.mineCuboid.getPOS2().getX());
@@ -318,7 +328,7 @@ public abstract class RMine {
 
     public void highlight() {
         if (this.highlight) {
-            this.getCube().forEach(location -> location.getWorld().spawnParticle(Particle.REDSTONE, location.getX(), location.getY(), location.getZ(), 0, 0.001, 1, 0, 1, new Particle.DustOptions(this.getMineColor().getColor(), 1)));
+            this.getHighlightedCube().forEach(location -> location.getWorld().spawnParticle(Particle.REDSTONE, location.getX(), location.getY(), location.getZ(), 0, 0.001, 1, 0, 1, new Particle.DustOptions(this.getMineColor().getColor(), 1)));
         }
     }
 
@@ -441,6 +451,10 @@ public abstract class RMine {
     public void processBlockBreakEvent(final MineBlockBreakEvent event, final boolean reset) {
         //add or remove to mined blocks
         this.minedBlocks = this.minedBlocks + (event.isBroken() ? 1 : -1);
+
+        if (this.minedBlocks < 0) {
+            this.minedBlocks = 0;
+        }
 
         if (event.getPlayer() != null) {
             processBlockBreakAction(event.getBlock().getType(), event.getPlayer(), event.getBlock().getLocation(), RealMines.getPlugin().getRand().nextDouble() * 100);

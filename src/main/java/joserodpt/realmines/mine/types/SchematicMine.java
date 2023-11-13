@@ -27,6 +27,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import joserodpt.realmines.RealMines;
+import joserodpt.realmines.config.Mines;
 import joserodpt.realmines.gui.BlockPickerGUI;
 import joserodpt.realmines.manager.MineManager;
 import joserodpt.realmines.mine.RMine;
@@ -34,9 +35,12 @@ import joserodpt.realmines.mine.components.MineColor;
 import joserodpt.realmines.mine.components.MineCuboid;
 import joserodpt.realmines.mine.components.MineSign;
 import joserodpt.realmines.mine.components.items.MineItem;
+import joserodpt.realmines.mine.components.items.MineSchematicItem;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 
 import java.io.File;
 import java.io.IOException;
@@ -56,7 +60,7 @@ public class SchematicMine extends RMine {
     public SchematicMine(final World w, final String n, final String displayname, final List<MineSign> si, final Location pasteLocation, final String schematicFile, final Material i,
                          final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final boolean breakingPermissionOn, final MineManager mm) {
 
-        super(w, n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
+        super(w, n, displayname, si, new HashMap<>(), i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
 
         this.mm = mm;
 
@@ -65,17 +69,46 @@ public class SchematicMine extends RMine {
         this.pasteLocation = pasteLocation;
 
         this.fill();
+        this.processPastedBlocks();
         this.updateSigns();
+    }
+
+    public SchematicMine(final World w, final String n, final String displayname, final Map<Material, MineItem> b,final List<MineSign> si, final Location pasteLocation, final String schematicFile, final Material i,
+                         final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final boolean breakingPermissionOn, final MineManager mm) {
+
+        super(w, n, displayname, si, b, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
+
+        this.mm = mm;
+
+        this.schematicFile = schematicFile;
+        this.pasteClipboard = this.loadSchematic(schematicFile);
+        this.pasteLocation = pasteLocation;
+
+        this.fill();
+        if (Mines.file().get(n + ".Blocks") == null) {
+            processPastedBlocks();
+        }
+        this.updateSigns();
+    }
+
+    private void processPastedBlocks() {
+        for (Block block : this.getMineCuboid()) {
+            Material type = block.getType();
+            if (type == Material.AIR) { continue; }
+
+            if (!super.getMineItems().containsKey(type)) {
+                super.getMineItems().put(type, new MineSchematicItem(type));
+            }
+        }
+
+        Bukkit.getLogger().warning(super.getMineItems().toString());
+
+        this.saveData(Data.BLOCKS);
     }
 
     @Override
     public void fill() {
         this.placeSchematic(this.pasteClipboard, this.pasteLocation);
-    }
-
-    @Override
-    public Map<Material, MineItem> getMineItems() {
-        return new HashMap<>();
     }
 
     @Override

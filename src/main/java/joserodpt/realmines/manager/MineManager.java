@@ -27,6 +27,7 @@ import joserodpt.realmines.mine.components.actions.MineActionDropItem;
 import joserodpt.realmines.mine.components.actions.MineActionGiveItem;
 import joserodpt.realmines.mine.components.actions.MineActionMoney;
 import joserodpt.realmines.mine.components.items.MineBlockItem;
+import joserodpt.realmines.mine.components.items.MineSchematicItem;
 import joserodpt.realmines.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.mine.components.items.MineItem;
 import joserodpt.realmines.mine.types.BlockMine;
@@ -76,9 +77,6 @@ public class MineManager {
 
     private Map<Material, MineItem> getBlocks(final String mineName, final RMine.Type type) {
         final Map<Material, MineItem> list = new HashMap<>();
-        if (type == RMine.Type.SCHEMATIC) {
-            return list;
-        }
 
         if (Mines.file().isList(mineName + ".Blocks")) {
             RealMines.getPlugin().getLogger().warning("Starting block conversion from pre 1.6 version...");
@@ -136,6 +134,10 @@ public class MineManager {
             RealMines.getPlugin().getLogger().warning("Conversion finished with success.");
         } else {
             //since version 1.6, there's a new way to load the blocks
+            if (Mines.file().getSection(mineName + ".Blocks") == null) {
+                return list;
+            }
+
             for (final String mat : Mines.file().getSection(mineName + ".Blocks").getRoutesAsStrings(false)) {
                 final Double per = Mines.file().getDouble(mineName + ".Blocks." + mat + ".Chance");
                 final Boolean disabledVanillaDrop = Mines.file().getBoolean(mineName + ".Blocks." + mat + ".Disabled-Vanilla-Drop");
@@ -197,6 +199,9 @@ public class MineManager {
                         case FARM:
                             list.put(m, new MineFarmItem(FarmItem.valueOf(mat), per, disabledVanillaDrop, Mines.file().getInt(mineName + ".Blocks." + mat + ".Age"), actionsList));
                             break;
+                        case SCHEMATIC:
+                            list.put(m, new MineSchematicItem(m, disabledVanillaDrop, actionsList));
+                            break;
                     }
                 } catch (Exception e) {
                     RealMines.getPlugin().getLogger().severe("Material type " + mat + " is invalid! Skipping. This material is in mine: " + mineName);
@@ -209,14 +214,13 @@ public class MineManager {
     }
 
     public List<String> getRegisteredMines() {
-        Mines.reload();
         return this.getMines().values().stream()
                 .map(RMine::getName)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public void unregisterMine(final RMine m) {
-        Mines.file().set(m.getName(), null);
+        Mines.file().remove(m.getName());
         Mines.save();
         this.getMines().remove(m.getName());
     }
@@ -299,7 +303,7 @@ public class MineManager {
                 case "SCHEMATIC":
                     final Location place = new Location(w, Mines.file().getDouble(s + ".Place.X"),
                             Mines.file().getDouble(s + ".Place.Y"), Mines.file().getDouble(s + ".Place.Z"));
-                    m = new SchematicMine(w, s, Mines.file().getString(s + ".Display-Name"), signs, place, Mines.file().getString(s + ".Schematic-Filename"), ic, tp,
+                    m = new SchematicMine(w, s, Mines.file().getString(s + ".Display-Name"), blocks, signs, place, Mines.file().getString(s + ".Schematic-Filename"), ic, tp,
                             Mines.file().getBoolean(s + ".Settings.Reset.ByPercentage"),
                             Mines.file().getBoolean(s + ".Settings.Reset.ByTime"),
                             Mines.file().getInt(s + ".Settings.Reset.ByPercentageValue"),
@@ -447,33 +451,33 @@ public class MineManager {
             case BLOCKS:
                 if (Objects.requireNonNull(mine.getType()) == RMine.Type.SCHEMATIC) {
                     Mines.file().set(mine.getName() + ".Schematic-Filename", ((SchematicMine) mine).getSchematicFilename());
-                } else {
-                    Mines.file().remove(mine.getName() + ".Blocks");
-                    for (MineItem mineItem : mine.getMineItems().values()) {
-                        Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Chance", mineItem.getPercentage());
-                        if (mineItem.disabledVanillaDrop()) {
-                            Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Disabled-Vanilla-Drop", true);
-                        }
+                }
 
-                        if (mine.getType() == RMine.Type.FARM) {
-                            Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Age", ((MineFarmItem) mineItem).getAge());
-                        }
-                        if (!mineItem.getBreakActions().isEmpty()) {
-                            for (MineAction ba : mineItem.getBreakActions()) {
-                                Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Type", ba.getType().name());
-                                Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Chance", ba.getChance());
-                                switch (ba.getType()) {
-                                    case EXECUTE_COMMAND:
-                                        Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Command", ba.getValue());
-                                        break;
-                                    case GIVE_MONEY:
-                                        Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Amount", ba.getValue());
-                                        break;
-                                    case GIVE_ITEM:
-                                    case DROP_ITEM:
-                                        Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Item", ba.getValue());
-                                        break;
-                                }
+                Mines.file().remove(mine.getName() + ".Blocks");
+                for (MineItem mineItem : mine.getMineItems().values()) {
+                    Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Chance", mineItem.getPercentage());
+                    if (mineItem.disabledVanillaDrop()) {
+                        Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Disabled-Vanilla-Drop", true);
+                    }
+
+                    if (mine.getType() == RMine.Type.FARM) {
+                        Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Age", ((MineFarmItem) mineItem).getAge());
+                    }
+                    if (!mineItem.getBreakActions().isEmpty()) {
+                        for (MineAction ba : mineItem.getBreakActions()) {
+                            Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Type", ba.getType().name());
+                            Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Chance", ba.getChance());
+                            switch (ba.getType()) {
+                                case EXECUTE_COMMAND:
+                                    Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Command", ba.getValue());
+                                    break;
+                                case GIVE_MONEY:
+                                    Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Amount", ba.getValue());
+                                    break;
+                                case GIVE_ITEM:
+                                case DROP_ITEM:
+                                    Mines.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Break-Actions." + ba.getID() + ".Item", ba.getValue());
+                                    break;
                             }
                         }
                     }

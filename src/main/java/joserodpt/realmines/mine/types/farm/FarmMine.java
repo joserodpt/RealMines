@@ -40,15 +40,13 @@ import java.util.Random;
 
 public class FarmMine extends RMine {
 
-    private final Map<Material, MineItem> farmItems;
     private final List<MineItem> sorted = new ArrayList<>();
     private List<Block> mineGroundBlocks = new ArrayList<>();
 
     public FarmMine(final World w, final String n, final String displayname, final Map<Material, MineItem> b, final List<MineSign> si, final Location p1, final Location p2, final Material i,
                     final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final boolean breakingPermissionOn, final MineManager mm) {
-        super(w, n, displayname, si, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
+        super(w, n, displayname, si, b, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
 
-        this.farmItems = b;
         this.setPOS(p1, p2);
         this.fill();
         this.updateSigns();
@@ -92,7 +90,7 @@ public class FarmMine extends RMine {
     public void fill() {
         this.sortCrops();
 
-        if (!this.farmItems.isEmpty()) {
+        if (!super.getMineItems().isEmpty()) {
             Bukkit.getScheduler().runTask(RealMines.getPlugin(), () -> {
                 if (this.oneBlockHeight()) {
                     for (Block target : this.getMineCuboid()) {
@@ -110,15 +108,10 @@ public class FarmMine extends RMine {
 
                 // Set faces
                 for (Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
-                    this.mineCuboid.getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
+                    this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
                 }
             });
         }
-    }
-
-    @Override
-    public Map<Material, MineItem> getMineItems() {
-        return this.farmItems;
     }
 
     private void placeFarmItems(Block target, Block under, MineFarmItem fi) {
@@ -160,7 +153,7 @@ public class FarmMine extends RMine {
     private void sortCrops() {
         this.sorted.clear();
 
-        for (final MineItem d : this.farmItems.values()) {
+        for (final MineItem d : super.getMineItems().values()) {
             final double percentage = d.getPercentage() * this.getBlockCount();
 
             for (int i = 0; i <= (int) percentage; ++i) {
@@ -181,25 +174,20 @@ public class FarmMine extends RMine {
     }
 
     public void removeMineFarmItem(final MineItem mb) {
-        this.farmItems.remove(mb);
+        super.getMineItems().remove(mb);
         this.saveData(Data.BLOCKS);
     }
 
     public void addFarmItem(final MineFarmItem mineFarmItem) {
         if (!this.contains(mineFarmItem)) {
-            this.farmItems.put(mineFarmItem.getMaterial(), mineFarmItem);
+            super.getMineItems().put(mineFarmItem.getMaterial(), mineFarmItem);
             this.saveData(Data.BLOCKS);
         }
     }
 
     private boolean contains(final MineFarmItem fi) {
-        return this.farmItems.values().stream()
+        return super.getMineItems().values().stream()
                 .anyMatch(item -> ((MineFarmItem) item).getFarmItem() == fi.getFarmItem());
-    }
-
-    public List<MineItem> getBlockIcons() {
-        return this.farmItems.isEmpty() ? new ArrayList<>(Collections.singletonList(new MineItem())) :
-                new ArrayList<>(this.farmItems.values());
     }
 
     @Override

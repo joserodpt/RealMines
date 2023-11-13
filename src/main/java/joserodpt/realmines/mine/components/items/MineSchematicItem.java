@@ -20,34 +20,29 @@ import joserodpt.realmines.util.Text;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class MineBlockItem extends MineItem {
+public class MineSchematicItem extends MineItem {
 
-    public MineBlockItem(final Material m) {
-        super(m);
+    public MineSchematicItem(final Material m) {
+        super(m, 1D);
     }
 
-    public MineBlockItem(final Material m, final Double percentage) {
-        super(m, percentage, false, new ArrayList<>(), false);
-    }
-
-    public MineBlockItem(final Material m, final Double percentage, final Boolean disabledVanillaDrop, final List<MineAction> breakActions) {
-        super(m, percentage, disabledVanillaDrop, breakActions, false);
+    public MineSchematicItem(Material m, Boolean disabledVanillaDrop, List<MineAction> actionsList) {
+        super(m, 1D, disabledVanillaDrop, actionsList, true);
     }
 
     @Override
-    public ItemStack getItem() {
+    public ItemStack getItem() { //TODO FIX DESCRIPTION
         return Items.createItemLore(super.getMaterial(), 1, Language.file().getString("GUI.Items.Mine-Block.Block.Name").replace("%material%", Text.beautifyMaterialName(super.getMaterial())) + (super.disabledVanillaDrop() ? " &c&lNo-DROP" : ""), Language.file().getStringList("GUI.Items.Mine-Block.Block.Description")
                 .stream()
-                .map(s -> Text.color(s.replaceAll("%percentage%", String.valueOf(super.getPercentage() * 100))))
+                .map(Text::color)
                 .collect(Collectors.toList()));
     }
 
     @Override
     public Type getType() {
-        return Type.BLOCK;
+        return Type.SCHEMATIC_BLOCK;
     }
 }

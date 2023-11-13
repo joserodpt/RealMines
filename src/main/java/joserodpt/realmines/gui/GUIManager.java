@@ -199,16 +199,14 @@ public class GUIManager {
                 final GUIBuilder inventory = new GUIBuilder(Text.color(m.getMineColor().getColorPrefix() + " " + m.getDisplayName() + " &r" + m.getBar()), 27, target.getUniqueId(),
                         Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "&f"));
 
-                if (m.getType() == RMine.Type.BLOCKS || m.getType() == RMine.Type.FARM) {
-                    inventory.addItem(e -> {
-                                target.closeInventory();
-                                Bukkit.getScheduler().scheduleSyncDelayedTask(GUIManager.this.rm, () -> {
-                                    final MineItensGUI v = new MineItensGUI(GUIManager.this.rm, target, m);
-                                    v.openInventory(target);
-                                }, 2);
-                            }, Items.createItemLore(Material.CHEST, 1, Language.file().getString("GUI.Items.Blocks.Name"), Language.file().getStringList("GUI.Items.Blocks.Description")),
-                            10);
-                }
+                inventory.addItem(e -> {
+                            target.closeInventory();
+                            Bukkit.getScheduler().scheduleSyncDelayedTask(GUIManager.this.rm, () -> {
+                                final MineItensGUI v = new MineItensGUI(GUIManager.this.rm, target, m);
+                                v.openInventory(target);
+                            }, 2);
+                        }, Items.createItemLore(Material.CHEST, 1, Language.file().getString("GUI.Items.Blocks.Name"), Language.file().getStringList("GUI.Items.Blocks.Description")),
+                        10);
 
                 inventory.addItem(e -> {
                             target.closeInventory();

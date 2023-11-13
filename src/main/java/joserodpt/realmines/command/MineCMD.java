@@ -233,10 +233,8 @@ public class MineCMD extends CommandBase {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
             if (m != null) {
-                if (m.getType() != RMine.Type.SCHEMATIC) {
-                    final MineItensGUI v = new MineItensGUI(rm, (Player) commandSender, m);
-                    v.openInventory((Player) commandSender);
-                }
+                final MineItensGUI v = new MineItensGUI(rm, (Player) commandSender, m);
+                v.openInventory((Player) commandSender);
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }
