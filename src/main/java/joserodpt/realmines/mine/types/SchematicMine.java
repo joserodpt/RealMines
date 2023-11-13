@@ -109,6 +109,10 @@ public class SchematicMine extends RMine {
     @Override
     public void fill() {
         this.placeSchematic(this.pasteClipboard, this.pasteLocation);
+        //faces
+        for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
+            this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
+        }
     }
 
     @Override

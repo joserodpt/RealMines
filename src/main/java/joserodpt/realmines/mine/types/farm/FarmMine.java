@@ -32,7 +32,6 @@ import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,6 +110,11 @@ public class FarmMine extends RMine {
                     this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
                 }
             });
+        }
+
+        //faces
+        for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
+            this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
         }
     }
 

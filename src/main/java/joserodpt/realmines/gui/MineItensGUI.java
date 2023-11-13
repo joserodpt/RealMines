@@ -204,8 +204,6 @@ public class MineItensGUI {
                                         }
                                         break;
                                     case SHIFT_LEFT:
-                                        if (minItem.isSchematicBlock()) { return; }
-
                                         if (minItem instanceof MineFarmItem) {
                                             ((MineFarmItem) minItem).addAge(1);
                                             current.m.saveData(RMine.Data.BLOCKS);

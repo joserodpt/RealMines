@@ -27,6 +27,8 @@ import java.util.List;
 
 public class Text {
 
+    public static String pluginPrefix = color("&f&lReal&9&lMines");
+
     public static String color(final String string) {
         if (string == null) {
             return "";

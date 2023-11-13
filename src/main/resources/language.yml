@@ -12,7 +12,6 @@ Mines:
     Drop-Item: "&fAn item has dropped when you broke this block! &eLucky you!"
     Give-Item: "&fAn item was added to your inventory when you broke this block! &eLucky you!"
 GUI:
-  Panel-Name: "&9Mines"
   Reset-Name: "%mine% &rReset Options"
   Faces-Name: "&rFaces"
   Choose-Name: "&rChoose mine type for: %mine%"
@@ -79,9 +78,13 @@ GUI:
       Description:
         - "&fClick here to select a new icon."
     Name:
-      Name: "&a&lName"
+      Name: "&f&lName"
       Description:
         - "&fClick here to input a new name."
+    Displayname:
+      Name: "&a&lDisplayname"
+      Description:
+        - "&fClick here to input a new displayname."
     Clear:
       Name: "&c&lClear"
       Description:
@@ -133,9 +136,15 @@ GUI:
           - "&e&nRight-Click&r&f to edit this block's break actions."
           - "&e&nShift-Left-Click&r&f to toggle this block's drop."
           - "&c&nQ (Drop)&r&f to remove this block."
-      Farm-Item:
-        Name: "&3&l%material% &r&7- &fAge: &3%age%"
+      Schematic-Block:
+        Name: "&3&l%material%"
         Description:
+          - "&6"
+          - "&e&nRight-Click&r&f to edit this block's break actions."
+          - "&e&nShift-Left-Click&r&f to toggle this block's drop."
+    Farm-Item:
+      Name: "&3&l%material% &r&7- &fAge: &3%age%"
+      Description:
           - "&fPercentage: &b%percentage%%"
           - "&6"
           - "&a&nLeft-Click&r&f to edit the percentage."
@@ -188,6 +197,7 @@ System:
   Mine-Deleted: "&fMine deleted."
   Mine-Task-Doesnt-Exist: "&cNo mine task exists with that name."
   Mine-Doesnt-Exist: "&cNo mine exists with that name."
+  Mine-Renamed: "&fMined renamed to &b%name%"
   Mine-Clear: "&fMine has been &acleared."
   Stopped-Mine-Tasks: "&cStopped &fall mine tasks."
   Started-Mine-Tasks: "&aStarted &fall mine tasks."
@@ -228,4 +238,4 @@ Signs:
   Mined-Blocks-On: "mined blocks on"
   Blocks-On: "blocks on"
   Left-On: "left on"
-Version: 5
+Version: 6

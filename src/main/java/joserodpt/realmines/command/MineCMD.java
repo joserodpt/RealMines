@@ -275,6 +275,21 @@ public class MineCMD extends CommandBase {
         }
     }
 
+    @SubCommand("rename")
+    @Alias("rn")
+    @Completion("#mines")
+    @Permission("realmines.admin")
+    @WrongUsage("&c/mine rename <name> <new_name>")
+    public void renamecmd(final CommandSender commandSender, final String name, final String newName) {
+        final RMine m = rm.getMineManager().getMine(name);
+        if (m != null) {
+            rm.getMineManager().renameMine(m, newName);
+            Text.send(commandSender, Language.file().getString("System.Mine-Renamed").replace("%name%", newName));
+        } else {
+            Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+        }
+    }
+
     @SubCommand("delete")
     @Alias("del")
     @Completion("#mines")

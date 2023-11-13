@@ -34,8 +34,8 @@ public class MineSchematicItem extends MineItem {
     }
 
     @Override
-    public ItemStack getItem() { //TODO FIX DESCRIPTION
-        return Items.createItemLore(super.getMaterial(), 1, Language.file().getString("GUI.Items.Mine-Block.Block.Name").replace("%material%", Text.beautifyMaterialName(super.getMaterial())) + (super.disabledVanillaDrop() ? " &c&lNo-DROP" : ""), Language.file().getStringList("GUI.Items.Mine-Block.Block.Description")
+    public ItemStack getItem() {
+        return Items.createItemLore(super.getMaterial(), 1, Language.file().getString("GUI.Items.Mine-Block.Schematic-Block.Name").replace("%material%", Text.beautifyMaterialName(super.getMaterial())) + (super.disabledVanillaDrop() ? " &c&lNo-DROP" : ""), Language.file().getStringList("GUI.Items.Mine-Block.Schematic-Block.Description")
                 .stream()
                 .map(Text::color)
                 .collect(Collectors.toList()));

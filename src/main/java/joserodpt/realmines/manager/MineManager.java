@@ -219,12 +219,6 @@ public class MineManager {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public void unregisterMine(final RMine m) {
-        Mines.file().remove(m.getName());
-        Mines.save();
-        this.getMines().remove(m.getName());
-    }
-
     public void loadMines() {
         for (final String s : Mines.file().getRoot().getRoutesAsStrings(false)) {
             final String worldName = Mines.file().getString(s + ".World");
@@ -434,7 +428,7 @@ public class MineManager {
         });
     }
 
-    public void saveMine(final RMine mine) {
+    public void saveAllMineData(final RMine mine) {
         for (final RMine.Data value : RMine.Data.values()) {
             this.saveMine(mine, value);
         }
@@ -665,5 +659,23 @@ public class MineManager {
 
     public Map<String, RMConverterBase> getConverters() {
         return this.converters;
+    }
+
+    public void renameMine(RMine m, String newName) {
+        this.unregisterMine(m);
+        m.setName(newName);
+        m.setDisplayName(newName);
+        this.registerMine(m);
+    }
+
+    public void unregisterMine(final RMine m) {
+        Mines.file().remove(m.getName());
+        Mines.save();
+        this.getMines().remove(m.getName());
+    }
+
+    public void registerMine(final RMine m) {
+        this.getMines().put(m.getName(), m);
+        saveAllMineData(m);
     }
 }

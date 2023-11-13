@@ -191,8 +191,12 @@ public abstract class RMine {
         }
     }
 
+    public void setName(String newName) {
+        this.name = newName;
+    }
+
     public void saveAll() {
-        this.mm.saveMine(this);
+        this.mm.saveAllMineData(this);
         if (!this.resetByTime) {
             this.timer.kill();
         } else {

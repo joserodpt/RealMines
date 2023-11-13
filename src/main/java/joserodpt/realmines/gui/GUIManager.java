@@ -15,13 +15,12 @@ package joserodpt.realmines.gui;
 
 import joserodpt.realmines.RealMines;
 import joserodpt.realmines.config.Language;
+import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.mine.components.actions.MineActionCommand;
 import joserodpt.realmines.mine.components.actions.MineActionDropItem;
 import joserodpt.realmines.mine.components.actions.MineActionGiveItem;
 import joserodpt.realmines.mine.components.actions.MineActionMoney;
 import joserodpt.realmines.mine.components.items.MineItem;
-import joserodpt.realmines.mine.types.BlockMine;
-import joserodpt.realmines.mine.RMine;
 import joserodpt.realmines.util.GUIBuilder;
 import joserodpt.realmines.util.Items;
 import joserodpt.realmines.util.PlayerInput;
@@ -200,9 +199,19 @@ public class GUIManager {
                         Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "&f"));
 
                 inventory.addItem(e -> {
+                    target.closeInventory();
+                    new PlayerInput(target, s -> {
+                        rm.getMineManager().renameMine(m, s);
+                        Text.send(target, Language.file().getString("System.Mine-Renamed").replace("%name%", s));
+                        openMine(m, target);
+                    }, s -> rm.getGUIManager().openMine(m, target));
+                }, Items.createItemLore(Material.FILLED_MAP, 1, Language.file().getString("GUI.Items.Name.Name"), Language.file().getStringList("GUI.Items.Name.Description")), 0);
+
+
+                inventory.addItem(e -> {
                             target.closeInventory();
-                            Bukkit.getScheduler().scheduleSyncDelayedTask(GUIManager.this.rm, () -> {
-                                final MineItensGUI v = new MineItensGUI(GUIManager.this.rm, target, m);
+                            Bukkit.getScheduler().scheduleSyncDelayedTask(rm, () -> {
+                                final MineItensGUI v = new MineItensGUI(rm, target, m);
                                 v.openInventory(target);
                             }, 2);
                         }, Items.createItemLore(Material.CHEST, 1, Language.file().getString("GUI.Items.Blocks.Name"), Language.file().getStringList("GUI.Items.Blocks.Description")),
@@ -210,21 +219,21 @@ public class GUIManager {
 
                 inventory.addItem(e -> {
                             target.closeInventory();
-                            Bukkit.getScheduler().scheduleSyncDelayedTask(GUIManager.this.rm, () -> {
-                                final MineResetGUI mrm = new MineResetGUI(GUIManager.this.rm, target, m);
+                            Bukkit.getScheduler().scheduleSyncDelayedTask(rm, () -> {
+                                final MineResetGUI mrm = new MineResetGUI(rm, target, m);
                                 mrm.openInventory(target);
                             }, 2);
                         }, Items.createItemLore(Material.ANVIL, 1, Language.file().getString("GUI.Items.Resets.Name"), Language.file().getStringList("GUI.Items.Resets.Description")),
                         12);
                 inventory.addItem(e -> {
                     target.closeInventory();
-                    GUIManager.this.rm.getMineManager().teleport(target, m, m.isSilent());
+                    rm.getMineManager().teleport(target, m, m.isSilent());
                 }, Items.createItemLore(Material.ENDER_PEARL, 1, Language.file().getString("GUI.Items.Teleport.Name"), Language.file().getStringList("GUI.Items.Teleport.Description")), 20);
 
                 inventory.addItem(e -> {
                     target.closeInventory();
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(GUIManager.this.rm, () -> {
-                        final BlockPickerGUI s = new BlockPickerGUI(GUIManager.this.rm, m, target, BlockPickerGUI.PickType.ICON, "");
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(rm, () -> {
+                        final BlockPickerGUI s = new BlockPickerGUI(rm, m, target, BlockPickerGUI.PickType.ICON, "");
                         s.openInventory(target);
                     }, 2);
                 }, Items.createItemLore(m.getIcon(), 1, Language.file().getString("GUI.Items.Icon.Name"), Language.file().getStringList("GUI.Items.Icon.Description")), 2);
@@ -233,9 +242,9 @@ public class GUIManager {
                     target.closeInventory();
                     new PlayerInput(target, s -> {
                         m.setDisplayName(s);
-                        GUIManager.this.rm.getGUIManager().openMine(m, target);
-                    }, s -> GUIManager.this.rm.getGUIManager().openMine(m, target));
-                }, Items.createItemLore(Material.PAPER, 1, Language.file().getString("GUI.Items.Name.Name"), Language.file().getStringList("GUI.Items.Name.Description")), 4);
+                        rm.getGUIManager().openMine(m, target);
+                    }, s -> rm.getGUIManager().openMine(m, target));
+                }, Items.createItemLore(Material.PAPER, 1, Language.file().getString("GUI.Items.Displayname.Name"), Language.file().getStringList("GUI.Items.Displayname.Description")), 4);
 
                 inventory.addItem(e -> {
                     m.clear();
@@ -248,26 +257,24 @@ public class GUIManager {
 
                 inventory.addItem(e -> {
                     target.closeInventory();
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(GUIManager.this.rm, () -> {
-                        final MineColorPickerGUI mcp = new MineColorPickerGUI(GUIManager.this.rm, target, m);
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(rm, () -> {
+                        final MineColorPickerGUI mcp = new MineColorPickerGUI(rm, target, m);
                         mcp.openInventory(target);
                     }, 2);
                 }, m.getMineColor().getItem(Language.file().getString("GUI.Items.MineColor.Name"), Language.file().getStringList("GUI.Items.MineColor.Description")), 24);
 
-                if (m instanceof BlockMine) {
-                    inventory.addItem(e -> {
-                        target.closeInventory();
-                        Bukkit.getScheduler().scheduleSyncDelayedTask(GUIManager.this.rm, () -> {
-                            final MineFacesGUI m1 = new MineFacesGUI(GUIManager.this.rm, target, m);
-                            m1.openInventory(target);
-                        }, 2);
-                    }, Items.createItemLore(Material.SCAFFOLDING, 1, Language.file().getString("GUI.Items.Faces.Name"), Language.file().getStringList("GUI.Items.Faces.Description")), 16);
-                }
+                inventory.addItem(e -> {
+                    target.closeInventory();
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(rm, () -> {
+                        final MineFacesGUI m1 = new MineFacesGUI(rm, target, m);
+                        m1.openInventory(target);
+                    }, 2);
+                }, Items.createItemLore(Material.SCAFFOLDING, 1, Language.file().getString("GUI.Items.Faces.Name"), Language.file().getStringList("GUI.Items.Faces.Description")), 16);
 
                 inventory.addItem(e -> {
                     target.closeInventory();
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(GUIManager.this.rm, () -> {
-                        final MineListGUI m1 = new MineListGUI(GUIManager.this.rm, target);
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(rm, () -> {
+                        final MineListGUI m1 = new MineListGUI(rm, target);
                         m1.openInventory(target);
                     }, 2);
                 }, Items.createItemLore(Material.RED_BED, 1, Language.file().getString("GUI.Items.Back.Name"), Language.file().getStringList("GUI.Items.Back.Description")), 26);

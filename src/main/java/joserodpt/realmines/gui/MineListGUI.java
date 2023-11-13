@@ -58,7 +58,7 @@ public class MineListGUI {
     public MineListGUI(final RealMines rm, final Player as) {
         this.rm = rm;
         this.uuid = as.getUniqueId();
-        this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Panel-Name")));
+        this.inv = Bukkit.getServer().createInventory(null, 54, Text.pluginPrefix);
 
         this.load();
 
