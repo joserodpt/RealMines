@@ -148,6 +148,7 @@ GUI:
           - "&fPercentage: &b%percentage%%"
           - "&6"
           - "&a&nLeft-Click&r&f to edit the percentage."
+          - "&e&nRight-Click&r&f to edit this item's break actions."
           - "&a&nShift-Left&r&f to increase the age."
           - "&e&nShift-Right&r&f to decrease the age."
           - "&c&nQ (Drop)&r&f to remove this block."
