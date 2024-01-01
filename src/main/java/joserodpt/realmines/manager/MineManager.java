@@ -612,6 +612,7 @@ public class MineManager {
                 m.fill();
                 Text.send(p, Language.file().getString("System.Region-Updated"));
                 m.reset();
+                m.saveAll();
             }
         } catch (final Exception e) {
             Text.send(p, Language.file().getString("System.Boundaries-Not-Set"));
