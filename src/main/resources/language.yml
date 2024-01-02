@@ -220,7 +220,7 @@ System:
   Input-Schematic: "&fInput in chat the schematic file name in RealMines/schematics folder (Example: Schem1.schem)"
   Input-Parse: "&cInput a percentage from 0 to 100."
   Input-Limit-Error: "&cWrong input. Please input a percentage greater than 1 and lower or equal to 100"
-  Input-Percentage-Error: "&cInput a percentage from 0 to 1."
+  Input-Percentage-Error: "&cInput a percentage from 0 to 100."
   Input-Percentage-Error-Greater: "&cWrong input. Please input a percentage greater than 0."
   Input-Percentage-Error-Lower: "&cWrong input. Please input a percentage lower or equal than 100."
   Input-Limit-Error-Greater: "&cWrong input. Please input a new time greater than 1"
