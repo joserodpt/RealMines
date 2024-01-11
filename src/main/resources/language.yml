@@ -215,7 +215,7 @@ System:
   Error-Permission: "&fYou &cdo not &fhave permission to execute this command!"
   Error-Command: "&cThe command you're trying to run doesn't exist!"
   Error-Usage: "&cWrong usage for the command!"
-  Nothing-Found: "&fNothing found for your results."
+  Nothing-Found: "&fNothing found for your search criteria."
   Invalid-Schematic: "&cThe specified schematic file does not exist. Did you write the extension format? (.schem, etc)"
   Input-Schematic: "&fInput in chat the schematic file name in RealMines/schematics folder (Example: Schem1.schem)"
   Input-Parse: "&cInput a percentage from 0 to 100."

@@ -178,7 +178,7 @@ public class FarmMine extends RMine {
     }
 
     public void removeMineFarmItem(final MineItem mb) {
-        super.getMineItems().remove(mb);
+        super.getMineItems().remove(mb.getMaterial());
         this.saveData(Data.BLOCKS);
     }
 
