@@ -18,6 +18,7 @@ import joserodpt.realmines.api.config.Config;
 import joserodpt.realmines.api.config.Language;
 import joserodpt.realmines.api.config.Mines;
 import joserodpt.realmines.api.event.MineBlockBreakEvent;
+import joserodpt.realmines.api.event.RealMinesMineChangeEvent;
 import joserodpt.realmines.api.mine.components.MineColor;
 import joserodpt.realmines.api.mine.components.MineIcon;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
@@ -346,6 +347,8 @@ public class MineManager extends MineManagerAPI {
 
                 m.saveAll();
 
+                Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(m, RealMinesMineChangeEvent.ChangeOperation.ADDED));
+
                 final List<Material> mat = m.getMineCuboid().getBlockTypes();
                 if (!mat.isEmpty()) {
                     Text.send(p, Language.file().getString("System.Add-Blocks"));
@@ -391,6 +394,8 @@ public class MineManager extends MineManagerAPI {
 
                 m.saveAll();
 
+                Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(m, RealMinesMineChangeEvent.ChangeOperation.ADDED));
+
                 final List<Material> mat = m.getMineCuboid().getBlockTypes();
                 if (!mat.isEmpty()) {
                     Text.send(p, Language.file().getString("System.Add-Blocks"));
@@ -427,6 +432,8 @@ public class MineManager extends MineManagerAPI {
                 m.reset();
                 m.setTeleport(p.getLocation());
                 m.saveAll();
+
+                Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(m, RealMinesMineChangeEvent.ChangeOperation.ADDED));
             } else {
                 Text.send(p, Language.file().getString("System.Invalid-Schematic"));
             }
@@ -629,6 +636,8 @@ public class MineManager extends MineManagerAPI {
                 Text.send(p, Language.file().getString("System.Region-Updated"));
                 m.reset();
                 m.saveData(RMine.Data.LOCATION);
+
+                Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(m, RealMinesMineChangeEvent.ChangeOperation.BOUNDS_UPDATED));
             }
         } catch (final Exception e) {
             Text.send(p, Language.file().getString("System.Boundaries-Not-Set"));
@@ -648,6 +657,7 @@ public class MineManager extends MineManagerAPI {
     @Override
     public void deleteMine(final RMine mine) {
         if (mine != null) {
+            Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(mine, RealMinesMineChangeEvent.ChangeOperation.REMOVED));
             mine.clear();
             mine.getTimer().kill();
             mine.removeDependencies();
@@ -656,9 +666,8 @@ public class MineManager extends MineManagerAPI {
                     task.removeMine(mine);
                 }
             }
+            this.unregisterMine(mine);
         }
-        assert mine != null;
-        this.unregisterMine(mine);
     }
 
     @Override
