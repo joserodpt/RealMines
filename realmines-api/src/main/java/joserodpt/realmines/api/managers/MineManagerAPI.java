@@ -44,7 +44,7 @@ public abstract class MineManagerAPI {
 
     public abstract void unloadMines();
 
-    public abstract void setRegion(RMine m, Player p);
+    public abstract void setBounds(RMine m, Player p);
 
     public abstract void stopTasks();
 

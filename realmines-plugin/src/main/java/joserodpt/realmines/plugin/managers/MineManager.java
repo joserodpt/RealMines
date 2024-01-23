@@ -611,7 +611,7 @@ public class MineManager extends MineManagerAPI {
     }
 
     @Override
-    public void setRegion(final RMine m, final Player p) {
+    public void setBounds(final RMine m, final Player p) {
         if (m.getType() == RMine.Type.SCHEMATIC) {
             return;
         }

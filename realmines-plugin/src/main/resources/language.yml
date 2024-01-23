@@ -203,7 +203,7 @@ System:
   Stopped-Mine-Tasks: "&cStopped &fall mine tasks."
   Started-Mine-Tasks: "&aStarted &fall mine tasks."
   Remove: "&fYou removed &b%object%"
-  Region-Updated: "&fRegion &aupdated."
+  Region-Updated: "&Bounds &aupdated."
   Add-Blocks: "&fDo you want to add the following blocks to the mine? (type yes or no)"
   Block-Count: "&fTotal Blocks: &3%count%"
   Blocks-Added: "&b%count% &fblock have been &aadded &fto the mine."

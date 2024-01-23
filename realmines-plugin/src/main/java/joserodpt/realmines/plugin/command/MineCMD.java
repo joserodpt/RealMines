@@ -343,15 +343,15 @@ public class MineCMD extends CommandBase {
         }
     }
 
-    @SubCommand("setregion")
+    @SubCommand("setbounds")
     @Completion("#mines")
     @Permission("realmines.admin")
-    @WrongUsage("&c/mine setregion <name>")
-    public void setregioncmd(final CommandSender commandSender, final String name) {
+    @WrongUsage("&c/mine setbounds <name>")
+    public void setboundscmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
             if (m != null) {
-                rm.getMineManager().setRegion(m, (Player) commandSender);
+                rm.getMineManager().setBounds(m, (Player) commandSender);
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }
