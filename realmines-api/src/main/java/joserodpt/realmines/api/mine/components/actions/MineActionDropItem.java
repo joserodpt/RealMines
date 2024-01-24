@@ -1,5 +1,18 @@
 package joserodpt.realmines.api.mine.components.actions;
 
+/*
+ *  ______           ____  ____
+ *  | ___ \         | |  \/  (_)
+ *  | |_/ /___  __ _| | .  . |_ _ __   ___  ___
+ *  |    // _ \/ _` | | |\/| | | '_ \ / _ \/ __|
+ *  | |\ \  __/ (_| | | |  | | | | | |  __/\__ \
+ *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
+ *
+ * Licensed under the MIT License
+ * @author José Rodrigues
+ * @link https://github.com/joserodpt/RealMines
+ */
+
 import joserodpt.realmines.api.config.Language;
 import joserodpt.realmines.api.config.Mines;
 import joserodpt.realmines.api.utils.ItemStackSpringer;
