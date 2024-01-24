@@ -28,11 +28,9 @@ public class RealMines extends RealMinesAPI {
 
     private final Logger logger;
     private final RealMinesPlugin plugin;
-
     private final MineManager mineManager;
     private final MineResetTasksManager mineResetTasksManager;
     private final GUIManager guiManager;
-
     private final Economy econ;
 
     public RealMines(RealMinesPlugin plugin) {

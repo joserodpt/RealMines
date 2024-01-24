@@ -64,7 +64,7 @@ public class MineCMD extends CommandBase {
 
     @SubCommand("reload")
     @Alias("rl")
-    @Permission("realmines.reload")
+    @Permission("realmines.admin")
     public void reloadcmd(final CommandSender commandSender) {
         this.rm.reload();
         Text.send(commandSender, Language.file().getString("System.Reloaded"));
@@ -233,7 +233,7 @@ public class MineCMD extends CommandBase {
 
     @SubCommand("highlight")
     @Completion("#mines")
-    @Permission("realmines.highlight")
+    @Permission("realmines.admin")
     @WrongUsage("&c/mine highlight <name>")
     public void highlight(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
@@ -250,7 +250,7 @@ public class MineCMD extends CommandBase {
 
     @SubCommand("blocks")
     @Completion("#mines")
-    @Permission("realmines.blocks")
+    @Permission("realmines.admin")
     @WrongUsage("&c/mine blocks <name>")
     public void blocks(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
@@ -380,7 +380,6 @@ public class MineCMD extends CommandBase {
     @WrongUsage("&c/mine ri <item name>")
     public void acmd(final CommandSender commandSender, final String name) {
         final Player p = (Player) commandSender;
-
         Config.file().set("Items." + name, ItemStackSpringer.getItemSerializedJSON(p.getInventory().getItemInMainHand()));
         Config.save();
     }

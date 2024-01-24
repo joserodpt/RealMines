@@ -35,9 +35,13 @@ import joserodpt.realmines.plugin.gui.MineListGUI;
 import joserodpt.realmines.plugin.gui.MineResetGUI;
 import joserodpt.realmines.plugin.gui.RealMinesGUI;
 import joserodpt.realmines.plugin.gui.SettingsGUI;
+import joserodpt.realpermissions.api.RealPermissionsAPI;
+import joserodpt.realpermissions.api.pluginhookup.ExternalPlugin;
+import joserodpt.realpermissions.api.pluginhookup.ExternalPluginPermission;
 import me.mattstudios.mf.base.CommandManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -46,7 +50,8 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Random;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -110,6 +115,17 @@ public class RealMinesPlugin extends JavaPlugin {
                     getLogger().info("Hooked into Vault!");
                 }
             }
+        }
+
+        if (getServer().getPluginManager().getPlugin("RealPermissions") != null) {
+            //register RealMines permissions onto RealPermissions
+            RealPermissionsAPI.getInstance().getHookupAPI().addHookup(new ExternalPlugin("RealMines", "&fReal&9Mines", this.getDescription().getDescription(), Material.DIAMOND_PICKAXE, Arrays.asList(
+                    new ExternalPluginPermission("realmines.admin", "Allow access to the main operator commands of RealMines.", Arrays.asList("rm reload", "rm mines", "rm panel", "rm stoptasks", "rm starttasks", "rm list", "rm create", "rm settp", "rm tp", "rm clear", "rm reset")),
+                    new ExternalPluginPermission("realmines.tp.<name>", "Allow permission to teleport to a mine.", Collections.singletonList("rm tp <name>")),
+                    new ExternalPluginPermission("realmines.silent", "Allow permission to silence a mine.", Arrays.asList("rm silent", "rm silentall")),
+                    new ExternalPluginPermission("realmines.reset", "Allow permission to reset all mines."),
+                    new ExternalPluginPermission("realmines.update.notify", "Notification of a plugin update to the player.")
+            ), this.getDescription().getVersion()));
         }
 
         this.commandManager = new CommandManager(this);
