@@ -39,7 +39,7 @@ public class UpdateChecker {
             try (final InputStream inputStream = new URL("https://api.spigotmc.org/legacy/update.php?resource=" + this.resourceId).openStream(); final Scanner ignored = new Scanner(inputStream)) {
                 consumer.accept(new BufferedReader(new InputStreamReader(inputStream)).readLine());
             } catch (final IOException exception) {
-                this.plugin.getLogger().info("Cannot look for updates: " + exception.getMessage());
+                this.plugin.getLogger().warning("Cannot look for updates: " + exception.getMessage());
             }
         });
     }

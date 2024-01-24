@@ -188,7 +188,7 @@ public class RealMinesPlugin extends JavaPlugin {
                 this.getLogger().info("The plugin is updated to the latest version.");
             } else {
                 this.newUpdate = true;
-                this.getLogger().info("There is a new update available! Version: " + version + " https://www.spigotmc.org/resources/realmines-1-14-to-1-20-1.73707/");
+                this.getLogger().warning("There is a new update available! Version: " + version + " https://www.spigotmc.org/resources/realmines-1-14-to-1-20-1.73707/");
             }
         });
     }
