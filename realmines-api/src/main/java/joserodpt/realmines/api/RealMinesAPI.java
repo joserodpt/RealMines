@@ -51,4 +51,6 @@ public abstract class RealMinesAPI  {
     }
 
     public abstract Economy getEconomy();
+
+    public abstract String getVersion();
 }

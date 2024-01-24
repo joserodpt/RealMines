@@ -70,4 +70,9 @@ public class RealMines extends RealMinesAPI {
     public Economy getEconomy() {
         return this.econ;
     }
+
+    @Override
+    public String getVersion() {
+        return this.plugin.getDescription().getVersion();
+    }
 }
