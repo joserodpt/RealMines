@@ -42,6 +42,23 @@ RealMines requires [WorldEdit](https://dev.bukkit.org/projects/worldedit) or [FA
 
 ----
 
+## API
+You can access the RealMines API via the RealMinesAPI class:
+
+```java
+var rmAPI = RealMinesAPI.getInstance();
+```
+
+You can get the list of Mines as follows:
+
+```java
+var rmAPI = RealMinesAPI.getInstance();
+rmAPI.getMineManager().getMines() and that will give you a Map<String, RMine> for you to discover.
+```
+There are also two events from this API: [RealMinesMineChangeEvent.java](realmines-api%2Fsrc%2Fmain%2Fjava%2Fjoserodpt%2Frealmines%2Fapi%2Fevent%2FRealMinesMineChangeEvent.java) and [RealMinesPluginLoadedEvent.java](realmines-api%2Fsrc%2Fmain%2Fjava%2Fjoserodpt%2Frealmines%2Fapi%2Fevent%2FRealMinesPluginLoadedEvent.java) that can be listened to.
+
+----
+
 ## Links
 * [SpigotMC](https://www.spigotmc.org/resources/realmines-1-14-to-1-19-2.73707/)
 * [Discord Server](https://discord.gg/t7gfnYZKy8)
