@@ -18,6 +18,8 @@ import joserodpt.realmines.api.config.Config;
 import joserodpt.realmines.api.config.Language;
 import joserodpt.realmines.api.config.MineResetTasks;
 import joserodpt.realmines.api.config.Mines;
+import joserodpt.realmines.api.event.RealMinesMineChangeEvent;
+import joserodpt.realmines.api.event.RealMinesPluginLoadedEvent;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.GUIBuilder;
 import joserodpt.realmines.api.utils.PlayerInput;
@@ -117,17 +119,6 @@ public class RealMinesPlugin extends JavaPlugin {
             }
         }
 
-        if (getServer().getPluginManager().getPlugin("RealPermissions") != null) {
-            //register RealMines permissions onto RealPermissions
-            RealPermissionsAPI.getInstance().getHookupAPI().addHookup(new ExternalPlugin("RealMines", "&fReal&9Mines", this.getDescription().getDescription(), Material.DIAMOND_PICKAXE, Arrays.asList(
-                    new ExternalPluginPermission("realmines.admin", "Allow access to the main operator commands of RealMines.", Arrays.asList("rm reload", "rm mines", "rm panel", "rm stoptasks", "rm starttasks", "rm list", "rm create", "rm settp", "rm tp", "rm clear", "rm reset")),
-                    new ExternalPluginPermission("realmines.tp.<name>", "Allow permission to teleport to a mine.", Collections.singletonList("rm tp <name>")),
-                    new ExternalPluginPermission("realmines.silent", "Allow permission to silence a mine.", Arrays.asList("rm silent", "rm silentall")),
-                    new ExternalPluginPermission("realmines.reset", "Allow permission to reset all mines."),
-                    new ExternalPluginPermission("realmines.update.notify", "Notification of a plugin update to the player.")
-            ), this.getDescription().getVersion()));
-        }
-
         this.commandManager = new CommandManager(this);
 
         this.commandManager.hideTabComplete(true);
@@ -174,6 +165,19 @@ public class RealMinesPlugin extends JavaPlugin {
             new RealMinesPlaceholderAPI(realMines).register();
             getLogger().info("Hooked onto PlaceholderAPI!");
         }
+
+        if (getServer().getPluginManager().getPlugin("RealPermissions") != null) {
+            //register RealMines permissions onto RealPermissions
+            RealPermissionsAPI.getInstance().getHookupAPI().addHookup(new ExternalPlugin("RealMines", "&fReal&9Mines", this.getDescription().getDescription(), Material.DIAMOND_PICKAXE, Arrays.asList(
+                    new ExternalPluginPermission("realmines.admin", "Allow access to the main operator commands of RealMines.", Arrays.asList("rm reload", "rm mines", "rm panel", "rm stoptasks", "rm starttasks", "rm list", "rm create", "rm settp", "rm tp", "rm clear", "rm reset")),
+                    new ExternalPluginPermission("realmines.tp.<name>", "Allow permission to teleport to a mine.", Collections.singletonList("rm tp <name>")),
+                    new ExternalPluginPermission("realmines.silent", "Allow permission to silence a mine.", Arrays.asList("rm silent", "rm silentall")),
+                    new ExternalPluginPermission("realmines.reset", "Allow permission to reset all mines."),
+                    new ExternalPluginPermission("realmines.update.notify", "Notification of a plugin update to the player.")
+            ), this.getDescription().getVersion()));
+        }
+
+        Bukkit.getPluginManager().callEvent(new RealMinesPluginLoadedEvent());
 
         getLogger().info("Plugin has been loaded.");
         getLogger().info("Author: JoseGamer_PT | " + this.getDescription().getWebsite());
