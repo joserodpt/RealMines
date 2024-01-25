@@ -47,7 +47,7 @@ public abstract class MineManagerAPI {
     public abstract List<MineIcon> getMineList();
 
     //permission for teleport: realmines.tp.<name>
-    public abstract void teleport(Player target, RMine m, Boolean silent);
+    public abstract void teleport(Player target, RMine m, Boolean silent, Boolean checkForPermission);
 
     public abstract RMine getMine(String name);
 

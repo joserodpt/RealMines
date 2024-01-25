@@ -555,19 +555,23 @@ public class MineManager extends MineManagerAPI {
 
     //permission for teleport: realmines.tp.<name>
     @Override
-    public void teleport(final Player target, final RMine m, final Boolean silent) {
+    public void teleport(final Player target, final RMine m, final Boolean silent, final Boolean checkForPermission) {
         if (!silent) {
             if (m.hasTP()) {
-                if (target.hasPermission("realmines.tp." + m.getName())) {
-                    target.teleport(m.getTeleport());
+                if (checkForPermission) {
+                    if (target.hasPermission("realmines.tp." + m.getName())) {
+                        target.teleport(m.getTeleport());
 
-                    if (Config.file().getBoolean("RealMines.teleportMessage")) {
-                        Text.send(target, Language.file().getString("Mines.Teleport").replaceAll("%mine%", m.getDisplayName()));
+                        if (Config.file().getBoolean("RealMines.teleportMessage")) {
+                            Text.send(target, Language.file().getString("Mines.Teleport").replaceAll("%mine%", m.getDisplayName()));
+                        }
+                    } else {
+                        if (Config.file().getBoolean("RealMines.teleportMessage")) {
+                            Text.send(target, Language.file().getString("System.Error-Permission"));
+                        }
                     }
                 } else {
-                    if (Config.file().getBoolean("RealMines.teleportMessage")) {
-                        Text.send(target, Text.color(Config.file().getString("RealMines.Prefix")) + Language.file().getString("System.Error-Permission"));
-                    }
+                    target.teleport(m.getTeleport());
                 }
             } else {
                 Text.send(target, Language.file().getString("Mines.No-Teleport-Location"));

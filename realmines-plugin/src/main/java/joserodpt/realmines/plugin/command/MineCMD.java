@@ -169,7 +169,7 @@ public class MineCMD extends CommandBase {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
             if (m != null) {
-                rm.getMineManager().teleport(((Player) commandSender), m, m.isSilent());
+                rm.getMineManager().teleport(((Player) commandSender), m, m.isSilent(), true);
             } else {
                 Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
             }

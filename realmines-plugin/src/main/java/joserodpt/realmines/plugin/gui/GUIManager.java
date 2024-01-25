@@ -209,7 +209,6 @@ public class GUIManager {
                     }, s -> rm.getGUIManager().openMine(m, target));
                 }, Items.createItemLore(Material.FILLED_MAP, 1, Language.file().getString("GUI.Items.Name.Name"), Language.file().getStringList("GUI.Items.Name.Description")), 0);
 
-
                 inventory.addItem(e -> {
                             target.closeInventory();
                             Bukkit.getScheduler().scheduleSyncDelayedTask(rm.getPlugin(), () -> {
@@ -229,7 +228,7 @@ public class GUIManager {
                         12);
                 inventory.addItem(e -> {
                     target.closeInventory();
-                    rm.getMineManager().teleport(target, m, m.isSilent());
+                    rm.getMineManager().teleport(target, m, m.isSilent(), false);
                 }, Items.createItemLore(Material.ENDER_PEARL, 1, Language.file().getString("GUI.Items.Teleport.Name"), Language.file().getStringList("GUI.Items.Teleport.Description")), 20);
 
                 inventory.addItem(e -> {

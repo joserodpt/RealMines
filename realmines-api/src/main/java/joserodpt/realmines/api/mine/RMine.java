@@ -277,7 +277,7 @@ public abstract class RMine {
     public void kickPlayers(final String s) {
         if (this.getType() != Type.FARM) {
             if (Config.file().getBoolean("RealMines.teleportPlayers")) {
-                this.getPlayersInMine().forEach(player -> this.mm.teleport(player, this, this.isSilent()));
+                this.getPlayersInMine().forEach(player -> this.mm.teleport(player, this, this.isSilent(), false));
             }
         }
         if (!this.isSilent()) {
