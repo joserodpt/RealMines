@@ -14,10 +14,10 @@ package joserodpt.realmines.plugin;
  */
 
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.config.Config;
-import joserodpt.realmines.api.config.Language;
-import joserodpt.realmines.api.config.MineResetTasks;
-import joserodpt.realmines.api.config.Mines;
+import joserodpt.realmines.api.config.RMConfig;
+import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.RPMineResetTasksConfig;
+import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.event.RealMinesPluginLoadedEvent;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.GUIBuilder;
@@ -74,23 +74,23 @@ public class RealMinesPlugin extends JavaPlugin {
         final long start = System.currentTimeMillis();
 
         instance = this;
-        Config.setup(this);
+        RMConfig.setup(this);
         realMines = new RealMines(this);
         RealMinesAPI.setInstance(realMines);
 
         new Metrics(this, 10574);
 
         this.saveDefaultConfig();
-        Config.setup(this);
-        MineResetTasks.setup(this);
-        Language.setup(this);
+        RMConfig.setup(this);
+        RPMineResetTasksConfig.setup(this);
+        RMLanguageConfig.setup(this);
 
         //mkdir folder
         final File folder = new File(this.getDataFolder(), "schematics");
         if (!folder.exists()) {
             folder.mkdir();
         }
-        Mines.setup(this);
+        RMMinesConfig.setup(this);
 
         this.pm.registerEvents(new PlayerEvents(realMines), this);
         this.pm.registerEvents(new BlockEvents(realMines), this);
@@ -139,9 +139,9 @@ public class RealMinesPlugin extends JavaPlugin {
         this.commandManager.getCompletionHandler().register("#minetasks", input -> realMines.getMineResetTasksManager().getRegisteredTasks());
 
         //command messages
-        this.commandManager.getMessageHandler().register("cmd.no.exists", sender -> Text.send(sender, Language.file().getString("System.Error-Command")));
-        this.commandManager.getMessageHandler().register("cmd.no.permission", sender -> Text.send(sender, Language.file().getString("System.Error-Permission")));
-        this.commandManager.getMessageHandler().register("cmd.wrong.usage", sender -> Text.send(sender, Language.file().getString("System.Error-Usage")));
+        this.commandManager.getMessageHandler().register("cmd.no.exists", sender -> Text.send(sender, RMLanguageConfig.file().getString("System.Error-Command")));
+        this.commandManager.getMessageHandler().register("cmd.no.permission", sender -> Text.send(sender, RMLanguageConfig.file().getString("System.Error-Permission")));
+        this.commandManager.getMessageHandler().register("cmd.wrong.usage", sender -> Text.send(sender, RMLanguageConfig.file().getString("System.Error-Usage")));
 
         //registo de comandos #portugal
         this.commandManager.register(new MineCMD(realMines));

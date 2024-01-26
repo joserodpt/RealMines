@@ -13,7 +13,7 @@ package joserodpt.realmines.plugin.gui;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineColor;
 import joserodpt.realmines.api.utils.Text;
@@ -42,12 +42,12 @@ public class MineColorPickerGUI {
     private final UUID uuid;
     private final RMine mi;
     private final RealMines rm;
-    private final List<String> colorsDescription = Language.file().getStringList("GUI.Items.Colors.Description");
+    private final List<String> colorsDescription = RMLanguageConfig.file().getStringList("GUI.Items.Colors.Description");
 
     public MineColorPickerGUI(final RealMines rm, final Player as, final RMine mi) {
         this.rm = rm;
         this.uuid = as.getUniqueId();
-        this.inv = Bukkit.getServer().createInventory(null, InventoryType.DROPPER, Text.color(Language.file().getString("GUI.Color-Picker-Name")));
+        this.inv = Bukkit.getServer().createInventory(null, InventoryType.DROPPER, Text.color(RMLanguageConfig.file().getString("GUI.Color-Picker-Name")));
 
         this.mi = mi;
         this.load();
@@ -128,15 +128,15 @@ public class MineColorPickerGUI {
     }
 
     public void load() {
-        this.inv.setItem(0, MineColor.RED.getItem(Language.file().getString("GUI.Items.Colors.Red"), this.colorsDescription));
-        this.inv.setItem(1, MineColor.GREEN.getItem(Language.file().getString("GUI.Items.Colors.Green"), this.colorsDescription));
-        this.inv.setItem(2, MineColor.BLUE.getItem(Language.file().getString("GUI.Items.Colors.Blue"), this.colorsDescription));
-        this.inv.setItem(3, MineColor.BROWN.getItem(Language.file().getString("GUI.Items.Colors.Brown"), this.colorsDescription));
-        this.inv.setItem(4, MineColor.GRAY.getItem(Language.file().getString("GUI.Items.Colors.Gray"), this.colorsDescription));
-        this.inv.setItem(5, MineColor.WHITE.getItem(Language.file().getString("GUI.Items.Colors.White"), this.colorsDescription));
-        this.inv.setItem(6, MineColor.ORANGE.getItem(Language.file().getString("GUI.Items.Colors.Orange"), this.colorsDescription));
-        this.inv.setItem(7, MineColor.YELLOW.getItem(Language.file().getString("GUI.Items.Colors.Yellow"), this.colorsDescription));
-        this.inv.setItem(8, MineColor.PURPLE.getItem(Language.file().getString("GUI.Items.Colors.Purple"), this.colorsDescription));
+        this.inv.setItem(0, MineColor.RED.getItem(RMLanguageConfig.file().getString("GUI.Items.Colors.Red"), this.colorsDescription));
+        this.inv.setItem(1, MineColor.GREEN.getItem(RMLanguageConfig.file().getString("GUI.Items.Colors.Green"), this.colorsDescription));
+        this.inv.setItem(2, MineColor.BLUE.getItem(RMLanguageConfig.file().getString("GUI.Items.Colors.Blue"), this.colorsDescription));
+        this.inv.setItem(3, MineColor.BROWN.getItem(RMLanguageConfig.file().getString("GUI.Items.Colors.Brown"), this.colorsDescription));
+        this.inv.setItem(4, MineColor.GRAY.getItem(RMLanguageConfig.file().getString("GUI.Items.Colors.Gray"), this.colorsDescription));
+        this.inv.setItem(5, MineColor.WHITE.getItem(RMLanguageConfig.file().getString("GUI.Items.Colors.White"), this.colorsDescription));
+        this.inv.setItem(6, MineColor.ORANGE.getItem(RMLanguageConfig.file().getString("GUI.Items.Colors.Orange"), this.colorsDescription));
+        this.inv.setItem(7, MineColor.YELLOW.getItem(RMLanguageConfig.file().getString("GUI.Items.Colors.Yellow"), this.colorsDescription));
+        this.inv.setItem(8, MineColor.PURPLE.getItem(RMLanguageConfig.file().getString("GUI.Items.Colors.Purple"), this.colorsDescription));
     }
 
     public void openInventory(final Player target) {

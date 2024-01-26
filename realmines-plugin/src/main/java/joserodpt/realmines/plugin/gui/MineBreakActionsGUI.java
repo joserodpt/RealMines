@@ -14,7 +14,7 @@ package joserodpt.realmines.plugin.gui;
  */
 
 
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.mine.components.actions.MineActionCommand;
@@ -53,12 +53,12 @@ public class MineBreakActionsGUI {
 
     private static final Map<UUID, MineBreakActionsGUI> inventories = new HashMap<>();
     static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
-            Language.file().getStringList("GUI.Items.Next.Description"));
-    static ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Back.Name"),
-            Language.file().getStringList("GUI.Items.Back.Description"));
-    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
-            Language.file().getStringList("GUI.Items.Close.Description"));
+    static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, RMLanguageConfig.file().getString("GUI.Items.Next.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Next.Description"));
+    static ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, RMLanguageConfig.file().getString("GUI.Items.Back.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Back.Description"));
+    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, RMLanguageConfig.file().getString("GUI.Items.Close.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
     static ItemStack add = Items.createItemLore(Material.OBSERVER, 1, "&b&LAdd a New Break Action",
             Collections.singletonList("&fClick here to add a new break action to this item."));
     private final Inventory inv;

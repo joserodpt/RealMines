@@ -14,8 +14,8 @@ package joserodpt.realmines.api.mine.components.actions;
  */
 
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.config.Language;
-import joserodpt.realmines.api.config.Mines;
+import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Text;
 import org.bukkit.Location;
@@ -37,8 +37,8 @@ public class MineActionMoney extends MineAction {
     public void execute(final Player p, final Location l, double randomChance) {
         if (randomChance < super.getChance()) {
             RealMinesAPI.getInstance().getEconomy().depositPlayer(p, money);
-            if (Mines.file().getBoolean(super.getMineID() + ".Settings.Discard-Break-Action-Messages"))
-                Text.send(p, Language.file().getString("Mines.Break-Actions.Give-Money").replace("%money%", Text.formatNumber(money)));
+            if (RMMinesConfig.file().getBoolean(super.getMineID() + ".Settings.Discard-Break-Action-Messages"))
+                Text.send(p, RMLanguageConfig.file().getString("Mines.Break-Actions.Give-Money").replace("%money%", Text.formatNumber(money)));
         }
     }
 

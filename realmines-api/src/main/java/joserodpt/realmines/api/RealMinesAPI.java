@@ -23,7 +23,7 @@ import java.util.Random;
 
 public abstract class RealMinesAPI  {
 
-    private static Random r = new Random();
+    private static final Random r = new Random();
     private static RealMinesAPI instance;
 
     /**

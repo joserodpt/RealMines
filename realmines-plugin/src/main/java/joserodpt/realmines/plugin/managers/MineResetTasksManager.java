@@ -13,7 +13,7 @@ package joserodpt.realmines.plugin.managers;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.MineResetTasks;
+import joserodpt.realmines.api.config.RPMineResetTasksConfig;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.task.MineResetTask;
 import joserodpt.realmines.api.managers.MineResetTasksManagerAPI;
@@ -39,13 +39,13 @@ public class MineResetTasksManager extends MineResetTasksManagerAPI {
 
     @Override
     public void loadTasks() {
-        if (MineResetTasks.file().isSection("")) {
-            for (final String s : MineResetTasks.file().getSection("").getRoutesAsStrings(false)) {
-                final int interval = MineResetTasks.file().getInt(s + ".Delay");
+        if (RPMineResetTasksConfig.file().isSection("")) {
+            for (final String s : RPMineResetTasksConfig.file().getSection("").getRoutesAsStrings(false)) {
+                final int interval = RPMineResetTasksConfig.file().getInt(s + ".Delay");
 
                 final MineResetTask mrt = new MineResetTask(rm, s, interval, false);
 
-                for (final String s1 : MineResetTasks.file().getStringList(s + ".LinkedMines")) {
+                for (final String s1 : RPMineResetTasksConfig.file().getStringList(s + ".LinkedMines")) {
                     final RMine m = this.rm.getMineManager().getMine(s1);
                     if (m != null) {
                         mrt.addMine(m);
@@ -67,7 +67,7 @@ public class MineResetTasksManager extends MineResetTasksManagerAPI {
 
     @Override
     public List<String> getRegisteredTasks() {
-        MineResetTasks.reload();
+        RPMineResetTasksConfig.reload();
         return this.tasks.stream()
                 .map(MineResetTask::getName)
                 .collect(Collectors.toList());
@@ -79,8 +79,8 @@ public class MineResetTasksManager extends MineResetTasksManagerAPI {
         mrt.stopTimer();
         mrt.clearLinks();
         this.tasks.remove(mrt);
-        MineResetTasks.file().set(name, null);
-        MineResetTasks.save();
+        RPMineResetTasksConfig.file().set(name, null);
+        RPMineResetTasksConfig.save();
     }
 
     @Override

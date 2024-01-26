@@ -13,8 +13,8 @@ package joserodpt.realmines.plugin.gui;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.Language;
-import joserodpt.realmines.api.config.Mines;
+import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.api.mine.components.items.MineItem;
@@ -54,14 +54,14 @@ public class MineItensGUI {
 
     private static final Map<UUID, MineItensGUI> inventories = new HashMap<>();
     static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
-            Language.file().getStringList("GUI.Items.Next.Description"));
-    static ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Back.Name"),
-            Language.file().getStringList("GUI.Items.Back.Description"));
-    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
-            Language.file().getStringList("GUI.Items.Close.Description"));
-    static ItemStack add = Items.createItemLore(Material.HOPPER, 1, Language.file().getString("GUI.Items.Add.Name"),
-            Language.file().getStringList("GUI.Items.Add.Description"));
+    static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, RMLanguageConfig.file().getString("GUI.Items.Next.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Next.Description"));
+    static ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, RMLanguageConfig.file().getString("GUI.Items.Back.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Back.Description"));
+    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, RMLanguageConfig.file().getString("GUI.Items.Close.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
+    static ItemStack add = Items.createItemLore(Material.HOPPER, 1, RMLanguageConfig.file().getString("GUI.Items.Add.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Add.Description"));
     private final Inventory inv;
     private final UUID uuid;
     private final HashMap<Integer, MineItem> display = new HashMap<>();
@@ -74,7 +74,7 @@ public class MineItensGUI {
         this.rm = rm;
         this.uuid = target.getUniqueId();
         this.m = min;
-        this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Mine-Blocks-Name").replaceAll("%mine%", this.m.getDisplayName())));
+        this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(RMLanguageConfig.file().getString("GUI.Mine-Blocks-Name").replaceAll("%mine%", this.m.getDisplayName())));
 
         this.load();
 
@@ -126,7 +126,7 @@ public class MineItensGUI {
                                     v.openInventory(p);
                                 }, 1);
                             } else {
-                                Text.send(clicker, Language.file().getString("System.Cant-Add-Item"));
+                                Text.send(clicker, RMLanguageConfig.file().getString("System.Cant-Add-Item"));
                             }
 
                         } else {
@@ -157,8 +157,8 @@ public class MineItensGUI {
                                     current.load();
                                     break;
                                 case 8:
-                                    Mines.file().set(current.m.getName() + ".Settings.Discard-Break-Action-Messages", !Mines.file().getBoolean(current.m.getName() + ".Settings.Discard-Break-Action-Messages"));
-                                    Mines.save();
+                                    RMMinesConfig.file().set(current.m.getName() + ".Settings.Discard-Break-Action-Messages", !RMMinesConfig.file().getBoolean(current.m.getName() + ".Settings.Discard-Break-Action-Messages"));
+                                    RMMinesConfig.save();
                                     current.load();
                                     break;
                                 case 26:
@@ -194,7 +194,7 @@ public class MineItensGUI {
                                                 break;
                                         }
 
-                                        Text.send(p, Language.file().getString("System.Remove").replace("%object%", Text.beautifyMaterialName(minItem.getMaterial())));
+                                        Text.send(p, RMLanguageConfig.file().getString("System.Remove").replace("%object%", Text.beautifyMaterialName(minItem.getMaterial())));
                                         current.load();
                                         break;
                                     case SHIFT_RIGHT:
@@ -294,7 +294,7 @@ public class MineItensGUI {
         }
 
         this.inv.setItem(0, Items.createItemLore(Material.FILLED_MAP, 1, "&e&lToggle Break Permission", Arrays.asList("&fClick here to toggle the break permission:", "&f" + this.m.getBreakPermission(), "&7State: " + (this.m.isBreakingPermissionOn() ? "&a&lON" : "&c&lOFF"))));
-        this.inv.setItem(8, Items.createItemLore(Material.COMPARATOR, 1, "&e&lDiscard Break Action Messages", Arrays.asList("&fClick here to toggle the messages.", "&7State: " + (Mines.file().getBoolean(this.m.getName() + ".Settings.Discard-Break-Action-Messages") ? "&a&lON" : "&c&lOFF"))));
+        this.inv.setItem(8, Items.createItemLore(Material.COMPARATOR, 1, "&e&lDiscard Break Action Messages", Arrays.asList("&fClick here to toggle the messages.", "&7State: " + (RMMinesConfig.file().getBoolean(this.m.getName() + ".Settings.Discard-Break-Action-Messages") ? "&a&lON" : "&c&lOFF"))));
 
         this.inv.setItem(4, this.m.getType() != RMine.Type.SCHEMATIC ? add : placeholder);
 
@@ -340,18 +340,18 @@ public class MineItensGUI {
             try {
                 d = Double.parseDouble(s.replace("%", ""));
             } catch (final Exception ex) {
-                Text.send(p, Language.file().getString("System.Input-Percentage-Error"));
+                Text.send(p, RMLanguageConfig.file().getString("System.Input-Percentage-Error"));
                 this.editPercentage(p, a, current);
             }
 
             if (d < 1D) {
-                Text.send(p, Language.file().getString("System.Input-Percentage-Error-Greater"));
+                Text.send(p, RMLanguageConfig.file().getString("System.Input-Percentage-Error-Greater"));
                 this.editPercentage(p, a, current);
                 return;
             }
 
             if (d > 100D) {
-                Text.send(p, Language.file().getString("System.Input-Percentage-Error-Lower"));
+                Text.send(p, RMLanguageConfig.file().getString("System.Input-Percentage-Error-Lower"));
                 this.editPercentage(p, a, current);
                 return;
             }
@@ -361,7 +361,7 @@ public class MineItensGUI {
             a.setPercentage(d);
             current.m.saveData(BlockMine.Data.BLOCKS);
 
-            Text.send(p, Language.file().getString("System.Percentage-Modified").replaceAll("%value%", String.valueOf(d * 100)));
+            Text.send(p, RMLanguageConfig.file().getString("System.Percentage-Modified").replaceAll("%value%", String.valueOf(d * 100)));
 
             final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
             v.openInventory(p);

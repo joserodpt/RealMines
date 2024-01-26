@@ -27,9 +27,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
-public class Config implements Listener {
+public class RMMinesConfig implements Listener {
 
-    private static final String name = "config.yml";
+    private static final String name = "mines.yml";
     private static YamlDocument configFile;
 
     public static void setup(final JavaPlugin rm) {

@@ -27,7 +27,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
-public class Language implements Listener {
+public class RMLanguageConfig implements Listener {
 
     private static final String name = "language.yml";
     private static YamlDocument configFile;

@@ -13,7 +13,7 @@ package joserodpt.realmines.api.mine.components.items;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Text;
@@ -40,7 +40,7 @@ public class MineBlockItem extends MineItem {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItemLore(super.getMaterial(), 1, Language.file().getString("GUI.Items.Mine-Block.Block.Name").replace("%material%", Text.beautifyMaterialName(super.getMaterial())) + (super.disabledVanillaDrop() ? " &c&lNo-DROP" : ""), Language.file().getStringList("GUI.Items.Mine-Block.Block.Description")
+        return Items.createItemLore(super.getMaterial(), 1, RMLanguageConfig.file().getString("GUI.Items.Mine-Block.Block.Name").replace("%material%", Text.beautifyMaterialName(super.getMaterial())) + (super.disabledVanillaDrop() ? " &c&lNo-DROP" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Mine-Block.Block.Description")
                 .stream()
                 .map(s -> Text.color(s.replaceAll("%percentage%", String.valueOf(super.getPercentage() * 100))))
                 .collect(Collectors.toList()));

@@ -27,9 +27,9 @@ import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
-public class MineResetTasks implements Listener {
+public class RMConfig implements Listener {
 
-    private static final String name = "mineresettasks.yml";
+    private static final String name = "config.yml";
     private static YamlDocument configFile;
 
     public static void setup(final JavaPlugin rm) {

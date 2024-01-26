@@ -27,7 +27,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.config.Mines;
+import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.managers.MineManagerAPI;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.items.MineSchematicItem;
@@ -84,7 +84,7 @@ public class SchematicMine extends RMine {
         this.pasteLocation = pasteLocation;
 
         this.fill();
-        if (Mines.file().get(n + ".Blocks") == null) {
+        if (RMMinesConfig.file().get(n + ".Blocks") == null) {
             processPastedBlocks();
         }
         this.updateSigns();

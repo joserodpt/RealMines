@@ -13,8 +13,8 @@ package joserodpt.realmines.plugin.events;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.Config;
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMConfig;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.event.MineBlockBreakEvent;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.items.MineItem;
@@ -32,8 +32,8 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 public class BlockEvents implements Listener {
 
     private final RealMines rm;
-    private final String noSetting = Language.file().getString("Signs.Setting-Not-Found");
-    private final String noMine = Language.file().getString("Signs.Mine-Not-Found");
+    private final String noSetting = RMLanguageConfig.file().getString("Signs.Setting-Not-Found");
+    private final String noMine = RMLanguageConfig.file().getString("Signs.Mine-Not-Found");
 
     public BlockEvents(final RealMines rm) {
         this.rm = rm;
@@ -67,7 +67,7 @@ public class BlockEvents implements Listener {
     @EventHandler
     public void onSignChange(final SignChangeEvent event) {
         if (event.getLine(0).contains("[realmines]") || event.getLine(0).contains("[RealMines]")) {
-            event.setLine(0, Text.color(Config.file().getString("RealMines.Prefix")));
+            event.setLine(0, Text.color(RMConfig.file().getString("RealMines.Prefix")));
             final String name = event.getLine(1);
 
             final RMine m = rm.getMineManager().getMine(name);

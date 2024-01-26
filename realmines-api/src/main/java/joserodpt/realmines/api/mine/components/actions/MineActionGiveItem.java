@@ -13,8 +13,8 @@ package joserodpt.realmines.api.mine.components.actions;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.Language;
-import joserodpt.realmines.api.config.Mines;
+import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.utils.ItemStackSpringer;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Text;
@@ -36,8 +36,8 @@ public class MineActionGiveItem extends MineAction {
     public void execute(final Player p, final Location l, final double randomChance) {
         if (randomChance < super.getChance()) {
             p.getInventory().addItem(i);
-            if (Mines.file().getBoolean(super.getMineID() + ".Settings.Discard-Break-Action-Messages"))
-                Text.send(p, Language.file().getString("Mines.Break-Actions.Give-Item"));
+            if (RMMinesConfig.file().getBoolean(super.getMineID() + ".Settings.Discard-Break-Action-Messages"))
+                Text.send(p, RMLanguageConfig.file().getString("Mines.Break-Actions.Give-Item"));
         }
     }
 

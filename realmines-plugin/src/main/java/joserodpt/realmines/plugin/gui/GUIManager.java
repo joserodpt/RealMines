@@ -13,7 +13,7 @@ package joserodpt.realmines.plugin.gui;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.actions.MineActionCommand;
 import joserodpt.realmines.api.mine.components.actions.MineActionDropItem;
@@ -50,7 +50,7 @@ public class GUIManager {
 
     private static List<String> var(final RMine m) {
         final List<String> ret = new ArrayList<>();
-        final List<String> config = Language.file().getStringList("GUI.Items.Mine.Description");
+        final List<String> config = RMLanguageConfig.file().getStringList("GUI.Items.Mine.Description");
         config.remove(config.size() - 1);
         config.forEach(s -> ret.add(Text.color(s.replaceAll("%remainingblocks%", String.valueOf(m.getRemainingBlocks())).replaceAll("%totalblocks%", String.valueOf(m.getBlockCount())).replaceAll("%bar%", m.getBar()))));
         return ret;
@@ -60,24 +60,24 @@ public class GUIManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                final GUIBuilder inventory = new GUIBuilder(Text.color(Language.file().getString("GUI.Choose-Name").replaceAll("%mine%", name)), 27, target.getUniqueId());
+                final GUIBuilder inventory = new GUIBuilder(Text.color(RMLanguageConfig.file().getString("GUI.Choose-Name").replaceAll("%mine%", name)), 27, target.getUniqueId());
 
                 inventory.addItem(e -> {
                             target.closeInventory();
                             rm.getMineManager().createMine(target, name);
-                        }, Items.createItem(Material.CHEST, 1, Language.file().getString("GUI.Items.Blocks.Name")),
+                        }, Items.createItem(Material.CHEST, 1, RMLanguageConfig.file().getString("GUI.Items.Blocks.Name")),
                         11);
 
                 inventory.addItem(e -> {
                             target.closeInventory();
                             rm.getMineManager().createSchematicMine(target, name);
-                        }, Items.createItem(Material.FILLED_MAP, 1, Language.file().getString("GUI.Items.Schematic.Name")),
+                        }, Items.createItem(Material.FILLED_MAP, 1, RMLanguageConfig.file().getString("GUI.Items.Schematic.Name")),
                         13);
 
                 inventory.addItem(e -> {
                             target.closeInventory();
                             rm.getMineManager().createCropsMine(target, name);
-                        }, Items.createItem(Material.WHEAT, 1, Language.file().getString("GUI.Items.Farm.Name")),
+                        }, Items.createItem(Material.WHEAT, 1, RMLanguageConfig.file().getString("GUI.Items.Farm.Name")),
                         15);
 
                 inventory.openInventory(target);
@@ -204,10 +204,10 @@ public class GUIManager {
                     target.closeInventory();
                     new PlayerInput(target, s -> {
                         rm.getMineManager().renameMine(m, s);
-                        Text.send(target, Language.file().getString("System.Mine-Renamed").replace("%name%", s));
+                        Text.send(target, RMLanguageConfig.file().getString("System.Mine-Renamed").replace("%name%", s));
                         openMine(m, target);
                     }, s -> rm.getGUIManager().openMine(m, target));
-                }, Items.createItemLore(Material.FILLED_MAP, 1, Language.file().getString("GUI.Items.Name.Name"), Language.file().getStringList("GUI.Items.Name.Description")), 0);
+                }, Items.createItemLore(Material.FILLED_MAP, 1, RMLanguageConfig.file().getString("GUI.Items.Name.Name"), RMLanguageConfig.file().getStringList("GUI.Items.Name.Description")), 0);
 
                 inventory.addItem(e -> {
                             target.closeInventory();
@@ -215,7 +215,7 @@ public class GUIManager {
                                 final MineItensGUI v = new MineItensGUI(rm, target, m);
                                 v.openInventory(target);
                             }, 2);
-                        }, Items.createItemLore(Material.CHEST, 1, Language.file().getString("GUI.Items.Blocks.Name"), Language.file().getStringList("GUI.Items.Blocks.Description")),
+                        }, Items.createItemLore(Material.CHEST, 1, RMLanguageConfig.file().getString("GUI.Items.Blocks.Name"), RMLanguageConfig.file().getStringList("GUI.Items.Blocks.Description")),
                         10);
 
                 inventory.addItem(e -> {
@@ -224,12 +224,12 @@ public class GUIManager {
                                 final MineResetGUI mrm = new MineResetGUI(rm, target, m);
                                 mrm.openInventory(target);
                             }, 2);
-                        }, Items.createItemLore(Material.ANVIL, 1, Language.file().getString("GUI.Items.Resets.Name"), Language.file().getStringList("GUI.Items.Resets.Description")),
+                        }, Items.createItemLore(Material.ANVIL, 1, RMLanguageConfig.file().getString("GUI.Items.Resets.Name"), RMLanguageConfig.file().getStringList("GUI.Items.Resets.Description")),
                         12);
                 inventory.addItem(e -> {
                     target.closeInventory();
                     rm.getMineManager().teleport(target, m, m.isSilent(), false);
-                }, Items.createItemLore(Material.ENDER_PEARL, 1, Language.file().getString("GUI.Items.Teleport.Name"), Language.file().getStringList("GUI.Items.Teleport.Description")), 20);
+                }, Items.createItemLore(Material.ENDER_PEARL, 1, RMLanguageConfig.file().getString("GUI.Items.Teleport.Name"), RMLanguageConfig.file().getStringList("GUI.Items.Teleport.Description")), 20);
 
                 inventory.addItem(e -> {
                     target.closeInventory();
@@ -237,7 +237,7 @@ public class GUIManager {
                         final BlockPickerGUI s = new BlockPickerGUI(rm, m, target, PickType.ICON, "");
                         s.openInventory(target);
                     }, 2);
-                }, Items.createItemLore(m.getIcon(), 1, Language.file().getString("GUI.Items.Icon.Name"), Language.file().getStringList("GUI.Items.Icon.Description")), 2);
+                }, Items.createItemLore(m.getIcon(), 1, RMLanguageConfig.file().getString("GUI.Items.Icon.Name"), RMLanguageConfig.file().getStringList("GUI.Items.Icon.Description")), 2);
 
                 inventory.addItem(e -> {
                     target.closeInventory();
@@ -245,16 +245,16 @@ public class GUIManager {
                         m.setDisplayName(s);
                         rm.getGUIManager().openMine(m, target);
                     }, s -> rm.getGUIManager().openMine(m, target));
-                }, Items.createItemLore(Material.PAPER, 1, Language.file().getString("GUI.Items.Displayname.Name"), Language.file().getStringList("GUI.Items.Displayname.Description")), 4);
+                }, Items.createItemLore(Material.PAPER, 1, RMLanguageConfig.file().getString("GUI.Items.Displayname.Name"), RMLanguageConfig.file().getStringList("GUI.Items.Displayname.Description")), 4);
 
                 inventory.addItem(e -> {
                     m.clear();
-                    Text.send(target, Language.file().getString("System.Mine-Clear"));
-                }, Items.createItemLore(Material.TNT, 1, Language.file().getString("GUI.Items.Clear.Name"), Language.file().getStringList("GUI.Items.Clear.Description")), 22);
+                    Text.send(target, RMLanguageConfig.file().getString("System.Mine-Clear"));
+                }, Items.createItemLore(Material.TNT, 1, RMLanguageConfig.file().getString("GUI.Items.Clear.Name"), RMLanguageConfig.file().getStringList("GUI.Items.Clear.Description")), 22);
 
-                inventory.addItem(e -> m.reset(), Items.createItemLore(Material.DROPPER, 1, Language.file().getString("GUI.Items.Reset.Name"), Language.file().getStringList("GUI.Items.Reset.Description")), 14);
+                inventory.addItem(e -> m.reset(), Items.createItemLore(Material.DROPPER, 1, RMLanguageConfig.file().getString("GUI.Items.Reset.Name"), RMLanguageConfig.file().getStringList("GUI.Items.Reset.Description")), 14);
 
-                inventory.addItem(e -> m.setHighlight(!m.isHighlighted()), Items.createItemLore(Material.REDSTONE_TORCH, 1, Language.file().getString("GUI.Items.Boundaries.Name"), Language.file().getStringList("GUI.Items.Boundaries.Description")), 6);
+                inventory.addItem(e -> m.setHighlight(!m.isHighlighted()), Items.createItemLore(Material.REDSTONE_TORCH, 1, RMLanguageConfig.file().getString("GUI.Items.Boundaries.Name"), RMLanguageConfig.file().getStringList("GUI.Items.Boundaries.Description")), 6);
 
                 inventory.addItem(e -> {
                     target.closeInventory();
@@ -262,7 +262,7 @@ public class GUIManager {
                         final MineColorPickerGUI mcp = new MineColorPickerGUI(rm, target, m);
                         mcp.openInventory(target);
                     }, 2);
-                }, m.getMineColor().getItem(Language.file().getString("GUI.Items.MineColor.Name"), Language.file().getStringList("GUI.Items.MineColor.Description")), 24);
+                }, m.getMineColor().getItem(RMLanguageConfig.file().getString("GUI.Items.MineColor.Name"), RMLanguageConfig.file().getStringList("GUI.Items.MineColor.Description")), 24);
 
                 inventory.addItem(e -> {
                     target.closeInventory();
@@ -270,7 +270,7 @@ public class GUIManager {
                         final MineFacesGUI m1 = new MineFacesGUI(rm, target, m);
                         m1.openInventory(target);
                     }, 2);
-                }, Items.createItemLore(Material.SCAFFOLDING, 1, Language.file().getString("GUI.Items.Faces.Name"), Language.file().getStringList("GUI.Items.Faces.Description")), 16);
+                }, Items.createItemLore(Material.SCAFFOLDING, 1, RMLanguageConfig.file().getString("GUI.Items.Faces.Name"), RMLanguageConfig.file().getStringList("GUI.Items.Faces.Description")), 16);
 
                 inventory.addItem(e -> {
                     target.closeInventory();
@@ -278,7 +278,7 @@ public class GUIManager {
                         final MineListGUI m1 = new MineListGUI(rm, target);
                         m1.openInventory(target);
                     }, 2);
-                }, Items.createItemLore(Material.RED_BED, 1, Language.file().getString("GUI.Items.Back.Name"), Language.file().getStringList("GUI.Items.Back.Description")), 26);
+                }, Items.createItemLore(Material.RED_BED, 1, RMLanguageConfig.file().getString("GUI.Items.Back.Name"), RMLanguageConfig.file().getStringList("GUI.Items.Back.Description")), 26);
 
                 inventory.addItem(event -> {
                 }, makeMineIcon(m), 13);

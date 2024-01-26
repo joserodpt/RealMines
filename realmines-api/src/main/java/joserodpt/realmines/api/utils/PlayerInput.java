@@ -15,7 +15,7 @@ package joserodpt.realmines.api.utils;
 
 
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -36,7 +36,7 @@ public class PlayerInput implements Listener {
     private final UUID uuid;
 
     private final List<String> texts = Text
-            .color(Language.file().getStringList("System.Type-Input"));
+            .color(RMLanguageConfig.file().getStringList("System.Type-Input"));
 
     private final InputRunnable runGo;
     private final InputRunnable runCancel;
@@ -69,7 +69,7 @@ public class PlayerInput implements Listener {
                     final PlayerInput current = inputs.get(uuid);
                     try {
                         if (input.equalsIgnoreCase("cancel")) {
-                            Text.send(p, Language.file().getString("System.Input-Cancelled"));
+                            Text.send(p, RMLanguageConfig.file().getString("System.Input-Cancelled"));
                             current.taskId.cancel();
                             p.sendTitle("", "", 0, 1, 0);
                             Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.runCancel.run(input), 3);
@@ -82,7 +82,7 @@ public class PlayerInput implements Listener {
                         p.sendTitle("", "", 0, 1, 0);
                         current.unregister();
                     } catch (final Exception e) {
-                        Text.send(p, Language.file().getString("System.Error-Occurred"));
+                        Text.send(p, RMLanguageConfig.file().getString("System.Error-Occurred"));
                         RealMinesAPI.getInstance().getPlugin().getLogger().warning(e.getMessage());
                     }
                 }

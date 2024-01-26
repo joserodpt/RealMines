@@ -13,7 +13,7 @@ package joserodpt.realmines.plugin.gui;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.mine.components.MineIcon;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Pagination;
@@ -42,12 +42,12 @@ public class MineListGUI {
 
     private static final Map<UUID, MineListGUI> inventories = new HashMap<>();
     static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
-            Language.file().getStringList("GUI.Items.Next.Description"));
-    static ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Back.Name"),
-            Language.file().getStringList("GUI.Items.Back.Description"));
-    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
-            Language.file().getStringList("GUI.Items.Close.Description"));
+    static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, RMLanguageConfig.file().getString("GUI.Items.Next.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Next.Description"));
+    static ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, RMLanguageConfig.file().getString("GUI.Items.Back.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Back.Description"));
+    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, RMLanguageConfig.file().getString("GUI.Items.Close.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
     private final Inventory inv;
     private final UUID uuid;
     private final HashMap<Integer, MineIcon> display = new HashMap<>();
@@ -114,7 +114,7 @@ public class MineListGUI {
                             }
                             if (e.getClick() == ClickType.DROP) {
                                 current.rm.getMineManager().deleteMine(icon.getMine());
-                                Text.send(p, Language.file().getString("System.Mine-Deleted"));
+                                Text.send(p, RMLanguageConfig.file().getString("System.Mine-Deleted"));
                                 current.load();
                             } else {
                                 p.closeInventory();

@@ -14,8 +14,8 @@ package joserodpt.realmines.plugin.command;
  */
 
 
-import joserodpt.realmines.api.config.Config;
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMConfig;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.ItemStackSpringer;
 import joserodpt.realmines.api.utils.Text;
@@ -42,7 +42,7 @@ import java.util.Arrays;
 @Alias({"mine", "rm"})
 public class MineCMD extends CommandBase {
 
-    private final String playerOnly = Language.file().getString("System.Player-Only");
+    private final String playerOnly = RMLanguageConfig.file().getString("System.Player-Only");
     private final RealMines rm;
 
     public MineCMD(final RealMines rm) {
@@ -67,7 +67,7 @@ public class MineCMD extends CommandBase {
     @Permission("realmines.admin")
     public void reloadcmd(final CommandSender commandSender) {
         this.rm.reload();
-        Text.send(commandSender, Language.file().getString("System.Reloaded"));
+        Text.send(commandSender, RMLanguageConfig.file().getString("System.Reloaded"));
     }
 
     @SubCommand("mines")
@@ -88,7 +88,7 @@ public class MineCMD extends CommandBase {
     public void stoptaskscmd(final CommandSender commandSender) {
         if (commandSender instanceof Player) {
             rm.getMineManager().stopTasks();
-            Text.send(commandSender, Language.file().getString("System.Stopped-Mine-Tasks"));
+            Text.send(commandSender, RMLanguageConfig.file().getString("System.Stopped-Mine-Tasks"));
         } else {
             Text.send(commandSender, this.playerOnly);
         }
@@ -99,7 +99,7 @@ public class MineCMD extends CommandBase {
     public void starttaskcmd(final CommandSender commandSender) {
         if (commandSender instanceof Player) {
             rm.getMineManager().startTasks();
-            Text.send(commandSender, Language.file().getString("System.Started-Mine-Tasks"));
+            Text.send(commandSender, RMLanguageConfig.file().getString("System.Started-Mine-Tasks"));
         } else {
             Text.send(commandSender, this.playerOnly);
         }
@@ -122,7 +122,7 @@ public class MineCMD extends CommandBase {
             if (m == null) {
                 rm.getGUIManager().openMineChooserType((Player) commandSender, name);
             } else {
-                Text.send(commandSender, Language.file().getString("System.Mine-Exists"));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Exists"));
             }
         } else {
             Text.send(commandSender, this.playerOnly);
@@ -152,9 +152,9 @@ public class MineCMD extends CommandBase {
             if (m != null) {
                 m.setTeleport(((Player) commandSender).getLocation());
                 m.saveData(RMine.Data.TELEPORT);
-                Text.send(commandSender, Language.file().getString("Mines.Teleport-Set").replaceAll("%mine%", m.getDisplayName()));
+                Text.send(commandSender, RMLanguageConfig.file().getString("Mines.Teleport-Set").replaceAll("%mine%", m.getDisplayName()));
             } else {
-                Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
             }
         } else {
             Text.send(commandSender, this.playerOnly);
@@ -171,7 +171,7 @@ public class MineCMD extends CommandBase {
             if (m != null) {
                 rm.getMineManager().teleport(((Player) commandSender), m, m.isSilent(), true);
             } else {
-                Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
             }
         } else {
             Text.send(commandSender, this.playerOnly);
@@ -205,12 +205,12 @@ public class MineCMD extends CommandBase {
             m.saveData(RMine.Data.SETTINGS);
 
             if (!m.isSilent()) {
-                Text.send(commandSender, Language.file().getString("System.Silent-Off").replaceAll("%mine%", name));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Silent-Off").replaceAll("%mine%", name));
             } else {
-                Text.send(commandSender, Language.file().getString("System.Silent-On").replaceAll("%mine%", name));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Silent-On").replaceAll("%mine%", name));
             }
         } else {
-            Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+            Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
         }
     }
 
@@ -224,9 +224,9 @@ public class MineCMD extends CommandBase {
             m.saveData(RMine.Data.SETTINGS);
 
             if (!m.isSilent()) {
-                Text.send(commandSender, Language.file().getString("System.Silent-Off").replaceAll("%mine%", m.getName()));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Silent-Off").replaceAll("%mine%", m.getName()));
             } else {
-                Text.send(commandSender, Language.file().getString("System.Silent-On").replaceAll("%mine%", m.getName()));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Silent-On").replaceAll("%mine%", m.getName()));
             }
         }
     }
@@ -241,7 +241,7 @@ public class MineCMD extends CommandBase {
             if (m != null) {
                 m.setHighlight(!m.isHighlighted());
             } else {
-                Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
             }
         } else {
             Text.send(commandSender, this.playerOnly);
@@ -259,7 +259,7 @@ public class MineCMD extends CommandBase {
                 final MineItensGUI v = new MineItensGUI(rm, (Player) commandSender, m);
                 v.openInventory((Player) commandSender);
             } else {
-                Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
             }
         } else {
             Text.send(commandSender, this.playerOnly);
@@ -277,7 +277,7 @@ public class MineCMD extends CommandBase {
             if (m != null) {
                 this.rm.getGUIManager().openMine(m, (Player) commandSender);
             } else {
-                Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
             }
         } else {
             Text.send(commandSender, this.playerOnly);
@@ -294,7 +294,7 @@ public class MineCMD extends CommandBase {
         if (m != null) {
             m.reset();
         } else {
-            Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+            Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
         }
     }
 
@@ -307,9 +307,9 @@ public class MineCMD extends CommandBase {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
             rm.getMineManager().renameMine(m, newName);
-            Text.send(commandSender, Language.file().getString("System.Mine-Renamed").replace("%name%", newName));
+            Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Renamed").replace("%name%", newName));
         } else {
-            Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+            Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
         }
     }
 
@@ -322,9 +322,9 @@ public class MineCMD extends CommandBase {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
             rm.getMineManager().deleteMine(m);
-            Text.send(commandSender, Language.file().getString("System.Mine-Deleted"));
+            Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Deleted"));
         } else {
-            Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+            Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
         }
     }
 
@@ -337,9 +337,9 @@ public class MineCMD extends CommandBase {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
             m.clear();
-            Text.send(commandSender, Language.file().getString("System.Mine-Clear"));
+            Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Clear"));
         } else {
-            Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+            Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
         }
     }
 
@@ -353,7 +353,7 @@ public class MineCMD extends CommandBase {
             if (m != null) {
                 rm.getMineManager().setBounds(m, (Player) commandSender);
             } else {
-                Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
             }
         } else {
             Text.send(commandSender, this.playerOnly);
@@ -370,7 +370,7 @@ public class MineCMD extends CommandBase {
             m.setFreezed(!m.isFreezed());
             Text.send(commandSender, m.getDisplayName() + " &r&f freeze: " + (m.isFreezed() ? "&aON" : "&cOFF"));
         } else {
-            Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+            Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
         }
     }
 
@@ -380,7 +380,7 @@ public class MineCMD extends CommandBase {
     @WrongUsage("&c/mine ri <item name>")
     public void acmd(final CommandSender commandSender, final String name) {
         final Player p = (Player) commandSender;
-        Config.file().set("Items." + name, ItemStackSpringer.getItemSerializedJSON(p.getInventory().getItemInMainHand()));
-        Config.save();
+        RMConfig.file().set("Items." + name, ItemStackSpringer.getItemSerializedJSON(p.getInventory().getItemInMainHand()));
+        RMConfig.save();
     }
 }

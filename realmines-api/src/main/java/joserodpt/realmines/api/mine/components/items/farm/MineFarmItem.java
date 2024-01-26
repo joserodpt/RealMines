@@ -13,7 +13,7 @@ package joserodpt.realmines.api.mine.components.items.farm;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.mine.components.items.MineItem;
@@ -59,7 +59,7 @@ public class MineFarmItem extends MineItem {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItemLore(super.getMaterial(), 1, Language.file().getString("GUI.Items.Farm-Item.Name").replace("%material%", Text.beautifyMaterialName(this.fi.getIcon())).replace("%age%", String.valueOf(this.getAge())), Language.file().getStringList("GUI.Items.Farm-Item.Description")
+        return Items.createItemLore(super.getMaterial(), 1, RMLanguageConfig.file().getString("GUI.Items.Farm-Item.Name").replace("%material%", Text.beautifyMaterialName(this.fi.getIcon())).replace("%age%", String.valueOf(this.getAge())), RMLanguageConfig.file().getStringList("GUI.Items.Farm-Item.Description")
                 .stream()
                 .map(s -> Text.color(s.replaceAll("%percentage%", String.valueOf(super.getPercentage() * 100))))
                 .collect(Collectors.toList()));

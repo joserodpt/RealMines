@@ -14,8 +14,8 @@ package joserodpt.realmines.api.mine.task;
  */
 
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.config.Config;
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMConfig;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.Countdown;
 
@@ -39,9 +39,9 @@ public class MineTimer {
             this.m.reset();
             this.startTask(this.m.getResetValue(RMine.Reset.TIME));
         }, (t) -> {
-            if (Config.file().getStringList("RealMines.announceTimes") != null && Config.file().getStringList("RealMines.announceTimes").contains(String.valueOf(count.getSecondsLeft()))) {
+            if (RMConfig.file().getStringList("RealMines.announceTimes") != null && RMConfig.file().getStringList("RealMines.announceTimes").contains(String.valueOf(count.getSecondsLeft()))) {
                 if (this.m.isSilent()) return;
-                this.m.broadcastMessage(Language.file().getString("Mines.Reset.Warning").replaceAll("%mine%", this.m.getDisplayName()).replaceAll("%time%", String.valueOf(count.getSecondsLeft())));
+                this.m.broadcastMessage(RMLanguageConfig.file().getString("Mines.Reset.Warning").replaceAll("%mine%", this.m.getDisplayName()).replaceAll("%time%", String.valueOf(count.getSecondsLeft())));
             }
         });
 

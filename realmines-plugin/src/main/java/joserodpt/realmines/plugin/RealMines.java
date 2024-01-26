@@ -14,9 +14,9 @@ package joserodpt.realmines.plugin;
  */
 
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.config.Config;
-import joserodpt.realmines.api.config.Language;
-import joserodpt.realmines.api.config.Mines;
+import joserodpt.realmines.api.config.RMConfig;
+import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.plugin.gui.GUIManager;
 import joserodpt.realmines.plugin.managers.MineManager;
 import joserodpt.realmines.plugin.managers.MineResetTasksManager;
@@ -69,9 +69,9 @@ public class RealMines extends RealMinesAPI {
 
     @Override
     public void reload() {
-        Config.reload();
-        Language.reload();
-        Mines.reload();
+        RMConfig.reload();
+        RMLanguageConfig.reload();
+        RMMinesConfig.reload();
         this.mineManager.unloadMines();
         this.mineManager.loadMines();
         this.logger.info("[RealMines] Loaded " + this.mineManager.getMines().size() + " mines and " + this.mineManager.getSigns().size() + " mine signs.");

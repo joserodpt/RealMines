@@ -14,7 +14,7 @@ package joserodpt.realmines.api.mine.task;
  */
 
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.config.MineResetTasks;
+import joserodpt.realmines.api.config.RPMineResetTasksConfig;
 import joserodpt.realmines.api.mine.RMine;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -42,10 +42,10 @@ public class MineResetTask {
     }
 
     private void save() {
-        MineResetTasks.file().set(this.name + ".Delay", this.delay);
-        MineResetTasks.file().set(this.name + ".LinkedMines", this.mines.stream().map(RMine::getName).collect(Collectors.toList()));
+        RPMineResetTasksConfig.file().set(this.name + ".Delay", this.delay);
+        RPMineResetTasksConfig.file().set(this.name + ".LinkedMines", this.mines.stream().map(RMine::getName).collect(Collectors.toList()));
 
-        MineResetTasks.save();
+        RPMineResetTasksConfig.save();
     }
 
     public void stopTimer() {

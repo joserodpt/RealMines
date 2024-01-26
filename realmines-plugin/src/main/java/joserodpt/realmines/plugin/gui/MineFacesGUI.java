@@ -13,7 +13,7 @@ package joserodpt.realmines.plugin.gui;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.utils.Items;
@@ -42,8 +42,8 @@ import java.util.UUID;
 public class MineFacesGUI {
 
     private static final Map<UUID, MineFacesGUI> inventories = new HashMap<>();
-    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
-            Language.file().getStringList("GUI.Items.Close.Description"));
+    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, RMLanguageConfig.file().getString("GUI.Items.Close.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
     private final Inventory inv;
     private final UUID uuid;
     private final RMine m;
@@ -54,7 +54,7 @@ public class MineFacesGUI {
         this.rm = rm;
         this.m = m;
         this.uuid = as.getUniqueId();
-        this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Faces-Name")));
+        this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(RMLanguageConfig.file().getString("GUI.Faces-Name")));
 
         this.inv.setItem(13, this.getIcon(m, MineCuboid.CuboidDirection.Up));
         this.inv.setItem(22, this.getIcon(m, MineCuboid.CuboidDirection.Down));
@@ -157,12 +157,12 @@ public class MineFacesGUI {
         final List<String> faceSelectedDesc = new ArrayList<>();
         if (!faceSelectedDesc.isEmpty()) faceSelectedDesc.clear();
         if (m.hasFaceBlock(sel)) {
-            for (final String s : Language.file().getStringList("GUI.Faces.Selected-Description")) {
+            for (final String s : RMLanguageConfig.file().getStringList("GUI.Faces.Selected-Description")) {
                 faceSelectedDesc.add(s.replaceAll("%material%", m.getFaceBlock(sel).name()));
             }
-            return Items.createItemLore(m.getFaceBlock(sel), 1, Language.file().getString("GUI.Faces.Name").replaceAll("%face%", sel.name()), faceSelectedDesc);
+            return Items.createItemLore(m.getFaceBlock(sel), 1, RMLanguageConfig.file().getString("GUI.Faces.Name").replaceAll("%face%", sel.name()), faceSelectedDesc);
         } else {
-            return Items.createItemLore(Material.BOOK, 1, Language.file().getString("GUI.Faces.Name").replaceAll("%face%", sel.name()), faceSelectedDesc);
+            return Items.createItemLore(Material.BOOK, 1, RMLanguageConfig.file().getString("GUI.Faces.Name").replaceAll("%face%", sel.name()), faceSelectedDesc);
         }
     }
 

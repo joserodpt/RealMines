@@ -13,7 +13,7 @@ package joserodpt.realmines.plugin.gui;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.Config;
+import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
@@ -71,15 +71,15 @@ public class SettingsGUI {
 
         switch (def) {
             case REALM:
-                this.inv.setItem(13, Items.createItemLore(Material.WRITABLE_BOOK, 1, "&ePlugin Prefix", Arrays.asList("&fCurrent: &r" + Config.file().getString("RealMines.Prefix"), "", "&fClick here to change the plugin's prefix.")));
-                this.inv.setItem(14, Items.createItemLore(Material.GRASS_BLOCK, 1, "&ePlace Farm Land Below Crop " + (Config.file().getBoolean("RealMines.placeFarmLandBelowCrop") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
-                this.inv.setItem(15, Items.createItemLore(Material.OAK_SIGN, 1, "&eBroadcast Reset Message Only In World " + (Config.file().getBoolean("RealMines.broadcastResetMessageOnlyInWorld") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
+                this.inv.setItem(13, Items.createItemLore(Material.WRITABLE_BOOK, 1, "&ePlugin Prefix", Arrays.asList("&fCurrent: &r" + RMConfig.file().getString("RealMines.Prefix"), "", "&fClick here to change the plugin's prefix.")));
+                this.inv.setItem(14, Items.createItemLore(Material.GRASS_BLOCK, 1, "&ePlace Farm Land Below Crop " + (RMConfig.file().getBoolean("RealMines.placeFarmLandBelowCrop") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
+                this.inv.setItem(15, Items.createItemLore(Material.OAK_SIGN, 1, "&eBroadcast Reset Message Only In World " + (RMConfig.file().getBoolean("RealMines.broadcastResetMessageOnlyInWorld") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
                 break;
             case PLAYERS:
-                this.inv.setItem(22, Items.createItemLore(Material.ENDER_PEARL, 1, "&eTeleport Players " + (Config.file().getBoolean("RealMines.teleportPlayers") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle player teleportation.")));
-                this.inv.setItem(23, Items.createItemLore(Material.FILLED_MAP, 1, "&eTeleport Message " + (Config.file().getBoolean("RealMines.teleportMessage") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle the teleportation messages.")));
-                this.inv.setItem(24, Items.createItemLore(Material.MAP, 1, "&eAction Bar Messages " + (Config.file().getBoolean("RealMines.actionbarMessages") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle action bar messages.")));
-                this.inv.setItem(25, Items.createItemLore(Material.TNT, 1, "&eReset Mines with No Online Players " + (Config.file().getBoolean("RealMines.resetMinesWhenNoPlayers") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
+                this.inv.setItem(22, Items.createItemLore(Material.ENDER_PEARL, 1, "&eTeleport Players " + (RMConfig.file().getBoolean("RealMines.teleportPlayers") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle player teleportation.")));
+                this.inv.setItem(23, Items.createItemLore(Material.FILLED_MAP, 1, "&eTeleport Message " + (RMConfig.file().getBoolean("RealMines.teleportMessage") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle the teleportation messages.")));
+                this.inv.setItem(24, Items.createItemLore(Material.MAP, 1, "&eAction Bar Messages " + (RMConfig.file().getBoolean("RealMines.actionbarMessages") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle action bar messages.")));
+                this.inv.setItem(25, Items.createItemLore(Material.TNT, 1, "&eReset Mines with No Online Players " + (RMConfig.file().getBoolean("RealMines.resetMinesWhenNoPlayers") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
 
                 break;
         }
@@ -138,8 +138,8 @@ public class SettingsGUI {
                                 p.closeInventory();
 
                                 new PlayerInput(p, input -> {
-                                    Config.file().set("RealMines.Prefix", input);
-                                    Config.save();
+                                    RMConfig.file().set("RealMines.Prefix", input);
+                                    RMConfig.save();
                                     Text.send(p, "The plugin's prefix is now " + input);
 
                                     SettingsGUI wv = new SettingsGUI(p, current.rm);
@@ -196,8 +196,8 @@ public class SettingsGUI {
             }
 
             private void toggle(String s, SettingsGUI sg) {
-                Config.file().set("RealMines." + s, !Config.file().getBoolean("RealMines." + s));
-                Config.save();
+                RMConfig.file().set("RealMines." + s, !RMConfig.file().getBoolean("RealMines." + s));
+                RMConfig.save();
                 sg.fillChest();
             }
         };

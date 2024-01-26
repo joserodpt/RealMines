@@ -15,9 +15,9 @@ package joserodpt.realmines.api.mine;
 
 
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.event.MineBlockBreakEvent;
-import joserodpt.realmines.api.config.Config;
+import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.managers.MineManagerAPI;
 import joserodpt.realmines.api.mine.components.MineColor;
 import joserodpt.realmines.api.mine.components.MineCuboid;
@@ -206,8 +206,8 @@ public abstract class RMine {
     }
 
     public void reset() {
-        if (!Bukkit.getOnlinePlayers().isEmpty() || Config.file().getBoolean("RealMines.resetMinesWhenNoPlayers")) {
-            this.kickPlayers(Language.file().getString("Mines.Reset.Starting").replace("%mine%", this.getDisplayName()));
+        if (!Bukkit.getOnlinePlayers().isEmpty() || RMConfig.file().getBoolean("RealMines.resetMinesWhenNoPlayers")) {
+            this.kickPlayers(RMLanguageConfig.file().getString("Mines.Reset.Starting").replace("%mine%", this.getDisplayName()));
             this.fill();
 
             //reset mined blocks
@@ -215,10 +215,10 @@ public abstract class RMine {
             processBlockBreakEvent(false);
 
             if (!this.isSilent()) {
-                if (Config.file().getBoolean("RealMines.broadcastResetMessageOnlyInWorld")) {
-                    this.getMineCuboid().getWorld().getPlayers().forEach(player -> Text.send(player, Language.file().getString("Mines.Reset.Announcement").replace("%mine%", this.getDisplayName())));
+                if (RMConfig.file().getBoolean("RealMines.broadcastResetMessageOnlyInWorld")) {
+                    this.getMineCuboid().getWorld().getPlayers().forEach(player -> Text.send(player, RMLanguageConfig.file().getString("Mines.Reset.Announcement").replace("%mine%", this.getDisplayName())));
                 } else {
-                    Bukkit.broadcastMessage(Text.color(Config.file().getString("RealMines.Prefix") + Language.file().getString("Mines.Reset.Announcement").replace("%mine%", this.getDisplayName())));
+                    Bukkit.broadcastMessage(Text.color(RMConfig.file().getString("RealMines.Prefix") + RMLanguageConfig.file().getString("Mines.Reset.Announcement").replace("%mine%", this.getDisplayName())));
                 }
             }
         }
@@ -239,23 +239,23 @@ public abstract class RMine {
                     switch (modif.toLowerCase()) {
                         case "pm":
                             sign.setLine(1, this.getMinedBlocksPer() + "%");
-                            sign.setLine(2, Text.color(Language.file().getString("Signs.Mined-On")));
+                            sign.setLine(2, Text.color(RMLanguageConfig.file().getString("Signs.Mined-On")));
                             break;
                         case "bm":
                             sign.setLine(1, String.valueOf(this.getMinedBlocks()));
-                            sign.setLine(2, Text.color(Language.file().getString("Signs.Mined-Blocks-On")));
+                            sign.setLine(2, Text.color(RMLanguageConfig.file().getString("Signs.Mined-Blocks-On")));
                             break;
                         case "br":
                             sign.setLine(1, String.valueOf(this.getRemainingBlocks()));
-                            sign.setLine(2, Text.color(Language.file().getString("Signs.Blocks-On")));
+                            sign.setLine(2, Text.color(RMLanguageConfig.file().getString("Signs.Blocks-On")));
                             break;
                         case "pl":
                             sign.setLine(1, this.getRemainingBlocksPer() + "%");
-                            sign.setLine(2, Text.color(Language.file().getString("Signs.Left-On")));
+                            sign.setLine(2, Text.color(RMLanguageConfig.file().getString("Signs.Left-On")));
                             break;
                     }
 
-                    sign.setLine(0, Text.color(Config.file().getString("RealMines.Prefix")));
+                    sign.setLine(0, Text.color(RMConfig.file().getString("RealMines.Prefix")));
                     sign.setLine(3, Text.color(this.getDisplayName()));
                     sign.update();
                 }
@@ -276,7 +276,7 @@ public abstract class RMine {
 
     public void kickPlayers(final String s) {
         if (this.getType() != Type.FARM) {
-            if (Config.file().getBoolean("RealMines.teleportPlayers")) {
+            if (RMConfig.file().getBoolean("RealMines.teleportPlayers")) {
                 this.getPlayersInMine().forEach(player -> this.mm.teleport(player, this, this.isSilent(), false));
             }
         }
@@ -287,7 +287,7 @@ public abstract class RMine {
 
     public void broadcastMessage(String s) {
         this.getPlayersInMine().forEach(p -> Text.send(p, s));
-        if (Config.file().getBoolean("RealMines.actionbarMessages"))
+        if (RMConfig.file().getBoolean("RealMines.actionbarMessages"))
             this.getPlayersInMine().forEach(p -> p.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText(Text.color(s))));
     }
 
@@ -390,7 +390,7 @@ public abstract class RMine {
     }
 
     public ItemStack getMineIcon() {
-        return Items.createItemLore(this.getIcon(), 1, this.getMineColor().getColorPrefix() + " &f&l" + this.getDisplayName() + " &7[&b&l" + this.getType().name() + "&r&7]", Language.file().getStringList("GUI.Items.Mine.Description")
+        return Items.createItemLore(this.getIcon(), 1, this.getMineColor().getColorPrefix() + " &f&l" + this.getDisplayName() + " &7[&b&l" + this.getType().name() + "&r&7]", RMLanguageConfig.file().getStringList("GUI.Items.Mine.Description")
                 .stream()
                 .map(s -> Text.color(s
                         .replaceAll("%remainingblocks%", String.valueOf(this.getRemainingBlocks()))
@@ -472,7 +472,7 @@ public abstract class RMine {
         if (reset) {
             //if mine reset percentage is lower, reset it
             if (this.isResetBy(RMine.Reset.PERCENTAGE) & ((double) this.getRemainingBlocksPer() < this.getResetValue(RMine.Reset.PERCENTAGE))) {
-                this.kickPlayers(Language.file().getString("Mines.Reset.Percentage"));
+                this.kickPlayers(RMLanguageConfig.file().getString("Mines.Reset.Percentage"));
                 Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), this::reset, 10);
             }
         }

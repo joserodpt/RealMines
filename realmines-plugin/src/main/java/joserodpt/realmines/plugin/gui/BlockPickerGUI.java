@@ -14,7 +14,7 @@ package joserodpt.realmines.plugin.gui;
  */
 
 
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.api.mine.types.BlockMine;
@@ -53,14 +53,14 @@ public class BlockPickerGUI {
 
     private static final Map<UUID, BlockPickerGUI> inventories = new HashMap<>();
     static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Next.Name"),
-            Language.file().getStringList("GUI.Items.Next.Description"));
-    static ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, Language.file().getString("GUI.Items.Back.Name"),
-            Language.file().getStringList("GUI.Items.Back.Description"));
-    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, Language.file().getString("GUI.Items.Close.Name"),
-            Language.file().getStringList("GUI.Items.Close.Description"));
-    static ItemStack search = Items.createItemLore(Material.OAK_SIGN, 1, Language.file().getString("GUI.Items.Search.Name"),
-            Language.file().getStringList("GUI.Items.Close.Description"));
+    static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, RMLanguageConfig.file().getString("GUI.Items.Next.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Next.Description"));
+    static ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, RMLanguageConfig.file().getString("GUI.Items.Back.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Back.Description"));
+    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, RMLanguageConfig.file().getString("GUI.Items.Close.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
+    static ItemStack search = Items.createItemLore(Material.OAK_SIGN, 1, RMLanguageConfig.file().getString("GUI.Items.Search.Name"),
+            RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
     private final RealMines rm;
     private final UUID uuid;
     private final List<Material> items;
@@ -80,9 +80,9 @@ public class BlockPickerGUI {
         this.pt = pickType;
 
         if (Objects.requireNonNull(pickType) == PickType.ICON) {
-            this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Select-Icon-Name").replaceAll("%mine%", m.getDisplayName())));
+            this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(RMLanguageConfig.file().getString("GUI.Select-Icon-Name").replaceAll("%mine%", m.getDisplayName())));
         } else {
-            this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(Language.file().getString("GUI.Pick-New-Block-Name")));
+            this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(RMLanguageConfig.file().getString("GUI.Pick-New-Block-Name")));
         }
 
 
@@ -102,8 +102,8 @@ public class BlockPickerGUI {
         this.min = m;
         this.pt = pickType;
 
-        this.inv = Bukkit.getServer().createInventory(null, 54, (Objects.requireNonNull(pickType) == PickType.ICON) ? Text.color(Language.file().getString("GUI.Select-Icon-Name").replaceAll("%mine%", m.getDisplayName()))
-        : Text.color(Language.file().getString("GUI.Pick-New-Block-Name")));
+        this.inv = Bukkit.getServer().createInventory(null, 54, (Objects.requireNonNull(pickType) == PickType.ICON) ? Text.color(RMLanguageConfig.file().getString("GUI.Select-Icon-Name").replaceAll("%mine%", m.getDisplayName()))
+        : Text.color(RMLanguageConfig.file().getString("GUI.Pick-New-Block-Name")));
 
         this.items = this.searchMaterial(search, pickType);
 
@@ -141,7 +141,7 @@ public class BlockPickerGUI {
                             case 4:
                                 new PlayerInput(p, input -> {
                                     if (current.searchMaterial(input, current.pt).isEmpty()) {
-                                        Text.send(p, Language.file().getString("System.Nothing-Found"));
+                                        Text.send(p, RMLanguageConfig.file().getString("System.Nothing-Found"));
                                         current.exit(current.rm, p);
                                         return;
                                     }
@@ -259,7 +259,7 @@ public class BlockPickerGUI {
             if (i == null && !items.isEmpty()) {
                 final Material s = items.get(0);
                 this.inv.setItem(slot,
-                        Items.createItemLore(s, 1, Language.file().getString("GUI.Items.Pick.Name").replaceAll("%material%", Text.beautifyMaterialName(s)), Language.file().getStringList("GUI.Items.Pick.Description")));
+                        Items.createItemLore(s, 1, RMLanguageConfig.file().getString("GUI.Items.Pick.Name").replaceAll("%material%", Text.beautifyMaterialName(s)), RMLanguageConfig.file().getStringList("GUI.Items.Pick.Description")));
                 this.display.put(slot, s);
                 items.remove(0);
             }

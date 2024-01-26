@@ -14,7 +14,7 @@ package joserodpt.realmines.api.utils;
  */
 
 import com.google.common.base.Strings;
-import joserodpt.realmines.api.config.Config;
+import joserodpt.realmines.api.config.RMConfig;
 import org.apache.commons.lang.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -47,11 +47,11 @@ public class Text {
     }
 
     public static void send(final Player p, final String string) {
-        p.sendMessage(Text.color(Config.file().getString("RealMines.Prefix") + string));
+        p.sendMessage(Text.color(RMConfig.file().getString("RealMines.Prefix") + string));
     }
 
     public static void send(final CommandSender p, final String string) {
-        p.sendMessage(Text.color(Config.file().getString("RealMines.Prefix") + "&f" + string));
+        p.sendMessage(Text.color(RMConfig.file().getString("RealMines.Prefix") + "&f" + string));
     }
 
     public static String formatNumber(double number) {

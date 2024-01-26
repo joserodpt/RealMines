@@ -13,7 +13,7 @@ package joserodpt.realmines.plugin.command;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.task.MineResetTask;
@@ -59,9 +59,9 @@ public class MineResetTaskCMD extends CommandBase {
             final MineResetTask mrt = this.rm.getMineResetTasksManager().getTask(ChatColor.stripColor(Text.color(name)));
             if (mrt == null) {
                 this.rm.getMineResetTasksManager().addTask(ChatColor.stripColor(Text.color(name)), delay);
-                Text.send(commandSender, Language.file().getString("System.Mine-Task-Created").replace("%task%", name).replace("%delay%", String.valueOf(delay)));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Task-Created").replace("%task%", name).replace("%delay%", String.valueOf(delay)));
             } else {
-                Text.send(commandSender, Language.file().getString("System.Mine-Task-Exists"));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Task-Exists"));
             }
         } else {
             Text.send(commandSender, this.playerOnly);
@@ -77,9 +77,9 @@ public class MineResetTaskCMD extends CommandBase {
             final MineResetTask mrt = this.rm.getMineResetTasksManager().getTask(name);
             if (mrt != null) {
                 this.rm.getMineResetTasksManager().removeTask(mrt);
-                Text.send(commandSender, Language.file().getString("System.Remove").replace("%object%", name));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Remove").replace("%object%", name));
             } else {
-                Text.send(commandSender, Language.file().getString("System.Mine-Task-Doesnt-Exist"));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Task-Doesnt-Exist"));
             }
         } else {
             Text.send(commandSender, this.playerOnly);
@@ -97,12 +97,12 @@ public class MineResetTaskCMD extends CommandBase {
                 final RMine m = this.rm.getMineManager().getMine(mine);
                 if (m != null) {
                     mrt.addMine(m);
-                    Text.send(commandSender, Language.file().getString("System.Mine-Linked"));
+                    Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Linked"));
                 } else {
-                    Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+                    Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
                 }
             } else {
-                Text.send(commandSender, Language.file().getString("System.Mine-Task-Doesnt-Exist"));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Task-Doesnt-Exist"));
             }
         } else {
             Text.send(commandSender, this.playerOnly);
@@ -120,12 +120,12 @@ public class MineResetTaskCMD extends CommandBase {
                 final RMine m = this.rm.getMineManager().getMine(mine);
                 if (m != null) {
                     mrt.removeMine(m);
-                    Text.send(commandSender, Language.file().getString("System.Mine-Unlinked"));
+                    Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Unlinked"));
                 } else {
-                    Text.send(commandSender, Language.file().getString("System.Mine-Doesnt-Exist"));
+                    Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
                 }
             } else {
-                Text.send(commandSender, Language.file().getString("System.Mine-Task-Doesnt-Exist"));
+                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Task-Doesnt-Exist"));
             }
         } else {
             Text.send(commandSender, this.playerOnly);

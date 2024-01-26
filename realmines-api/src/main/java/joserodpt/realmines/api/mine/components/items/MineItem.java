@@ -14,8 +14,8 @@ package joserodpt.realmines.api.mine.components.items;
  */
 
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.config.Language;
-import joserodpt.realmines.api.config.Mines;
+import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.utils.Items;
 import org.bukkit.Material;
@@ -30,7 +30,7 @@ public class MineItem {
     public String getNewBrkActCode(final String mineName, final String material) {
         final String characters = "abcdefghijklmnopqrstuvwxyz";
 
-        if (!Mines.file().getSection(mineName + ".Blocks." + material).getKeys().contains("Break-Actions")) {
+        if (!RMMinesConfig.file().getSection(mineName + ".Blocks." + material).getKeys().contains("Break-Actions")) {
             return RealMinesAPI.getRand().ints(8, 0, characters.length())
                     .mapToObj(characters::charAt)
                     .map(Object::toString)
@@ -43,7 +43,7 @@ public class MineItem {
                     .mapToObj(characters::charAt)
                     .map(Object::toString)
                     .collect(Collectors.joining());
-        } while (Mines.file().getSection(mineName + ".Blocks." + material + ".Break-Actions").getRoutesAsStrings(false).contains(ret));
+        } while (RMMinesConfig.file().getSection(mineName + ".Blocks." + material + ".Break-Actions").getRoutesAsStrings(false).contains(ret));
 
         return ret;
     }
@@ -93,7 +93,7 @@ public class MineItem {
     }
 
     public ItemStack getItem() {
-        return Items.createItemLore(Material.DEAD_BUSH, 1, Language.file().getString("GUI.Items.No-Blocks.Name"), Language.file().getStringList("GUI.Items.No-Blocks.Description"));
+        return Items.createItemLore(Material.DEAD_BUSH, 1, RMLanguageConfig.file().getString("GUI.Items.No-Blocks.Name"), RMLanguageConfig.file().getStringList("GUI.Items.No-Blocks.Description"));
     }
 
     public List<MineAction> getBreakActions() {

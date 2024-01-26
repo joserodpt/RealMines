@@ -13,7 +13,7 @@ package joserodpt.realmines.plugin.events;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.Language;
+import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import org.bukkit.event.EventHandler;
@@ -30,7 +30,7 @@ public class PlayerEvents implements Listener {
     @EventHandler
     public void onJoin(final PlayerJoinEvent e) {
         if ((e.getPlayer().isOp() || e.getPlayer().hasPermission("realmines.update.notify") || e.getPlayer().hasPermission("realmines.admin")) && rm.hasNewUpdate()) {
-            Text.send(e.getPlayer(), Language.file().getString("System.Update-Found") + " https://www.spigotmc.org/resources/realmines-1-14-to-1-20-1.73707/");
+            Text.send(e.getPlayer(), RMLanguageConfig.file().getString("System.Update-Found") + " https://www.spigotmc.org/resources/realmines-1-14-to-1-20-1.73707/");
         }
     }
 }
