@@ -18,7 +18,6 @@ import joserodpt.realmines.api.config.Config;
 import joserodpt.realmines.api.config.Language;
 import joserodpt.realmines.api.config.MineResetTasks;
 import joserodpt.realmines.api.config.Mines;
-import joserodpt.realmines.api.event.RealMinesMineChangeEvent;
 import joserodpt.realmines.api.event.RealMinesPluginLoadedEvent;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.GUIBuilder;
@@ -70,6 +69,8 @@ public class RealMinesPlugin extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        printASCII();
+
         instance = this;
         Config.setup(this);
         realMines = new RealMines(this);
@@ -77,10 +78,6 @@ public class RealMinesPlugin extends JavaPlugin {
 
         new Metrics(this, 10574);
 
-        final String star = "<------------------ RealMines PT ------------------>".replace("PT", "| " +
-                this.getDescription().getVersion());
-        getLogger().info(star);
-        getLogger().info("Loading Config Files.");
         this.saveDefaultConfig();
         Config.setup(this);
         MineResetTasks.setup(this);
@@ -181,7 +178,7 @@ public class RealMinesPlugin extends JavaPlugin {
 
         getLogger().info("Plugin has been loaded.");
         getLogger().info("Author: JoseGamer_PT | " + this.getDescription().getWebsite());
-        getLogger().info(star);
+        getLogger().info("<------------------ RealMines | vPT ------------------>".replace("PT", this.getDescription().getVersion()));
 
         new UpdateChecker(this, 73707).getVersion(version -> {
             if (this.getDescription().getVersion().equalsIgnoreCase(version)) {
@@ -191,6 +188,20 @@ public class RealMinesPlugin extends JavaPlugin {
                 this.getLogger().warning("There is a new update available! Version: " + version + " https://www.spigotmc.org/resources/realmines-1-14-to-1-20-1.73707/");
             }
         });
+    }
+
+    private void printASCII() {
+        logWithColor("&9   _____           ____  ____");
+        logWithColor("&9  | ___ \\         | |  \\/  (_)   &8Version: &9" + this.getDescription().getVersion());
+        logWithColor("&9  | |_/ /___  __ _| | .  . |_ _ __   ___  ___");
+        logWithColor("&9  |    // _ \\/ _` | | |\\/| | | '_ \\ / _ \\/ __|");
+        logWithColor("&9  | |\\ \\  __/ (_| | | |  | | | | | |  __/\\__ \\");
+        logWithColor("&9  \\_| \\_\\___|\\__,_|_\\_|  |_/_|_| |_|\\___||___/");
+        logWithColor("&9                         &8Made by: &9JoseGamer_PT");
+    }
+
+    public void logWithColor(String s) {
+        getServer().getConsoleSender().sendMessage("[" + this.getDescription().getName() + "] " + Text.color(s));
     }
 
     public void onDisable() {
