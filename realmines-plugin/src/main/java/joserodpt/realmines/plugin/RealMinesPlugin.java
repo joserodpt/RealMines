@@ -71,6 +71,8 @@ public class RealMinesPlugin extends JavaPlugin {
     public void onEnable() {
         printASCII();
 
+        final long start = System.currentTimeMillis();
+
         instance = this;
         Config.setup(this);
         realMines = new RealMines(this);
@@ -176,9 +178,8 @@ public class RealMinesPlugin extends JavaPlugin {
 
         Bukkit.getPluginManager().callEvent(new RealMinesPluginLoadedEvent());
 
-        getLogger().info("Plugin has been loaded.");
-        getLogger().info("Author: JoseGamer_PT | " + this.getDescription().getWebsite());
-        getLogger().info("<------------------ RealMines | vPT ------------------>".replace("PT", this.getDescription().getVersion()));
+        getLogger().info("Finished loading in " + ((System.currentTimeMillis() - start) / 1000F) + " seconds.");
+        getLogger().info("<------------------ RealMines vPT ------------------>".replace("PT", this.getDescription().getVersion()));
 
         new UpdateChecker(this, 73707).getVersion(version -> {
             if (this.getDescription().getVersion().equalsIgnoreCase(version)) {
@@ -192,7 +193,7 @@ public class RealMinesPlugin extends JavaPlugin {
 
     private void printASCII() {
         logWithColor("&9   _____           ____  ____");
-        logWithColor("&9  | ___ \\         | |  \\/  (_)   &8Version: &9" + this.getDescription().getVersion());
+        logWithColor("&9  | ___ \\         | |  \\/  (_)  &8Version: &9" + this.getDescription().getVersion());
         logWithColor("&9  | |_/ /___  __ _| | .  . |_ _ __   ___  ___");
         logWithColor("&9  |    // _ \\/ _` | | |\\/| | | '_ \\ / _ \\/ __|");
         logWithColor("&9  | |\\ \\  __/ (_| | | |  | | | | | |  __/\\__ \\");
