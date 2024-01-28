@@ -6,6 +6,7 @@ RealMines:
  placeFarmLandBelowCrop: true
  resetMinesWhenNoPlayers: false
  broadcastResetMessageOnlyInWorld: false
+ useButtonGUIForPercentages: false
  announceTimes:
   - 30
   - 20
@@ -15,4 +16,4 @@ RealMines:
   - 3
   - 2
   - 1
-Version: 6
+Version: 7

@@ -13,6 +13,7 @@ package joserodpt.realmines.plugin.gui;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.mine.RMine;
@@ -26,6 +27,7 @@ import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Pagination;
 import joserodpt.realmines.api.utils.PercentageInput;
 import joserodpt.realmines.api.utils.PickType;
+import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import org.bukkit.Bukkit;
@@ -336,16 +338,53 @@ public class MineItensGUI {
 
     protected void editPercentage(final Player p, final MineItem a, final MineItensGUI current) {
         p.closeInventory();
-        PercentageInput pi = new PercentageInput(p, rm.getPlugin(), (int) (a.getPercentage() * 100), percentage -> {
-            a.setPercentage((double) percentage / 100);
-            current.m.saveData(BlockMine.Data.BLOCKS);
 
-            Text.send(p, RMLanguageConfig.file().getString("System.Percentage-Modified").replaceAll("%value%", String.valueOf(percentage)));
+        if (RMConfig.file().getBoolean("RealMines.useButtonGUIForPercentages")) {
+            PercentageInput pi = new PercentageInput(p, rm.getPlugin(), (int) (a.getPercentage() * 100), percentage -> {
+                a.setPercentage((double) percentage / 100);
+                current.m.saveData(BlockMine.Data.BLOCKS);
 
-            final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
-            v.openInventory(p);
-        });
-        pi.openInventory(p);
+                Text.send(p, RMLanguageConfig.file().getString("System.Percentage-Modified").replaceAll("%value%", String.valueOf(percentage)));
+
+                final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
+                v.openInventory(p);
+            });
+            pi.openInventory(p);
+        } else {
+            new PlayerInput(p, s -> {
+                double d = 0D;
+                try {
+                    d = Double.parseDouble(s.replace("%", ""));
+                } catch (final Exception ex) {
+                    Text.send(p, RMLanguageConfig.file().getString("System.Input-Percentage-Error"));
+                    this.editPercentage(p, a, current);
+                }
+
+                if (d < 1D) {
+                    Text.send(p, RMLanguageConfig.file().getString("System.Input-Percentage-Error-Greater"));
+                    this.editPercentage(p, a, current);
+                    return;
+                }
+
+                if (d > 100D) {
+                    Text.send(p, RMLanguageConfig.file().getString("System.Input-Percentage-Error-Lower"));
+                    this.editPercentage(p, a, current);
+                    return;
+                }
+
+                d /= 100;
+
+                a.setPercentage(d);
+                current.m.saveData(BlockMine.Data.BLOCKS);
+
+                Text.send(p, RMLanguageConfig.file().getString("System.Percentage-Modified").replaceAll("%value%", String.valueOf(d * 100)));
+                final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
+                v.openInventory(p);
+            }, s -> {
+                final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
+                v.openInventory(p);
+            });
+        }
     }
 
     public Inventory getInventory() {
