@@ -20,11 +20,11 @@ import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.ItemStackSpringer;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.api.utils.converters.RMConverterBase;
+import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realmines.plugin.gui.MineItensGUI;
 import joserodpt.realmines.plugin.gui.MineListGUI;
 import joserodpt.realmines.plugin.gui.RealMinesGUI;
 import joserodpt.realmines.plugin.gui.SettingsGUI;
-import joserodpt.realmines.plugin.RealMines;
 import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Command;
 import me.mattstudios.mf.annotations.Completion;
@@ -383,4 +383,5 @@ public class MineCMD extends CommandBase {
         RMConfig.file().set("Items." + name, ItemStackSpringer.getItemSerializedJSON(p.getInventory().getItemInMainHand()));
         RMConfig.save();
     }
+
 }

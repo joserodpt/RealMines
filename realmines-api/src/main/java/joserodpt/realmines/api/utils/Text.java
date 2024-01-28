@@ -15,7 +15,7 @@ package joserodpt.realmines.api.utils;
 
 import com.google.common.base.Strings;
 import joserodpt.realmines.api.config.RMConfig;
-import org.apache.commons.lang.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;

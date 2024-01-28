@@ -21,6 +21,7 @@ import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.event.RealMinesPluginLoadedEvent;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.GUIBuilder;
+import joserodpt.realmines.api.utils.PercentageInput;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.command.MineCMD;
@@ -105,6 +106,7 @@ public class RealMinesPlugin extends JavaPlugin {
         this.pm.registerEvents(MineBreakActionsGUI.getListener(), this);
         this.pm.registerEvents(RealMinesGUI.getListener(), this);
         this.pm.registerEvents(SettingsGUI.getListener(), this);
+        this.pm.registerEvents(PercentageInput.getListener(), this);
 
         //vault hook
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
