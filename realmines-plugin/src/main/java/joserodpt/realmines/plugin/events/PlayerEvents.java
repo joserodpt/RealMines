@@ -13,17 +13,17 @@ package joserodpt.realmines.plugin.events;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.utils.Text;
-import joserodpt.realmines.plugin.RealMines;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 public class PlayerEvents implements Listener {
 
-    private final RealMines rm;
-    public PlayerEvents(RealMines rm) {
+    private final RealMinesAPI rm;
+    public PlayerEvents(RealMinesAPI rm) {
         this.rm = rm;
     }
 

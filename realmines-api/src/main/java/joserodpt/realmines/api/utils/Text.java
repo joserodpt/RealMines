@@ -17,6 +17,7 @@ import com.google.common.base.Strings;
 import joserodpt.realmines.api.config.RMConfig;
 import org.apache.commons.lang3.text.WordUtils;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -75,5 +76,9 @@ public class Text {
 
         return Strings.repeat(String.valueOf(completedColor) + symbol, progressBars)
                 + Strings.repeat(String.valueOf(notCompletedColor) + symbol, totalBars - progressBars);
+    }
+
+    public static String location2Command(Location l) {
+        return l.getBlockX() + " " + l.getBlockY() + " " + l.getBlockZ();
     }
 }

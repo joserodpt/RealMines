@@ -14,6 +14,7 @@ package joserodpt.realmines.api.mine.components.actions;
  */
 
 import joserodpt.realmines.api.utils.Items;
+import joserodpt.realmines.api.utils.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -34,7 +35,9 @@ public class MineActionCommand extends MineAction {
 
     public void execute(final Player p, final Location l, final double randomChance) {
         if (randomChance < super.getChance()) {
-            Bukkit.getServer().dispatchCommand(cmdSndr, this.command.replace("%player%", p.getName()));
+            String cmd2Exec = this.command.replace("%player%", p.getName()).replace("%blockloc%", Text.location2Command(l));
+            Bukkit.getLogger().severe("Executando: " + cmd2Exec);
+            Bukkit.getServer().dispatchCommand(cmdSndr, cmd2Exec);
         }
     }
 
