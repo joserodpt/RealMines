@@ -37,4 +37,6 @@ public class MineIcon {
     public RMine getMine() {
         return this.m;
     }
+
+    public int getSize() { return this.getMine().getBlockCount(); }
 }

@@ -33,12 +33,16 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class MineListGUI {
+
+    public enum MineListSort { DEFAULT, SIZE }
 
     private static final Map<UUID, MineListGUI> inventories = new HashMap<>();
     static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
@@ -54,19 +58,26 @@ public class MineListGUI {
     int pageNumber = 0;
     Pagination<MineIcon> p;
     private final RealMines rm;
+    private MineListSort so;
 
-    public MineListGUI(final RealMines rm, final Player as) {
+    public MineListGUI(final RealMines rm, final Player as, final MineListSort so) {
         this.rm = rm;
         this.uuid = as.getUniqueId();
         this.inv = Bukkit.getServer().createInventory(null, 54, Text.pluginPrefix);
 
-        this.load();
+        this.load(so);
 
         this.register();
     }
 
-    public void load() {
-        this.p = new Pagination<>(28, this.rm.getMineManager().getMineList());
+    public void load(MineListSort so) {
+        this.so = so;
+        if (so == MineListSort.SIZE) {
+            this.p = new Pagination<>(28, this.rm.getMineManager().getMineList().stream().sorted(Comparator.comparingDouble(MineIcon::getSize).reversed())
+                    .collect(Collectors.toList()));
+        } else {
+            this.p = new Pagination<>(28, this.rm.getMineManager().getMineList());
+        }
         this.fillChest(this.p.getPage(this.pageNumber));
     }
 
@@ -90,6 +101,9 @@ public class MineListGUI {
                         final Player p = (Player) clicker;
 
                         switch (e.getRawSlot()) {
+                            case 4:
+                                current.load(current.so == MineListSort.DEFAULT ? MineListSort.SIZE : MineListSort.DEFAULT);
+                                break;
                             case 49:
                                 p.closeInventory();
                                 final RealMinesGUI rmg = new RealMinesGUI(p, current.rm);
@@ -115,7 +129,7 @@ public class MineListGUI {
                             if (e.getClick() == ClickType.DROP) {
                                 current.rm.getMineManager().deleteMine(icon.getMine());
                                 Text.send(p, RMLanguageConfig.file().getString("System.Mine-Deleted"));
-                                current.load();
+                                current.load(current.so);
                             } else {
                                 p.closeInventory();
                                 current.rm.getGUIManager().openMine(current.display.get(e.getRawSlot()).getMine(), p);
@@ -164,6 +178,8 @@ public class MineListGUI {
         for (int i = 0; i < 9; ++i) {
             this.inv.setItem(i, placeholder);
         }
+
+        this.inv.setItem(4, Items.createItem(Material.COMPARATOR, 1, "&fClick to sort by: &b" + (this.so == MineListSort.DEFAULT ? "Size" : "Default")));
 
         this.inv.setItem(45, placeholder);
         this.inv.setItem(46, placeholder);

@@ -69,13 +69,17 @@ public class Text {
         return WordUtils.capitalizeFully(m.name().replace("_", " "));
     }
 
-    public static String getProgressBar(final int current, final int max, final int totalBars, final char symbol, final ChatColor completedColor,
-										final ChatColor notCompletedColor) {
+    public static String getProgressBar(final int current, final int max, final int totalBars, final char symbol, final ChatColor completedColor, final ChatColor notCompletedColor) {
+        if (max <= 0 || (current < 0 || totalBars < 0)) { return "&d" + symbol; }
+
         final float percent = (float) current / max;
         final int progressBars = (int) (totalBars * percent);
+        final int remainingBars = totalBars - progressBars;
+
+        if (progressBars < 0 || remainingBars < 0) { return "&d" + symbol; }
 
         return Strings.repeat(String.valueOf(completedColor) + symbol, progressBars)
-                + Strings.repeat(String.valueOf(notCompletedColor) + symbol, totalBars - progressBars);
+                + Strings.repeat(String.valueOf(notCompletedColor) + symbol, remainingBars);
     }
 
     public static String location2Command(Location l) {

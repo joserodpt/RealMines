@@ -76,7 +76,7 @@ public class MineCMD extends CommandBase {
     public void minescmd(final CommandSender commandSender) {
         if (commandSender instanceof Player) {
             final Player p = (Player) commandSender;
-            final MineListGUI v = new MineListGUI(this.rm, p);
+            final MineListGUI v = new MineListGUI(this.rm, p, MineListGUI.MineListSort.DEFAULT);
             v.openInventory(p);
         } else {
             Text.send(commandSender, this.playerOnly);

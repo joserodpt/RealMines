@@ -95,7 +95,7 @@ public class RealMinesGUI {
                                 break;
                             case 12:
                                 p.closeInventory();
-                                final MineListGUI v = new MineListGUI(current.rm, p);
+                                final MineListGUI v = new MineListGUI(current.rm, p, MineListGUI.MineListSort.DEFAULT);
                                 v.openInventory(p);
                                 break;
                             case 14:

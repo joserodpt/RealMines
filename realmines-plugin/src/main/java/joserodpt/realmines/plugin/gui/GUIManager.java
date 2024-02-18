@@ -50,8 +50,10 @@ public class GUIManager {
 
     private static List<String> var(final RMine m) {
         final List<String> ret = new ArrayList<>();
-        final List<String> config = RMLanguageConfig.file().getStringList("GUI.Items.Mine.Description");
-        config.remove(config.size() - 1);
+        List<String> config = RMLanguageConfig.file().getStringList("GUI.Items.Mine.Description");
+        if (config.size() > 2) {
+            config = config.subList(0, config.size() - 2);
+        }
         config.forEach(s -> ret.add(Text.color(s.replaceAll("%remainingblocks%", String.valueOf(m.getRemainingBlocks())).replaceAll("%totalblocks%", String.valueOf(m.getBlockCount())).replaceAll("%bar%", m.getBar()))));
         return ret;
     }
@@ -275,7 +277,7 @@ public class GUIManager {
                 inventory.addItem(e -> {
                     target.closeInventory();
                     Bukkit.getScheduler().scheduleSyncDelayedTask(rm.getPlugin(), () -> {
-                        final MineListGUI m1 = new MineListGUI(rm, target);
+                        final MineListGUI m1 = new MineListGUI(rm, target, MineListGUI.MineListSort.DEFAULT);
                         m1.openInventory(target);
                     }, 2);
                 }, Items.createItemLore(Material.RED_BED, 1, RMLanguageConfig.file().getString("GUI.Items.Back.Name"), RMLanguageConfig.file().getStringList("GUI.Items.Back.Description")), 26);
