@@ -16,6 +16,7 @@ package joserodpt.realmines.api.mine;
 
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.event.MineBlockBreakEvent;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.managers.MineManagerAPI;
@@ -213,6 +214,11 @@ public abstract class RMine {
             //reset mined blocks
             this.minedBlocks = 0;
             processBlockBreakEvent(false);
+            
+            //execute reset commands
+            for (String s : RMMinesConfig.file().getStringList(this.getName() + ".Reset-Commands")) {
+                Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), s);
+            }
 
             if (!this.isSilent()) {
                 if (RMConfig.file().getBoolean("RealMines.broadcastResetMessageOnlyInWorld")) {

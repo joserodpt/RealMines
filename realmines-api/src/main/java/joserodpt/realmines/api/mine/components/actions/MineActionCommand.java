@@ -36,7 +36,6 @@ public class MineActionCommand extends MineAction {
     public void execute(final Player p, final Location l, final double randomChance) {
         if (randomChance < super.getChance()) {
             String cmd2Exec = this.command.replace("%player%", p.getName()).replace("%blockloc%", Text.location2Command(l));
-            Bukkit.getLogger().severe("Executando: " + cmd2Exec);
             Bukkit.getServer().dispatchCommand(cmdSndr, cmd2Exec);
         }
     }

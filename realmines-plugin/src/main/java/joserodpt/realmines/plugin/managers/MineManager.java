@@ -287,6 +287,11 @@ public class MineManager extends MineManagerAPI {
                 type = mtyp;
             }
 
+            if (!RMMinesConfig.file().contains(s + ".Reset-Commands")) {
+                RMMinesConfig.file().set(s + ".Reset-Commands", Collections.emptyList());
+                RMMinesConfig.save();
+            }
+
             final Map<Material, MineItem> blocks = getBlocks(s, RMine.Type.valueOf(type));
 
             final RMine m;
@@ -338,7 +343,7 @@ public class MineManager extends MineManagerAPI {
                 final Location pos2 = new Location(p.getWorld(), r.getMinimumPoint().getBlockX(), r.getMinimumPoint().getBlockY(), r.getMinimumPoint().getBlockZ());
 
                 final BlockMine m = new BlockMine(p.getWorld(), name, name, new HashMap<>(), new ArrayList<>(), pos1, pos2,
-                        Material.DIAMOND_ORE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, false,this);
+                        Material.DIAMOND_ORE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, false, this);
 
                 this.addMine(m);
                 m.addItem(new MineBlockItem(Material.STONE, 1D));
@@ -385,7 +390,7 @@ public class MineManager extends MineManagerAPI {
                 }
 
                 final FarmMine m = new FarmMine(p.getWorld(), name, name, new HashMap<>(), new ArrayList<>(), pos1, pos2,
-                        Material.WHEAT, null, false, true, 20, 60, MineColor.GREEN, new HashMap<>(), false, false,this);
+                        Material.WHEAT, null, false, true, 20, 60, MineColor.GREEN, new HashMap<>(), false, false, this);
                 m.addFarmItem(new MineFarmItem(FarmItem.WHEAT, 1D));
 
                 this.addMine(m);
