@@ -16,8 +16,8 @@ package joserodpt.realmines.plugin;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
-import joserodpt.realmines.api.config.RPMineResetTasksConfig;
 import joserodpt.realmines.api.config.RMMinesConfig;
+import joserodpt.realmines.api.config.RPMineResetTasksConfig;
 import joserodpt.realmines.api.event.RealMinesPluginLoadedEvent;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.GUIBuilder;
@@ -64,7 +64,6 @@ public class RealMinesPlugin extends JavaPlugin {
 
     public Boolean newUpdate = false;
     private PluginManager pm = Bukkit.getPluginManager();
-    private CommandManager commandManager;
     private BukkitTask mineHighlight;
     private Economy econ;
 
@@ -120,34 +119,34 @@ public class RealMinesPlugin extends JavaPlugin {
             }
         }
 
-        this.commandManager = new CommandManager(this);
+        CommandManager commandManager = new CommandManager(this);
 
-        this.commandManager.hideTabComplete(true);
+        commandManager.hideTabComplete(true);
         //command suggestions
-        this.commandManager.getCompletionHandler().register("#createsuggestions", input -> IntStream.range(0, 100)
+        commandManager.getCompletionHandler().register("#createsuggestions", input -> IntStream.range(0, 100)
                 .mapToObj(i -> "Mine" + i)
                 .collect(Collectors.toList()));
-        this.commandManager.getCompletionHandler().register("#minetasksuggestions", input ->
+        commandManager.getCompletionHandler().register("#minetasksuggestions", input ->
                 IntStream.range(0, 50)
                         .mapToObj(i -> "MineResetTask" + i)
                         .collect(Collectors.toList())
         );
 
-        this.commandManager.getCompletionHandler().register("#converters", input ->
+        commandManager.getCompletionHandler().register("#converters", input ->
                 new ArrayList<>(realMines.getMineManager().getConverters().keySet())
         );
 
-        this.commandManager.getCompletionHandler().register("#mines", input -> realMines.getMineManager().getRegisteredMines());
-        this.commandManager.getCompletionHandler().register("#minetasks", input -> realMines.getMineResetTasksManager().getRegisteredTasks());
+        commandManager.getCompletionHandler().register("#mines", input -> realMines.getMineManager().getRegisteredMines());
+        commandManager.getCompletionHandler().register("#minetasks", input -> realMines.getMineResetTasksManager().getRegisteredTasks());
 
         //command messages
-        this.commandManager.getMessageHandler().register("cmd.no.exists", sender -> Text.send(sender, RMLanguageConfig.file().getString("System.Error-Command")));
-        this.commandManager.getMessageHandler().register("cmd.no.permission", sender -> Text.send(sender, RMLanguageConfig.file().getString("System.Error-Permission")));
-        this.commandManager.getMessageHandler().register("cmd.wrong.usage", sender -> Text.send(sender, RMLanguageConfig.file().getString("System.Error-Usage")));
+        commandManager.getMessageHandler().register("cmd.no.exists", sender -> Text.send(sender, RMLanguageConfig.file().getString("System.Error-Command")));
+        commandManager.getMessageHandler().register("cmd.no.permission", sender -> Text.send(sender, RMLanguageConfig.file().getString("System.Error-Permission")));
+        commandManager.getMessageHandler().register("cmd.wrong.usage", sender -> Text.send(sender, RMLanguageConfig.file().getString("System.Error-Usage")));
 
         //registo de comandos #portugal
-        this.commandManager.register(new MineCMD(realMines));
-        this.commandManager.register(new MineResetTaskCMD(realMines));
+        commandManager.register(new MineCMD(realMines));
+        commandManager.register(new MineResetTaskCMD(realMines));
         getLogger().info("Loading Mines.");
         realMines.getMineManager().loadMines();
         realMines.getMineResetTasksManager().loadTasks();
@@ -179,6 +178,10 @@ public class RealMinesPlugin extends JavaPlugin {
         }
 
         Bukkit.getPluginManager().callEvent(new RealMinesPluginLoadedEvent());
+
+        if (RMConfig.file().getBoolean("RealMines.useWorldEditForBlockPlacement")) {
+            getLogger().info("Using FAWE/WorldEdit for block placement.");
+        }
 
         getLogger().info("Finished loading in " + ((System.currentTimeMillis() - start) / 1000F) + " seconds.");
         getLogger().info("<------------------ RealMines vPT ------------------>".replace("PT", this.getDescription().getVersion()));

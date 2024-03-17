@@ -13,7 +13,12 @@ package joserodpt.realmines.api.mine.types;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.function.pattern.RandomPattern;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.CuboidRegion;
 import joserodpt.realmines.api.RealMinesAPI;
+import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.managers.MineManagerAPI;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineColor;
@@ -22,6 +27,7 @@ import joserodpt.realmines.api.mine.components.MineSign;
 import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.utils.PickType;
+import joserodpt.realmines.api.utils.WorldEditUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -40,7 +46,7 @@ public class BlockMine extends RMine {
                      final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final boolean breakingPermissionOn, final MineManagerAPI mm) {
 
         super(w, n, displayname, si, b, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
-        
+
         super.setPOS(p1, p2);
         this.fill();
         this.updateSigns();
@@ -49,22 +55,35 @@ public class BlockMine extends RMine {
     @Override
     public void fill() {
         if (!Bukkit.getOnlinePlayers().isEmpty()) {
-            this.sortBlocks();
-            if (!super.getMineItems().isEmpty()) {
-                Bukkit.getScheduler().runTask(RealMinesAPI.getInstance().getPlugin(), () -> {
-                    //blocks
-                    for (Block block : this.getMineCuboid()) {
-                        Material set = this.getBlock();
-                        if (block.getType() != set) {
-                            block.setType(set);
-                        }
-                    }
+            if (RMConfig.file().getBoolean("RealMines.useWorldEditForBlockPlacement") && !super.getMineItems().isEmpty()) {
+                RandomPattern randomPattern = new RandomPattern();
 
-                    //faces
-                    for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
-                        this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
-                    }
-                });
+                super.getMineItems().values().stream().filter(mineItem -> mineItem.getPercentage() > 0)
+                        .forEach(mineBlock -> randomPattern.add(BukkitAdapter.adapt(mineBlock.getMaterial().createBlockData()).toBaseBlock(), mineBlock.getPercentage()));
+
+                BlockVector3 point1 = BlockVector3.at(this.getMineCuboid().getPOS1().getX(), this.getMineCuboid().getPOS1().getY(), this.getMineCuboid().getPOS1().getZ());
+                BlockVector3 point2 = BlockVector3.at(this.getMineCuboid().getPOS2().getX(), this.getMineCuboid().getPOS2().getY(), this.getMineCuboid().getPOS2().getZ());
+
+                WorldEditUtils.setBlocks(new CuboidRegion(BukkitAdapter.adapt(this.getWorld()), point1, point2), randomPattern);
+
+            } else {
+                this.sortBlocks();
+                if (!super.getMineItems().isEmpty()) {
+                    Bukkit.getScheduler().runTask(RealMinesAPI.getInstance().getPlugin(), () -> {
+                        //blocks
+                        for (Block block : this.getMineCuboid()) {
+                            Material set = this.getBlock();
+                            if (block.getType() != set) {
+                                block.setType(set);
+                            }
+                        }
+
+                        //faces
+                        for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
+                            this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
+                        }
+                    });
+                }
             }
         }
     }
@@ -123,6 +142,14 @@ public class BlockMine extends RMine {
 
     @Override
     public void clearContents() {
-        this.getMineCuboid().forEach(block -> block.setType(Material.AIR));
+        if (RMConfig.file().getBoolean("RealMines.useWorldEditForBlockPlacement")) {
+            BlockVector3 point1 = BlockVector3.at(this.getMineCuboid().getPOS1().getX(), this.getMineCuboid().getPOS1().getY(), this.getMineCuboid().getPOS1().getZ());
+            BlockVector3 point2 = BlockVector3.at(this.getMineCuboid().getPOS2().getX(), this.getMineCuboid().getPOS2().getY(), this.getMineCuboid().getPOS2().getZ());
+
+            WorldEditUtils.setBlocks(new CuboidRegion(BukkitAdapter.adapt(this.getWorld()), point1, point2),
+                    BukkitAdapter.adapt(Material.AIR.createBlockData()));
+        } else {
+            this.getMineCuboid().clear();
+        }
     }
 }

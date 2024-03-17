@@ -27,6 +27,7 @@ import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import joserodpt.realmines.api.RealMinesAPI;
+import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.managers.MineManagerAPI;
 import joserodpt.realmines.api.mine.RMine;
@@ -36,6 +37,7 @@ import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.mine.components.MineSign;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.utils.PickType;
+import joserodpt.realmines.api.utils.WorldEditUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -176,7 +178,15 @@ public class SchematicMine extends RMine {
 
     @Override
     public void clearContents() {
-        this.getMineCuboid().clear();
+        if (RMConfig.file().getBoolean("RealMines.useWorldEditForBlockPlacement")) {
+            BlockVector3 point1 = BlockVector3.at(this.getMineCuboid().getPOS1().getX(), this.getMineCuboid().getPOS1().getY(), this.getMineCuboid().getPOS1().getZ());
+            BlockVector3 point2 = BlockVector3.at(this.getMineCuboid().getPOS2().getX(), this.getMineCuboid().getPOS2().getY(), this.getMineCuboid().getPOS2().getZ());
+
+            WorldEditUtils.setBlocks(new CuboidRegion(BukkitAdapter.adapt(this.getWorld()), point1, point2),
+                    BukkitAdapter.adapt(Material.AIR.createBlockData()));
+        } else {
+            this.getMineCuboid().clear();
+        }
     }
 
     public Location getSchematicPlace() {
