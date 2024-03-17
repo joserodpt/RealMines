@@ -20,6 +20,8 @@ import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.api.utils.converters.RMConverterBase;
+import joserodpt.realmines.api.utils.converters.RMSupportedConverters;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -31,22 +33,27 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MRLconverter implements RMConverterBase {
+public class MRLConverter implements RMConverterBase {
     private final RealMinesAPI rm;
 
-    public MRLconverter(final RealMinesAPI rm) {
+    public MRLConverter(final RealMinesAPI rm) {
         this.rm = rm;
     }
 
     @Override
-    public String getSource() {
-        return "MineResetLite";
+    public RMSupportedConverters getPlugin() {
+        return RMSupportedConverters.MINE_RESET_LITE;
     }
 
     @Override
     public void convert(CommandSender cmd) {
+        if (!Bukkit.getPluginManager().isPluginEnabled(this.getPlugin().getSourceName())) {
+            Text.send(cmd, "&cMineResetLite is not enabled. &fTerminating import process.");
+            return;
+        }
+
         cmd.sendMessage(Text.color("&7----------------- &9Real&bMines &f&lImport &7-----------------"));
-        Text.send(cmd, "&aImporting Mines from: &b" + this.getSource());
+        Text.send(cmd, "&aImporting Mines from: &b" + this.getPlugin().getSourceName());
 
         final File MRLDirectory = new File(rm.getPlugin().getDataFolder().getParent() + "//MineResetLite//mines");
         ConfigurationSerialization.registerClass(com.koletar.jj.mineresetlite.Mine.class);
@@ -96,7 +103,7 @@ public class MRLconverter implements RMConverterBase {
             Text.send(cmd, "&aSucessfully imported mine " + m.getDisplayName());
         }
         //end
-        Text.send(cmd, "&aEnded Mine Import Process from &b" + this.getSource());
+        Text.send(cmd, "&aEnded Mine Import Process from &b" + this.getPlugin());
         cmd.sendMessage(Text.color("&7----------------- &9Real&bMines &f&lImport &7-----------------"));
     }
 }

@@ -19,7 +19,7 @@ import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.ItemStackSpringer;
 import joserodpt.realmines.api.utils.Text;
-import joserodpt.realmines.api.utils.converters.RMConverterBase;
+import joserodpt.realmines.api.utils.converters.RMSupportedConverters;
 import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realmines.plugin.gui.MineItensGUI;
 import joserodpt.realmines.plugin.gui.MineListGUI;
@@ -37,6 +37,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 @Command("realmines")
 @Alias({"mine", "rm"})
@@ -180,17 +181,16 @@ public class MineCMD extends CommandBase {
 
     @SubCommand("import")
     @Completion("#converters")
+    @Alias({"convert", "imp", "conv"})
     @Permission("realmines.import")
     @WrongUsage("&c/mine import <converter>")
     public void importIntoRM(final CommandSender commandSender, final String name) {
-        RMConverterBase conv = rm.getMineManager().getConverters().get(name);
-
-        if (conv == null) {
+        try {
+            RMSupportedConverters conv = Arrays.stream(RMSupportedConverters.values()).filter(c -> c.getSourceName().equalsIgnoreCase(name)).findFirst().orElseThrow(() -> new IllegalArgumentException("Converter not found"));
+            Objects.requireNonNull(conv.getConverter(rm)).convert(commandSender);
+        } catch (IllegalArgumentException e) {
             Text.send(commandSender, "&cThere is no converter named " + name);
-            return;
         }
-
-        conv.convert(commandSender);
     }
 
     @SubCommand("silent")

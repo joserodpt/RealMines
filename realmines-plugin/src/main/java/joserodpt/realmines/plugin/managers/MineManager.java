@@ -19,31 +19,31 @@ import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.event.MineBlockBreakEvent;
 import joserodpt.realmines.api.event.RealMinesMineChangeEvent;
+import joserodpt.realmines.api.managers.MineManagerAPI;
+import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineColor;
+import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.mine.components.MineIcon;
+import joserodpt.realmines.api.mine.components.MineSign;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.mine.components.actions.MineActionCommand;
 import joserodpt.realmines.api.mine.components.actions.MineActionDropItem;
 import joserodpt.realmines.api.mine.components.actions.MineActionGiveItem;
 import joserodpt.realmines.api.mine.components.actions.MineActionMoney;
 import joserodpt.realmines.api.mine.components.items.MineBlockItem;
+import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.components.items.MineSchematicItem;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
-import joserodpt.realmines.api.mine.components.items.MineItem;
+import joserodpt.realmines.api.mine.task.MineResetTask;
 import joserodpt.realmines.api.mine.types.BlockMine;
+import joserodpt.realmines.api.mine.types.SchematicMine;
 import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.mine.types.farm.FarmMine;
-import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.mine.types.SchematicMine;
-import joserodpt.realmines.api.mine.components.MineCuboid;
-import joserodpt.realmines.api.mine.components.MineSign;
-import joserodpt.realmines.api.mine.task.MineResetTask;
-import joserodpt.realmines.api.managers.MineManagerAPI;
 import joserodpt.realmines.api.utils.ItemStackSpringer;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.api.utils.converters.RMConverterBase;
-import joserodpt.realmines.api.utils.converters.mrl.MRLconverter;
+import joserodpt.realmines.api.utils.converters.mrl.MRLConverter;
 import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realmines.plugin.RealMinesPlugin;
 import org.bukkit.Bukkit;
@@ -65,7 +65,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class MineManager extends MineManagerAPI {
-    
+
     private RealMines rm;
     public final List<String> signset = Arrays.asList("pm", "pl", "bm", "br");
     private final Map<String, RMine> mines = new HashMap<>();
@@ -74,7 +74,7 @@ public class MineManager extends MineManagerAPI {
     public MineManager(RealMines rm) {
         this.rm = rm;
 
-        this.converters.put("MRL", new MRLconverter(rm));
+        this.converters.put("MRL", new MRLConverter(rm));
     }
 
     @Override
@@ -386,7 +386,7 @@ public class MineManager extends MineManagerAPI {
 
                 if (pos1.getY() != pos2.getY()) {
                     //+1 in maximum point (pos1) because it has to count that block too
-                    pos1.add(0,1,0);
+                    pos1.add(0, 1, 0);
                 }
 
                 final FarmMine m = new FarmMine(p.getWorld(), name, name, new HashMap<>(), new ArrayList<>(), pos1, pos2,
@@ -409,7 +409,7 @@ public class MineManager extends MineManagerAPI {
 
                     new PlayerInput(p, input -> {
                         if (input.equalsIgnoreCase("yes")) {
-                            mat.forEach(material ->   m.addFarmItem(new MineFarmItem(FarmItem.valueOf(Material.WHEAT))));
+                            mat.forEach(material -> m.addFarmItem(new MineFarmItem(FarmItem.valueOf(Material.WHEAT))));
                             Text.send(p, RMLanguageConfig.file().getString("System.Blocks-Added").replaceAll("%count%", String.valueOf(mat.size())));
                         }
                         Text.send(p, RMLanguageConfig.file().getString("System.Mine-Created").replaceAll("%mine%", name));
@@ -431,7 +431,7 @@ public class MineManager extends MineManagerAPI {
 
             if (file.exists()) {
                 final SchematicMine m = new SchematicMine(p.getWorld(), name, name, new ArrayList<>(), p.getLocation(), s,
-                        Material.FILLED_MAP, null, false, true, 20, 60, MineColor.ORANGE, new HashMap<>(), false, false,this);
+                        Material.FILLED_MAP, null, false, true, 20, 60, MineColor.ORANGE, new HashMap<>(), false, false, this);
 
                 this.addMine(m);
                 m.reset();
@@ -697,11 +697,6 @@ public class MineManager extends MineManagerAPI {
     @Override
     public File getSchematicFolder() {
         return rm.getPlugin().getDataFolder();
-    }
-
-    @Override
-    public Map<String, RMConverterBase> getConverters() {
-        return this.converters;
     }
 
     @Override

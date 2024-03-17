@@ -24,6 +24,7 @@ import joserodpt.realmines.api.utils.GUIBuilder;
 import joserodpt.realmines.api.utils.PercentageInput;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.utils.converters.RMSupportedConverters;
 import joserodpt.realmines.plugin.command.MineCMD;
 import joserodpt.realmines.plugin.command.MineResetTaskCMD;
 import joserodpt.realmines.plugin.events.BlockEvents;
@@ -133,7 +134,7 @@ public class RealMinesPlugin extends JavaPlugin {
         );
 
         commandManager.getCompletionHandler().register("#converters", input ->
-                new ArrayList<>(realMines.getMineManager().getConverters().keySet())
+                new ArrayList<>(Arrays.stream(RMSupportedConverters.values()).map(RMSupportedConverters::getSourceName).collect(Collectors.toList()))
         );
 
         commandManager.getCompletionHandler().register("#mines", input -> realMines.getMineManager().getRegisteredMines());

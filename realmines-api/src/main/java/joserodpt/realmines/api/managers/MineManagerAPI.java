@@ -17,7 +17,6 @@ import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineIcon;
 import joserodpt.realmines.api.mine.components.MineSign;
 import joserodpt.realmines.api.mine.components.items.MineItem;
-import joserodpt.realmines.api.utils.converters.RMConverterBase;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -72,8 +71,6 @@ public abstract class MineManagerAPI {
     public abstract void addMine(RMine mine);
 
     public abstract File getSchematicFolder();
-
-    public abstract Map<String, RMConverterBase> getConverters();
 
     public abstract void renameMine(RMine m, String newName);
 

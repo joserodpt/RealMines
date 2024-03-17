@@ -16,6 +16,7 @@ package joserodpt.realmines.api.utils.converters;
 import org.bukkit.command.CommandSender;
 
 public interface RMConverterBase {
-    String getSource();
+    RMSupportedConverters getPlugin();
+
     void convert(final CommandSender cmd);
 }
