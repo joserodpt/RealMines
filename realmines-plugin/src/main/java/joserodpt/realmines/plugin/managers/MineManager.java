@@ -144,6 +144,7 @@ public class MineManager extends MineManagerAPI {
             for (final String mat : RMMinesConfig.file().getSection(mineName + ".Blocks").getRoutesAsStrings(false)) {
                 final Double per = RMMinesConfig.file().getDouble(mineName + ".Blocks." + mat + ".Chance");
                 final Boolean disabledVanillaDrop = RMMinesConfig.file().getBoolean(mineName + ".Blocks." + mat + ".Disabled-Vanilla-Drop");
+                final Boolean disabledBlockMining = RMMinesConfig.file().getBoolean(mineName + ".Blocks." + mat + ".Disabled-Block-Mining");
 
                 try {
                     Material m = Material.valueOf(mat);
@@ -197,13 +198,13 @@ public class MineManager extends MineManagerAPI {
 
                     switch (type) {
                         case BLOCKS:
-                            list.put(m, new MineBlockItem(m, per, disabledVanillaDrop, actionsList));
+                            list.put(m, new MineBlockItem(m, per, disabledVanillaDrop, disabledBlockMining, actionsList));
                             break;
                         case FARM:
-                            list.put(m, new MineFarmItem(FarmItem.valueOf(mat), per, disabledVanillaDrop, RMMinesConfig.file().getInt(mineName + ".Blocks." + mat + ".Age"), actionsList));
+                            list.put(m, new MineFarmItem(FarmItem.valueOf(mat), per, disabledVanillaDrop, disabledBlockMining, RMMinesConfig.file().getInt(mineName + ".Blocks." + mat + ".Age"), actionsList));
                             break;
                         case SCHEMATIC:
-                            list.put(m, new MineSchematicItem(m, disabledVanillaDrop, actionsList));
+                            list.put(m, new MineSchematicItem(m, disabledVanillaDrop, disabledBlockMining, actionsList));
                             break;
                     }
                 } catch (Exception e) {
@@ -227,10 +228,16 @@ public class MineManager extends MineManagerAPI {
     public void loadMines() {
         for (final String s : RMMinesConfig.file().getRoot().getRoutesAsStrings(false)) {
             final String worldName = RMMinesConfig.file().getString(s + ".World");
+
+            if (worldName == null || worldName.isEmpty()) {
+                Bukkit.getLogger().severe("[RealMines] Could not load world " + worldName + ". Is the world name correct and valid? Skipping mine named: " + s);
+                continue;
+            }
+
             final World w = Bukkit.getWorld(worldName);
 
             if (w == null) {
-                Bukkit.getLogger().severe("[RealMines] Could not load world " + worldName + ". Does the world exist and is loded? Skipping mine named: " + s);
+                Bukkit.getLogger().severe("[RealMines] Could not load world " + worldName + ". Does the world exist and is loaded? Skipping mine named: " + s);
                 continue;
             }
 
@@ -471,8 +478,11 @@ public class MineManager extends MineManagerAPI {
                 RMMinesConfig.file().remove(mine.getName() + ".Blocks");
                 for (MineItem mineItem : mine.getMineItems().values()) {
                     RMMinesConfig.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Chance", mineItem.getPercentage());
-                    if (mineItem.disabledVanillaDrop()) {
+                    if (mineItem.areVanillaDropsDisabled()) {
                         RMMinesConfig.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Disabled-Vanilla-Drop", true);
+                    }
+                    if (mineItem.isBlockMiningDisabled()) {
+                        RMMinesConfig.file().set(mine.getName() + ".Blocks." + mineItem.getMaterial().name() + ".Disabled-Block-Mining", true);
                     }
 
                     if (mine.getType() == RMine.Type.FARM) {
@@ -594,17 +604,23 @@ public class MineManager extends MineManagerAPI {
     }
 
     @Override
-    public MineItem findBlockUpdate(final Player p, final Cancellable e, final Block b, final boolean broken) {
-        for (final RMine m : this.getMines().values()) {
-            if (m.getMineCuboid().contains(b)) {
-                if (m.isFreezed() || (m.isBreakingPermissionOn() && !p.hasPermission(m.getBreakPermission()))) {
+    public MineItem findBlockUpdate(final Player p, final Cancellable e, final Block block, final boolean broken) {
+        for (final RMine mine : this.getMines().values()) {
+            if (mine.getMineCuboid().contains(block)) {
+                MineItem mi = mine.getMineItems().get(block.getType());
+
+                if (mine.isFreezed() || (mine.isBreakingPermissionOn() && !p.hasPermission(mine.getBreakPermission()))) {
                     e.setCancelled(true);
                 } else {
-                    if (m.getType() == RMine.Type.FARM && !FarmItem.getCrops().contains(b.getType())) {
+                    if (mine.getType() == RMine.Type.FARM && !FarmItem.getCrops().contains(block.getType())) {
                         e.setCancelled(true);
                     } else {
-                        Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(p, m, b, broken));
-                        return m.getMineItems().get(b.getType());
+                        if (mi.isBlockMiningDisabled()) {
+                            e.setCancelled(true);
+                        } else {
+                            Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(p, mine, block, broken));
+                            return mine.getMineItems().get(block.getType());
+                        }
                     }
                 }
                 return null;

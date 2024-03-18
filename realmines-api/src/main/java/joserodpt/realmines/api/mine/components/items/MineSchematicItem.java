@@ -29,13 +29,13 @@ public class MineSchematicItem extends MineItem {
         super(m, 1D);
     }
 
-    public MineSchematicItem(Material m, Boolean disabledVanillaDrop, List<MineAction> actionsList) {
-        super(m, 1D, disabledVanillaDrop, actionsList, true);
+    public MineSchematicItem(final Material m, final Boolean disabledVanillaDrop, final Boolean disabledBlockMining, final List<MineAction> actionsList) {
+        super(m, 1D, disabledVanillaDrop, disabledBlockMining, actionsList, true);
     }
 
     @Override
     public ItemStack getItem() {
-        return Items.createItemLore(super.getMaterial(), 1, RMLanguageConfig.file().getString("GUI.Items.Mine-Block.Schematic-Block.Name").replace("%material%", Text.beautifyMaterialName(super.getMaterial())) + (super.disabledVanillaDrop() ? " &c&lNo-DROP" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Mine-Block.Schematic-Block.Description")
+        return Items.createItemLore(super.getMaterial(), 1, RMLanguageConfig.file().getString("GUI.Items.Mine-Block.Schematic-Block.Name").replace("%material%", Text.beautifyMaterialName(super.getMaterial())) + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Mine-Block.Schematic-Block.Description")
                 .stream()
                 .map(Text::color)
                 .collect(Collectors.toList()));

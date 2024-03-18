@@ -42,7 +42,7 @@ public class BlockEvents implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockBreak(final BlockBreakEvent e) {
         final MineItem mi = rm.getMineManager().findBlockUpdate(e.getPlayer(), e, e.getBlock(), true);
-        if (mi != null && mi.disabledVanillaDrop()) {
+        if (mi != null && mi.areVanillaDropsDisabled()) {
             e.setDropItems(false);
         }
     }

@@ -27,7 +27,43 @@ import java.util.stream.Collectors;
 
 public class MineItem {
 
-    public String getNewBrkActCode(final String mineName, final String material) {
+    public enum Type {SCHEMATIC_BLOCK, BLOCK, FARM, NONE}
+
+    private Material material = null;
+    private Double percentage;
+    private Boolean disabledVanillaDrop = false;
+    private Boolean disabledBlockMining = false;
+    private List<MineAction> breakActions;
+
+    private boolean isSchematicBlock = false;
+
+    public MineItem() {
+    }
+
+    public MineItem(Material material) {
+        this.material = material;
+        this.percentage = 0.1D;
+        this.breakActions = new ArrayList<>();
+    }
+
+    public MineItem(Material material, Double percentage) {
+        //schematic block
+        this.material = material;
+        this.percentage = percentage;
+        this.breakActions = new ArrayList<>();
+    }
+
+    public MineItem(Material material, Double percentage, boolean disabledVanillaDrop, boolean disabledBlockMining, final List<MineAction> breakActions, boolean isSchematicBlock) {
+        this.material = material;
+        this.percentage = percentage;
+        this.breakActions = breakActions;
+        this.disabledVanillaDrop = disabledVanillaDrop;
+        this.disabledBlockMining = disabledBlockMining;
+
+        this.isSchematicBlock = isSchematicBlock;
+    }
+
+    public String getNewBreakActionCode(final String mineName, final String material) {
         final String characters = "abcdefghijklmnopqrstuvwxyz";
 
         if (!RMMinesConfig.file().getSection(mineName + ".Blocks." + material).getKeys().contains("Break-Actions")) {
@@ -49,43 +85,19 @@ public class MineItem {
     }
 
     public void toggleVanillaBlockDrop() {
-        this.disabledVanillaDrop = !this.disabledVanillaDrop();
+        this.disabledVanillaDrop = !this.areVanillaDropsDisabled();
     }
 
-    public enum Type { SCHEMATIC_BLOCK, BLOCK, FARM, NONE }
-
-    private Material material = null;
-    private Double percentage;
-    private Boolean disabledVanillaDrop = false;
-    private List<MineAction> breakActions;
-
-    private boolean isSchematicBlock = false;
-
-    public MineItem() {}
-
-    public MineItem(Material material) {
-        this.material = material;
-        this.percentage = 0.1D;
-        this.breakActions = new ArrayList<>();
-    }
-
-    public MineItem(Material material, Double percentage) {
-        //schematic block
-        this.material = material;
-        this.percentage = percentage;
-        this.breakActions = new ArrayList<>();
-    }
-    public MineItem(Material material, Double percentage, boolean disabledVanillaDrop, final List<MineAction> breakActions, boolean isSchematicBlock) {
-        this.material = material;
-        this.percentage = percentage;
-        this.breakActions = breakActions;
-        this.disabledVanillaDrop = disabledVanillaDrop;
-
-        this.isSchematicBlock = isSchematicBlock;
-    }
-
-    public Boolean disabledVanillaDrop() {
+    public Boolean areVanillaDropsDisabled() {
         return disabledVanillaDrop;
+    }
+
+    public void toggleBlockMining() {
+        this.disabledBlockMining = !this.disabledBlockMining;
+    }
+
+    public Boolean isBlockMiningDisabled() {
+        return this.disabledBlockMining;
     }
 
     public boolean isSchematicBlock() {
@@ -111,9 +123,11 @@ public class MineItem {
     public double getPercentage() {
         return this.percentage;
     }
+
     public void setPercentage(Double d) {
         this.percentage = d;
     }
+
     public Type getType() {
         return Type.NONE;
     }

@@ -15,8 +15,8 @@ package joserodpt.realmines.api.mine.components.items.farm;
 
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
-import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.mine.components.items.MineItem;
+import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Text;
 import org.bukkit.inventory.ItemStack;
@@ -36,30 +36,30 @@ public class MineFarmItem extends MineItem {
     }
 
     public MineFarmItem(final FarmItem fi) {
-        super(fi.getIcon(), 0.1D, false, new ArrayList<>(), false);
+        super(fi.getIcon(), 0.1D, false, false, new ArrayList<>(), false);
         this.fi = fi;
     }
 
     public MineFarmItem(final FarmItem fi, final Double percentage) {
-        super(fi.getIcon(), percentage, false, new ArrayList<>(), false);
+        super(fi.getIcon(), percentage, false, false, new ArrayList<>(), false);
         this.fi = fi;
     }
 
     public MineFarmItem(final FarmItem c, final Double percentage, final int age) {
-        super(c.getIcon(), percentage, false, new ArrayList<>(), false);
+        super(c.getIcon(), percentage, false, false, new ArrayList<>(), false);
         this.fi = c;
         this.age = age;
     }
 
-    public MineFarmItem(final FarmItem c, final Double percentage, final Boolean disab, final int age, final List<MineAction> breakActions) {
-        super(c.getIcon(), percentage, disab, breakActions, false);
+    public MineFarmItem(final FarmItem c, final Double percentage, final Boolean disabledVanillaDrop, final Boolean disabledBlockMining, final int age, final List<MineAction> breakActions) {
+        super(c.getIcon(), percentage, disabledVanillaDrop, disabledBlockMining, breakActions, false);
         this.fi = c;
         this.age = age;
     }
 
     @Override
     public ItemStack getItem() {
-        return Items.createItemLore(super.getMaterial(), 1, RMLanguageConfig.file().getString("GUI.Items.Farm-Item.Name").replace("%material%", Text.beautifyMaterialName(this.fi.getIcon())).replace("%age%", String.valueOf(this.getAge())), RMLanguageConfig.file().getStringList("GUI.Items.Farm-Item.Description")
+        return Items.createItemLore(super.getMaterial(), 1, RMLanguageConfig.file().getString("GUI.Items.Farm-Item.Name").replace("%material%", Text.beautifyMaterialName(this.fi.getIcon())).replace("%age%", String.valueOf(this.getAge())) + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Farm-Item.Description")
                 .stream()
                 .map(s -> Text.color(s.replaceAll("%percentage%", String.valueOf(super.getPercentage() * 100))))
                 .collect(Collectors.toList()));

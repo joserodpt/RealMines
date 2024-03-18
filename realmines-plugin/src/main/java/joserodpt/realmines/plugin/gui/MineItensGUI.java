@@ -17,10 +17,10 @@ import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
-import joserodpt.realmines.api.mine.components.items.MineItem;
-import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.mine.components.items.MineBlockItem;
+import joserodpt.realmines.api.mine.components.items.MineItem;
+import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
+import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.mine.types.farm.FarmMine;
 import joserodpt.realmines.api.utils.Items;
@@ -138,7 +138,9 @@ public class MineItensGUI {
                                     current.rm.getGUIManager().openMine(current.m, p);
                                     break;
                                 case 4:
-                                    if (current.m.getType() == RMine.Type.SCHEMATIC) { return; }
+                                    if (current.m.getType() == RMine.Type.SCHEMATIC) {
+                                        return;
+                                    }
 
                                     p.closeInventory();
                                     BlockPickerGUI mp = null;
@@ -184,7 +186,9 @@ public class MineItensGUI {
 
                                 switch (e.getClick()) {
                                     case DROP:
-                                        if (minItem.isSchematicBlock()) { return; }
+                                        if (minItem.isSchematicBlock()) {
+                                            return;
+                                        }
 
                                         // eliminar
                                         switch (current.m.getType()) {
@@ -200,10 +204,13 @@ public class MineItensGUI {
                                         current.load();
                                         break;
                                     case SHIFT_RIGHT:
-                                        if (minItem.isSchematicBlock()) { return; }
-
                                         if (minItem instanceof MineFarmItem) {
                                             ((MineFarmItem) minItem).addAge(-1);
+                                            current.m.saveData(RMine.Data.BLOCKS);
+                                            current.load();
+                                        } else {
+                                            //enable block drop
+                                            minItem.toggleBlockMining();
                                             current.m.saveData(RMine.Data.BLOCKS);
                                             current.load();
                                         }
@@ -228,7 +235,9 @@ public class MineItensGUI {
                                         }, 2);
                                         break;
                                     default:
-                                        if (minItem.isSchematicBlock()) { return; }
+                                        if (minItem.isSchematicBlock()) {
+                                            return;
+                                        }
 
                                         // resto
                                         current.editPercentage(p, minItem, current);
