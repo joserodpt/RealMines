@@ -434,8 +434,8 @@ public class MineManager extends MineManagerAPI {
                         Material.FILLED_MAP, null, false, true, 20, 60, MineColor.ORANGE, new HashMap<>(), false, false, this);
 
                 this.addMine(m);
-                m.reset();
                 m.setTeleport(p.getLocation());
+                m.reset();
                 m.saveAll();
 
                 Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(m, RealMinesMineChangeEvent.ChangeOperation.ADDED));

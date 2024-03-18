@@ -30,4 +30,8 @@ public class WorldEditUtils {
         return new Location(world, vector.getX(), vector.getY(), vector.getZ());
     }
 
+    public static Location toLocation(com.sk89q.worldedit.math.Vector3 vector, World world) {
+        return new Location(world, vector.getX(), vector.getY(), vector.getZ());
+    }
+
 }

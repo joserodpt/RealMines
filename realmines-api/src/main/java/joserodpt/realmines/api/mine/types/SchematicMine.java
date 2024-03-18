@@ -24,21 +24,22 @@ import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
 import com.sk89q.worldedit.function.operation.Operation;
 import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
+import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.session.ClipboardHolder;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.managers.MineManagerAPI;
 import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.mine.components.items.MineSchematicItem;
 import joserodpt.realmines.api.mine.components.MineColor;
 import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.mine.components.MineSign;
 import joserodpt.realmines.api.mine.components.items.MineItem;
+import joserodpt.realmines.api.mine.components.items.MineSchematicItem;
 import joserodpt.realmines.api.utils.PickType;
 import joserodpt.realmines.api.utils.WorldEditUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -74,7 +75,7 @@ public class SchematicMine extends RMine {
         this.updateSigns();
     }
 
-    public SchematicMine(final World w, final String n, final String displayname, final Map<Material, MineItem> b,final List<MineSign> si, final Location pasteLocation, final String schematicFile, final Material i,
+    public SchematicMine(final World w, final String n, final String displayname, final Map<Material, MineItem> b, final List<MineSign> si, final Location pasteLocation, final String schematicFile, final Material i,
                          final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final boolean breakingPermissionOn, final MineManagerAPI mm) {
 
         super(w, n, displayname, si, b, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
@@ -95,21 +96,21 @@ public class SchematicMine extends RMine {
     private void processPastedBlocks() {
         for (Block block : this.getMineCuboid()) {
             Material type = block.getType();
-            if (type == Material.AIR) { continue; }
+            if (type == Material.AIR) {
+                continue;
+            }
 
             if (!super.getMineItems().containsKey(type)) {
                 super.getMineItems().put(type, new MineSchematicItem(type));
             }
         }
 
-        Bukkit.getLogger().warning(super.getMineItems().toString());
-
         this.saveData(Data.BLOCKS);
     }
 
     @Override
     public void fill() {
-        this.placeSchematic(this.pasteClipboard, this.pasteLocation);
+        this.placeSchematic(this.pasteClipboard, this.pasteLocation); //TODO: make blocks unbreakable
         //faces
         for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
             this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
@@ -145,25 +146,25 @@ public class SchematicMine extends RMine {
 
     public void placeSchematic(final Clipboard clipboard, final Location loc) {
         if (clipboard != null) {
-            BlockVector3 pasteVec3 = BlockVector3.at(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
             try (final EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(loc.getWorld()))) {
-                final Operation operation = new ClipboardHolder(clipboard)
+                ClipboardHolder holder = new ClipboardHolder(clipboard);
+                Region region = clipboard.getRegion();
+
+                BlockVector3 to = BlockVector3.at(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+                Operation operation = holder
                         .createPaste(editSession)
-                        .to(pasteVec3)
+                        .to(to)
                         .ignoreAirBlocks(true)
+                        .copyBiomes(false)
                         .copyEntities(false)
                         .build();
-                Operations.complete(operation);
+                Operations.completeLegacy(operation);
 
-                CuboidRegion r = clipboard.getRegion().getBoundingBox();
-                BlockVector3 currentCenter = r.getCenter().toBlockPoint().subtract(r.getWidth() / 2, r.getHeight() / 2,0);
-                BlockVector3 shiftVector = pasteVec3.subtract(currentCenter);
-                r.shift(shiftVector);
+                BlockVector3 clipboardOffset = clipboard.getRegion().getMinimumPoint().subtract(clipboard.getOrigin());
+                Vector3 min = to.toVector3().add(holder.getTransform().apply(clipboardOffset.toVector3()));
+                Vector3 max = min.add(holder.getTransform().apply(region.getMaximumPoint().subtract(region.getMinimumPoint()).toVector3()));
 
-                Location p1 = new Location(this.getWorld(), r.getMinimumPoint().getBlockX(), r.getMinimumPoint().getBlockY(), r.getMinimumPoint().getBlockZ());
-                Location p2 = new Location(this.getWorld(), r.getMaximumPoint().getBlockX(), r.getMaximumPoint().getBlockY(), r.getMaximumPoint().getBlockZ());
-
-                this.setPOS(p1, p2);
+                this.setPOS(WorldEditUtils.toLocation(min, getWorld()), WorldEditUtils.toLocation(max, getWorld()));
             } catch (final WorldEditException e) {
                 RealMinesAPI.getInstance().getPlugin().getLogger().severe("Failed to paste schematic named " + name);
                 RealMinesAPI.getInstance().getPlugin().getLogger().severe(e.getMessage());

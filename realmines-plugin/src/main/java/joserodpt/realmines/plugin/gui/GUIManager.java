@@ -20,7 +20,6 @@ import joserodpt.realmines.api.mine.components.actions.MineActionDropItem;
 import joserodpt.realmines.api.mine.components.actions.MineActionGiveItem;
 import joserodpt.realmines.api.mine.components.actions.MineActionMoney;
 import joserodpt.realmines.api.mine.components.items.MineItem;
-
 import joserodpt.realmines.api.utils.GUIBuilder;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.PickType;
@@ -45,7 +44,7 @@ public class GUIManager {
     }
 
     public static ItemStack makeMineIcon(final RMine m) {
-        return Items.createItemLore(Material.TRIPWIRE_HOOK, 1, m.getMineColor().getColorPrefix()+ " &6&l" + m.getDisplayName(), var(m));
+        return Items.createItemLore(Material.TRIPWIRE_HOOK, 1, m.getMineColor().getColorPrefix() + " &6&l" + m.getDisplayName(), var(m));
     }
 
     private static List<String> var(final RMine m) {
@@ -130,7 +129,7 @@ public class GUIManager {
                                     return;
                                 }
 
-                                if (target.getInventory().getItemInMainHand().getType() == Material.AIR) {
+                                if (target.getInventory().getItemInMainHand() == null || target.getInventory().getItemInMainHand().getType() == Material.AIR) {
                                     Text.send(target, "&cYou don't have an item in your main hand.");
                                     return;
                                 }
@@ -145,7 +144,7 @@ public class GUIManager {
                                 v.openInventory(target);
                             });
 
-                        }, Items.createItem(Material.DROPPER, 1,"&b&lDrop Item"),
+                        }, Items.createItem(Material.DROPPER, 1, "&b&lDrop Item"),
                         12);
 
                 inventory.addItem(e -> {
