@@ -160,9 +160,9 @@ public class MineFacesGUI {
             for (final String s : RMLanguageConfig.file().getStringList("GUI.Faces.Selected-Description")) {
                 faceSelectedDesc.add(s.replaceAll("%material%", m.getFaceBlock(sel).name()));
             }
-            return Items.createItemLore(m.getFaceBlock(sel), 1, TranslatableLine.GUI_FACES_NAME.setV1(TranslatableLine.ReplacableVar.FACE.eq(sel.name())).get(), faceSelectedDesc);
+            return Items.createItemLore(m.getFaceBlock(sel), 1, TranslatableLine.GUI_FACES_ITEM_NAME.setV1(TranslatableLine.ReplacableVar.FACE.eq(sel.name())).get(), faceSelectedDesc);
         } else {
-            return Items.createItemLore(Material.BOOK, 1, TranslatableLine.GUI_FACES_NAME.setV1(TranslatableLine.ReplacableVar.FACE.eq(sel.name())).get(), faceSelectedDesc);
+            return Items.createItemLore(Material.BOOK, 1, TranslatableLine.GUI_FACES_ITEM_NAME.setV1(TranslatableLine.ReplacableVar.FACE.eq(sel.name())).get(), faceSelectedDesc);
         }
     }
 

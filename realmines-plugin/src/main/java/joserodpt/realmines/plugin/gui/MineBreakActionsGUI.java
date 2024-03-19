@@ -56,7 +56,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
     static final ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
     static final ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, TranslatableLine.GUI_NEXT_PAGE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Next.Description"));
-    static final ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, TranslatableLine.GUI_GO_BACK_NAME.get(),
+    static final ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, TranslatableLine.GUI_PREVIOUS_PAGE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Back.Description"));
     static final ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
@@ -158,7 +158,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                             case EXECUTE_COMMAND:
                                                 p.closeInventory();
 
-                                                Text.send(p, "Input in the chat the command for the break action to execute:");
+                                                TranslatableLine.MINE_BREAK_ACTION_INPUT_COMMAND.send(p);
                                                 new PlayerInput(p, s -> {
                                                     ((MineActionCommand) a).setCommand(s);
                                                     current.mine.saveData(RMine.Data.BLOCKS);
@@ -172,13 +172,14 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                                 break;
                                             case GIVE_MONEY:
                                                 p.closeInventory();
-                                                Text.send(p, "Input in the chat the amount to give:");
+
+                                                TranslatableLine.MINE_BREAK_ACTION_INPUT_AMOUNT.send(p);
                                                 new PlayerInput(p, s -> {
                                                     final double d;
                                                     try {
                                                         d = Double.parseDouble(s);
                                                     } catch (final Exception ex) {
-                                                        Text.send(p, "&cWhat you inserted is not a valid double.");
+                                                        TranslatableLine.MINE_BREAK_ACTION_INPUT_AMOUNT_ERROR.send(p);
                                                         return;
                                                     }
 
@@ -198,13 +199,13 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
 
                                     default:
                                         //chance chance
-                                        Text.send(p, "Input in the chat the chance for the break action (0-100%):");
+                                        TranslatableLine.MINE_BREAK_ACTION_INPUT_CHANCE.send(p);
                                         new PlayerInput(p, s -> {
                                             final double d;
                                             try {
                                                 d = Double.parseDouble(s);
                                             } catch (final Exception ex) {
-                                                Text.send(p, "&cWhat you inserted is not a valid double.");
+                                                TranslatableLine.MINE_BREAK_ACTION_INPUT_AMOUNT_ERROR.send(p);
                                                 return;
                                             }
 

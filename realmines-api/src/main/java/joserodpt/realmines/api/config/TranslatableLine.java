@@ -29,10 +29,15 @@ public enum TranslatableLine {
     MINE_BREAK_ACTION_GIVE_MONEY("Mines.Break-Actions.Give-Money", ReplacableVar.MONEY),
     MINE_BREAK_ACTION_DROP_ITEM("Mines.Break-Actions.Drop-Item", ReplacableVar.NAME),
     MINE_BREAK_ACTION_GIVE_ITEM("Mines.Break-Actions.Give-Item"),
-    MINE_BREAK_ACTION_INPUT_COMMAND("Mines.Break-Actions.Input-Command"),
+    MINE_BREAK_ACTION_INPUT_COMMAND("Mines.Break-Actions.Input.Command"),
+    MINE_BREAK_ACTION_INPUT_AMOUNT("Mines.Break-Actions.Input.Amount"),
+    MINE_BREAK_ACTION_INPUT_AMOUNT_ERROR("Mines.Break-Actions.Input.Amount-Error"),
+    MINE_BREAK_ACTION_INPUT_CHANCE("Mines.Break-Actions.Input.Chance"),
+
     // GUI related messages
     GUI_RESET_NAME("GUI.Reset-Name", ReplacableVar.MINE),
-    GUI_FACES_NAME("GUI.Faces-Name", ReplacableVar.FACE),
+    GUI_FACES_NAME("GUI.Faces-Name"),
+    GUI_FACES_ITEM_NAME("GUI.Faces.Name"),
     GUI_CHOOSE_NAME("GUI.Choose-Name", ReplacableVar.MINE),
     GUI_SELECT_ICON_NAME("GUI.Select-Icon-Name", ReplacableVar.MINE),
     GUI_PICK_NEW_BLOCK_NAME("GUI.Pick-New-Block-Name"),
@@ -41,8 +46,6 @@ public enum TranslatableLine {
 
     //faltam as faces
 
-    GUI_MINE_SELECTED_BLOCK("GUI.Faces.Selected-Description"),
-    GUI_MINE_NONE_SELECTED_BLOCK("GUI.Faces.None-Description"),
     GUI_RESET_BY_PERCENTAGE_ON("GUI.Resets.Percentage-On.Name"),
     GUI_RESET_BY_PERCENTAGE_OFF("GUI.Resets.Percentage-Off.Name"),
     GUI_RESET_BY_TIME_ON("GUI.Resets.Time-On.Name"),
@@ -68,7 +71,6 @@ public enum TranslatableLine {
     GUI_SCHEMATIC_BLOCK_NAME("GUI.Items.Mine-Block.Schematic-Block.Name"),
     GUI_FARM_ITEM_NAME("GUI.Items.Farm-Item.Name"),
     GUI_NO_BLOCKS_NAME("GUI.Items.No-Blocks.Name"),
-    GUI_MINE_DESCRIPTION("GUI.Items.Mine.Description"),
     GUI_NO_MINES_FOUND_NAME("GUI.Items.No-Mines-Found.Name"),
     GUI_PICK_NAME("GUI.Items.Pick.Name"),
     GUI_COLORS_RED("GUI.Items.Colors.Red"),
@@ -83,7 +85,6 @@ public enum TranslatableLine {
 
     // System related messages
     SYSTEM_PLAYER_ONLY("System.Player-Only"),
-    SYSTEM_INVALID_ARGUMENTS("System.Invalid-Arguments"),
     SYSTEM_BOUNDARIES_NOT_SET("System.Boundaries-Not-Set"),
     SYSTEM_CANT_ADD_ITEM("System.Cant-Add-Item"),
     SYSTEM_MINE_CREATED("System.Mine-Created", ReplacableVar.MINE),

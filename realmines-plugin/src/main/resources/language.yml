@@ -11,7 +11,11 @@ Mines:
     Give-Money: "&fYou just recieved &b%money% coins &ffor breaking this block! &eLucky you!"
     Drop-Item: "&fAn item has dropped when you broke this block! &eLucky you!"
     Give-Item: "&fAn item was added to your inventory when you broke this block! &eLucky you!"
-    Input-Command: "Input in the chat the command for the break action to execute:"
+    Input:
+      Command: "Input in the chat the command for the break action to execute:"
+      Amount: "Input in the chat the amount to give:"
+      Amount-Error: "&cWhat you inserted is not a valid double."
+      Chance: "Input in the chat the chance for the break action (0-100%):"
 GUI:
   Reset-Name: "%mine% &rReset Options"
   Faces-Name: "&rFaces"
@@ -188,7 +192,6 @@ GUI:
         - "&fClick to set this mine color."
 System:
   Player-Only: "&cOnly players can run this command."
-  Invalid-Arguments: "&cInvalid arguments."
   Boundaries-Not-Set: "&fYour boundaries &care not set."
   Cant-Add-Item: "&fThat item &ccan't &fbe added to the mine."
   Mine-Created: "&fMine &b%mine% &acreated."

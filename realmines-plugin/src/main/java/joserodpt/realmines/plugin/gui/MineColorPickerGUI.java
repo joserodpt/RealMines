@@ -17,7 +17,6 @@ import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineColor;
-import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -48,7 +47,7 @@ public class MineColorPickerGUI {
     public MineColorPickerGUI(final RealMines rm, final Player as, final RMine mi) {
         this.rm = rm;
         this.uuid = as.getUniqueId();
-        this.inv = Bukkit.getServer().createInventory(null, InventoryType.DROPPER, Text.color(RMLanguageConfig.file().getString("GUI.Color-Picker-Name")));
+        this.inv = Bukkit.getServer().createInventory(null, InventoryType.DROPPER, TranslatableLine.GUI_COLOR_PICKER_NAME.get());
 
         this.mi = mi;
         this.load();
