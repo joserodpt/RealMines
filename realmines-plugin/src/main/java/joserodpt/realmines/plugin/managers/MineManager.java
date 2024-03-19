@@ -14,9 +14,10 @@ package joserodpt.realmines.plugin.managers;
  */
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
-import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.RMMinesConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.event.MineBlockBreakEvent;
 import joserodpt.realmines.api.event.RealMinesMineChangeEvent;
 import joserodpt.realmines.api.managers.MineManagerAPI;
@@ -42,9 +43,6 @@ import joserodpt.realmines.api.mine.types.farm.FarmMine;
 import joserodpt.realmines.api.utils.ItemStackSpringer;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
-import joserodpt.realmines.api.utils.converters.RMConverterBase;
-import joserodpt.realmines.api.utils.converters.mrl.MRLConverter;
-import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realmines.plugin.RealMinesPlugin;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -66,15 +64,12 @@ import java.util.stream.Collectors;
 
 public class MineManager extends MineManagerAPI {
 
-    private RealMines rm;
+    private final RealMinesAPI rm;
     public final List<String> signset = Arrays.asList("pm", "pl", "bm", "br");
     private final Map<String, RMine> mines = new HashMap<>();
-    private final Map<String, RMConverterBase> converters = new HashMap<>();
 
-    public MineManager(RealMines rm) {
+    public MineManager(RealMinesAPI rm) {
         this.rm = rm;
-
-        this.converters.put("MRL", new MRLConverter(rm));
     }
 
     @Override
@@ -182,7 +177,7 @@ public class MineManager extends MineManagerAPI {
                                         }
                                         break;
                                     case GIVE_MONEY:
-                                        if (rm.getPlugin().getEconomy() == null) {
+                                        if (rm.getEconomy() == null) {
                                             rm.getPlugin().getLogger().warning("Money Break Action for " + mat + " will be ignored because Vault isn't installed on this server.");
                                             continue;
                                         }
@@ -363,21 +358,22 @@ public class MineManager extends MineManagerAPI {
 
                 final List<Material> mat = m.getMineCuboid().getBlockTypes();
                 if (!mat.isEmpty()) {
-                    Text.send(p, RMLanguageConfig.file().getString("System.Add-Blocks"));
+                    TranslatableLine.SYSTEM_ADD_BLOCKS.send(p);
                     mat.forEach(material -> Text.send(p, " &7> &f" + material.name()));
-                    Text.send(p, RMLanguageConfig.file().getString("System.Block-Count").replaceAll("%count%", String.valueOf(mat.size())));
+                    TranslatableLine.SYSTEM_BLOCK_COUNT.setV1(TranslatableLine.ReplacableVar.COUNT.eq(String.valueOf(mat.size()))).send(p);
+
 
                     new PlayerInput(p, input -> {
                         if (input.equalsIgnoreCase("yes")) {
                             mat.forEach(material -> m.addItem(new MineBlockItem(material, 0.1D)));
-                            Text.send(p, RMLanguageConfig.file().getString("System.Blocks-Added").replaceAll("%count%", String.valueOf(mat.size())));
+                            TranslatableLine.SYSTEM_BLOCKS_ADDED.setV1(TranslatableLine.ReplacableVar.COUNT.eq(String.valueOf(mat.size()))).send(p);
                         }
-                        Text.send(p, RMLanguageConfig.file().getString("System.Mine-Created").replaceAll("%mine%", name));
-                    }, input -> Text.send(p, RMLanguageConfig.file().getString("System.Mine-Created").replaceAll("%mine%", name)));
+                        TranslatableLine.SYSTEM_MINE_CREATED.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(p);
+                    }, input -> TranslatableLine.SYSTEM_MINE_CREATED.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(p));
                 }
             }
         } catch (final Exception ignored) {
-            Text.send(p, RMLanguageConfig.file().getString("System.Boundaries-Not-Set"));
+            TranslatableLine.SYSTEM_BOUNDARIES_NOT_SET.send(p);
         }
     }
 
@@ -410,27 +406,27 @@ public class MineManager extends MineManagerAPI {
 
                 final List<Material> mat = m.getMineCuboid().getBlockTypes();
                 if (!mat.isEmpty()) {
-                    Text.send(p, RMLanguageConfig.file().getString("System.Add-Blocks"));
+                    TranslatableLine.SYSTEM_ADD_BLOCKS.send(p);
                     mat.forEach(material -> Text.send(p, " &7> &f" + material.name()));
-                    Text.send(p, RMLanguageConfig.file().getString("System.Block-Count").replaceAll("%count%", String.valueOf(mat.size())));
+                    TranslatableLine.SYSTEM_BLOCK_COUNT.setV1(TranslatableLine.ReplacableVar.COUNT.eq(String.valueOf(mat.size()))).send(p);
 
                     new PlayerInput(p, input -> {
                         if (input.equalsIgnoreCase("yes")) {
                             mat.forEach(material -> m.addFarmItem(new MineFarmItem(FarmItem.valueOf(Material.WHEAT))));
-                            Text.send(p, RMLanguageConfig.file().getString("System.Blocks-Added").replaceAll("%count%", String.valueOf(mat.size())));
+                            TranslatableLine.SYSTEM_BLOCKS_ADDED.setV1(TranslatableLine.ReplacableVar.COUNT.eq(String.valueOf(mat.size()))).send(p);
                         }
-                        Text.send(p, RMLanguageConfig.file().getString("System.Mine-Created").replaceAll("%mine%", name));
-                    }, input -> Text.send(p, RMLanguageConfig.file().getString("System.Mine-Created").replaceAll("%mine%", name)));
+                        TranslatableLine.SYSTEM_MINE_CREATED.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(p);
+                    }, input -> TranslatableLine.SYSTEM_MINE_CREATED.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(p));
                 }
             }
         } catch (final Exception ignored) {
-            Text.send(p, RMLanguageConfig.file().getString("System.Boundaries-Not-Set"));
+            TranslatableLine.SYSTEM_BOUNDARIES_NOT_SET.send(p);
         }
     }
 
     @Override
     public void createSchematicMine(final Player p, final String name) {
-        Text.send(p, RMLanguageConfig.file().getString("System.Input-Schematic"));
+        TranslatableLine.SYSTEM_INPUT_SCHEMATIC.send(p);
 
         new PlayerInput(p, s -> {
             final File folder = new File(rm.getPlugin().getDataFolder(), "schematics");
@@ -447,7 +443,7 @@ public class MineManager extends MineManagerAPI {
 
                 Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(m, RealMinesMineChangeEvent.ChangeOperation.ADDED));
             } else {
-                Text.send(p, RMLanguageConfig.file().getString("System.Invalid-Schematic"));
+                TranslatableLine.SYSTEM_INVALID_SCHEMATIC.send(p);
             }
         }, s -> {
 
@@ -578,18 +574,18 @@ public class MineManager extends MineManagerAPI {
                         target.teleport(m.getTeleport());
 
                         if (RMConfig.file().getBoolean("RealMines.teleportMessage")) {
-                            Text.send(target, RMLanguageConfig.file().getString("Mines.Teleport").replaceAll("%mine%", m.getDisplayName()));
+                            TranslatableLine.MINE_TELEPORT.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).send(target);
                         }
                     } else {
                         if (RMConfig.file().getBoolean("RealMines.teleportMessage")) {
-                            Text.send(target, RMLanguageConfig.file().getString("System.Error-Permission"));
+                            TranslatableLine.SYSTEM_ERROR_PERMISSION.send(target);
                         }
                     }
                 } else {
                     target.teleport(m.getTeleport());
                 }
             } else {
-                Text.send(target, RMLanguageConfig.file().getString("Mines.No-Teleport-Location"));
+                TranslatableLine.MINE_NO_TELEPORT_LOCATION.send(target);
             }
         } else {
             if (m.hasTP()) {
@@ -658,14 +654,14 @@ public class MineManager extends MineManagerAPI {
 
                 m.setPOS(pos1, pos2);
                 m.fill();
-                Text.send(p, RMLanguageConfig.file().getString("System.Region-Updated"));
+                TranslatableLine.SYSTEM_REGION_UPDATED.send(p);
                 m.reset();
                 m.saveData(RMine.Data.LOCATION);
 
                 Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(m, RealMinesMineChangeEvent.ChangeOperation.BOUNDS_UPDATED));
             }
         } catch (final Exception e) {
-            Text.send(p, RMLanguageConfig.file().getString("System.Boundaries-Not-Set"));
+            TranslatableLine.SYSTEM_BOUNDARIES_NOT_SET.send(p);
         }
     }
 
@@ -686,7 +682,7 @@ public class MineManager extends MineManagerAPI {
             mine.clear();
             mine.getTimer().kill();
             mine.removeDependencies();
-            for (final MineResetTask task : rm.getMineResetTasksManager().tasks) {
+            for (final MineResetTask task : rm.getMineResetTasksManager().getTasks()) {
                 if (task.hasMine(mine)) {
                     task.removeMine(mine);
                 }

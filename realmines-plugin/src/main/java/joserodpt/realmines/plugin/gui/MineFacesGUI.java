@@ -14,11 +14,11 @@ package joserodpt.realmines.plugin.gui;
  */
 
 import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.PickType;
-import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -42,7 +42,7 @@ import java.util.UUID;
 public class MineFacesGUI {
 
     private static final Map<UUID, MineFacesGUI> inventories = new HashMap<>();
-    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, RMLanguageConfig.file().getString("GUI.Items.Close.Name"),
+    static final ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
     private final Inventory inv;
     private final UUID uuid;
@@ -54,7 +54,7 @@ public class MineFacesGUI {
         this.rm = rm;
         this.m = m;
         this.uuid = as.getUniqueId();
-        this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(RMLanguageConfig.file().getString("GUI.Faces-Name")));
+        this.inv = Bukkit.getServer().createInventory(null, 54, TranslatableLine.GUI_FACES_NAME.get());
 
         this.inv.setItem(13, this.getIcon(m, MineCuboid.CuboidDirection.Up));
         this.inv.setItem(22, this.getIcon(m, MineCuboid.CuboidDirection.Down));
@@ -160,9 +160,9 @@ public class MineFacesGUI {
             for (final String s : RMLanguageConfig.file().getStringList("GUI.Faces.Selected-Description")) {
                 faceSelectedDesc.add(s.replaceAll("%material%", m.getFaceBlock(sel).name()));
             }
-            return Items.createItemLore(m.getFaceBlock(sel), 1, RMLanguageConfig.file().getString("GUI.Faces.Name").replaceAll("%face%", sel.name()), faceSelectedDesc);
+            return Items.createItemLore(m.getFaceBlock(sel), 1, TranslatableLine.GUI_FACES_NAME.setV1(TranslatableLine.ReplacableVar.FACE.eq(sel.name())).get(), faceSelectedDesc);
         } else {
-            return Items.createItemLore(Material.BOOK, 1, RMLanguageConfig.file().getString("GUI.Faces.Name").replaceAll("%face%", sel.name()), faceSelectedDesc);
+            return Items.createItemLore(Material.BOOK, 1, TranslatableLine.GUI_FACES_NAME.setV1(TranslatableLine.ReplacableVar.FACE.eq(sel.name())).get(), faceSelectedDesc);
         }
     }
 

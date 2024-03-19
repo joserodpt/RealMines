@@ -18,6 +18,7 @@ import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.config.RPMineResetTasksConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.event.RealMinesPluginLoadedEvent;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.GUIBuilder;
@@ -141,9 +142,9 @@ public class RealMinesPlugin extends JavaPlugin {
         commandManager.getCompletionHandler().register("#minetasks", input -> realMines.getMineResetTasksManager().getRegisteredTasks());
 
         //command messages
-        commandManager.getMessageHandler().register("cmd.no.exists", sender -> Text.send(sender, RMLanguageConfig.file().getString("System.Error-Command")));
-        commandManager.getMessageHandler().register("cmd.no.permission", sender -> Text.send(sender, RMLanguageConfig.file().getString("System.Error-Permission")));
-        commandManager.getMessageHandler().register("cmd.wrong.usage", sender -> Text.send(sender, RMLanguageConfig.file().getString("System.Error-Usage")));
+        commandManager.getMessageHandler().register("cmd.no.exists", TranslatableLine.SYSTEM_ERROR_COMMAND::send);
+        commandManager.getMessageHandler().register("cmd.no.permission", TranslatableLine.SYSTEM_ERROR_PERMISSION::send);
+        commandManager.getMessageHandler().register("cmd.wrong.usage", TranslatableLine.SYSTEM_ERROR_USAGE::send);
 
         //registo de comandos #portugal
         commandManager.register(new MineCMD(realMines));

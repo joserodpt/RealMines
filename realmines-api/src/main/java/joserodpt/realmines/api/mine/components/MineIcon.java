@@ -14,6 +14,7 @@ package joserodpt.realmines.api.mine.components;
  */
 
 import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.Items;
 import org.bukkit.Material;
@@ -23,7 +24,8 @@ public class MineIcon {
 
     private RMine m;
 
-    public MineIcon() { }
+    public MineIcon() {
+    }
 
     public MineIcon(RMine m) {
         this.m = m;
@@ -31,12 +33,14 @@ public class MineIcon {
 
     public ItemStack getMineItem() {
         return this.getMine() != null ? this.m.getMineIcon() :
-         Items.createItemLore(Material.DEAD_BUSH, 1, RMLanguageConfig.file().getString("GUI.Items.No-Mines-Found.Name"), RMLanguageConfig.file().getStringList("GUI.Items.No-Mines-Found.Description"));
+                Items.createItemLore(Material.DEAD_BUSH, 1, TranslatableLine.GUI_NO_MINES_FOUND_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.No-Mines-Found.Description"));
     }
 
     public RMine getMine() {
         return this.m;
     }
 
-    public int getSize() { return this.getMine().getBlockCount(); }
+    public int getSize() {
+        return this.getMine().getBlockCount();
+    }
 }

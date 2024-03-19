@@ -14,6 +14,7 @@ package joserodpt.realmines.api.mine.components.items.farm;
  */
 
 import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.types.farm.FarmItem;
@@ -59,7 +60,7 @@ public class MineFarmItem extends MineItem {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItemLore(super.getMaterial(), 1, RMLanguageConfig.file().getString("GUI.Items.Farm-Item.Name").replace("%material%", Text.beautifyMaterialName(this.fi.getIcon())).replace("%age%", String.valueOf(this.getAge())) + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Farm-Item.Description")
+        return Items.createItemLore(super.getMaterial(), 1, TranslatableLine.GUI_FARM_ITEM_NAME.setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(this.fi.getIcon()))).setV2(TranslatableLine.ReplacableVar.AGE.eq(String.valueOf(this.getAge()))).get() + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Farm-Item.Description")
                 .stream()
                 .map(s -> Text.color(s.replaceAll("%percentage%", String.valueOf(super.getPercentage() * 100))))
                 .collect(Collectors.toList()));

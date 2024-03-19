@@ -55,7 +55,7 @@ import java.util.Map;
 public class SchematicMine extends RMine {
 
     private final String schematicFile;
-    private Location pasteLocation;
+    private final Location pasteLocation;
     private final Clipboard pasteClipboard;
     private final MineManagerAPI mm;
 
@@ -110,7 +110,7 @@ public class SchematicMine extends RMine {
 
     @Override
     public void fill() {
-        this.placeSchematic(this.pasteClipboard, this.pasteLocation); //TODO: make blocks unbreakable
+        this.placeSchematic(this.pasteClipboard, this.pasteLocation);
         //faces
         for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
             this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));

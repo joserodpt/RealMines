@@ -20,7 +20,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -47,12 +46,8 @@ public class Text {
         return color;
     }
 
-    public static void send(final Player p, final String string) {
-        p.sendMessage(Text.color(RMConfig.file().getString("RealMines.Prefix") + string));
-    }
-
     public static void send(final CommandSender p, final String string) {
-        p.sendMessage(Text.color(RMConfig.file().getString("RealMines.Prefix") + "&f" + string));
+        p.sendMessage(getPrefix() + Text.color("&f" + string));
     }
 
     public static String formatNumber(double number) {
@@ -70,13 +65,17 @@ public class Text {
     }
 
     public static String getProgressBar(final int current, final int max, final int totalBars, final char symbol, final ChatColor completedColor, final ChatColor notCompletedColor) {
-        if (max <= 0 || (current < 0 || totalBars < 0)) { return "&d" + symbol; }
+        if (max <= 0 || (current < 0 || totalBars < 0)) {
+            return "&d" + symbol;
+        }
 
         final float percent = (float) current / max;
         final int progressBars = (int) (totalBars * percent);
         final int remainingBars = totalBars - progressBars;
 
-        if (progressBars < 0 || remainingBars < 0) { return "&d" + symbol; }
+        if (progressBars < 0 || remainingBars < 0) {
+            return "&d" + symbol;
+        }
 
         return Strings.repeat(String.valueOf(completedColor) + symbol, progressBars)
                 + Strings.repeat(String.valueOf(notCompletedColor) + symbol, remainingBars);
@@ -84,5 +83,9 @@ public class Text {
 
     public static String location2Command(Location l) {
         return l.getBlockX() + " " + l.getBlockY() + " " + l.getBlockZ();
+    }
+
+    public static String getPrefix() {
+        return color(RMConfig.file().getString("RealMines.Prefix"));
     }
 }

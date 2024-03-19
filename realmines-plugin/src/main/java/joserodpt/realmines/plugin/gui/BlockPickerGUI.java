@@ -15,11 +15,12 @@ package joserodpt.realmines.plugin.gui;
 
 
 import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
+import joserodpt.realmines.api.mine.RMine;
+import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.api.mine.types.BlockMine;
-import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.mine.types.farm.FarmMine;
 import joserodpt.realmines.api.utils.Items;
@@ -52,14 +53,14 @@ import java.util.stream.Collectors;
 public class BlockPickerGUI {
 
     private static final Map<UUID, BlockPickerGUI> inventories = new HashMap<>();
-    static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, RMLanguageConfig.file().getString("GUI.Items.Next.Name"),
+    static final ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
+    static final ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, TranslatableLine.GUI_NEXT_PAGE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Next.Description"));
-    static ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, RMLanguageConfig.file().getString("GUI.Items.Back.Name"),
+    static final ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, TranslatableLine.GUI_GO_BACK_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Back.Description"));
-    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, RMLanguageConfig.file().getString("GUI.Items.Close.Name"),
+    static final ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
-    static ItemStack search = Items.createItemLore(Material.OAK_SIGN, 1, RMLanguageConfig.file().getString("GUI.Items.Search.Name"),
+    static ItemStack search = Items.createItemLore(Material.OAK_SIGN, 1, TranslatableLine.GUI_SEARCH_ITEM_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
     private final RealMines rm;
     private final UUID uuid;
@@ -68,7 +69,7 @@ public class BlockPickerGUI {
     private final RMine min;
     private final PickType pt;
     int pageNumber = 0;
-    private Pagination<Material> p;
+    private final Pagination<Material> p;
     private final Inventory inv;
     private final String add;
 
@@ -79,12 +80,7 @@ public class BlockPickerGUI {
         this.min = m;
         this.pt = pickType;
 
-        if (Objects.requireNonNull(pickType) == PickType.ICON) {
-            this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(RMLanguageConfig.file().getString("GUI.Select-Icon-Name").replaceAll("%mine%", m.getDisplayName())));
-        } else {
-            this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(RMLanguageConfig.file().getString("GUI.Pick-New-Block-Name")));
-        }
-
+        this.inv = Bukkit.getServer().createInventory(null, 54, Objects.requireNonNull(pickType) == PickType.ICON ? TranslatableLine.GUI_SELECT_ICON_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).get() : TranslatableLine.GUI_PICK_NEW_BLOCK_NAME.get());
 
         this.items = Items.getValidBlocks(pt);
 
@@ -102,8 +98,7 @@ public class BlockPickerGUI {
         this.min = m;
         this.pt = pickType;
 
-        this.inv = Bukkit.getServer().createInventory(null, 54, (Objects.requireNonNull(pickType) == PickType.ICON) ? Text.color(RMLanguageConfig.file().getString("GUI.Select-Icon-Name").replaceAll("%mine%", m.getDisplayName()))
-        : Text.color(RMLanguageConfig.file().getString("GUI.Pick-New-Block-Name")));
+        this.inv = Bukkit.getServer().createInventory(null, 54, Objects.requireNonNull(pickType) == PickType.ICON ? TranslatableLine.GUI_SELECT_ICON_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).get() : TranslatableLine.GUI_PICK_NEW_BLOCK_NAME.get());
 
         this.items = this.searchMaterial(search, pickType);
 
@@ -141,7 +136,7 @@ public class BlockPickerGUI {
                             case 4:
                                 new PlayerInput(p, input -> {
                                     if (current.searchMaterial(input, current.pt).isEmpty()) {
-                                        Text.send(p, RMLanguageConfig.file().getString("System.Nothing-Found"));
+                                        TranslatableLine.SYSTEM_NOTHING_FOUND.send(p);
                                         current.exit(current.rm, p);
                                         return;
                                     }
@@ -259,7 +254,7 @@ public class BlockPickerGUI {
             if (i == null && !items.isEmpty()) {
                 final Material s = items.get(0);
                 this.inv.setItem(slot,
-                        Items.createItemLore(s, 1, RMLanguageConfig.file().getString("GUI.Items.Pick.Name").replaceAll("%material%", Text.beautifyMaterialName(s)), RMLanguageConfig.file().getStringList("GUI.Items.Pick.Description")));
+                        Items.createItemLore(s, 1, TranslatableLine.GUI_PICK_NAME.setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(s))).get(), RMLanguageConfig.file().getStringList("GUI.Items.Pick.Description")));
                 this.display.put(slot, s);
                 items.remove(0);
             }

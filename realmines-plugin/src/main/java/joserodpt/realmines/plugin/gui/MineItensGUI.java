@@ -16,6 +16,7 @@ package joserodpt.realmines.plugin.gui;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.RMMinesConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.components.items.MineItem;
@@ -55,14 +56,14 @@ import java.util.stream.Collectors;
 public class MineItensGUI {
 
     private static final Map<UUID, MineItensGUI> inventories = new HashMap<>();
-    static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, RMLanguageConfig.file().getString("GUI.Items.Next.Name"),
+    static final ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
+    static final ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, TranslatableLine.GUI_NEXT_PAGE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Next.Description"));
-    static ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, RMLanguageConfig.file().getString("GUI.Items.Back.Name"),
+    static final ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, TranslatableLine.GUI_GO_BACK_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Back.Description"));
-    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, RMLanguageConfig.file().getString("GUI.Items.Close.Name"),
+    static final ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
-    static ItemStack add = Items.createItemLore(Material.HOPPER, 1, RMLanguageConfig.file().getString("GUI.Items.Add.Name"),
+    static ItemStack add = Items.createItemLore(Material.HOPPER, 1, TranslatableLine.GUI_ADD_ITEMS_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Add.Description"));
     private final Inventory inv;
     private final UUID uuid;
@@ -76,7 +77,7 @@ public class MineItensGUI {
         this.rm = rm;
         this.uuid = target.getUniqueId();
         this.m = min;
-        this.inv = Bukkit.getServer().createInventory(null, 54, Text.color(RMLanguageConfig.file().getString("GUI.Mine-Blocks-Name").replaceAll("%mine%", this.m.getDisplayName())));
+        this.inv = Bukkit.getServer().createInventory(null, 54, TranslatableLine.GUI_MINE_BLOCKS_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.m.getDisplayName())).get());
 
         this.load();
 
@@ -128,7 +129,7 @@ public class MineItensGUI {
                                     v.openInventory(p);
                                 }, 1);
                             } else {
-                                Text.send(clicker, RMLanguageConfig.file().getString("System.Cant-Add-Item"));
+                                TranslatableLine.SYSTEM_CANT_ADD_ITEM.send(p);
                             }
 
                         } else {
@@ -200,7 +201,7 @@ public class MineItensGUI {
                                                 break;
                                         }
 
-                                        Text.send(p, RMLanguageConfig.file().getString("System.Remove").replace("%object%", Text.beautifyMaterialName(minItem.getMaterial())));
+                                        TranslatableLine.SYSTEM_REMOVE.setV1(TranslatableLine.ReplacableVar.OBJECT.eq(Text.beautifyMaterialName(minItem.getMaterial()))).send(p);
                                         current.load();
                                         break;
                                     case SHIFT_RIGHT:
@@ -353,7 +354,7 @@ public class MineItensGUI {
                 a.setPercentage((double) percentage / 100);
                 current.m.saveData(BlockMine.Data.BLOCKS);
 
-                Text.send(p, RMLanguageConfig.file().getString("System.Percentage-Modified").replaceAll("%value%", String.valueOf(percentage)));
+                TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(percentage))).send(p);
 
                 final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
                 v.openInventory(p);
@@ -365,18 +366,18 @@ public class MineItensGUI {
                 try {
                     d = Double.parseDouble(s.replace("%", ""));
                 } catch (final Exception ex) {
-                    Text.send(p, RMLanguageConfig.file().getString("System.Input-Percentage-Error"));
+                    TranslatableLine.SYSTEM_INPUT_PERCENTAGE_ERROR.send(p);
                     this.editPercentage(p, a, current);
                 }
 
                 if (d < 1D) {
-                    Text.send(p, RMLanguageConfig.file().getString("System.Input-Percentage-Error-Greater"));
+                    TranslatableLine.SYSTEM_INPUT_PERCENTAGE_ERROR_GREATER.send(p);
                     this.editPercentage(p, a, current);
                     return;
                 }
 
                 if (d > 100D) {
-                    Text.send(p, RMLanguageConfig.file().getString("System.Input-Percentage-Error-Lower"));
+                    TranslatableLine.SYSTEM_INPUT_PERCENTAGE_ERROR_LOWER.send(p);
                     this.editPercentage(p, a, current);
                     return;
                 }
@@ -386,7 +387,7 @@ public class MineItensGUI {
                 a.setPercentage(d);
                 current.m.saveData(BlockMine.Data.BLOCKS);
 
-                Text.send(p, RMLanguageConfig.file().getString("System.Percentage-Modified").replaceAll("%value%", String.valueOf(d * 100)));
+                TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(d * 100))).send(p);
                 final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
                 v.openInventory(p);
             }, s -> {

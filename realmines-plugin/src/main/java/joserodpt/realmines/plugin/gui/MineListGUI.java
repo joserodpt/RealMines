@@ -14,6 +14,7 @@ package joserodpt.realmines.plugin.gui;
  */
 
 import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.MineIcon;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Pagination;
@@ -42,15 +43,15 @@ import java.util.stream.Collectors;
 
 public class MineListGUI {
 
-    public enum MineListSort { DEFAULT, SIZE }
+    public enum MineListSort {DEFAULT, SIZE}
 
     private static final Map<UUID, MineListGUI> inventories = new HashMap<>();
-    static ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, RMLanguageConfig.file().getString("GUI.Items.Next.Name"),
+    static final ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
+    static final ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, TranslatableLine.GUI_NEXT_PAGE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Next.Description"));
-    static ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, RMLanguageConfig.file().getString("GUI.Items.Back.Name"),
+    static final ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, TranslatableLine.GUI_GO_BACK_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Back.Description"));
-    static ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, RMLanguageConfig.file().getString("GUI.Items.Close.Name"),
+    static final ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
     private final Inventory inv;
     private final UUID uuid;
@@ -128,7 +129,7 @@ public class MineListGUI {
                             }
                             if (e.getClick() == ClickType.DROP) {
                                 current.rm.getMineManager().deleteMine(icon.getMine());
-                                Text.send(p, RMLanguageConfig.file().getString("System.Mine-Deleted"));
+                                TranslatableLine.SYSTEM_MINE_DELETED.send(p);
                                 current.load(current.so);
                             } else {
                                 p.closeInventory();

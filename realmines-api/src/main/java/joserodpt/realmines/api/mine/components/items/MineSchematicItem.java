@@ -14,6 +14,7 @@ package joserodpt.realmines.api.mine.components.items;
  */
 
 import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Text;
@@ -35,7 +36,7 @@ public class MineSchematicItem extends MineItem {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItemLore(super.getMaterial(), 1, RMLanguageConfig.file().getString("GUI.Items.Mine-Block.Schematic-Block.Name").replace("%material%", Text.beautifyMaterialName(super.getMaterial())) + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Mine-Block.Schematic-Block.Description")
+        return Items.createItemLore(super.getMaterial(), 1, TranslatableLine.GUI_SCHEMATIC_BLOCK_NAME.setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(super.getMaterial()))).get() + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Mine-Block.Schematic-Block.Description")
                 .stream()
                 .map(Text::color)
                 .collect(Collectors.toList()));

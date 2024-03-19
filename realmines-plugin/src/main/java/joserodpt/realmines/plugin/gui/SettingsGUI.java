@@ -14,6 +14,8 @@ package joserodpt.realmines.plugin.gui;
  */
 
 import joserodpt.realmines.api.config.RMConfig;
+import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
@@ -31,18 +33,16 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
-
 import java.util.UUID;
 
 public class SettingsGUI {
 
     private static Map<UUID, SettingsGUI> inventories = new HashMap<>();
     private Inventory inv;
-    private ItemStack close = Items.createItemLore(Material.OAK_DOOR, 1, "&cClose",
-            Collections.singletonList("&fClick here to close this menu."));
+    final ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
+            RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
     private final UUID uuid;
     private RealMines rm;
 
@@ -71,7 +71,7 @@ public class SettingsGUI {
 
         switch (def) {
             case REALM:
-                this.inv.setItem(13, Items.createItemLore(Material.WRITABLE_BOOK, 1, "&ePlugin Prefix", Arrays.asList("&fCurrent: &r" + RMConfig.file().getString("RealMines.Prefix"), "", "&fClick here to change the plugin's prefix.")));
+                this.inv.setItem(13, Items.createItemLore(Material.WRITABLE_BOOK, 1, "&ePlugin Prefix", Arrays.asList("&fCurrent: &r" + Text.getPrefix(), "", "&fClick here to change the plugin's prefix.")));
                 this.inv.setItem(14, Items.createItemLore(Material.GRASS_BLOCK, 1, "&ePlace Farm Land Below Crop " + (RMConfig.file().getBoolean("RealMines.placeFarmLandBelowCrop") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
                 this.inv.setItem(15, Items.createItemLore(Material.OAK_SIGN, 1, "&eBroadcast Reset Message Only In World " + (RMConfig.file().getBoolean("RealMines.broadcastResetMessageOnlyInWorld") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
                 break;

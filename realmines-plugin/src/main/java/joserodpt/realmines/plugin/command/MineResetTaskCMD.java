@@ -13,10 +13,10 @@ package joserodpt.realmines.plugin.command;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.RMLanguageConfig;
-import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.task.MineResetTask;
+import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import me.mattstudios.mf.annotations.Alias;
 import me.mattstudios.mf.annotations.Command;
@@ -35,8 +35,6 @@ import java.util.Arrays;
 @Command("realminesresettask")
 @Alias({"minesresettask", "rmrt"})
 public class MineResetTaskCMD extends CommandBase {
-
-    String playerOnly = "[RealMines] Only players can run this command.";
 
     private final RealMines rm;
 
@@ -59,12 +57,12 @@ public class MineResetTaskCMD extends CommandBase {
             final MineResetTask mrt = this.rm.getMineResetTasksManager().getTask(ChatColor.stripColor(Text.color(name)));
             if (mrt == null) {
                 this.rm.getMineResetTasksManager().addTask(ChatColor.stripColor(Text.color(name)), delay);
-                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Task-Created").replace("%task%", name).replace("%delay%", String.valueOf(delay)));
+                TranslatableLine.SYSTEM_MINE_TASK_CREATED.setV1(TranslatableLine.ReplacableVar.TASK.eq(name)).setV2(TranslatableLine.ReplacableVar.DELAY.eq(String.valueOf(delay))).send(commandSender);
             } else {
-                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Task-Exists"));
+                TranslatableLine.SYSTEM_MINE_TASK_EXISTS.send(commandSender);
             }
         } else {
-            Text.send(commandSender, this.playerOnly);
+            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
         }
     }
 
@@ -77,12 +75,12 @@ public class MineResetTaskCMD extends CommandBase {
             final MineResetTask mrt = this.rm.getMineResetTasksManager().getTask(name);
             if (mrt != null) {
                 this.rm.getMineResetTasksManager().removeTask(mrt);
-                Text.send(commandSender, RMLanguageConfig.file().getString("System.Remove").replace("%object%", name));
+                TranslatableLine.SYSTEM_REMOVE.setV1(TranslatableLine.ReplacableVar.OBJECT.eq(name)).send(commandSender);
             } else {
-                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Task-Doesnt-Exist"));
+                TranslatableLine.SYSTEM_MINE_TASK_DOESNT_EXIST.send(commandSender);
             }
         } else {
-            Text.send(commandSender, this.playerOnly);
+            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
         }
     }
 
@@ -97,15 +95,15 @@ public class MineResetTaskCMD extends CommandBase {
                 final RMine m = this.rm.getMineManager().getMine(mine);
                 if (m != null) {
                     mrt.addMine(m);
-                    Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Linked"));
+                    TranslatableLine.SYSTEM_MINE_LINKED.send(commandSender);
                 } else {
-                    Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
+                    TranslatableLine.SYSTEM_MINE_TASK_DOESNT_EXIST.send(commandSender);
                 }
             } else {
-                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Task-Doesnt-Exist"));
+                TranslatableLine.SYSTEM_MINE_TASK_DOESNT_EXIST.send(commandSender);
             }
         } else {
-            Text.send(commandSender, this.playerOnly);
+            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
         }
     }
 
@@ -120,15 +118,15 @@ public class MineResetTaskCMD extends CommandBase {
                 final RMine m = this.rm.getMineManager().getMine(mine);
                 if (m != null) {
                     mrt.removeMine(m);
-                    Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Unlinked"));
+                    TranslatableLine.SYSTEM_MINE_UNLINKED.send(commandSender);
                 } else {
-                    Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Doesnt-Exist"));
+                    TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
                 }
             } else {
-                Text.send(commandSender, RMLanguageConfig.file().getString("System.Mine-Task-Doesnt-Exist"));
+                TranslatableLine.SYSTEM_MINE_TASK_DOESNT_EXIST.send(commandSender);
             }
         } else {
-            Text.send(commandSender, this.playerOnly);
+            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
         }
     }
 

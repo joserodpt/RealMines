@@ -15,7 +15,7 @@ package joserodpt.realmines.api.mine.task;
 
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
-import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.Countdown;
 
@@ -41,7 +41,7 @@ public class MineTimer {
         }, (t) -> {
             if (RMConfig.file().getStringList("RealMines.announceTimes") != null && RMConfig.file().getStringList("RealMines.announceTimes").contains(String.valueOf(count.getSecondsLeft()))) {
                 if (this.m.isSilent()) return;
-                this.m.broadcastMessage(RMLanguageConfig.file().getString("Mines.Reset.Warning").replaceAll("%mine%", this.m.getDisplayName()).replaceAll("%time%", String.valueOf(count.getSecondsLeft())));
+                this.m.broadcastMessage(TranslatableLine.MINE_RESET_WARNING.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.m.getDisplayName())).setV2(TranslatableLine.ReplacableVar.TIME.eq(String.valueOf(count.getSecondsLeft()))).get());
             }
         });
 

@@ -13,8 +13,7 @@ package joserodpt.realmines.plugin.events;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.RMConfig;
-import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.event.MineBlockBreakEvent;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.items.MineItem;
@@ -32,8 +31,6 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 public class BlockEvents implements Listener {
 
     private final RealMines rm;
-    private final String noSetting = RMLanguageConfig.file().getString("Signs.Setting-Not-Found");
-    private final String noMine = RMLanguageConfig.file().getString("Signs.Mine-Not-Found");
 
     public BlockEvents(final RealMines rm) {
         this.rm = rm;
@@ -67,7 +64,7 @@ public class BlockEvents implements Listener {
     @EventHandler
     public void onSignChange(final SignChangeEvent event) {
         if (event.getLine(0).contains("[realmines]") || event.getLine(0).contains("[RealMines]")) {
-            event.setLine(0, Text.color(RMConfig.file().getString("RealMines.Prefix")));
+            event.setLine(0, Text.getPrefix());
             final String name = event.getLine(1);
 
             final RMine m = rm.getMineManager().getMine(name);
@@ -79,13 +76,13 @@ public class BlockEvents implements Listener {
                     m.addSign(event.getBlock(), modif);
                     m.updateSigns();
                 } else {
-                    final String[] line = this.noSetting.split("\\|");
+                    final String[] line = TranslatableLine.SIGNS_SETTING_NOT_FOUND.get().split("\\|");
                     event.setLine(1, Text.color(line[0]));
                     event.setLine(2, Text.color(line[1]));
                     event.setLine(3, Text.color(line[2]));
                 }
             } else {
-                final String[] line = this.noMine.split("\\|");
+                final String[] line = TranslatableLine.SIGNS_MINE_NOT_FOUND.get().split("\\|");
                 event.setLine(1, Text.color(line[0]));
                 event.setLine(2, Text.color(line[1]));
                 event.setLine(3, Text.color(line[2]));

@@ -14,10 +14,10 @@ package joserodpt.realmines.plugin.gui;
  */
 
 import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.PlayerInput;
-import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -49,7 +49,7 @@ public class MineResetGUI {
     public MineResetGUI(final RealMines rm, final Player as, final RMine m) {
         this.rm = rm;
         this.uuid = as.getUniqueId();
-        this.inv = Bukkit.getServer().createInventory(null, InventoryType.HOPPER, Text.color(RMLanguageConfig.file().getString("GUI.Reset-Name").replaceAll("%mine%", m.getDisplayName())));
+        this.inv = Bukkit.getServer().createInventory(null, InventoryType.HOPPER, TranslatableLine.GUI_RESET_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).get());
         this.min = m;
 
         this.load(m);
@@ -149,15 +149,15 @@ public class MineResetGUI {
         }
 
         this.inv.setItem(0, m.isResetBy(RMine.Reset.PERCENTAGE)
-                ? Items.createItemLoreEnchanted(Material.BOOK, 1, RMLanguageConfig.file().getString("GUI.Resets.Percentage-On.Name"), percentageOnDesc)
-                : Items.createItemLore(Material.BOOK, 1, RMLanguageConfig.file().getString("GUI.Resets.Percentage-Off.Name"), percentageOffDesc));
+                ? Items.createItemLoreEnchanted(Material.BOOK, 1, TranslatableLine.GUI_RESET_BY_PERCENTAGE_ON.get(), percentageOnDesc)
+                : Items.createItemLore(Material.BOOK, 1, TranslatableLine.GUI_RESET_BY_PERCENTAGE_OFF.get(), percentageOffDesc));
 
         this.inv.setItem(4, m.isResetBy(RMine.Reset.TIME)
-                ? Items.createItemLoreEnchanted(Material.CLOCK, 1, RMLanguageConfig.file().getString("GUI.Resets.Time-On.Name"), timeOnDesc)
-                : Items.createItemLore(Material.CLOCK, 1, RMLanguageConfig.file().getString("GUI.Resets.Time-Off.Name"), timeOffDesc));
+                ? Items.createItemLoreEnchanted(Material.CLOCK, 1, TranslatableLine.GUI_RESET_BY_TIME_ON.get(), timeOnDesc)
+                : Items.createItemLore(Material.CLOCK, 1, TranslatableLine.GUI_RESET_BY_TIME_OFF.get(), timeOffDesc));
 
         this.inv.setItem(2,
-                Items.createItemLore(Material.ACACIA_DOOR, 1, RMLanguageConfig.file().getString("GUI.Items.Go-Back.Name"), RMLanguageConfig.file().getStringList("GUI.Items.Go-Back.Description")));
+                Items.createItemLore(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_GO_BACK_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.Go-Back.Description")));
     }
 
     public void openInventory(final Player target) {
@@ -181,20 +181,20 @@ public class MineResetGUI {
                     try {
                         d = Integer.parseInt(s.replace("%", ""));
                     } catch (final Exception ex) {
-                        Text.send(p, RMLanguageConfig.file().getString("System.Input-Parse"));
+                        TranslatableLine.SYSTEM_INPUT_PARSE.send(p);
                         this.editSetting(rm, 0, p, m);
                         return;
                     }
 
                     if (d < 1 || d > 100) {
-                        Text.send(p, RMLanguageConfig.file().getString("System.Input-Limit-Error"));
+                        TranslatableLine.SYSTEM_INPUT_LIMIT_ERROR.send(p);
                         this.editSetting(rm, 0, p, m);
                         return;
                     }
 
                     m.setResetValue(RMine.Reset.PERCENTAGE, d);
                     m.saveData(RMine.Data.SETTINGS);
-                    Text.send(p, RMLanguageConfig.file().getString("System.Percentage-Modified").replaceAll("%value%", String.valueOf(d)));
+                    TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(d))).send(p);
 
                     final MineResetGUI v = new MineResetGUI(rm, p, m);
                     v.openInventory(p);
@@ -209,20 +209,20 @@ public class MineResetGUI {
                     try {
                         d = Integer.parseInt(s.replace("%", ""));
                     } catch (final Exception ex) {
-                        Text.send(p, RMLanguageConfig.file().getString("System.Input-Seconds"));
+                        TranslatableLine.SYSTEM_INPUT_SECONDS.send(p);
                         this.editSetting(rm, 1, p, m);
                         return;
                     }
 
                     if (d < 1) {
-                        Text.send(p, RMLanguageConfig.file().getString("System.Input-Limit-Error-Greater"));
+                        TranslatableLine.SYSTEM_INPUT_LIMIT_ERROR_GREATER.send(p);
                         this.editSetting(rm, 1, p, m);
                         return;
                     }
 
                     m.setResetValue(RMine.Reset.TIME, d);
                     m.saveData(RMine.Data.SETTINGS);
-                    Text.send(p, RMLanguageConfig.file().getString("System.Time-Modified").replaceAll("%value%", String.valueOf(d)));
+                    TranslatableLine.SYSTEM_TIME_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(d))).send(p);
 
                     final MineResetGUI v = new MineResetGUI(rm, p, m);
                     v.openInventory(p);

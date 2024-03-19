@@ -16,6 +16,7 @@ package joserodpt.realmines.api.mine.components.items;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.RMMinesConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.utils.Items;
 import org.bukkit.Material;
@@ -105,7 +106,7 @@ public class MineItem {
     }
 
     public ItemStack getItem() {
-        return Items.createItemLore(Material.DEAD_BUSH, 1, RMLanguageConfig.file().getString("GUI.Items.No-Blocks.Name"), RMLanguageConfig.file().getStringList("GUI.Items.No-Blocks.Description"));
+        return Items.createItemLore(Material.DEAD_BUSH, 1, TranslatableLine.GUI_NO_BLOCKS_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.No-Blocks.Description"));
     }
 
     public List<MineAction> getBreakActions() {
