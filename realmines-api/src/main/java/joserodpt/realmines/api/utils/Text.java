@@ -15,7 +15,6 @@ package joserodpt.realmines.api.utils;
 
 import com.google.common.base.Strings;
 import joserodpt.realmines.api.config.RMConfig;
-import org.apache.commons.lang3.text.WordUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -61,7 +60,19 @@ public class Text {
     }
 
     public static String beautifyMaterialName(Material m) {
-        return WordUtils.capitalizeFully(m.name().replace("_", " "));
+        String[] parts = m.name().split("_");
+        StringBuilder formattedString = new StringBuilder();
+
+        for (String part : parts) {
+            if (!part.isEmpty()) {
+                formattedString.append(part.substring(0, 1).toUpperCase());
+                if (part.length() > 1) {
+                    formattedString.append(part.substring(1).toLowerCase());
+                }
+            }
+            formattedString.append(" ");
+        }
+        return formattedString.toString().trim();
     }
 
     public static String getProgressBar(final int current, final int max, final int totalBars, final char symbol, final ChatColor completedColor, final ChatColor notCompletedColor) {
