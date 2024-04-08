@@ -15,6 +15,7 @@ package joserodpt.realmines.plugin;
 
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.Countdown;
+import joserodpt.realmines.api.utils.Text;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 
@@ -180,6 +181,17 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
                 return m.getBar();
+            } else {
+                return "No mine named: " + mine;
+            }
+        }
+
+        if (identifier.startsWith("percentage_bar")) {
+            final String[] split = identifier.split("_");
+            final String mine = split[mineIndex];
+            final RMine m = this.plugin.getMineManager().getMine(mine);
+            if (m != null) {
+                return m.getBar() + Text.color(" &r&f") + m.getRemainingBlocksPer() + "%";
             } else {
                 return "No mine named: " + mine;
             }
