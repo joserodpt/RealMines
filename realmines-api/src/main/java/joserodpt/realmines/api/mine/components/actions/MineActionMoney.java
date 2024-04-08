@@ -42,7 +42,7 @@ public class MineActionMoney extends MineAction {
                 if (RMMinesConfig.file().getBoolean(super.getMineID() + ".Settings.Discard-Break-Action-Messages"))
                     TranslatableLine.MINE_BREAK_ACTION_GIVE_MONEY.setV1(TranslatableLine.ReplacableVar.MONEY.eq(Text.formatNumber(money))).send(p);
             } else {
-                Bukkit.getLogger().warning("Economy not found. Please install a compatible economy plugin.");
+                Bukkit.getLogger().warning("Economy not found or Vault not installed. Please install a compatible economy plugin.");
             }
         }
     }
