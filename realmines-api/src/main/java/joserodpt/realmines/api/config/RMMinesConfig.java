@@ -36,7 +36,7 @@ public class RMMinesConfig implements Listener {
         try {
             configFile = YamlDocument.create(new File(rm.getDataFolder(), name), rm.getResource(name),
                     GeneralSettings.DEFAULT,
-                    LoaderSettings.builder().setAutoUpdate(true).build(),
+                    LoaderSettings.builder().setMaxCollectionAliases(200).setAutoUpdate(true).build(),
                     DumperSettings.DEFAULT,
                     UpdaterSettings.builder().setVersioning(new BasicVersioning("Version")).build());
         } catch (final IOException e) {
