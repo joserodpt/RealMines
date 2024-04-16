@@ -603,7 +603,6 @@ public class MineManager extends MineManagerAPI {
     public MineItem findBlockUpdate(final Player p, final Cancellable e, final Block block, final boolean broken) {
         for (final RMine mine : this.getMines().values()) {
             if (mine.getMineCuboid().contains(block)) {
-                MineItem mi = mine.getMineItems().get(block.getType());
 
                 if (mine.isFreezed() || (mine.isBreakingPermissionOn() && !p.hasPermission(mine.getBreakPermission()))) {
                     e.setCancelled(true);
@@ -611,11 +610,14 @@ public class MineManager extends MineManagerAPI {
                     if (mine.getType() == RMine.Type.FARM && !FarmItem.getCrops().contains(block.getType())) {
                         e.setCancelled(true);
                     } else {
-                        if (mi.isBlockMiningDisabled()) {
-                            e.setCancelled(true);
-                        } else {
-                            Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(p, mine, block, broken));
-                            return mine.getMineItems().get(block.getType());
+                        MineItem mi = mine.getMineItems().get(block.getType());
+                        if (mi != null) {
+                            if (mi.isBlockMiningDisabled()) {
+                                e.setCancelled(true);
+                            } else {
+                                Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(p, mine, block, broken));
+                                return mine.getMineItems().get(block.getType());
+                            }
                         }
                     }
                 }
