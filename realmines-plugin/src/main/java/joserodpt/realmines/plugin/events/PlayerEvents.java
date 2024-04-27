@@ -31,7 +31,7 @@ public class PlayerEvents implements Listener {
     @EventHandler
     public void onJoin(final PlayerJoinEvent e) {
         if ((e.getPlayer().isOp() || e.getPlayer().hasPermission("realmines.update.notify") || e.getPlayer().hasPermission("realmines.admin")) && rm.hasNewUpdate()) {
-            Text.send(e.getPlayer(), TranslatableLine.SYSTEM_UPDATE_FOUND.get() + " https://www.spigotmc.org/resources/realmines-1-14-to-1-20-1.73707/");
+            Text.send(e.getPlayer(), TranslatableLine.SYSTEM_UPDATE_FOUND.get() + " https://www.spigotmc.org/resources/73707/");
         }
     }
 }
