@@ -291,7 +291,7 @@ public class MineCMD extends CommandBase {
     public void resetcmd(final CommandSender commandSender, final String name) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
-            m.reset();
+            m.reset(RMine.ResetCause.COMMAND);
         } else {
             TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
         }

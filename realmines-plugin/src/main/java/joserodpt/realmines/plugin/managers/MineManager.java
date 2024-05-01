@@ -349,7 +349,7 @@ public class MineManager extends MineManagerAPI {
 
                 this.addMine(m);
                 m.addItem(new MineBlockItem(Material.STONE, 1D));
-                m.reset();
+                m.reset(RMine.ResetCause.CREATION);
                 m.setTeleport(p.getLocation());
 
                 m.saveAll();
@@ -397,7 +397,7 @@ public class MineManager extends MineManagerAPI {
                 m.addFarmItem(new MineFarmItem(FarmItem.WHEAT, 1D));
 
                 this.addMine(m);
-                m.reset();
+                m.reset(RMine.ResetCause.CREATION);
                 m.setTeleport(p.getLocation());
 
                 m.saveAll();
@@ -438,7 +438,7 @@ public class MineManager extends MineManagerAPI {
 
                 this.addMine(m);
                 m.setTeleport(p.getLocation());
-                m.reset();
+                m.reset(RMine.ResetCause.CREATION);
                 m.saveAll();
 
                 Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(m, RealMinesMineChangeEvent.ChangeOperation.ADDED));
@@ -657,7 +657,7 @@ public class MineManager extends MineManagerAPI {
                 m.setPOS(pos1, pos2);
                 m.fill();
                 TranslatableLine.SYSTEM_REGION_UPDATED.send(p);
-                m.reset();
+                m.reset(RMine.ResetCause.PLUGIN);
                 m.saveData(RMine.Data.LOCATION);
 
                 Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(m, RealMinesMineChangeEvent.ChangeOperation.BOUNDS_UPDATED));

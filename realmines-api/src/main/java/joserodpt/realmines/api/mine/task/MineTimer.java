@@ -36,7 +36,7 @@ public class MineTimer {
         this.count = new Countdown(RealMinesAPI.getInstance().getPlugin(), s, () -> {
             //
         }, () -> {
-            this.m.reset();
+            this.m.reset(RMine.ResetCause.TIMER);
             this.startTask(this.m.getResetValue(RMine.Reset.TIME));
         }, (t) -> {
             if (RMConfig.file().getStringList("RealMines.announceTimes") != null && RMConfig.file().getStringList("RealMines.announceTimes").contains(String.valueOf(count.getSecondsLeft()))) {

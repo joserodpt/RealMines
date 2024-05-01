@@ -89,7 +89,7 @@ public class MRLConverter implements RMConverterBase {
                 Text.send(cmd, " &f> Importing reset percentage of: &b" + (value2 * 100.0) + "%");
             }
 
-            m.reset();
+            m.reset(RMine.ResetCause.CREATION);
 
             if (MRLmine.getTpY() >= 0) {
                 Text.send(cmd, " &f> Importing mine teleport position.");

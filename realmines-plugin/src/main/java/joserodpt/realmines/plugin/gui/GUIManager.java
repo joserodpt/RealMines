@@ -253,7 +253,7 @@ public class GUIManager {
                     TranslatableLine.SYSTEM_MINE_CLEAR.send(target);
                 }, Items.createItemLore(Material.TNT, 1, TranslatableLine.GUI_CLEAR_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.Clear.Description")), 22);
 
-                inventory.addItem(e -> m.reset(), Items.createItemLore(Material.DROPPER, 1, TranslatableLine.GUI_RESET_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.Reset.Description")), 14);
+                inventory.addItem(e -> m.reset(RMine.ResetCause.COMMAND), Items.createItemLore(Material.DROPPER, 1, TranslatableLine.GUI_RESET_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.Reset.Description")), 14);
 
                 inventory.addItem(e -> m.setHighlight(!m.isHighlighted()), Items.createItemLore(Material.REDSTONE_TORCH, 1, TranslatableLine.GUI_BOUNDARIES_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.Boundaries.Description")), 6);
 

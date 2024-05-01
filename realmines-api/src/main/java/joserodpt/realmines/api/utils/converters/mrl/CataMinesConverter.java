@@ -89,7 +89,7 @@ public class CataMinesConverter implements RMConverterBase {
                 m.setResetStatus(RMine.Reset.TIME, false);
             }
 
-            m.reset();
+            m.reset(RMine.ResetCause.CREATION);
 
             if (cataMine.getTeleportLocation().getY() >= 0) {
                 Text.send(cmd, " &f> Importing mine teleport position.");

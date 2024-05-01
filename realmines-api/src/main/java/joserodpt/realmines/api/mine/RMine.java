@@ -20,6 +20,7 @@ import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.event.MineBlockBreakEvent;
+import joserodpt.realmines.api.event.OnMineResetEvent;
 import joserodpt.realmines.api.managers.MineManagerAPI;
 import joserodpt.realmines.api.mine.components.MineColor;
 import joserodpt.realmines.api.mine.components.MineCuboid;
@@ -52,6 +53,8 @@ import java.util.stream.Collectors;
 public abstract class RMine {
 
     public enum Type {BLOCKS, SCHEMATIC, FARM}
+
+    public enum ResetCause {COMMAND, PLUGIN, TIMER, CREATION}
 
     protected String name;
     protected MineColor color;
@@ -210,7 +213,18 @@ public abstract class RMine {
     }
 
     public void reset() {
+        reset(ResetCause.PLUGIN);
+    }
+
+    public void reset(ResetCause re) {
         if (!Bukkit.getOnlinePlayers().isEmpty() || RMConfig.file().getBoolean("RealMines.resetMinesWhenNoPlayers")) {
+
+            OnMineResetEvent event = new OnMineResetEvent(this, re);
+            Bukkit.getServer().getPluginManager().callEvent(event);
+            if (event.isCancelled()) {
+                return;
+            }
+
             this.kickPlayers(TranslatableLine.MINE_RESET_STARTING.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.getDisplayName())).get());
             this.fill();
 
