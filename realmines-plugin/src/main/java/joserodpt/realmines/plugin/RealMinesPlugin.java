@@ -185,7 +185,7 @@ public class RealMinesPlugin extends JavaPlugin {
                         new ExternalPluginPermission("realmines.update.notify", "Notification of a plugin update to the player.")
                 ), this.getDescription().getVersion()));
             } catch (Exception e) {
-                getLogger().warning("Error while trying to register RealScoreboard permissions onto RealPermissions.");
+                getLogger().warning("Error while trying to register RealMines permissions onto RealPermissions.");
                 e.printStackTrace();
             }
         }
