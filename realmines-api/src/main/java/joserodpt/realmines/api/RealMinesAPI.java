@@ -21,7 +21,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Random;
 
-public abstract class RealMinesAPI  {
+public abstract class RealMinesAPI {
 
     private static final Random r = new Random();
     private static RealMinesAPI instance;
