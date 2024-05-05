@@ -168,6 +168,12 @@ public class RealMinesPlugin extends JavaPlugin {
             getLogger().info("Hooked onto PlaceholderAPI!");
         }
 
+        Bukkit.getPluginManager().callEvent(new RealMinesPluginLoadedEvent());
+
+        if (RMConfig.file().getBoolean("RealMines.useWorldEditForBlockPlacement")) {
+            getLogger().info("Using FAWE/WorldEdit for block placement.");
+        }
+
         if (getServer().getPluginManager().getPlugin("RealPermissions") != null) {
             //register RealMines permissions onto RealPermissions
             try {
@@ -182,12 +188,6 @@ public class RealMinesPlugin extends JavaPlugin {
                 getLogger().warning("Error while trying to register RealScoreboard permissions onto RealPermissions.");
                 e.printStackTrace();
             }
-        }
-
-        Bukkit.getPluginManager().callEvent(new RealMinesPluginLoadedEvent());
-
-        if (RMConfig.file().getBoolean("RealMines.useWorldEditForBlockPlacement")) {
-            getLogger().info("Using FAWE/WorldEdit for block placement.");
         }
 
         getLogger().info("Finished loading in " + ((System.currentTimeMillis() - start) / 1000F) + " seconds.");
