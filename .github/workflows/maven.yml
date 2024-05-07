@@ -10,14 +10,14 @@ jobs:
     - uses: actions/setup-java@v3
       with:
         distribution: 'temurin'
-        java-version: 11
+        java-version: 8
     - uses: actions/cache@v3
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
           ${{ runner.os }}-maven-
-    - run: mvn --activate-profiles dist --no-transfer-progress package
+    - run: mvn clean package
     - uses: actions/upload-artifact@v3
       with:
         name: 'RealMines (Dev Build)'
