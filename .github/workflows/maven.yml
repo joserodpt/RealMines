@@ -21,4 +21,4 @@ jobs:
     - uses: actions/upload-artifact@v3
       with:
         name: 'RealMines (Dev Build)'
-        path: target/RealMines*.jar
+        path: realmines-plugin/target/realmines*.jar

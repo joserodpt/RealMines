@@ -18,6 +18,7 @@
     </properties>
 
     <build>
+        <finalName>realmines-${project.version}</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
