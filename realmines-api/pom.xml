@@ -122,5 +122,12 @@
             <version>1.7.1</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>de.c4t4lysm</groupId>
+            <artifactId>catamines</artifactId>
+            <version>3.0.0</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/../libs/CataMines-2.5.11.jar</systemPath>
+        </dependency>
     </dependencies>
 </project>
