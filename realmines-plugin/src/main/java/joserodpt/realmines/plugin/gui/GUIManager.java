@@ -216,7 +216,7 @@ public class GUIManager {
                                 final MineItensGUI v = new MineItensGUI(rm, target, m);
                                 v.openInventory(target);
                             }, 2);
-                        }, Items.createItemLore(Material.CHEST, 1, TranslatableLine.GUI_MINE_BLOCKS_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.Blocks.Description")),
+                        }, Items.createItemLore(Material.CHEST, 1, TranslatableLine.GUI_MINE_BLOCKS_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).get(), RMLanguageConfig.file().getStringList("GUI.Items.Blocks.Description")),
                         10);
 
                 inventory.addItem(e -> {
