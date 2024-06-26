@@ -64,8 +64,12 @@ public class BlockMine extends RMine {
                 BlockVector3 point1 = BlockVector3.at(this.getMineCuboid().getPOS1().getX(), this.getMineCuboid().getPOS1().getY(), this.getMineCuboid().getPOS1().getZ());
                 BlockVector3 point2 = BlockVector3.at(this.getMineCuboid().getPOS2().getX(), this.getMineCuboid().getPOS2().getY(), this.getMineCuboid().getPOS2().getZ());
 
-                WorldEditUtils.setBlocks(new CuboidRegion(BukkitAdapter.adapt(this.getWorld()), point1, point2), randomPattern);
-
+                try {
+                    WorldEditUtils.setBlocks(new CuboidRegion(BukkitAdapter.adapt(this.getWorld()), point1, point2), randomPattern);
+                } catch (Exception e) {
+                    Bukkit.getLogger().severe("Error while setting blocks for mine: " + this.getName());
+                    Bukkit.getLogger().warning("Error: " + e.getMessage());
+                }
             } else {
                 this.sortBlocks();
                 if (!super.getMineItems().isEmpty()) {
