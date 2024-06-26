@@ -84,7 +84,7 @@ public class MineResetGUI {
                             case 0:
                                 switch (e.getClick()) {
                                     case LEFT:
-                                        current.min.setResetStatus(RMine.Reset.PERCENTAGE, !current.min.isResetBy(RMine.Reset.PERCENTAGE));
+                                        current.min.setReset(RMine.Reset.PERCENTAGE, !current.min.isResetBy(RMine.Reset.PERCENTAGE));
                                         current.load(current.min);
                                         current.min.saveData(RMine.Data.SETTINGS);
                                         break;
@@ -96,7 +96,7 @@ public class MineResetGUI {
                             case 4:
                                 switch (e.getClick()) {
                                     case LEFT:
-                                        current.min.setResetStatus(RMine.Reset.TIME, !current.min.isResetBy(RMine.Reset.TIME));
+                                        current.min.setReset(RMine.Reset.TIME, !current.min.isResetBy(RMine.Reset.TIME));
                                         current.load(current.min);
                                         current.min.saveData(RMine.Data.SETTINGS);
                                         break;
@@ -192,7 +192,7 @@ public class MineResetGUI {
                         return;
                     }
 
-                    m.setResetValue(RMine.Reset.PERCENTAGE, d);
+                    m.setReset(RMine.Reset.PERCENTAGE, d);
                     m.saveData(RMine.Data.SETTINGS);
                     TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(d))).send(p);
 
@@ -220,7 +220,7 @@ public class MineResetGUI {
                         return;
                     }
 
-                    m.setResetValue(RMine.Reset.TIME, d);
+                    m.setReset(RMine.Reset.TIME, d);
                     m.saveData(RMine.Data.SETTINGS);
                     TranslatableLine.SYSTEM_TIME_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(d))).send(p);
 

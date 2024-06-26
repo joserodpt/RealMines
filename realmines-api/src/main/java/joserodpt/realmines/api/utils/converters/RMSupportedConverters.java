@@ -1,12 +1,11 @@
 package joserodpt.realmines.api.utils.converters;
 
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.utils.converters.mrl.CataMinesConverter;
-import joserodpt.realmines.api.utils.converters.mrl.MRLConverter;
 
 public enum RMSupportedConverters {
 
     CATA_MINES("CataMines"),
+    JETS_PRISON_MINES("JetsPrisonMines"),
     MINE_RESET_LITE("MineResetLite");
 
     private final String source;
@@ -25,6 +24,8 @@ public enum RMSupportedConverters {
                 return new CataMinesConverter(api);
             case MINE_RESET_LITE:
                 return new MRLConverter(api);
+            case JETS_PRISON_MINES:
+                return new JetsPrisonMinesConverter(api);
         }
         return null;
     }

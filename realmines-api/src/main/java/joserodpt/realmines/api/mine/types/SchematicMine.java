@@ -15,7 +15,6 @@ package joserodpt.realmines.api.mine.types;
 
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.WorldEdit;
-import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
@@ -146,7 +145,9 @@ public class SchematicMine extends RMine {
 
     public void placeSchematic(final Clipboard clipboard, final Location loc) {
         if (clipboard != null) {
-            try (final EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(loc.getWorld()))) {
+            try {
+                final EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(loc.getWorld()));
+
                 ClipboardHolder holder = new ClipboardHolder(clipboard);
                 Region region = clipboard.getRegion();
 
@@ -165,8 +166,8 @@ public class SchematicMine extends RMine {
                 Vector3 max = min.add(holder.getTransform().apply(region.getMaximumPoint().subtract(region.getMinimumPoint()).toVector3()));
 
                 this.setPOS(WorldEditUtils.toLocation(min, getWorld()), WorldEditUtils.toLocation(max, getWorld()));
-            } catch (final WorldEditException e) {
-                RealMinesAPI.getInstance().getPlugin().getLogger().severe("Failed to paste schematic named " + name);
+            } catch (final Exception e) {
+                RealMinesAPI.getInstance().getPlugin().getLogger().severe("Failed to paste schematic named: " + name + " is the schematic too big? Is WorldEdit/FAWE properly enabled and supported?");
                 RealMinesAPI.getInstance().getPlugin().getLogger().severe(e.getMessage());
             }
         }

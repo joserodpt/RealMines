@@ -513,7 +513,7 @@ public class MineManager extends MineManagerAPI {
                 RMMinesConfig.file().set(mine.getName() + ".Settings.Reset.ByTime", mine.isResetBy(RMine.Reset.TIME));
                 RMMinesConfig.file().set(mine.getName() + ".Settings.Reset.ByPercentageValue", mine.getResetValue(RMine.Reset.PERCENTAGE));
                 RMMinesConfig.file().set(mine.getName() + ".Settings.Reset.ByTimeValue", mine.getResetValue(RMine.Reset.TIME));
-                RMMinesConfig.file().set(mine.getName() + ".Settings.Reset.Silent", mine.isResetBy(RMine.Reset.SILENT));
+                RMMinesConfig.file().set(mine.getName() + ".Settings.Reset.Silent", mine.isSilent());
                 break;
             case LOCATION:
                 if (mine.getType() == RMine.Type.SCHEMATIC) {

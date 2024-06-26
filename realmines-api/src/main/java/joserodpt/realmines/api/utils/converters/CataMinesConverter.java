@@ -1,4 +1,4 @@
-package joserodpt.realmines.api.utils.converters.mrl;
+package joserodpt.realmines.api.utils.converters;
 
 /*
  *  ______           ____  ____
@@ -22,8 +22,6 @@ import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.api.utils.WorldEditUtils;
-import joserodpt.realmines.api.utils.converters.RMConverterBase;
-import joserodpt.realmines.api.utils.converters.RMSupportedConverters;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -67,26 +65,24 @@ public class CataMinesConverter implements RMConverterBase {
             final BlockMine m = new BlockMine(Bukkit.getWorld(cataMine.getWorld()), ChatColor.stripColor(Text.color(cataMine.getName())), cataMine.getName(), new HashMap<>(), new ArrayList<>(), WorldEditUtils.toLocation(cataMine.getRegion().getMinimumPoint(), Bukkit.getWorld(cataMine.getWorld())), WorldEditUtils.toLocation(cataMine.getRegion().getMaximumPoint(), Bukkit.getWorld(cataMine.getWorld())),
                     Material.COBBLESTONE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, false, rm.getMineManager());
 
-
             cataMine.getBlocks().forEach(cataMineBlock ->
                     m.addItem(new MineBlockItem(cataMineBlock.getBlockData().getMaterial(), cataMineBlock.getChance() / 100)));
-
 
             final double value2 = cataMine.getResetPercentage();
 
             if ((int) value2 != -1) {
-                m.setResetStatus(RMine.Reset.PERCENTAGE, true);
-                m.setResetValue(RMine.Reset.PERCENTAGE, (int) (value2 * 100.0));
+                m.setReset(RMine.Reset.PERCENTAGE, true);
+                m.setReset(RMine.Reset.PERCENTAGE, (int) (value2 * 100.0));
                 Text.send(cmd, " &f> Importing reset percentage of: &b" + (value2 * 100.0) + "%");
             }
 
             int value = cataMine.getResetDelay();
             if (value > 5) {
-                m.setResetStatus(RMine.Reset.TIME, true);
-                m.setResetValue(RMine.Reset.TIME, value);
+                m.setReset(RMine.Reset.TIME, true);
+                m.setReset(RMine.Reset.TIME, value);
                 Text.send(cmd, " &f> Importing reset delay of: &b" + value + " seconds");
             } else {
-                m.setResetStatus(RMine.Reset.TIME, false);
+                m.setReset(RMine.Reset.TIME, false);
             }
 
             m.reset(RMine.ResetCause.CREATION);

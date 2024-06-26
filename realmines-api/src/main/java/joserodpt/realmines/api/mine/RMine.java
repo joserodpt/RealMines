@@ -57,25 +57,22 @@ public abstract class RMine {
     public enum ResetCause {COMMAND, PLUGIN, TIMER, CREATION}
 
     protected String name;
-    protected MineColor color;
+    private final World w;
     protected String displayName;
     protected List<MineSign> signs;
     protected Map<Material, MineItem> mineItems;
     protected Location teleport;
     protected Material icon;
-    protected MineCuboid mineCuboid;
-    protected boolean resetByPercentage;
-    protected boolean resetByTime;
-    protected int resetByPercentageValue;
-    protected int resetByTimeValue;
-    protected MineTimer timer;
+    protected boolean resetByPercentage, resetByTime, freezed, breakingPermissionOn, silent;
+    protected int minedBlocks, resetByTimeValue, resetByPercentageValue;
     protected boolean highlight = false;
-    protected boolean silent;
     protected HashMap<MineCuboid.CuboidDirection, Material> faces;
-    protected int minedBlocks;
-    protected boolean freezed, breakingPermissionOn;
+
+    protected MineTimer timer;
+    protected MineColor color;
+    protected MineCuboid mineCuboid;
+
     private final MineManagerAPI mm;
-    private World w;
 
     public RMine(final World w, final String n, final String displayname, final List<MineSign> si, final Map<Material, MineItem> b, final Material i,
                  final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final boolean breakingPermissionOn, final MineManagerAPI mm) {
@@ -252,6 +249,7 @@ public abstract class RMine {
         this.saveData(Data.SIGNS);
     }
 
+    @SuppressWarnings("deprecation")
     public void updateSigns() {
         Bukkit.getScheduler().runTask(RealMinesAPI.getInstance().getPlugin(), () -> {
             for (final MineSign ms : this.signs) {
@@ -315,6 +313,10 @@ public abstract class RMine {
     }
 
     public List<Player> getPlayersInMine() {
+        if (this.mineCuboid == null) {
+            return Collections.emptyList();
+        }
+
         return Bukkit.getOnlinePlayers().stream()
                 .filter(p -> this.mineCuboid.contains(p.getLocation()))
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -370,8 +372,6 @@ public abstract class RMine {
                 return this.resetByPercentage;
             case TIME:
                 return this.resetByTime;
-            case SILENT:
-                return this.silent;
         }
         return false;
     }
@@ -386,18 +386,20 @@ public abstract class RMine {
         return -1;
     }
 
-    public void setResetStatus(final Reset e, final boolean b) {
+    public void setSilent(boolean silent) {
+        this.silent = silent;
+    }
+
+    public void setReset(final Reset e, final boolean b) {
         switch (e) {
             case PERCENTAGE:
                 this.resetByPercentage = b;
             case TIME:
                 this.resetByTime = b;
-            case SILENT:
-                this.silent = b;
         }
     }
 
-    public void setResetValue(final Reset e, final int d) {
+    public void setReset(final Reset e, final int d) {
         switch (e) {
             case PERCENTAGE:
                 this.resetByPercentageValue = d;
@@ -528,7 +530,7 @@ public abstract class RMine {
         return "realmines." + this.getName() + ".break";
     }
 
-    public enum Reset {PERCENTAGE, TIME, SILENT}
+    public enum Reset {PERCENTAGE, TIME}
 
     public enum Data {BLOCKS, ICON, TELEPORT, SIGNS, LOCATION, SETTINGS, NAME, FACES, COLOR, MINE_TYPE}
 }

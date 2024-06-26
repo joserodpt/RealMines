@@ -1,4 +1,4 @@
-package joserodpt.realmines.api.utils.converters.mrl;
+package joserodpt.realmines.api.utils.converters;
 
 /*
  *  ______           ____  ____
@@ -19,9 +19,6 @@ import joserodpt.realmines.api.mine.components.MineColor;
 import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.utils.Text;
-import joserodpt.realmines.api.utils.converters.RMConverterBase;
-import joserodpt.realmines.api.utils.converters.RMSupportedConverters;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -47,15 +44,15 @@ public class MRLConverter implements RMConverterBase {
 
     @Override
     public void convert(CommandSender cmd) {
-        if (!Bukkit.getPluginManager().isPluginEnabled(this.getPlugin().getSourceName())) {
-            Text.send(cmd, "&cMineResetLite is not enabled. &fTerminating import process.");
-            return;
-        }
-
         cmd.sendMessage(Text.color("&7----------------- &9Real&bMines &f&lImport &7-----------------"));
         Text.send(cmd, "&aImporting Mines from: &b" + this.getPlugin().getSourceName());
 
         final File MRLDirectory = new File(rm.getPlugin().getDataFolder().getParent() + "//MineResetLite//mines");
+        if (!MRLDirectory.exists() || !MRLDirectory.isDirectory()) {
+            Text.send(cmd, "&cError: The path for MineResetLite mines does not exist: " + MRLDirectory.getAbsolutePath());
+            return;
+        }
+
         ConfigurationSerialization.registerClass(com.koletar.jj.mineresetlite.Mine.class);
 
         File[] MRLyamlFiles = MRLDirectory.listFiles();
@@ -84,8 +81,8 @@ public class MRLConverter implements RMConverterBase {
 
             final double value2 = MRLmine.getResetPercent();
             if ((int) value2 != -1) {
-                m.setResetStatus(RMine.Reset.PERCENTAGE, true);
-                m.setResetValue(RMine.Reset.PERCENTAGE, (int) (value2 * 100.0));
+                m.setReset(RMine.Reset.PERCENTAGE, true);
+                m.setReset(RMine.Reset.PERCENTAGE, (int) (value2 * 100.0));
                 Text.send(cmd, " &f> Importing reset percentage of: &b" + (value2 * 100.0) + "%");
             }
 

@@ -50,6 +50,7 @@ public class MineCMD extends CommandBase {
     }
 
     @Default
+    @SuppressWarnings("unused")
     public void defaultCommand(final CommandSender commandSender) {
         Text.sendList(commandSender,
                 Arrays.asList("         &fReal&9Mines", "         &7Release &a" + rm.getPlugin().getDescription().getVersion()));
@@ -65,6 +66,7 @@ public class MineCMD extends CommandBase {
     @SubCommand("reload")
     @Alias("rl")
     @Permission("realmines.admin")
+    @SuppressWarnings("unused")
     public void reloadcmd(final CommandSender commandSender) {
         this.rm.reload();
         TranslatableLine.SYSTEM_RELOADED.send(commandSender);
@@ -73,6 +75,7 @@ public class MineCMD extends CommandBase {
     @SubCommand("mines")
     @Alias({"p", "panel"})
     @Permission("realmines.admin")
+    @SuppressWarnings("unused")
     public void minescmd(final CommandSender commandSender) {
         if (commandSender instanceof Player) {
             final Player p = (Player) commandSender;
@@ -85,6 +88,7 @@ public class MineCMD extends CommandBase {
 
     @SubCommand("stoptasks")
     @Permission("realmines.admin")
+    @SuppressWarnings("unused")
     public void stoptaskscmd(final CommandSender commandSender) {
         if (commandSender instanceof Player) {
             rm.getMineManager().stopTasks();
@@ -96,6 +100,7 @@ public class MineCMD extends CommandBase {
 
     @SubCommand("starttasks")
     @Permission("realmines.admin")
+    @SuppressWarnings("unused")
     public void starttaskcmd(final CommandSender commandSender) {
         if (commandSender instanceof Player) {
             rm.getMineManager().startTasks();
@@ -108,6 +113,7 @@ public class MineCMD extends CommandBase {
     @SubCommand("list")
     @Alias("l")
     @Permission("realmines.admin")
+    @SuppressWarnings("unused")
     public void listcmd(final CommandSender commandSender) {
         rm.getMineManager().getMines().values().forEach(mine -> Text.send(commandSender, "&7> &f" + mine.getName() + " &r&7(&f" + mine.getDisplayName() + "&r&7)"));
     }
@@ -116,6 +122,7 @@ public class MineCMD extends CommandBase {
     @Completion("#createsuggestions")
     @Permission("realmines.admin")
     @WrongUsage("&c/mine create <name>")
+    @SuppressWarnings("unused")
     public void createcmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
@@ -132,6 +139,7 @@ public class MineCMD extends CommandBase {
     @SubCommand("settings")
     @Permission("realmines.admin")
     @WrongUsage("&c/mine settings")
+    @SuppressWarnings("unused")
     public void settingscmd(final CommandSender commandSender) {
         if (commandSender instanceof Player) {
             final Player p = (Player) commandSender;
@@ -146,6 +154,7 @@ public class MineCMD extends CommandBase {
     @Completion("#mines")
     @Permission("realmines.admin")
     @WrongUsage("&c/mine settp <name>")
+    @SuppressWarnings("unused")
     public void settpcmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
@@ -165,6 +174,7 @@ public class MineCMD extends CommandBase {
     @Completion("#mines")
     @Permission("realmines.tp")
     @WrongUsage("&c/mine tp <name>")
+    @SuppressWarnings("unused")
     public void tpmine(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
@@ -183,6 +193,7 @@ public class MineCMD extends CommandBase {
     @Alias({"convert", "imp", "conv"})
     @Permission("realmines.import")
     @WrongUsage("&c/mine import <converter>")
+    @SuppressWarnings("unused")
     public void importIntoRM(final CommandSender commandSender, final String name) {
         try {
             RMSupportedConverters conv = Arrays.stream(RMSupportedConverters.values()).filter(c -> c.getSourceName().equalsIgnoreCase(name)).findFirst().orElseThrow(() -> new IllegalArgumentException("Converter not found"));
@@ -197,10 +208,11 @@ public class MineCMD extends CommandBase {
     @Completion("#mines")
     @Permission("realmines.silent")
     @WrongUsage("&c/mine silent <name>")
+    @SuppressWarnings("unused")
     public void silent(final CommandSender commandSender, final String name) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
-            m.setResetStatus(RMine.Reset.SILENT, !m.isSilent());
+            m.setSilent(!m.isSilent());
             m.saveData(RMine.Data.SETTINGS);
 
             if (!m.isSilent()) {
@@ -217,9 +229,10 @@ public class MineCMD extends CommandBase {
     @Alias("sa")
     @Permission("realmines.silent")
     @WrongUsage("&c/mine silentall <true/false>")
+    @SuppressWarnings("unused")
     public void silentall(final CommandSender commandSender, final Boolean bol) {
         for (final RMine m : rm.getMineManager().getMines().values()) {
-            m.setResetStatus(RMine.Reset.SILENT, bol);
+            m.setSilent(bol);
             m.saveData(RMine.Data.SETTINGS);
 
             if (!m.isSilent()) {
@@ -234,6 +247,7 @@ public class MineCMD extends CommandBase {
     @Completion("#mines")
     @Permission("realmines.admin")
     @WrongUsage("&c/mine highlight <name>")
+    @SuppressWarnings("unused")
     public void highlight(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
@@ -251,6 +265,7 @@ public class MineCMD extends CommandBase {
     @Completion("#mines")
     @Permission("realmines.admin")
     @WrongUsage("&c/mine blocks <name>")
+    @SuppressWarnings("unused")
     public void blocks(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
@@ -270,6 +285,7 @@ public class MineCMD extends CommandBase {
     @Completion("#mines")
     @Permission("realmines.admin")
     @WrongUsage("&c/mine m <name>")
+    @SuppressWarnings("unused")
     public void minecmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
@@ -288,6 +304,7 @@ public class MineCMD extends CommandBase {
     @Completion("#mines")
     @Permission("realmines.reset")
     @WrongUsage("&c/mine reset <name>")
+    @SuppressWarnings("unused")
     public void resetcmd(final CommandSender commandSender, final String name) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
@@ -302,6 +319,7 @@ public class MineCMD extends CommandBase {
     @Completion("#mines")
     @Permission("realmines.admin")
     @WrongUsage("&c/mine rename <name> <new_name>")
+    @SuppressWarnings("unused")
     public void renamecmd(final CommandSender commandSender, final String name, final String newName) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
@@ -317,6 +335,7 @@ public class MineCMD extends CommandBase {
     @Completion("#mines")
     @Permission("realmines.admin")
     @WrongUsage("&c/mine delete <name>")
+    @SuppressWarnings("unused")
     public void deletecmd(final CommandSender commandSender, final String name) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
@@ -332,6 +351,7 @@ public class MineCMD extends CommandBase {
     @Completion("#mines")
     @Permission("realmines.admin")
     @WrongUsage("&c/mine clear <name>")
+    @SuppressWarnings("unused")
     public void clearcmd(final CommandSender commandSender, final String name) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
@@ -346,6 +366,7 @@ public class MineCMD extends CommandBase {
     @Completion("#mines")
     @Permission("realmines.admin")
     @WrongUsage("&c/mine setbounds <name>")
+    @SuppressWarnings("unused")
     public void setboundscmd(final CommandSender commandSender, final String name) {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
@@ -363,6 +384,7 @@ public class MineCMD extends CommandBase {
     @Completion("#mines")
     @Permission("realmines.admin")
     @WrongUsage("&c/mine freeze <name>")
+    @SuppressWarnings("unused")
     public void freezecmd(final CommandSender commandSender, final String name) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
@@ -378,6 +400,7 @@ public class MineCMD extends CommandBase {
     @Alias("ri")
     @Permission("realmines.admin")
     @WrongUsage("&c/mine ri <item name>")
+    @SuppressWarnings("unused")
     public void registerItemInConfig(final CommandSender commandSender, final String name) {
         final Player p = (Player) commandSender;
         RMConfig.file().set("Items." + name, ItemStackSpringer.getItemSerializedJSON(p.getInventory().getItemInMainHand()));
