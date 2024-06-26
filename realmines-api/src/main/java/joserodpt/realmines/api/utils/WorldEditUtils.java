@@ -14,9 +14,10 @@ import org.bukkit.World;
 public class WorldEditUtils {
 
     public static void setBlocks(Region region, Pattern pattern) {
-        try (EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder()
-                .world(region.getWorld())
-                .build()) {
+        try {
+            EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder()
+                    .world(region.getWorld())
+                    .build();
 
             editSession.setReorderMode(EditSession.ReorderMode.FAST);
             editSession.setBlocks(region, pattern);
