@@ -17,7 +17,7 @@ Mines:
       Amount-Error: "&cWhat you inserted is not a valid double."
       Chance: "Input in the chat the chance for the break action (0-100%):"
 GUI:
-  Reset-Name: "%mine% &rReset Options"
+  Reset-Name: "&cReset"
   Faces-Name: "&rFaces"
   Choose-Name: "&rChoose mine type for: %mine%"
   Select-Icon-Name: "&rSelect icon for %mine%"

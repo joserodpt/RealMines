@@ -602,8 +602,11 @@ public class MineManager extends MineManagerAPI {
     @Override
     public MineItem findBlockUpdate(final Player p, final Cancellable e, final Block block, final boolean broken) {
         for (final RMine mine : this.getMines().values()) {
-            if (mine.getMineCuboid().contains(block)) {
+            if (mine.getMineCuboid() == null) {
+                continue;
+            }
 
+            if (mine.getMineCuboid().contains(block)) {
                 if (mine.isFreezed() || (mine.isBreakingPermissionOn() && !p.hasPermission(mine.getBreakPermission()))) {
                     e.setCancelled(true);
                 } else {

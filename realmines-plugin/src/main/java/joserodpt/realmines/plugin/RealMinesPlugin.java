@@ -162,7 +162,6 @@ public class RealMinesPlugin extends JavaPlugin {
 
         }.runTaskTimerAsynchronously(this, 0, 10);
 
-
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new RealMinesPlaceholderAPI(realMines).register();
             getLogger().info("Hooked onto PlaceholderAPI!");

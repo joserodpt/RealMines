@@ -154,7 +154,7 @@ public abstract class RMine {
 
     //block counts
     public int getBlockCount() {
-        return this.getMineCuboid().getTotalBlocks();
+        return this.getMineCuboid() == null ? 0 : this.getMineCuboid().getTotalBlocks();
     }
 
     public int getMinedBlocks() {
@@ -480,12 +480,8 @@ public abstract class RMine {
 
     public void processBlockBreakEvent(final MineBlockBreakEvent event, final boolean reset) {
         //add or remove to mined blocks
-        this.minedBlocks = this.minedBlocks + (event.isBroken() ? 1 : -1);
-
-        if (this.minedBlocks < 0) {
-            this.minedBlocks = 0;
-        }
-
+        this.minedBlocks = Math.max(0, this.minedBlocks + (event.isBroken() ? 1 : -1));
+ 
         if (event.getPlayer() != null) {
             processBlockBreakAction(event, RealMinesAPI.getRand().nextDouble() * 100);
         }
