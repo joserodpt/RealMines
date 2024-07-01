@@ -1,4 +1,4 @@
-package joserodpt.realmines.api.utils.converters;
+package joserodpt.realmines.api.converters;
 
 /*
  *  ______           ____  ____
@@ -100,7 +100,7 @@ public class MRLConverter implements RMConverterBase {
             Text.send(cmd, "&aSucessfully imported mine " + m.getDisplayName());
         }
         //end
-        Text.send(cmd, "&aEnded Mine Import Process from &b" + this.getPlugin());
+        Text.send(cmd, "&aEnded Mine Import Process from &b" + this.getPlugin().getSourceName());
         cmd.sendMessage(Text.color("&7----------------- &9Real&bMines &f&lImport &7-----------------"));
     }
 }

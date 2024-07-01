@@ -16,10 +16,10 @@ package joserodpt.realmines.plugin.command;
 
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
+import joserodpt.realmines.api.converters.RMSupportedConverters;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.ItemStackSpringer;
 import joserodpt.realmines.api.utils.Text;
-import joserodpt.realmines.api.utils.converters.RMSupportedConverters;
 import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realmines.plugin.gui.MineItensGUI;
 import joserodpt.realmines.plugin.gui.MineListGUI;

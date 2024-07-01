@@ -1,4 +1,4 @@
-package joserodpt.realmines.api.utils.converters;
+package joserodpt.realmines.api.converters;
 
 import joserodpt.realmines.api.RealMinesAPI;
 

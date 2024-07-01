@@ -1,4 +1,4 @@
-package joserodpt.realmines.api.utils.converters;
+package joserodpt.realmines.api.converters;
 
 /*
  *  ______           ____  ____
@@ -13,6 +13,8 @@ package joserodpt.realmines.api.utils.converters;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import dev.dejvokep.boostedyaml.YamlDocument;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineColor;
@@ -25,7 +27,6 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -42,7 +43,7 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
 
     @Override
     public RMSupportedConverters getPlugin() {
-        return RMSupportedConverters.MINE_RESET_LITE;
+        return RMSupportedConverters.JETS_PRISON_MINES;
     }
 
     @Override
@@ -59,7 +60,7 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
 
         for (File file : Objects.requireNonNull(JetsPrisonMinesPath.listFiles())) {
             try {
-                YamlConfiguration mineFile = YamlConfiguration.loadConfiguration(file);
+                YamlDocument mineFile = YamlDocument.create(file);
 
                 String mineName = mineFile.getString("mine_name");
                 Text.send(cmd, "&aImporting now &b" + mineName);
@@ -71,19 +72,11 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
 
                 List<String> blocks = mineFile.getStringList("blocks");
 
-                World w = Bukkit.getWorld(Objects.requireNonNull(mineFile.getString("teleport_location.world")));
+                World w = Bukkit.getWorld(Objects.requireNonNull(mineFile.getString("region.world")));
                 if (w == null) {
-                    Text.send(cmd, "&cError: Could not find world: " + mineFile.getString("teleport_location.world") + " for mine: " + mineName + ". &fSkipping!");
+                    Text.send(cmd, "&cError: Could not find world: " + mineFile.getString("region.world") + " for mine: " + mineName + ". &fSkipping!");
                     continue;
                 }
-
-                double spawnX = mineFile.getDouble("teleport_location.x");
-                double spawnY = mineFile.getDouble("teleport_location.y");
-                double spawnZ = mineFile.getDouble("teleport_location.z");
-                double spawnPitch = mineFile.getDouble("teleport_location.pitch");
-                double spawnYaw = mineFile.getDouble("teleport_location.yaw");
-
-                Location teleport = new Location(w, spawnX, spawnY, spawnZ, (float) spawnYaw, (float) spawnPitch);
 
                 double xMin = mineFile.getInt("region.xmin");
                 double yMin = mineFile.getInt("region.ymin");
@@ -100,15 +93,29 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
                 final BlockMine m = new BlockMine(w, ChatColor.stripColor(Text.color(mineName)), mineName, new HashMap<>(), new ArrayList<>(), min, max,
                         Material.GOLDEN_PICKAXE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, false, rm.getMineManager());
 
-                m.setTeleport(teleport);
+
+                Section sec = (Section) mineFile.get("teleport_location");
+                if (sec != null) {
+                    for (String routesAsString : sec.getRoutesAsStrings(false)) {
+                        Bukkit.getLogger().warning(routesAsString);
+                    }
+
+                    double spawnX = sec.getDouble("x");
+                    double spawnY = sec.getDouble("y");
+                    double spawnZ = sec.getDouble("z");
+                    double spawnPitch = sec.getDouble("pitch");
+                    double spawnYaw = sec.getDouble("yaw");
+
+                    m.setTeleport(new Location(w, spawnX, spawnY, spawnZ, (float) spawnYaw, (float) spawnPitch));
+                }
 
                 boolean rUseTimer = mineFile.getBoolean("reset.use_timer");
                 int rTimer = mineFile.getInt("reset.timer");
 
                 if (rUseTimer) {
                     m.setReset(RMine.Reset.TIME, true);
-                    m.setReset(RMine.Reset.TIME, rTimer * 60);
-                    Text.send(cmd, " &f> Importing reset delay of: &b" + rTimer * 60 + " seconds");
+                    m.setReset(RMine.Reset.TIME, rTimer);
+                    Text.send(cmd, " &f> Importing reset delay of: &b" + rTimer + " seconds");
                 } else {
                     m.setReset(RMine.Reset.TIME, false);
                 }
@@ -118,8 +125,8 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
 
                 if (rUsePercentage) {
                     m.setReset(RMine.Reset.PERCENTAGE, true);
-                    m.setReset(RMine.Reset.PERCENTAGE, (int) (rPercentage * 100.0));
-                    Text.send(cmd, " &f> Importing reset percentage of: &b" + (rPercentage * 100.0) + "%");
+                    m.setReset(RMine.Reset.PERCENTAGE, (int) (rPercentage / 100.0));
+                    Text.send(cmd, " &f> Importing reset percentage of: &b" + (rPercentage / 100.0) + "%");
                 }
 
                 boolean rUseMessages = mineFile.getBoolean("reset.use_messages");
@@ -135,7 +142,7 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
                     try {
                         mat = Material.valueOf(blockName);
 
-                        m.addItem(new MineBlockItem(mat, Double.parseDouble(chanceStr) * 100));
+                        m.addItem(new MineBlockItem(mat, Double.parseDouble(chanceStr) / 100));
                     } catch (IllegalArgumentException e) {
                         Text.send(cmd, "&cError: Could not find block: " + blockName + " for mine: " + mineName + ". &fSkipping!");
                     }
@@ -146,15 +153,18 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
                 rm.getMineManager().addMine(m);
                 Text.send(cmd, "&aSucessfully imported mine " + m.getDisplayName());
 
+            } catch (IllegalArgumentException e) {
+                Text.send(cmd, "&cError: This mine has a location that has an unknown world. &fSkipping!");
+                e.printStackTrace();
             } catch (Exception e) {
                 Text.send(cmd, "&cError: Could not load JetsPrisonMines file: " + file.getName() + "! See console for more details.");
                 rm.getPlugin().getLogger().severe("Error loading JetsPrisonMines file: " + file.getName());
-                rm.getPlugin().getLogger().severe("Error loading JetsPrisonMines file: " + e.getMessage());
+                e.printStackTrace();
             }
         }
 
         //end
-        Text.send(cmd, "&aEnded Mine Import Process from &b" + this.getPlugin());
+        Text.send(cmd, "&aEnded Mine Import Process from &b" + this.getPlugin().getSourceName());
         cmd.sendMessage(Text.color("&7----------------- &9Real&bMines &f&lImport &7-----------------"));
     }
 }
