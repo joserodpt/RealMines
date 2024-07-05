@@ -33,7 +33,7 @@ public class MineIcon {
 
     public ItemStack getMineItem() {
         return this.getMine() != null ? this.m.getMineIcon() :
-                Items.createItemLore(Material.DEAD_BUSH, 1, TranslatableLine.GUI_NO_MINES_FOUND_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.No-Mines-Found.Description"));
+                Items.createItem(Material.DEAD_BUSH, 1, TranslatableLine.GUI_NO_MINES_FOUND_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.No-Mines-Found.Description"));
     }
 
     public RMine getMine() {

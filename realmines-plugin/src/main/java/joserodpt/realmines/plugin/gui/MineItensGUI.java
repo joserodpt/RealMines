@@ -57,13 +57,13 @@ public class MineItensGUI {
 
     private static final Map<UUID, MineItensGUI> inventories = new HashMap<>();
     static final ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static final ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, TranslatableLine.GUI_NEXT_PAGE_NAME.get(),
+    static final ItemStack next = Items.createItem(Material.GREEN_STAINED_GLASS, 1, TranslatableLine.GUI_NEXT_PAGE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Next.Description"));
-    static final ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, TranslatableLine.GUI_PREVIOUS_PAGE_NAME.get(),
+    static final ItemStack back = Items.createItem(Material.YELLOW_STAINED_GLASS, 1, TranslatableLine.GUI_PREVIOUS_PAGE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Back.Description"));
-    static final ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
+    static final ItemStack close = Items.createItem(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
-    static ItemStack add = Items.createItemLore(Material.HOPPER, 1, TranslatableLine.GUI_ADD_ITEMS_NAME.get(),
+    static ItemStack add = Items.createItem(Material.HOPPER, 1, TranslatableLine.GUI_ADD_ITEMS_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Add.Description"));
     private final Inventory inv;
     private final UUID uuid;
@@ -305,8 +305,8 @@ public class MineItensGUI {
             this.inv.setItem(i, placeholder);
         }
 
-        this.inv.setItem(0, Items.createItemLore(Material.FILLED_MAP, 1, "&e&lToggle Break Permission", Arrays.asList("&fClick here to toggle the break permission:", "&f" + this.m.getBreakPermission(), "&7State: " + (this.m.isBreakingPermissionOn() ? "&a&lON" : "&c&lOFF"))));
-        this.inv.setItem(8, Items.createItemLore(Material.COMPARATOR, 1, "&e&lDiscard Break Action Messages", Arrays.asList("&fClick here to toggle the messages.", "&7State: " + (RMMinesConfig.file().getBoolean(this.m.getName() + ".Settings.Discard-Break-Action-Messages") ? "&a&lON" : "&c&lOFF"))));
+        this.inv.setItem(0, Items.createItem(Material.FILLED_MAP, 1, "&e&lToggle Break Permission", Arrays.asList("&fClick here to toggle the break permission:", "&f" + this.m.getBreakPermission(), "&7State: " + (this.m.isBreakingPermissionOn() ? "&a&lON" : "&c&lOFF"))));
+        this.inv.setItem(8, Items.createItem(Material.COMPARATOR, 1, "&e&lDiscard Break Action Messages", Arrays.asList("&fClick here to toggle the messages.", "&7State: " + (RMMinesConfig.file().getBoolean(this.m.getName() + ".Settings.Discard-Break-Action-Messages") ? "&a&lON" : "&c&lOFF"))));
 
         this.inv.setItem(4, this.m.getType() != RMine.Type.SCHEMATIC ? add : placeholder);
 

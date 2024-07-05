@@ -46,7 +46,7 @@ public class Items {
         return item;
     }
 
-    public static ItemStack createItemLore(final Material material, final int quantidade, final String nome, final List<String> desc) {
+    public static ItemStack createItem(final Material material, final int quantidade, final String nome, final List<String> desc) {
         final ItemStack item = new ItemStack(material, quantidade);
         if (item.getItemMeta() != null) {
             final ItemMeta meta = item.getItemMeta();

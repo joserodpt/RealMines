@@ -152,7 +152,7 @@ public class ItemStackSpringer {
             if (fireworkMeta != null) {
                 Map<String, Object> firework_data = new HashMap<>();
 
-                firework_data.put("power",fireworkMeta.getPower());
+                firework_data.put("power", fireworkMeta.getPower());
 
                 // Get the list of firework effects
                 if (fireworkMeta.hasEffects()) {
@@ -163,7 +163,7 @@ public class ItemStackSpringer {
                     firework_data.put("effects", effects_serialized);
                 }
 
-                singleItem.put(ItemCategories.FIREWORK_DATA.name(),firework_data);
+                singleItem.put(ItemCategories.FIREWORK_DATA.name(), firework_data);
             }
         }
 
@@ -202,12 +202,12 @@ public class ItemStackSpringer {
     }
 
     public static ItemStack getItemDeSerialized(Map<String, Object> data) {
-        //Debugger.print(ItemStackSpringer.class, "Attempting to deserialize Item with Data " + data.toString());
+        debugprint(ItemStackSpringer.class, "Attempting to deserialize Item with Data " + data.toString());
         if (!data.containsKey(ItemCategories.MATERIAL.name())) {
             return null;
         }
 
-        //Debugger.print(ItemStackSpringer.class, "Attempting to deserialize Item Data of Material " + data.get(ItemCategories.MATERIAL.name()));
+        debugprint(ItemStackSpringer.class, "Attempting to deserialize Item Data of Material " + data.get(ItemCategories.MATERIAL.name()));
 
         Material m = Material.valueOf((String) data.get(ItemCategories.MATERIAL.name()));
 
@@ -256,7 +256,7 @@ public class ItemStackSpringer {
                     }
 
                     Enchantment enchantment = getEnchantmentByName(enchantmentName);
-                    //Debugger.print(ItemStackSpringer.class, "Trying to apply " + enchantmentName + " - " + enchantmentLevel);
+                    debugprint(ItemStackSpringer.class, "Trying to apply " + enchantmentName + " - " + enchantmentLevel);
                     if (enchantment != null) {
                         i.addUnsafeEnchantment(enchantment, enchantmentLevel);
                     }
@@ -313,7 +313,7 @@ public class ItemStackSpringer {
                     }
 
                     Enchantment enchantment = getEnchantmentByName(enchantmentName);
-                    //Debugger.print(ItemStackSpringer.class, "Trying to apply " + enchantmentName + " - " + enchantmentLevel);
+                    debugprint(ItemStackSpringer.class, "Trying to apply " + enchantmentName + " - " + enchantmentLevel);
                     if (enchantment != null) {
                         enchbookmeta.addStoredEnchant(enchantment, enchantmentLevel, true);
                     }
@@ -347,9 +347,14 @@ public class ItemStackSpringer {
             }
         }
 
-        //Debugger.print(ItemStackSpringer.class, "Item Deserialized: " + i);
+        debugprint(ItemStackSpringer.class, "Item Deserialized: " + i);
 
         return i;
+    }
+
+    private static void debugprint(Class<ItemStackSpringer> itemStackSpringerClass, String s) {
+        if (true)
+            RealMinesAPI.getInstance().getPlugin().getLogger().warning(itemStackSpringerClass.getName() + " -> " + s);
     }
 
     private static Map<String, Object> serializeFirework(FireworkEffect fireworkEffect) {
@@ -456,8 +461,10 @@ public class ItemStackSpringer {
         }
     }
 
-    public enum ItemCategories { SLOT, NAME, MATERIAL, AMOUNT, DAMAGE, LORE, ENCHANTMENTS, EMPTY,
-        LEATHER_ARMOR_COLOR, BANNER_PATTERNS, BOOK_DATA, BOOK_ENCHANTMENTS, FIREWORK_DATA, POTION_DATA }
+    public enum ItemCategories {
+        SLOT, NAME, MATERIAL, AMOUNT, DAMAGE, LORE, ENCHANTMENTS, EMPTY,
+        LEATHER_ARMOR_COLOR, BANNER_PATTERNS, BOOK_DATA, BOOK_ENCHANTMENTS, FIREWORK_DATA, POTION_DATA
+    }
 
     public static ItemStack[] getItemsDeSerialized(List<Map<String, Object>> l) {
         Optional<Map<String, Object>> maxSlotItem = l.stream()

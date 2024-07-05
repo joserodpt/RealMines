@@ -54,13 +54,13 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
 
     private static final Map<UUID, MineBreakActionsGUI> inventories = new HashMap<>();
     static final ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static final ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, TranslatableLine.GUI_NEXT_PAGE_NAME.get(),
+    static final ItemStack next = Items.createItem(Material.GREEN_STAINED_GLASS, 1, TranslatableLine.GUI_NEXT_PAGE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Next.Description"));
-    static final ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, TranslatableLine.GUI_PREVIOUS_PAGE_NAME.get(),
+    static final ItemStack back = Items.createItem(Material.YELLOW_STAINED_GLASS, 1, TranslatableLine.GUI_PREVIOUS_PAGE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Back.Description"));
-    static final ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
+    static final ItemStack close = Items.createItem(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
-    final ItemStack add = Items.createItemLore(Material.OBSERVER, 1, "&b&LAdd a New Break Action",
+    final ItemStack add = Items.createItem(Material.OBSERVER, 1, "&b&LAdd a New Break Action",
             Collections.singletonList("&fClick here to add a new break action to this item."));
     private final Inventory inv;
     private final UUID uuid;

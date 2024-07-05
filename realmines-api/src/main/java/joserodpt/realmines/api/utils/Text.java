@@ -75,6 +75,31 @@ public class Text {
         return formattedString.toString().trim();
     }
 
+    public static String formatSeconds(int n) {
+        int hours = n / 3600;
+        int minutes = (n % 3600) / 60;
+        int seconds = n % 60;
+
+        if (hours == 0) {
+            if (minutes == 0) {
+                return String.format("%d", seconds);
+            } else {
+                if (seconds == 0) {
+                    return String.format("%d", minutes);
+                }
+                return String.format("%d:%d", minutes, seconds);
+            }
+        } else {
+            if (minutes == 0) {
+                if (seconds == 0) {
+                    return String.format("%d", hours);
+                }
+                return String.format("%d:%d", hours, seconds);
+            }
+            return String.format("%d:%d:%d", hours, minutes, seconds);
+        }
+    }
+
     public static String getProgressBar(final int current, final int max, final int totalBars, final char symbol, final ChatColor completedColor, final ChatColor notCompletedColor) {
         if (max <= 0 || (current < 0 || totalBars < 0)) {
             return "&d" + symbol;

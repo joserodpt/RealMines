@@ -1,20 +1,20 @@
 RealMines:
- Prefix: "&fReal&9Mines &7> "
- teleportPlayers: true
- teleportMessage: true
- actionbarMessages: true
- placeFarmLandBelowCrop: true
- resetMinesWhenNoPlayers: false
- broadcastResetMessageOnlyInWorld: false
- useButtonGUIForPercentages: false
- useWorldEditForBlockPlacement: true
- announceTimes:
-  - 30
-  - 20
-  - 10
-  - 5
-  - 4
-  - 3
-  - 2
-  - 1
+  Prefix: "&fReal&9Mines &7> "
+  teleportPlayers: true
+  teleportMessage: true
+  actionbarMessages: true
+  placeFarmLandBelowCrop: true
+  resetMinesWhenNoPlayers: false
+  broadcastResetMessageOnlyInWorld: false
+  useButtonGUIForPercentages: true
+  useWorldEditForBlockPlacement: true
+  announceTimes:
+    - 30
+    - 20
+    - 10
+    - 5
+    - 4
+    - 3
+    - 2
+    - 1
 Version: 8

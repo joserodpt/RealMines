@@ -54,13 +54,13 @@ public class BlockPickerGUI {
 
     private static final Map<UUID, BlockPickerGUI> inventories = new HashMap<>();
     static final ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
-    static final ItemStack next = Items.createItemLore(Material.GREEN_STAINED_GLASS, 1, TranslatableLine.GUI_NEXT_PAGE_NAME.get(),
+    static final ItemStack next = Items.createItem(Material.GREEN_STAINED_GLASS, 1, TranslatableLine.GUI_NEXT_PAGE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Next.Description"));
-    static final ItemStack back = Items.createItemLore(Material.YELLOW_STAINED_GLASS, 1, TranslatableLine.GUI_PREVIOUS_PAGE_NAME.get(),
+    static final ItemStack back = Items.createItem(Material.YELLOW_STAINED_GLASS, 1, TranslatableLine.GUI_PREVIOUS_PAGE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Back.Description"));
-    static final ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
+    static final ItemStack close = Items.createItem(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
-    static ItemStack search = Items.createItemLore(Material.OAK_SIGN, 1, TranslatableLine.GUI_SEARCH_ITEM_NAME.get(),
+    static ItemStack search = Items.createItem(Material.OAK_SIGN, 1, TranslatableLine.GUI_SEARCH_ITEM_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
     private final RealMines rm;
     private final UUID uuid;
@@ -254,7 +254,7 @@ public class BlockPickerGUI {
             if (i == null && !items.isEmpty()) {
                 final Material s = items.get(0);
                 this.inv.setItem(slot,
-                        Items.createItemLore(s, 1, TranslatableLine.GUI_PICK_NAME.setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(s))).get(), RMLanguageConfig.file().getStringList("GUI.Items.Pick.Description")));
+                        Items.createItem(s, 1, TranslatableLine.GUI_PICK_NAME.setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(s))).get(), RMLanguageConfig.file().getStringList("GUI.Items.Pick.Description")));
                 this.display.put(slot, s);
                 items.remove(0);
             }

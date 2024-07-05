@@ -42,7 +42,7 @@ import java.util.UUID;
 public class MineFacesGUI {
 
     private static final Map<UUID, MineFacesGUI> inventories = new HashMap<>();
-    static final ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
+    static final ItemStack close = Items.createItem(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
     private final Inventory inv;
     private final UUID uuid;
@@ -160,9 +160,9 @@ public class MineFacesGUI {
             for (final String s : RMLanguageConfig.file().getStringList("GUI.Faces.Selected-Description")) {
                 faceSelectedDesc.add(s.replaceAll("%material%", m.getFaceBlock(sel).name()));
             }
-            return Items.createItemLore(m.getFaceBlock(sel), 1, TranslatableLine.GUI_FACES_ITEM_NAME.setV1(TranslatableLine.ReplacableVar.FACE.eq(sel.name())).get(), faceSelectedDesc);
+            return Items.createItem(m.getFaceBlock(sel), 1, TranslatableLine.GUI_FACES_ITEM_NAME.setV1(TranslatableLine.ReplacableVar.FACE.eq(sel.name())).get(), faceSelectedDesc);
         } else {
-            return Items.createItemLore(Material.BOOK, 1, TranslatableLine.GUI_FACES_ITEM_NAME.setV1(TranslatableLine.ReplacableVar.FACE.eq(sel.name())).get(), faceSelectedDesc);
+            return Items.createItem(Material.BOOK, 1, TranslatableLine.GUI_FACES_ITEM_NAME.setV1(TranslatableLine.ReplacableVar.FACE.eq(sel.name())).get(), faceSelectedDesc);
         }
     }
 

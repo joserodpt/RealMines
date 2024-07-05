@@ -41,7 +41,7 @@ public class SettingsGUI {
 
     private static Map<UUID, SettingsGUI> inventories = new HashMap<>();
     private Inventory inv;
-    final ItemStack close = Items.createItemLore(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
+    final ItemStack close = Items.createItem(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_CLOSE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
     private final UUID uuid;
     private RealMines rm;
@@ -71,15 +71,15 @@ public class SettingsGUI {
 
         switch (def) {
             case REALM:
-                this.inv.setItem(13, Items.createItemLore(Material.WRITABLE_BOOK, 1, "&ePlugin Prefix", Arrays.asList("&fCurrent: &r" + Text.getPrefix(), "", "&fClick here to change the plugin's prefix.")));
-                this.inv.setItem(14, Items.createItemLore(Material.GRASS_BLOCK, 1, "&ePlace Farm Land Below Crop " + (RMConfig.file().getBoolean("RealMines.placeFarmLandBelowCrop") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
-                this.inv.setItem(15, Items.createItemLore(Material.OAK_SIGN, 1, "&eBroadcast Reset Message Only In World " + (RMConfig.file().getBoolean("RealMines.broadcastResetMessageOnlyInWorld") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
+                this.inv.setItem(13, Items.createItem(Material.WRITABLE_BOOK, 1, "&ePlugin Prefix", Arrays.asList("&fCurrent: &r" + Text.getPrefix(), "", "&fClick here to change the plugin's prefix.")));
+                this.inv.setItem(14, Items.createItem(Material.GRASS_BLOCK, 1, "&ePlace Farm Land Below Crop " + (RMConfig.file().getBoolean("RealMines.placeFarmLandBelowCrop") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
+                this.inv.setItem(15, Items.createItem(Material.OAK_SIGN, 1, "&eBroadcast Reset Message Only In World " + (RMConfig.file().getBoolean("RealMines.broadcastResetMessageOnlyInWorld") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
                 break;
             case PLAYERS:
-                this.inv.setItem(22, Items.createItemLore(Material.ENDER_PEARL, 1, "&eTeleport Players " + (RMConfig.file().getBoolean("RealMines.teleportPlayers") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle player teleportation.")));
-                this.inv.setItem(23, Items.createItemLore(Material.FILLED_MAP, 1, "&eTeleport Message " + (RMConfig.file().getBoolean("RealMines.teleportMessage") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle the teleportation messages.")));
-                this.inv.setItem(24, Items.createItemLore(Material.MAP, 1, "&eAction Bar Messages " + (RMConfig.file().getBoolean("RealMines.actionbarMessages") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle action bar messages.")));
-                this.inv.setItem(25, Items.createItemLore(Material.TNT, 1, "&eReset Mines with No Online Players " + (RMConfig.file().getBoolean("RealMines.resetMinesWhenNoPlayers") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
+                this.inv.setItem(22, Items.createItem(Material.ENDER_PEARL, 1, "&eTeleport Players " + (RMConfig.file().getBoolean("RealMines.teleportPlayers") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle player teleportation.")));
+                this.inv.setItem(23, Items.createItem(Material.FILLED_MAP, 1, "&eTeleport Message " + (RMConfig.file().getBoolean("RealMines.teleportMessage") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle the teleportation messages.")));
+                this.inv.setItem(24, Items.createItem(Material.MAP, 1, "&eAction Bar Messages " + (RMConfig.file().getBoolean("RealMines.actionbarMessages") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle action bar messages.")));
+                this.inv.setItem(25, Items.createItem(Material.TNT, 1, "&eReset Mines with No Online Players " + (RMConfig.file().getBoolean("RealMines.resetMinesWhenNoPlayers") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
 
                 break;
         }

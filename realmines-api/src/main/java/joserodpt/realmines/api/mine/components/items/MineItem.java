@@ -106,7 +106,7 @@ public class MineItem {
     }
 
     public ItemStack getItem() {
-        return Items.createItemLore(Material.DEAD_BUSH, 1, TranslatableLine.GUI_NO_BLOCKS_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.No-Blocks.Description"));
+        return Items.createItem(Material.DEAD_BUSH, 1, TranslatableLine.GUI_NO_BLOCKS_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.No-Blocks.Description"));
     }
 
     public List<MineAction> getBreakActions() {

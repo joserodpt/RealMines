@@ -13,7 +13,6 @@ package joserodpt.realmines.api.utils;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.RealMinesAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -29,6 +28,7 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -48,23 +48,27 @@ public class PercentageInput {
         this.acceptTask = acceptTask;
         this.rm = rm;
         this.uuid = as.getUniqueId();
-        this.inv = Bukkit.getServer().createInventory(null, InventoryType.DROPPER, Text.color("&8Percentage Selector | &l" + percentage + "%"));
+        this.inv = Bukkit.getServer().createInventory(null, InventoryType.DROPPER, Text.color("&8Percentage Selector"));
 
-        List<String> desc = Arrays.asList("&aClick &fto add.","&cQ (Drop) &fto remove.");
-        this.inv.setItem(0, Items.createItemLore(Material.EMERALD_ORE, 1, "&f&l1",desc));
-        this.inv.setItem(1, Items.createItemLore(Material.EMERALD_ORE, 1, "&f&l2",desc));
-        this.inv.setItem(2, Items.createItemLore(Material.EMERALD_ORE, 1, "&f&l5",desc));
-
-        this.inv.setItem(3, Items.createItemLore(Material.EMERALD, 1, "&f&l10",desc));
-        this.inv.setItem(4, Items.createItemLore(Material.EMERALD, 1, "&f&l20",desc));
-        this.inv.setItem(5, Items.createItemLore(Material.EMERALD, 1, "&f&l30",desc));
-
-        this.inv.setItem(6, Items.createItemLore(Material.EMERALD_BLOCK, 1, "&f&l50",desc));
-        this.inv.setItem(7, Items.createItemLore(Material.EMERALD_BLOCK, 1, "&f&l100",desc));
-
-        this.inv.setItem(8, Items.createItem(Material.CHEST_MINECART, 1, "&a&lConfirm"));
+        setInventory();
 
         this.register();
+    }
+
+    public void setInventory() {
+        List<String> desc = Arrays.asList("&f&lCurrent: &e&l" + percentage + "%", "&7", "&aClick &fto add.", "&cQ (Drop) &fto remove.");
+        this.inv.setItem(0, Items.createItem(Material.EMERALD_ORE, 1, "&f&l1%", desc));
+        this.inv.setItem(1, Items.createItem(Material.EMERALD_ORE, 2, "&f&l2%", desc));
+        this.inv.setItem(2, Items.createItem(Material.EMERALD_ORE, 5, "&f&l5%", desc));
+
+        this.inv.setItem(3, Items.createItem(Material.EMERALD, 10, "&f&l10%", desc));
+        this.inv.setItem(4, Items.createItem(Material.EMERALD, 20, "&f&l20%", desc));
+        this.inv.setItem(5, Items.createItem(Material.EMERALD, 30, "&f&l30%", desc));
+
+        this.inv.setItem(6, Items.createItem(Material.EMERALD_BLOCK, 50, "&f&l50%", desc));
+        this.inv.setItem(7, Items.createItem(Material.EMERALD_BLOCK, 64, "&f&l100%", desc));
+
+        this.inv.setItem(8, Items.createItem(Material.CHEST_MINECART, 1, "&a&lConfirm", Collections.singletonList("&f&lCurrent: &e&l" + percentage + "%")));
     }
 
     public void openInventory(Player target) {
@@ -104,7 +108,7 @@ public class PercentageInput {
                         if (e.getRawSlot() == 8) {
                             //rodar ação de sucesso
                             p.closeInventory();
-                            Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.acceptTask.run(current.percentage), 3);
+                            Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm, () -> current.acceptTask.run(current.percentage), 3);
                             return;
                         }
 
@@ -169,7 +173,8 @@ public class PercentageInput {
                                 current.percentage = 100;
                             }
                         }
-                        InventoryTitleUpdate.updateInventory(p, Text.color("&8Percentage Selector | &l" + current.percentage + "%"));
+
+                        current.setInventory();
                     }
                 }
             }

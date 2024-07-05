@@ -150,14 +150,14 @@ public class MineResetGUI {
 
         this.inv.setItem(0, m.isResetBy(RMine.Reset.PERCENTAGE)
                 ? Items.createItemLoreEnchanted(Material.BOOK, 1, TranslatableLine.GUI_RESET_BY_PERCENTAGE_ON.get(), percentageOnDesc)
-                : Items.createItemLore(Material.BOOK, 1, TranslatableLine.GUI_RESET_BY_PERCENTAGE_OFF.get(), percentageOffDesc));
+                : Items.createItem(Material.BOOK, 1, TranslatableLine.GUI_RESET_BY_PERCENTAGE_OFF.get(), percentageOffDesc));
 
         this.inv.setItem(4, m.isResetBy(RMine.Reset.TIME)
                 ? Items.createItemLoreEnchanted(Material.CLOCK, 1, TranslatableLine.GUI_RESET_BY_TIME_ON.get(), timeOnDesc)
-                : Items.createItemLore(Material.CLOCK, 1, TranslatableLine.GUI_RESET_BY_TIME_OFF.get(), timeOffDesc));
+                : Items.createItem(Material.CLOCK, 1, TranslatableLine.GUI_RESET_BY_TIME_OFF.get(), timeOffDesc));
 
         this.inv.setItem(2,
-                Items.createItemLore(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_GO_BACK_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.Go-Back.Description")));
+                Items.createItem(Material.ACACIA_DOOR, 1, TranslatableLine.GUI_GO_BACK_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.Go-Back.Description")));
     }
 
     public void openInventory(final Player target) {

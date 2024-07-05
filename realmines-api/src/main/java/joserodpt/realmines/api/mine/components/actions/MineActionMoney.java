@@ -59,7 +59,7 @@ public class MineActionMoney extends MineAction {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItemLore(Material.EMERALD, 1, "&b&lGive Money &r&f- " + super.getChance() + "%", Arrays.asList("&fAmount: &b" + Text.formatNumber(this.money), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the amount.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
+        return Items.createItem(Material.EMERALD, 1, "&b&lGive Money &r&f- " + super.getChance() + "%", Arrays.asList("&fAmount: &b" + Text.formatNumber(this.money), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the amount.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 
     public void setAmount(Double d) {

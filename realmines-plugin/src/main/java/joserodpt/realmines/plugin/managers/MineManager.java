@@ -159,7 +159,7 @@ public class MineManager extends MineManagerAPI {
                                     case DROP_ITEM:
                                         String data = RMMinesConfig.file().getString(actionRoute + ".Item");
                                         try {
-                                            actionsList.add(new MineActionDropItem(actionID, mineName, chance, ItemStackSpringer.getItemDeSerializedJSON(data)));
+                                            actionsList.add(new MineActionDropItem(actionID, mineName, chance, ItemStackSpringer.getItemDeSerializedJSON(data).clone()));
                                         } catch (Exception e) {
                                             rm.getPlugin().getLogger().severe("Badly formatted ItemStack: " + data);
                                             rm.getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");

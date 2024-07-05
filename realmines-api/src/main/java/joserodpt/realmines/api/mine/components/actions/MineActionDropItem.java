@@ -37,7 +37,7 @@ public class MineActionDropItem extends MineAction {
 
     public void execute(final Player p, final Location l, final double randomChance) {
         if (randomChance < super.getChance()) {
-            Objects.requireNonNull(l.getWorld()).dropItemNaturally(l, this.i);
+            Objects.requireNonNull(l.getWorld()).dropItemNaturally(l, this.i.clone());
             if (RMMinesConfig.file().getBoolean(super.getMineID() + ".Settings.Discard-Break-Action-Messages"))
                 TranslatableLine.MINE_BREAK_ACTION_DROP_ITEM.send(p);
         }
@@ -55,11 +55,11 @@ public class MineActionDropItem extends MineAction {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItemLore(Material.DROPPER, 1, "&b&lDrop Item &r&f- " + super.getChance() + "%", Arrays.asList("&fItem: &bx" + this.i.getAmount() + " " + Text.beautifyMaterialName(this.i.getType()), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the item.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
+        return Items.createItem(Material.DROPPER, 1, "&b&lDrop Item &r&f- " + super.getChance() + "%", Arrays.asList("&fItem: &bx" + this.i.getAmount() + " " + Text.beautifyMaterialName(this.i.getType()), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the item.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 
     public void setItem(ItemStack itemInMainHand) {
-        if (itemInMainHand.getType() == Material.AIR) {
+        if (itemInMainHand == null || itemInMainHand.getType() == Material.AIR) {
             return;
         }
         this.i = itemInMainHand;

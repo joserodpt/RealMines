@@ -49,16 +49,16 @@ public class MineActionGiveItem extends MineAction {
 
     @Override
     public String getValue() {
-        return ItemStackSpringer.getItemSerializedJSON(this.i);
+        return ItemStackSpringer.getItemSerializedJSON(this.i.clone());
     }
 
     @Override
     public ItemStack getItem() {
-        return Items.createItemLore(Material.CHEST, 1, "&b&lGive Item &r&f- " + super.getChance() + "%", Arrays.asList("&fItem: &bx" + this.i.getAmount() + " " + Text.beautifyMaterialName(this.i.getType()), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the item.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
+        return Items.createItem(Material.CHEST, 1, "&b&lGive Item &r&f- " + super.getChance() + "%", Arrays.asList("&fItem: &bx" + this.i.getAmount() + " " + Text.beautifyMaterialName(this.i.getType()), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the item.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 
     public void setItem(ItemStack itemInMainHand) {
-        if (itemInMainHand.getType() == Material.AIR) {
+        if (itemInMainHand == null || itemInMainHand.getType() == Material.AIR) {
             return;
         }
         this.i = itemInMainHand;

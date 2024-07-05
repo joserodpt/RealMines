@@ -415,7 +415,7 @@ public abstract class RMine {
     }
 
     public ItemStack getMineIcon() {
-        return Items.createItemLore(this.getIcon(), 1, this.getMineColor().getColorPrefix() + " &f&l" + this.getDisplayName() + " &7[&b&l" + this.getType().name() + "&r&7]", RMLanguageConfig.file().getStringList("GUI.Items.Mine.Description")
+        return Items.createItem(this.getIcon(), 1, this.getMineColor().getColorPrefix() + " &f&l" + this.getDisplayName() + " &7[&b&l" + this.getType().name() + "&r&7]", RMLanguageConfig.file().getStringList("GUI.Items.Mine.Description")
                 .stream()
                 .map(s -> Text.color(s
                         .replaceAll("%remainingblocks%", String.valueOf(this.getRemainingBlocks()))
@@ -481,7 +481,7 @@ public abstract class RMine {
     public void processBlockBreakEvent(final MineBlockBreakEvent event, final boolean reset) {
         //add or remove to mined blocks
         this.minedBlocks = Math.max(0, this.minedBlocks + (event.isBroken() ? 1 : -1));
- 
+
         if (event.getPlayer() != null) {
             processBlockBreakAction(event, RealMinesAPI.getRand().nextDouble() * 100);
         }

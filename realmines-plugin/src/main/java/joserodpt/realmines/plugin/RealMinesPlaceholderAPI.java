@@ -158,7 +158,7 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
             final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
-                return String.valueOf(plugin.getMineManager().getMine(mine).getMineTimer().getCountdown().getSecondsLeft());
+                return Text.formatSeconds(plugin.getMineManager().getMine(mine).getMineTimer().getCountdown().getSecondsLeft());
             } else {
                 return "No mine named: " + mine;
             }

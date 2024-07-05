@@ -45,13 +45,13 @@ public class RealMinesGUI {
 
         //12, 14
 
-        this.inv.setItem(12, Items.createItemLore(Material.DIAMOND_PICKAXE, 1, "&9&lMines",
+        this.inv.setItem(12, Items.createItem(Material.DIAMOND_PICKAXE, 1, "&9&lMines",
                 Collections.singletonList("&fClick here to view the mines.")));
 
-        this.inv.setItem(14, Items.createItemLore(Material.COMMAND_BLOCK, 1, "&f&lSettings",
+        this.inv.setItem(14, Items.createItem(Material.COMMAND_BLOCK, 1, "&f&lSettings",
                 Collections.singletonList("&fClick here to open the plugin settings.")));
 
-        this.inv.setItem(26, Items.createItemLore(Material.OAK_DOOR, 1, "&cClose",
+        this.inv.setItem(26, Items.createItem(Material.OAK_DOOR, 1, "&cClose",
                 Collections.singletonList("&fClick here to close this menu.")));
 
         this.register();
@@ -107,6 +107,7 @@ public class RealMinesGUI {
                     }
                 }
             }
+
             @EventHandler
             public void onClose(InventoryCloseEvent e) {
                 if (e.getPlayer() instanceof Player) {
