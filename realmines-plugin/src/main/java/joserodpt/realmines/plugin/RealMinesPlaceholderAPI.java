@@ -18,6 +18,7 @@ import joserodpt.realmines.api.utils.Countdown;
 import joserodpt.realmines.api.utils.Text;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
+import org.jetbrains.annotations.NotNull;
 
 public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
 
@@ -64,6 +65,7 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
      * @return The name of the author as a String.
      */
     @Override
+    @NotNull
     public String getAuthor() {
         return this.plugin.getPlugin().getDescription().getAuthors().toString();
     }
@@ -78,6 +80,7 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
      * @return The identifier in {@code %<identifier>_<value>%} as String.
      */
     @Override
+    @NotNull
     public String getIdentifier() {
         return "realmines";
     }
@@ -91,6 +94,7 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
      * @return The version as a String.
      */
     @Override
+    @NotNull
     public String getVersion() {
         return this.plugin.getPlugin().getDescription().getVersion();
     }
@@ -158,6 +162,9 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
             final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
+                if (plugin.getMineManager().getMine(mine).getMineTimer().getCountdown() == null) {
+                    return "-1";
+                }
                 return Text.formatSeconds(plugin.getMineManager().getMine(mine).getMineTimer().getCountdown().getSecondsLeft());
             } else {
                 return "No mine named: " + mine;
@@ -169,6 +176,9 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
             final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
+                if (plugin.getMineManager().getMine(mine).getMineTimer().getCountdown() == null) {
+                    return "-1";
+                }
                 return Countdown.format(this.plugin.getMineManager().getMine(mine).getMineTimer().getCountdown().getSecondsLeft() * 1000L);
             } else {
                 return "No mine named: " + mine;
