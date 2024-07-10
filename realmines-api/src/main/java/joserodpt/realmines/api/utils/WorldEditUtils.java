@@ -14,10 +14,9 @@ import org.bukkit.World;
 public class WorldEditUtils {
 
     public static void setBlocks(Region region, Pattern pattern) {
-        try {
-            EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder()
-                    .world(region.getWorld())
-                    .build();
+        try (EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder()
+                .world(region.getWorld())
+                .build()) {
 
             editSession.setReorderMode(EditSession.ReorderMode.FAST);
             editSession.setBlocks(region, pattern);
@@ -34,5 +33,4 @@ public class WorldEditUtils {
     public static Location toLocation(com.sk89q.worldedit.math.Vector3 vector, World world) {
         return new Location(world, vector.getX(), vector.getY(), vector.getZ());
     }
-
 }

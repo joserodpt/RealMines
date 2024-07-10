@@ -660,7 +660,7 @@ public class MineManager extends MineManagerAPI {
                 m.setPOS(pos1, pos2);
                 m.fill();
                 TranslatableLine.SYSTEM_REGION_UPDATED.send(p);
-                m.reset(RMine.ResetCause.PLUGIN);
+                m.reset();
                 m.saveData(RMine.Data.LOCATION);
 
                 Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(m, RealMinesMineChangeEvent.ChangeOperation.BOUNDS_UPDATED));
