@@ -1,6 +1,6 @@
 package joserodpt.realmines.api.utils;
 
-/**
+/*
  * A library for the Bukkit API to create player skulls
  * from names, base64 strings, and texture URLs.
  * <p>

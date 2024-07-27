@@ -1,6 +1,6 @@
 package joserodpt.realmines.api.utils;
 
-/**
+/*
  * A simple countdown timer using the Runnable interface in seconds! <b>Great
  * for minigames and other shiz?</b>
  * <p>
