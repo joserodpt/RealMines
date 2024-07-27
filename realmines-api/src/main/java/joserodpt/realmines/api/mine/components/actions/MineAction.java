@@ -9,7 +9,7 @@ package joserodpt.realmines.api.mine.components.actions;
  *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
  *
  * Licensed under the MIT License
- * @author José Rodrigues
+ * @author José Rodrigues © 2019-2024
  * @link https://github.com/joserodpt/RealMines
  */
 
@@ -19,7 +19,7 @@ import org.bukkit.inventory.ItemStack;
 
 public abstract class MineAction {
 
-    public enum Type { GIVE_MONEY, DROP_ITEM, GIVE_ITEM, EXECUTE_COMMAND, DUMMY }
+    public enum Type {GIVE_MONEY, DROP_ITEM, GIVE_ITEM, EXECUTE_COMMAND, DUMMY}
 
     private String id, mineID;
     private Double chance = 0D;

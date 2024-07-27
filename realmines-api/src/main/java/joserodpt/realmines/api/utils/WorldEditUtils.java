@@ -1,5 +1,18 @@
 package joserodpt.realmines.api.utils;
 
+/*
+ *  ______           ____  ____
+ *  | ___ \         | |  \/  (_)
+ *  | |_/ /___  __ _| | .  . |_ _ __   ___  ___
+ *  |    // _ \/ _` | | |\/| | | '_ \ / _ \/ __|
+ *  | |\ \  __/ (_| | | |  | | | | | |  __/\__ \
+ *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
+ *
+ * Licensed under the MIT License
+ * @author José Rodrigues © 2019-2024
+ * @link https://github.com/joserodpt/RealMines
+ */
+
 import com.sk89q.worldedit.EditSession;
 import com.sk89q.worldedit.MaxChangedBlocksException;
 import com.sk89q.worldedit.WorldEdit;
@@ -9,7 +22,6 @@ import com.sk89q.worldedit.regions.Region;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-
 
 public class WorldEditUtils {
 

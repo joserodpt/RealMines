@@ -9,7 +9,7 @@ package joserodpt.realmines.api.mine.components.actions;
  *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
  *
  * Licensed under the MIT License
- * @author José Rodrigues
+ * @author José Rodrigues © 2019-2024
  * @link https://github.com/joserodpt/RealMines
  */
 
@@ -25,7 +25,8 @@ public class MineActionDummy extends MineAction {
         super();
     }
 
-    public void execute(final Player p, final Location l, double randomChance) { }
+    public void execute(final Player p, final Location l, double randomChance) {
+    }
 
     @Override
     public Type getType() {

@@ -9,7 +9,7 @@ package joserodpt.realmines.api.mine.types.farm;
  *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
  *
  * Licensed under the MIT License
- * @author José Rodrigues
+ * @author José Rodrigues © 2019-2024
  * @link https://github.com/joserodpt/RealMines
  */
 
@@ -54,7 +54,7 @@ public enum FarmItem {
         this.fig = fie;
     }
 
-    FarmItem(final Material crop, final Material underMaterial , final FarmItemGrowth fie, final boolean needsWaterNearby, final boolean canHaveNeighbours) {
+    FarmItem(final Material crop, final Material underMaterial, final FarmItemGrowth fie, final boolean needsWaterNearby, final boolean canHaveNeighbours) {
         this.icon = crop;
         this.crop = crop;
         this.underMaterial = underMaterial;

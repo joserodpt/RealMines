@@ -9,7 +9,7 @@ package joserodpt.realmines.api.utils;
  *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
  *
  * Licensed under the MIT License
- * @author José Rodrigues
+ * @author José Rodrigues © 2019-2024
  * @link https://github.com/joserodpt/RealMines
  */
 
@@ -59,7 +59,7 @@ public class GUIBuilder {
         this.inv = Bukkit.createInventory(null, size, Text.color(name));
         if (placeholder != null) {
             for (int i = 0; i < size; ++i) {
-				this.inv.setItem(i, placeholder);
+                this.inv.setItem(i, placeholder);
             }
         }
         this.register();
@@ -126,24 +126,24 @@ public class GUIBuilder {
     }
 
     public void setItem(final ItemStack is, final Integer slot, final ClickRunnable executeOnClick) {
-		this.inv.setItem(slot, is);
-		this.runnables.put(slot, executeOnClick);
+        this.inv.setItem(slot, is);
+        this.runnables.put(slot, executeOnClick);
     }
 
     public void setItem(final ClickRunnable executeOnClick, final ItemStack itemstack, final Integer slot) {
         final ItemMeta im = itemstack.getItemMeta();
         im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_ENCHANTS,
                 ItemFlag.HIDE_PLACED_ON, ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_UNBREAKABLE);
-		this.inv.setItem(slot, itemstack);
-		this.runnables.put(slot, executeOnClick);
+        this.inv.setItem(slot, itemstack);
+        this.runnables.put(slot, executeOnClick);
     }
 
     public void removeItem(final int slot) {
-		this.inv.setItem(slot, new ItemStack(Material.AIR));
+        this.inv.setItem(slot, new ItemStack(Material.AIR));
     }
 
     public void setItem(final ItemStack itemstack, final Integer slot) {
-		this.inv.setItem(slot, itemstack);
+        this.inv.setItem(slot, itemstack);
     }
 
     public void openInventory(final Player player) {
@@ -156,7 +156,7 @@ public class GUIBuilder {
             } else {
                 player.openInventory(inv);
             }
-			this.register();
+            this.register();
         }
     }
 
@@ -172,8 +172,8 @@ public class GUIBuilder {
         final ItemMeta im = i.getItemMeta();
         im.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_DESTROYS, ItemFlag.HIDE_ENCHANTS,
                 ItemFlag.HIDE_PLACED_ON, ItemFlag.HIDE_POTION_EFFECTS, ItemFlag.HIDE_UNBREAKABLE);
-		this.inv.setItem(slot, i);
-		this.runnables.put(slot, clickRunnable);
+        this.inv.setItem(slot, i);
+        this.runnables.put(slot, clickRunnable);
     }
 
     @FunctionalInterface

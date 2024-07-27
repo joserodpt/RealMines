@@ -9,7 +9,7 @@ package joserodpt.realmines.api.mine.components;
  *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
  *
  * Licensed under the MIT License
- * @author José Rodrigues
+ * @author José Rodrigues © 2019-2024
  * @link https://github.com/joserodpt/RealMines
  */
 
@@ -35,6 +35,7 @@ public enum MineColor {
 
     private final Color color;
     private final String base64skin, colorPrefix;
+
     MineColor(String colorPrefix, Color c, String base64skin) {
         this.colorPrefix = colorPrefix;
         this.color = c;

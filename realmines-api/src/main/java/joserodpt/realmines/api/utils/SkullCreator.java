@@ -1,5 +1,14 @@
 package joserodpt.realmines.api.utils;
 
+/**
+ * A library for the Bukkit API to create player skulls
+ * from names, base64 strings, and texture URLs.
+ * <p>
+ * Does not use any NMS code, and should work across all versions.
+ *
+ * @author Dean B on 12/28/2016.
+ */
+
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import org.bukkit.Bukkit;
@@ -18,14 +27,6 @@ import java.net.URISyntaxException;
 import java.util.Base64;
 import java.util.UUID;
 
-/**
- * A library for the Bukkit API to create player skulls
- * from names, base64 strings, and texture URLs.
- * <p>
- * Does not use any NMS code, and should work across all versions.
- *
- * @author Dean B on 12/28/2016.
- */
 public class SkullCreator {
 
     private static boolean warningPosted = false;
@@ -33,6 +34,7 @@ public class SkullCreator {
     private static Field blockProfileField;
     private static Method metaSetProfileMethod;
     private static Field metaProfileField;
+
     private SkullCreator() {
     }
 

@@ -9,11 +9,10 @@ package joserodpt.realmines.api.event;
  *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
  *
  * Licensed under the MIT License
- * @author José Rodrigues
+ * @author José Rodrigues © 2019-2024
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.mine.RMine;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
@@ -22,7 +21,8 @@ public class RealMinesPluginLoadedEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
-    public RealMinesPluginLoadedEvent() {}
+    public RealMinesPluginLoadedEvent() {
+    }
 
     public static HandlerList getHandlerList() {
         return HANDLERS;
