@@ -6,7 +6,7 @@
 
     <groupId>joserodpt</groupId>
     <artifactId>RealMinesPlugin</artifactId>
-    <version>1.7.6</version>
+    <version>1.7.7</version>
     <packaging>jar</packaging>
 
     <name>RealMinesPlugin</name>
@@ -37,11 +37,19 @@
                     <relocations>
                         <relocation>
                             <pattern>me.mattstudios.mf</pattern>
-                            <shadedPattern>josegamerpt.realmines.mf</shadedPattern>
+                            <shadedPattern>josegamerpt.realmines.libs.me.mattstudios.mf</shadedPattern>
                         </relocation>
                         <relocation>
                             <pattern>dev.dejvokep.boostedyaml</pattern>
-                            <shadedPattern>josegamerpt.realmines.yaml</shadedPattern>
+                            <shadedPattern>josegamerpt.realmines.libs.dev.dejvokep.boostedyaml</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>com.github.retrooper</pattern>
+                            <shadedPattern>josegamerpt.realmines.libs.com.github.retrooper</shadedPattern>
+                        </relocation>
+                        <relocation>
+                            <pattern>io.github.retrooper</pattern>
+                            <shadedPattern>josegamerpt.realmines.libs.io.github.retrooper</shadedPattern>
                         </relocation>
                     </relocations>
                 </configuration>
@@ -95,6 +103,10 @@
         <repository>
             <id>minecraft-repo</id>
             <url>https://libraries.minecraft.net/</url>
+        </repository>
+        <repository>
+            <id>codemc-releases</id>
+            <url>https://repo.codemc.io/repository/maven-snapshots/</url>
         </repository>
     </repositories>
 
@@ -150,13 +162,19 @@
         <dependency>
             <groupId>joserodpt</groupId>
             <artifactId>RealMinesAPI</artifactId>
-            <version>1.7.6</version>
+            <version>1.7.7</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.retrooper</groupId>
+            <artifactId>packetevents-spigot</artifactId>
+            <version>2.4.1-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
