@@ -13,6 +13,8 @@ package joserodpt.realmines.plugin;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import com.github.retrooper.packetevents.PacketEvents;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
@@ -70,8 +72,15 @@ public class RealMinesPlugin extends JavaPlugin {
     private Economy econ;
 
     @Override
+    public void onLoad() {
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+        PacketEvents.getAPI().load();
+    }
+
+    @Override
     public void onEnable() {
         printASCII();
+        PacketEvents.getAPI().init();
 
         final long start = System.currentTimeMillis();
 
@@ -101,13 +110,14 @@ public class RealMinesPlugin extends JavaPlugin {
         this.pm.registerEvents(MineFacesGUI.getListener(), this);
         this.pm.registerEvents(BlockPickerGUI.getListener(), this);
         this.pm.registerEvents(MineItensGUI.getListener(), this);
-        this.pm.registerEvents(PlayerInput.getListener(), this);
         this.pm.registerEvents(MineResetGUI.getListener(), this);
         this.pm.registerEvents(MineColorPickerGUI.getListener(), this);
         this.pm.registerEvents(MineBreakActionsGUI.getListener(), this);
         this.pm.registerEvents(RealMinesGUI.getListener(), this);
         this.pm.registerEvents(SettingsGUI.getListener(), this);
         this.pm.registerEvents(PercentageInput.getListener(), this);
+
+        PacketEvents.getAPI().getEventManager().registerListener(PlayerInput.getPacketListener());
 
         //vault hook
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
@@ -216,11 +226,13 @@ public class RealMinesPlugin extends JavaPlugin {
         getServer().getConsoleSender().sendMessage("[" + this.getDescription().getName() + "] " + Text.color(s));
     }
 
+    @Override
     public void onDisable() {
         if (this.mineHighlight != null) {
             this.mineHighlight.cancel();
         }
         realMines.getMineManager().clearMemory();
+        PacketEvents.getAPI().terminate();
     }
 
     public static RealMinesPlugin getPlugin() {

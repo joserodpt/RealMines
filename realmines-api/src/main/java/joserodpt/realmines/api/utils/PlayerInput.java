@@ -13,6 +13,11 @@ package joserodpt.realmines.api.utils;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import com.github.retrooper.packetevents.event.PacketListenerPriority;
+import com.github.retrooper.packetevents.event.SimplePacketListenerAbstract;
+import com.github.retrooper.packetevents.event.simple.PacketPlayReceiveEvent;
+import com.github.retrooper.packetevents.protocol.packettype.PacketType;
+import com.github.retrooper.packetevents.wrapper.play.client.WrapperPlayClientChatMessage;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
@@ -56,12 +61,15 @@ public class PlayerInput implements Listener {
         this.register();
     }
 
-    public static Listener getListener() {
-        return new Listener() {
-            @EventHandler(priority = EventPriority.HIGHEST)
-            public void onPlayerChat(final AsyncPlayerChatEvent event) {
+    public static SimplePacketListenerAbstract getPacketListener() {
+        return new SimplePacketListenerAbstract(PacketListenerPriority.LOWEST) {
+
+            @Override
+            public void onPacketPlayReceive(final PacketPlayReceiveEvent event) {
+                if (event.getPacketType() != PacketType.Play.Client.CHAT_MESSAGE) return;
+                final WrapperPlayClientChatMessage chatMessage = new WrapperPlayClientChatMessage(event);
                 final Player p = event.getPlayer();
-                final String input = event.getMessage();
+                final String input = chatMessage.getMessage();
                 final UUID uuid = p.getUniqueId();
                 if (inputs.containsKey(uuid)) {
                     event.setCancelled(true);
