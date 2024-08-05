@@ -165,7 +165,7 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
                 if (plugin.getMineManager().getMine(mine).getMineTimer().getCountdown() == null) {
                     return "-1";
                 }
-                return Text.formatSeconds(plugin.getMineManager().getMine(mine).getMineTimer().getCountdown().getSecondsLeft());
+                return Integer.toString(plugin.getMineManager().getMine(mine).getMineTimer().getCountdown().getSecondsLeft());
             } else {
                 return "No mine named: " + mine;
             }

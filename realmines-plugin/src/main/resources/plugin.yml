@@ -3,6 +3,7 @@ description: Simple, efficient and configurable mine management plugin.
 version: '${project.version}'
 main: joserodpt.realmines.plugin.RealMinesPlugin
 website: www.spigotmc.org/members/josegamer_pt.40267/
+author: JoseGamer_PT
 api-version: '1.14'
 depend: [ WorldEdit ]
 softdepend: [ Multiverse-Core, WorldManager, My_Worlds, RealRegions, Vault, RealPermissions, CrazyEnchantments ]
