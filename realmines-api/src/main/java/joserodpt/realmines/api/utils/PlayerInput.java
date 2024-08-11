@@ -23,10 +23,7 @@ import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -68,7 +65,7 @@ public class PlayerInput implements Listener {
             public void onPacketPlayReceive(final PacketPlayReceiveEvent event) {
                 if (event.getPacketType() != PacketType.Play.Client.CHAT_MESSAGE) return;
                 final WrapperPlayClientChatMessage chatMessage = new WrapperPlayClientChatMessage(event);
-                final Player p = event.getPlayer();
+                final Player p = (Player) event.getPlayer();
                 final String input = chatMessage.getMessage();
                 final UUID uuid = p.getUniqueId();
                 if (inputs.containsKey(uuid)) {
