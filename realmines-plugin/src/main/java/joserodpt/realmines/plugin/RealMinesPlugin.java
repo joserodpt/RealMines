@@ -14,7 +14,6 @@ package joserodpt.realmines.plugin;
  */
 
 import com.github.retrooper.packetevents.PacketEvents;
-import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
@@ -72,15 +71,8 @@ public class RealMinesPlugin extends JavaPlugin {
     private Economy econ;
 
     @Override
-    public void onLoad() {
-        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
-        PacketEvents.getAPI().load();
-    }
-
-    @Override
     public void onEnable() {
         printASCII();
-        PacketEvents.getAPI().init();
 
         final long start = System.currentTimeMillis();
 
@@ -117,7 +109,14 @@ public class RealMinesPlugin extends JavaPlugin {
         this.pm.registerEvents(SettingsGUI.getListener(), this);
         this.pm.registerEvents(PercentageInput.getListener(), this);
 
-        PacketEvents.getAPI().getEventManager().registerListener(PlayerInput.getPacketListener());
+        if (this.pm.isPluginEnabled("packetevents")) {
+            getLogger().info("Hooked onto packetevents for player input.");
+            PacketEvents.getAPI().init();
+            PacketEvents.getAPI().getEventManager().registerListener(PlayerInput.getPacketListener());
+        } else {
+            getLogger().info("Hooked onto chat for player input. For better reading, consider using PacketEvents lib.");
+            this.pm.registerEvents(PlayerInput.getListener(), this);
+        }
 
         //vault hook
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
@@ -232,7 +231,8 @@ public class RealMinesPlugin extends JavaPlugin {
             this.mineHighlight.cancel();
         }
         realMines.getMineManager().clearMemory();
-        PacketEvents.getAPI().terminate();
+        if (PacketEvents.getAPI() != null)
+            PacketEvents.getAPI().terminate();
     }
 
     public static RealMinesPlugin getPlugin() {

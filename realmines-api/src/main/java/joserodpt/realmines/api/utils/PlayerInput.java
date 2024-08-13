@@ -23,7 +23,10 @@ import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -58,41 +61,58 @@ public class PlayerInput implements Listener {
         this.register();
     }
 
+    public static Listener getListener() {
+        return new Listener() {
+            @EventHandler(priority = EventPriority.HIGHEST)
+            public void onPlayerChat(final AsyncPlayerChatEvent event) {
+                final Player p = event.getPlayer();
+                final String input = event.getMessage();
+                final UUID uuid = p.getUniqueId();
+
+                if (inputs.containsKey(uuid)) {
+                    event.setCancelled(true);
+                    handlePlayerInput(p, input, uuid);
+                }
+            }
+        };
+    }
+
     public static SimplePacketListenerAbstract getPacketListener() {
         return new SimplePacketListenerAbstract(PacketListenerPriority.LOWEST) {
 
             @Override
             public void onPacketPlayReceive(final PacketPlayReceiveEvent event) {
                 if (event.getPacketType() != PacketType.Play.Client.CHAT_MESSAGE) return;
+
                 final WrapperPlayClientChatMessage chatMessage = new WrapperPlayClientChatMessage(event);
                 final Player p = (Player) event.getPlayer();
                 final String input = chatMessage.getMessage();
                 final UUID uuid = p.getUniqueId();
+
                 if (inputs.containsKey(uuid)) {
                     event.setCancelled(true);
-
-                    final PlayerInput current = inputs.get(uuid);
-                    try {
-                        if (input.equalsIgnoreCase("cancel")) {
-                            TranslatableLine.SYSTEM_INPUT_CANCELLED.send(p);
-                            current.taskId.cancel();
-                            p.sendTitle("", "", 0, 1, 0);
-                            Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.runCancel.run(input), 3);
-                            current.unregister();
-                            return;
-                        }
-
-                        current.taskId.cancel();
-                        Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.runGo.run(input), 3);
-                        p.sendTitle("", "", 0, 1, 0);
-                        current.unregister();
-                    } catch (final Exception e) {
-                        TranslatableLine.SYSTEM_ERROR_OCCURRED.send(p);
-                        RealMinesAPI.getInstance().getPlugin().getLogger().warning(e.getMessage());
-                    }
+                    handlePlayerInput(p, input, uuid);
                 }
             }
         };
+    }
+
+    private static void handlePlayerInput(final Player p, final String input, final UUID uuid) {
+        final PlayerInput current = inputs.get(uuid);
+        try {
+            current.taskId.cancel();
+            p.sendTitle("", "", 0, 1, 0);
+            current.unregister();
+            if (input.equalsIgnoreCase("cancel")) {
+                TranslatableLine.SYSTEM_INPUT_CANCELLED.send(p);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.runCancel.run(input), 3);
+            } else {
+                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.runGo.run(input), 3);
+            }
+        } catch (final Exception e) {
+            TranslatableLine.SYSTEM_ERROR_OCCURRED.send(p);
+            RealMinesAPI.getInstance().getPlugin().getLogger().warning(e.getMessage());
+        }
     }
 
     private void register() {

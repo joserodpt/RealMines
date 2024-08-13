@@ -6,7 +6,7 @@
 
     <groupId>joserodpt</groupId>
     <artifactId>RealMinesPlugin</artifactId>
-    <version>1.7.7</version>
+    <version>1.7.8</version>
     <packaging>jar</packaging>
 
     <name>RealMinesPlugin</name>
@@ -167,7 +167,7 @@
         <dependency>
             <groupId>joserodpt</groupId>
             <artifactId>RealMinesAPI</artifactId>
-            <version>1.7.7</version>
+            <version>1.7.8</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -180,7 +180,7 @@
             <groupId>com.github.retrooper</groupId>
             <artifactId>packetevents-spigot</artifactId>
             <version>2.4.0</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>joserodpt.realpermissions</groupId>
