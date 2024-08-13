@@ -44,14 +44,6 @@
                             <pattern>dev.dejvokep.boostedyaml</pattern>
                             <shadedPattern>josegamerpt.realmines.libs.dev.dejvokep.boostedyaml</shadedPattern>
                         </relocation>
-                        <relocation>
-                            <pattern>com.github.retrooper</pattern>
-                            <shadedPattern>josegamerpt.realmines.libs.com.github.retrooper</shadedPattern>
-                        </relocation>
-                        <relocation>
-                            <pattern>io.github.retrooper</pattern>
-                            <shadedPattern>josegamerpt.realmines.libs.io.github.retrooper</shadedPattern>
-                        </relocation>
                     </relocations>
                 </configuration>
                 <executions>
@@ -175,12 +167,6 @@
             <artifactId>VaultAPI</artifactId>
             <version>1.7</version>
             <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.retrooper</groupId>
-            <artifactId>packetevents-spigot</artifactId>
-            <version>2.4.0</version>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>joserodpt.realpermissions</groupId>

@@ -85,7 +85,7 @@ public class PlayerInput implements Listener {
                 if (event.getPacketType() != PacketType.Play.Client.CHAT_MESSAGE) return;
 
                 final WrapperPlayClientChatMessage chatMessage = new WrapperPlayClientChatMessage(event);
-                final Player p = (Player) event.getPlayer();
+                final Player p = event.getPlayer();
                 final String input = chatMessage.getMessage();
                 final UUID uuid = p.getUniqueId();
 
