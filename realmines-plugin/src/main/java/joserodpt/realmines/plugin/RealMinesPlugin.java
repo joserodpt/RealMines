@@ -109,12 +109,12 @@ public class RealMinesPlugin extends JavaPlugin {
         this.pm.registerEvents(SettingsGUI.getListener(), this);
         this.pm.registerEvents(PercentageInput.getListener(), this);
 
-        if (this.pm.isPluginEnabled("packetevents")) {
-            getLogger().info("Hooked onto packetevents for player input.");
+        if (getServer().getPluginManager().getPlugin("packetevents") != null) {
+            getLogger().info("Hooked into packetevents for player input.");
             PacketEvents.getAPI().init();
             PacketEvents.getAPI().getEventManager().registerListener(PlayerInput.getPacketListener());
         } else {
-            getLogger().info("Hooked onto chat for player input. For better reading, consider using PacketEvents lib.");
+            getLogger().info("Hooked into chat for player input. For better reading, consider using PacketEvents lib.");
             this.pm.registerEvents(PlayerInput.getListener(), this);
         }
 
@@ -123,7 +123,6 @@ public class RealMinesPlugin extends JavaPlugin {
             RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
             if (rsp != null) {
                 econ = rsp.getProvider();
-
                 if (econ != null) {
                     getLogger().info("Hooked into Vault!");
                 }
