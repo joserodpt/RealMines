@@ -109,15 +109,6 @@ public class RealMinesPlugin extends JavaPlugin {
         this.pm.registerEvents(SettingsGUI.getListener(), this);
         this.pm.registerEvents(PercentageInput.getListener(), this);
 
-        if (getServer().getPluginManager().getPlugin("packetevents") != null) {
-            getLogger().info("Hooked into packetevents for player input.");
-            PacketEvents.getAPI().init();
-            PacketEvents.getAPI().getEventManager().registerListener(PlayerInput.getPacketListener());
-        } else {
-            getLogger().info("Hooked into chat for player input. For better reading, consider using PacketEvents lib.");
-            this.pm.registerEvents(PlayerInput.getListener(), this);
-        }
-
         //vault hook
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
             RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
@@ -197,6 +188,14 @@ public class RealMinesPlugin extends JavaPlugin {
             }
         }
 
+        if (getServer().getPluginManager().getPlugin("packetevents") != null) {
+            getLogger().info("Hooked into packetevents for player input.");
+            PacketEvents.getAPI().getEventManager().registerListener(PlayerInput.getPacketListener());
+        } else {
+            this.pm.registerEvents(PlayerInput.getListener(), this);
+            getLogger().info("Hooked into chat for player input. For better reading, consider using PacketEvents lib.");
+        }
+
         getLogger().info("Finished loading in " + ((System.currentTimeMillis() - start) / 1000F) + " seconds.");
         getLogger().info("<------------------ RealMines vPT ------------------>".replace("PT", this.getDescription().getVersion()));
 
@@ -230,8 +229,7 @@ public class RealMinesPlugin extends JavaPlugin {
             this.mineHighlight.cancel();
         }
         realMines.getMineManager().clearMemory();
-        if (PacketEvents.getAPI() != null)
-            PacketEvents.getAPI().terminate();
+
     }
 
     public static RealMinesPlugin getPlugin() {
