@@ -16,6 +16,7 @@ package joserodpt.realmines.api.mine.components;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.SkullCreator;
 import org.bukkit.Color;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
@@ -51,7 +52,11 @@ public enum MineColor {
     }
 
     public ItemStack getItem(final String name, final List<String> desc) {
-        return Items.changeItemStack(name, desc, SkullCreator.itemFromBase64(this.base64skin));
+        try {
+            return Items.changeItemStack(name, desc, SkullCreator.itemFromBase64(this.base64skin));
+        } catch (Exception e) {
+            return Items.createItem(Material.GLASS, 1, name, desc);
+        }
     }
 
     public static MineColor valueOf(Color c) {
