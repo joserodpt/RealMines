@@ -6,7 +6,7 @@
 
     <groupId>joserodpt</groupId>
     <artifactId>RealMinesAPI</artifactId>
-    <version>1.7.8</version>
+    <version>1.7.9</version>
     <packaging>jar</packaging>
 
     <name>RealMinesAPI</name>
@@ -139,13 +139,6 @@
             <version>3.0.0</version>
             <scope>system</scope>
             <systemPath>${project.basedir}/../libs/CataMines-2.5.11.jar</systemPath>
-        </dependency>
-        <dependency>
-            <groupId>com.github.retrooper</groupId>
-            <artifactId>packetevents-spigot</artifactId>
-            <version>2.4.1-SNAPSHOT</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../libs/packetevents.jar</systemPath>
         </dependency>
     </dependencies>
 </project>

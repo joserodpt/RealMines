@@ -188,15 +188,6 @@ public class RealMinesPlugin extends JavaPlugin {
         }
 
         this.pm.registerEvents(PlayerInput.getListener(), this);
-        /*
-        if (getServer().getPluginManager().getPlugin("packetevents") != null) {
-            getLogger().info("Hooked into packetevents for player input.");
-            PacketEvents.getAPI().getEventManager().registerListener(PlayerInput.getPacketListener());
-        } else {
-            this.pm.registerEvents(PlayerInput.getListener(), this);
-            getLogger().info("Hooked into chat for player input. For better reading, consider using PacketEvents lib.");
-        }
-         */
 
         getLogger().info("Finished loading in " + ((System.currentTimeMillis() - start) / 1000F) + " seconds.");
         getLogger().info("<------------------ RealMines vPT ------------------>".replace("PT", this.getDescription().getVersion()));

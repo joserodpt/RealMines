@@ -6,7 +6,7 @@
 
     <groupId>joserodpt</groupId>
     <artifactId>RealMinesPlugin</artifactId>
-    <version>1.7.8</version>
+    <version>1.7.9</version>
     <packaging>jar</packaging>
 
     <name>RealMinesPlugin</name>
@@ -159,7 +159,7 @@
         <dependency>
             <groupId>joserodpt</groupId>
             <artifactId>RealMinesAPI</artifactId>
-            <version>1.7.8</version>
+            <version>1.7.9</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
