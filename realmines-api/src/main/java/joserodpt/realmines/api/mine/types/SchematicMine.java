@@ -159,7 +159,9 @@ public class SchematicMine extends RMine {
                         .copyBiomes(false)
                         .copyEntities(false)
                         .build();
+
                 Operations.completeLegacy(operation);
+                editSession.flushSession();
 
                 BlockVector3 clipboardOffset = clipboard.getRegion().getMinimumPoint().subtract(clipboard.getOrigin());
                 Vector3 min = to.toVector3().add(holder.getTransform().apply(clipboardOffset.toVector3()));
