@@ -173,7 +173,7 @@ GUI:
       Name: "&9&lNo Mines Found"
       Description:
         - "&fCreate a new mine with"
-        - "&f/rm crate <name>."
+        - "&f/rm create <name>."
     Pick:
       Name: "&3&l%material%"
       Description:
