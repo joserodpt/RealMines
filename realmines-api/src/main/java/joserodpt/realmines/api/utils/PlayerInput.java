@@ -17,6 +17,7 @@ import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -61,7 +62,7 @@ public class PlayerInput implements Listener {
             @EventHandler(priority = EventPriority.HIGHEST)
             public void onPlayerChat(final AsyncPlayerChatEvent event) {
                 final Player p = event.getPlayer();
-                final String input = event.getMessage();
+                final String input = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', event.getMessage()));
                 final UUID uuid = p.getUniqueId();
 
                 if (inputs.containsKey(uuid)) {
