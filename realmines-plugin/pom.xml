@@ -6,7 +6,7 @@
 
     <groupId>joserodpt</groupId>
     <artifactId>RealMinesPlugin</artifactId>
-    <version>1.7.9</version>
+    <version>1.8</version>
     <packaging>jar</packaging>
 
     <name>RealMinesPlugin</name>
