@@ -202,12 +202,12 @@ public class ItemStackSpringer {
     }
 
     public static ItemStack getItemDeSerialized(Map<String, Object> data) {
-        debugprint(ItemStackSpringer.class, "Attempting to deserialize Item with Data " + data.toString());
+        debugPrint(ItemStackSpringer.class, "Attempting to deserialize Item with Data " + data.toString());
         if (!data.containsKey(ItemCategories.MATERIAL.name())) {
             return null;
         }
 
-        debugprint(ItemStackSpringer.class, "Attempting to deserialize Item Data of Material " + data.get(ItemCategories.MATERIAL.name()));
+        debugPrint(ItemStackSpringer.class, "Attempting to deserialize Item Data of Material " + data.get(ItemCategories.MATERIAL.name()));
 
         Material m = Material.valueOf((String) data.get(ItemCategories.MATERIAL.name()));
 
@@ -256,7 +256,7 @@ public class ItemStackSpringer {
                     }
 
                     Enchantment enchantment = getEnchantmentByName(enchantmentName);
-                    debugprint(ItemStackSpringer.class, "Trying to apply " + enchantmentName + " - " + enchantmentLevel);
+                    debugPrint(ItemStackSpringer.class, "Trying to apply " + enchantmentName + " - " + enchantmentLevel);
                     if (enchantment != null) {
                         i.addUnsafeEnchantment(enchantment, enchantmentLevel);
                     }
@@ -313,7 +313,7 @@ public class ItemStackSpringer {
                     }
 
                     Enchantment enchantment = getEnchantmentByName(enchantmentName);
-                    debugprint(ItemStackSpringer.class, "Trying to apply " + enchantmentName + " - " + enchantmentLevel);
+                    debugPrint(ItemStackSpringer.class, "Trying to apply " + enchantmentName + " - " + enchantmentLevel);
                     if (enchantment != null) {
                         enchbookmeta.addStoredEnchant(enchantment, enchantmentLevel, true);
                     }
@@ -347,14 +347,14 @@ public class ItemStackSpringer {
             }
         }
 
-        debugprint(ItemStackSpringer.class, "Item Deserialized: " + i);
+        debugPrint(ItemStackSpringer.class, "Item Deserialized: " + i);
 
         return i;
     }
 
-    private static void debugprint(Class<ItemStackSpringer> itemStackSpringerClass, String s) {
-        if (true)
-            RealMinesAPI.getInstance().getPlugin().getLogger().warning(itemStackSpringerClass.getName() + " -> " + s);
+    private static void debugPrint(Class<?> c, String s) {
+        if (false)
+            RealMinesAPI.getInstance().getPlugin().getLogger().warning(c.getName() + " -> " + s);
     }
 
     private static Map<String, Object> serializeFirework(FireworkEffect fireworkEffect) {
