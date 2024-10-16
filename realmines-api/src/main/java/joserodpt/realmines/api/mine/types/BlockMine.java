@@ -54,40 +54,38 @@ public class BlockMine extends RMine {
 
     @Override
     public void fill() {
-        if (!Bukkit.getOnlinePlayers().isEmpty()) {
-            if (RMConfig.file().getBoolean("RealMines.useWorldEditForBlockPlacement") && !super.getMineItems().isEmpty()) {
-                RandomPattern randomPattern = new RandomPattern();
+        if (RMConfig.file().getBoolean("RealMines.useWorldEditForBlockPlacement") && !super.getMineItems().isEmpty()) {
+            RandomPattern randomPattern = new RandomPattern();
 
-                super.getMineItems().values().stream().filter(mineItem -> mineItem.getPercentage() > 0)
-                        .forEach(mineBlock -> randomPattern.add(BukkitAdapter.adapt(mineBlock.getMaterial().createBlockData()).toBaseBlock(), mineBlock.getPercentage()));
+            super.getMineItems().values().stream().filter(mineItem -> mineItem.getPercentage() > 0)
+                    .forEach(mineBlock -> randomPattern.add(BukkitAdapter.adapt(mineBlock.getMaterial().createBlockData()).toBaseBlock(), mineBlock.getPercentage()));
 
-                BlockVector3 point1 = BlockVector3.at(this.getMineCuboid().getPOS1().getX(), this.getMineCuboid().getPOS1().getY(), this.getMineCuboid().getPOS1().getZ());
-                BlockVector3 point2 = BlockVector3.at(this.getMineCuboid().getPOS2().getX(), this.getMineCuboid().getPOS2().getY(), this.getMineCuboid().getPOS2().getZ());
+            BlockVector3 point1 = BlockVector3.at(this.getMineCuboid().getPOS1().getX(), this.getMineCuboid().getPOS1().getY(), this.getMineCuboid().getPOS1().getZ());
+            BlockVector3 point2 = BlockVector3.at(this.getMineCuboid().getPOS2().getX(), this.getMineCuboid().getPOS2().getY(), this.getMineCuboid().getPOS2().getZ());
 
-                try {
-                    WorldEditUtils.setBlocks(new CuboidRegion(BukkitAdapter.adapt(this.getWorld()), point1, point2), randomPattern);
-                } catch (Exception e) {
-                    Bukkit.getLogger().severe("Error while setting blocks for mine: " + this.getName());
-                    Bukkit.getLogger().warning("Error: " + e.getMessage());
-                }
-            } else {
-                this.sortBlocks();
-                if (!super.getMineItems().isEmpty()) {
-                    Bukkit.getScheduler().runTask(RealMinesAPI.getInstance().getPlugin(), () -> {
-                        //blocks
-                        for (Block block : this.getMineCuboid()) {
-                            Material set = this.getBlock();
-                            if (block.getType() != set) {
-                                block.setType(set);
-                            }
+            try {
+                WorldEditUtils.setBlocks(new CuboidRegion(BukkitAdapter.adapt(this.getWorld()), point1, point2), randomPattern);
+            } catch (Exception e) {
+                Bukkit.getLogger().severe("Error while setting blocks for mine: " + this.getName());
+                Bukkit.getLogger().warning("Error: " + e.getMessage());
+            }
+        } else {
+            this.sortBlocks();
+            if (!super.getMineItems().isEmpty()) {
+                Bukkit.getScheduler().runTask(RealMinesAPI.getInstance().getPlugin(), () -> {
+                    //blocks
+                    for (Block block : this.getMineCuboid()) {
+                        Material set = this.getBlock();
+                        if (block.getType() != set) {
+                            block.setType(set);
                         }
+                    }
 
-                        //faces
-                        for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
-                            this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
-                        }
-                    });
-                }
+                    //faces
+                    for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
+                        this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
+                    }
+                });
             }
         }
     }
