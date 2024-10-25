@@ -8,6 +8,7 @@ RealMines:
   broadcastResetMessageOnlyInWorld: false
   useButtonGUIForPercentages: true
   useWorldEditForBlockPlacement: true
+  ignoreAirBlocksSchematicPasting: true
   announceTimes:
     - 30
     - 20

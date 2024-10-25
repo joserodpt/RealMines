@@ -155,7 +155,7 @@ public class SchematicMine extends RMine {
                 Operation operation = holder
                         .createPaste(editSession)
                         .to(to)
-                        .ignoreAirBlocks(true)
+                        .ignoreAirBlocks(RMConfig.file().getBoolean("RealMines.ignoreAirBlocksSchematicPasting", true))
                         .copyBiomes(false)
                         .copyEntities(false)
                         .build();
