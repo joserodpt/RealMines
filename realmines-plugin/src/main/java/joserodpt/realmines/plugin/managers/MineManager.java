@@ -14,6 +14,7 @@ package joserodpt.realmines.plugin.managers;
  */
 
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
+import com.sk89q.worldedit.regions.Region;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMMinesConfig;
@@ -44,6 +45,7 @@ import joserodpt.realmines.api.utils.ItemStackSpringer;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMinesPlugin;
+import joserodpt.realmines.plugin.gui.DirectoryBrowserGUI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -53,6 +55,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -338,7 +343,7 @@ public class MineManager extends MineManagerAPI {
     public void createMine(final Player p, final String name) {
         final WorldEditPlugin w = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
         try {
-            final com.sk89q.worldedit.regions.Region r = w.getSession(p.getPlayer()).getSelection(w.getSession(p.getPlayer()).getSelectionWorld());
+            final Region r = w.getSession(p.getPlayer()).getSelection(w.getSession(p.getPlayer()).getSelectionWorld());
 
             if (r != null) {
                 final Location pos1 = new Location(p.getWorld(), r.getMaximumPoint().getBlockX(), r.getMaximumPoint().getBlockY(), r.getMaximumPoint().getBlockZ());
@@ -378,10 +383,10 @@ public class MineManager extends MineManagerAPI {
     }
 
     @Override
-    public void createCropsMine(final Player p, final String name) {
+    public void createFarmMine(final Player p, final String name) {
         final WorldEditPlugin w = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
         try {
-            final com.sk89q.worldedit.regions.Region r = w.getSession(p.getPlayer()).getSelection(w.getSession(p.getPlayer()).getSelectionWorld());
+            final Region r = w.getSession(p.getPlayer()).getSelection(w.getSession(p.getPlayer()).getSelectionWorld());
 
             if (r != null) {
                 final Location pos1 = new Location(p.getWorld(), r.getMaximumPoint().getBlockX(), r.getMaximumPoint().getBlockY(), r.getMaximumPoint().getBlockZ());
@@ -426,14 +431,29 @@ public class MineManager extends MineManagerAPI {
 
     @Override
     public void createSchematicMine(final Player p, final String name) {
-        TranslatableLine.SYSTEM_INPUT_SCHEMATIC.send(p);
+        final File pluginFolder = new File(rm.getPlugin().getDataFolder(), "schematics");
 
-        new PlayerInput(p, s -> {
-            final File folder = new File(rm.getPlugin().getDataFolder(), "schematics");
-            final File file = new File(folder, s);
+        DirectoryBrowserGUI dbg = new DirectoryBrowserGUI(p, pluginFolder, "Please select a schematic", Arrays.asList("schem", "schematic"), (file) -> {
+            File finalFile = null;
 
-            if (file.exists()) {
-                final SchematicMine m = new SchematicMine(p.getWorld(), name, name, new ArrayList<>(), p.getLocation(), s,
+            if (!file.getAbsolutePath().toLowerCase().contains("realmines")) {
+                try {
+                    if (pluginFolder.exists() && pluginFolder.isDirectory()) {
+                        finalFile = new File(pluginFolder, file.getName());
+
+                        Files.copy(file.toPath(), finalFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    } else {
+                        Bukkit.getLogger().warning("The plugin shematic's folder is not a directory or does not exist.");
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                finalFile = file;
+            }
+
+            if (finalFile != null && finalFile.exists()) {
+                final SchematicMine m = new SchematicMine(p.getWorld(), name, name, new ArrayList<>(), p.getLocation(), finalFile.getName(),
                         Material.FILLED_MAP, null, false, true, 20, 60, MineColor.ORANGE, new HashMap<>(), false, false, this);
 
                 this.addMine(m);
@@ -445,9 +465,8 @@ public class MineManager extends MineManagerAPI {
             } else {
                 TranslatableLine.SYSTEM_INVALID_SCHEMATIC.send(p);
             }
-        }, s -> {
-
         });
+        dbg.openInventory(p);
     }
 
     @Override
@@ -651,7 +670,7 @@ public class MineManager extends MineManagerAPI {
 
         final WorldEditPlugin w = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
         try {
-            final com.sk89q.worldedit.regions.Region r = w.getSession(p.getPlayer()).getSelection(w.getSession(p.getPlayer()).getSelectionWorld());
+            final Region r = w.getSession(p.getPlayer()).getSelection(w.getSession(p.getPlayer()).getSelectionWorld());
 
             if (r != null) {
                 final Location pos1 = new Location(p.getWorld(), r.getMaximumPoint().getBlockX(), r.getMaximumPoint().getBlockY(), r.getMaximumPoint().getBlockZ());

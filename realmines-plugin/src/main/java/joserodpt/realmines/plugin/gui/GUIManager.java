@@ -58,35 +58,6 @@ public class GUIManager {
         return ret;
     }
 
-    public void openMineChooserType(final Player target, final String name) {
-        new BukkitRunnable() {
-            @Override
-            public void run() {
-                final GUIBuilder inventory = new GUIBuilder(TranslatableLine.GUI_CHOOSE_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).get(), 27, target.getUniqueId());
-
-                inventory.addItem(e -> {
-                            target.closeInventory();
-                            rm.getMineManager().createMine(target, name);
-                        }, Items.createItem(Material.CHEST, 1, TranslatableLine.GUI_BLOCKS_NAME.get()),
-                        11);
-
-                inventory.addItem(e -> {
-                            target.closeInventory();
-                            rm.getMineManager().createSchematicMine(target, name);
-                        }, Items.createItem(Material.FILLED_MAP, 1, TranslatableLine.GUI_SCHEMATIC_NAME.get()),
-                        13);
-
-                inventory.addItem(e -> {
-                            target.closeInventory();
-                            rm.getMineManager().createCropsMine(target, name);
-                        }, Items.createItem(Material.WHEAT, 1, TranslatableLine.GUI_FARM_NAME.get()),
-                        15);
-
-                inventory.openInventory(target);
-            }
-        }.runTaskLater(this.rm.getPlugin(), 2);
-    }
-
     public void openBreakActionChooser(final Player target, final RMine r, final MineItem mi) {
         new BukkitRunnable() {
             @Override

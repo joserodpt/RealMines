@@ -36,7 +36,11 @@ public class Items {
                 .collect(Collectors.toList());
     }
 
-    public static ItemStack createItem(final Material material, final int quantidade, final String nome) {
+    public static ItemStack createItem(Material material, final int quantidade, final String nome) {
+        if (!material.isItem()) {
+            material = Material.STONE;
+        }
+
         final ItemStack item = new ItemStack(material, quantidade);
         final ItemMeta meta = item.getItemMeta();
         if (nome != null) {
@@ -46,7 +50,11 @@ public class Items {
         return item;
     }
 
-    public static ItemStack createItem(final Material material, final int quantidade, final String nome, final List<String> desc) {
+    public static ItemStack createItem(Material material, final int quantidade, final String nome, final List<String> desc) {
+        if (!material.isItem()) {
+            material = Material.STONE;
+        }
+
         final ItemStack item = new ItemStack(material, quantidade);
         if (item.getItemMeta() != null) {
             final ItemMeta meta = item.getItemMeta();
@@ -57,7 +65,11 @@ public class Items {
         return item;
     }
 
-    public static ItemStack createItemLoreEnchanted(final Material m, final int i, final String name, final List<String> desc) {
+    public static ItemStack createItemLoreEnchanted(Material m, final int i, final String name, final List<String> desc) {
+        if (!m.isItem()) {
+            m = Material.STONE;
+        }
+
         final ItemStack item = new ItemStack(m, i);
         final ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(Text.color(name));

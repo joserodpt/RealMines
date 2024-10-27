@@ -31,6 +31,7 @@ import joserodpt.realmines.plugin.command.MineResetTaskCMD;
 import joserodpt.realmines.plugin.events.BlockEvents;
 import joserodpt.realmines.plugin.events.PlayerEvents;
 import joserodpt.realmines.plugin.gui.BlockPickerGUI;
+import joserodpt.realmines.plugin.gui.DirectoryBrowserGUI;
 import joserodpt.realmines.plugin.gui.MineBreakActionsGUI;
 import joserodpt.realmines.plugin.gui.MineColorPickerGUI;
 import joserodpt.realmines.plugin.gui.MineFacesGUI;
@@ -94,19 +95,22 @@ public class RealMinesPlugin extends JavaPlugin {
         }
         RMMinesConfig.setup(this);
 
-        this.pm.registerEvents(new PlayerEvents(realMines), this);
-        this.pm.registerEvents(new BlockEvents(realMines), this);
-        this.pm.registerEvents(MineListGUI.getListener(), this);
-        this.pm.registerEvents(GUIBuilder.getListener(), this);
-        this.pm.registerEvents(MineFacesGUI.getListener(), this);
-        this.pm.registerEvents(BlockPickerGUI.getListener(), this);
-        this.pm.registerEvents(MineItensGUI.getListener(), this);
-        this.pm.registerEvents(MineResetGUI.getListener(), this);
-        this.pm.registerEvents(MineColorPickerGUI.getListener(), this);
-        this.pm.registerEvents(MineBreakActionsGUI.getListener(), this);
-        this.pm.registerEvents(RealMinesGUI.getListener(), this);
-        this.pm.registerEvents(SettingsGUI.getListener(), this);
-        this.pm.registerEvents(PercentageInput.getListener(), this);
+        Arrays.asList(new PlayerEvents(realMines),
+                new BlockEvents(realMines),
+                MineListGUI.getListener(),
+                GUIBuilder.getListener(),
+                MineFacesGUI.getListener(),
+                BlockPickerGUI.getListener(),
+                MineItensGUI.getListener(),
+                MineResetGUI.getListener(),
+                MineColorPickerGUI.getListener(),
+                MineBreakActionsGUI.getListener(),
+                RealMinesGUI.getListener(),
+                SettingsGUI.getListener(),
+                PercentageInput.getListener(),
+                DirectoryBrowserGUI.getListener()
+        ).forEach(listener -> this.pm.registerEvents(listener, this));
+
 
         //vault hook
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
@@ -130,6 +134,10 @@ public class RealMinesPlugin extends JavaPlugin {
                 IntStream.range(0, 50)
                         .mapToObj(i -> "MineResetTask" + i)
                         .collect(Collectors.toList())
+        );
+
+        commandManager.getCompletionHandler().register("#types", input ->
+                new ArrayList<>(Arrays.asList("b", "s", "f", "blocks", "farm", "schem", "schematic"))
         );
 
         commandManager.getCompletionHandler().register("#converters", input ->

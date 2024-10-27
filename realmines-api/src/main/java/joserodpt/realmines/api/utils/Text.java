@@ -99,4 +99,8 @@ public class Text {
     public static String getPrefix() {
         return color(RMConfig.file().getString("RealMines.Prefix"));
     }
+
+    public static String formatEpoch(long l) {
+        return new java.text.SimpleDateFormat("HH:mm:ss dd/MM/yyyy").format(new java.util.Date(l));
+    }
 }

@@ -118,20 +118,44 @@ public class MineCMD extends CommandBase {
     }
 
     @SubCommand("create")
-    @Completion("#createsuggestions")
+    @Completion({"#createsuggestions", "#types"})
     @Permission("realmines.admin")
-    @WrongUsage("&c/mine create <name>")
+    @WrongUsage("&c/mine create <name> <type>")
     @SuppressWarnings("unused")
-    public void createcmd(final CommandSender commandSender, final String name) {
-        if (commandSender instanceof Player) {
+    public void createcmd(final CommandSender commandSender, final String name, final String type) {
+        if (name == null || name.isEmpty()) {
+            Text.send(commandSender, "&cInvalid mine name.");
+            return;
+        }
+        if (type == null || type.isEmpty()) {
+            Text.send(commandSender, "&cInvalid mine type.");
+            return;
+        }
+
+        if (commandSender instanceof Player p) {
             final RMine m = rm.getMineManager().getMine(name);
             if (m == null) {
-                rm.getGUIManager().openMineChooserType((Player) commandSender, name);
+                switch (type) {
+                    case "b":
+                    case "blocks":
+                        rm.getMineManager().createMine(p, name);
+                        break;
+                    case "f":
+                    case "farm":
+                        rm.getMineManager().createFarmMine(p, name);
+                        break;
+                    case "s":
+                    case "schem":
+                    case "schematic":
+                        rm.getMineManager().createSchematicMine(p, name);
+                        break;
+                    default:
+                        Text.send(p, "&cInvalid mine type.");
+                        break;
+                }
             } else {
-                TranslatableLine.SYSTEM_MINE_EXISTS.send(commandSender);
+                TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
             }
-        } else {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
         }
     }
 

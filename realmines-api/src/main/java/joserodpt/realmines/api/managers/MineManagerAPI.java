@@ -35,7 +35,7 @@ public abstract class MineManagerAPI {
 
     public abstract void createMine(Player p, String name);
 
-    public abstract void createCropsMine(Player p, String name);
+    public abstract void createFarmMine(Player p, String name);
 
     public abstract void createSchematicMine(Player p, String name);
 
