@@ -28,20 +28,14 @@ import java.util.stream.Collectors;
 public class Items {
 
     public static List<Material> getValidBlocks(PickType pt) {
-        if (Objects.requireNonNull(pt) == PickType.FARM_ITEM) {
-            return FarmItem.getIcons();
-        }
-        return Arrays.stream(Material.values())
+        return Objects.requireNonNull(pt) == PickType.FARM_ITEM ? FarmItem.getIcons() : Arrays.stream(Material.values())
                 .filter(m -> !m.equals(Material.AIR) && m.isSolid() && m.isBlock() && m.isItem())
                 .collect(Collectors.toList());
     }
 
-    public static ItemStack createItem(Material material, final int quantidade, final String nome) {
-        if (!material.isItem()) {
-            material = Material.STONE;
-        }
-
-        final ItemStack item = new ItemStack(material, quantidade);
+    public static ItemStack createItem(Material m, final int quantidade, final String nome) {
+        m = checkValidMaterialItem(m);
+        final ItemStack item = new ItemStack(m, quantidade);
         final ItemMeta meta = item.getItemMeta();
         if (nome != null) {
             meta.setDisplayName(Text.color(nome));
@@ -50,12 +44,9 @@ public class Items {
         return item;
     }
 
-    public static ItemStack createItem(Material material, final int quantidade, final String nome, final List<String> desc) {
-        if (!material.isItem()) {
-            material = Material.STONE;
-        }
-
-        final ItemStack item = new ItemStack(material, quantidade);
+    public static ItemStack createItem(Material m, final int quantidade, final String nome, final List<String> desc) {
+        m = checkValidMaterialItem(m);
+        final ItemStack item = new ItemStack(m, quantidade);
         if (item.getItemMeta() != null) {
             final ItemMeta meta = item.getItemMeta();
             meta.setDisplayName(Text.color(nome));
@@ -66,10 +57,7 @@ public class Items {
     }
 
     public static ItemStack createItemLoreEnchanted(Material m, final int i, final String name, final List<String> desc) {
-        if (!m.isItem()) {
-            m = Material.STONE;
-        }
-
+        m = checkValidMaterialItem(m);
         final ItemStack item = new ItemStack(m, i);
         final ItemMeta meta = item.getItemMeta();
         meta.setDisplayName(Text.color(name));
@@ -79,6 +67,28 @@ public class Items {
         item.setItemMeta(meta);
         return item;
     }
+
+    private static Material checkValidMaterialItem(Material m) {
+        if (m == Material.WATER) {
+            return Material.WATER_BUCKET;
+        }
+        if (m == Material.LAVA) {
+            return Material.LAVA_BUCKET;
+        }
+
+        if (!m.isItem()) {
+            //the material can be a crop, if so, try to get the crop item
+            Material cropIcon = FarmItem.findIconForCrop(m);
+            if (cropIcon != null && cropIcon.isItem()) {
+                return cropIcon;
+            } else {
+                return Material.STONE;
+            }
+        } else {
+            return m;
+        }
+    }
+
 
     public static ItemStack changeItemStack(final String name, final List<String> list, final ItemStack item) {
         final ItemMeta meta = item.getItemMeta();

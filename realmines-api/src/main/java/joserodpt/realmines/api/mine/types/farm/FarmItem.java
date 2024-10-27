@@ -74,6 +74,14 @@ public enum FarmItem {
         this.fig = null;
     }
 
+    public static Material findIconForCrop(Material m) {
+        return Arrays.stream(FarmItem.values())
+                .filter(fi -> fi.getCrop().equals(m))
+                .map(FarmItem::getIcon)
+                .findFirst()
+                .orElse(null);
+    }
+
     FarmItem(final Material crop) {
         this.icon = crop;
         this.crop = crop;
