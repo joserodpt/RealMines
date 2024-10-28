@@ -18,7 +18,6 @@ import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.PickType;
 import joserodpt.realmines.plugin.RealMines;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -68,22 +67,15 @@ public class MineFacesGUI {
     }
 
     private static MineCuboid.CuboidDirection getDirection(final int rawSlot) {
-        switch (rawSlot) {
-            case 13:
-                return MineCuboid.CuboidDirection.Up;
-            case 22:
-                return MineCuboid.CuboidDirection.Down;
-            case 21:
-                return MineCuboid.CuboidDirection.East;
-            case 23:
-                return MineCuboid.CuboidDirection.West;
-            case 31:
-                return MineCuboid.CuboidDirection.North;
-            case 40:
-                return MineCuboid.CuboidDirection.South;
-            default:
-                return MineCuboid.CuboidDirection.Unknown;
-        }
+        return switch (rawSlot) {
+            case 13 -> MineCuboid.CuboidDirection.Up;
+            case 22 -> MineCuboid.CuboidDirection.Down;
+            case 21 -> MineCuboid.CuboidDirection.East;
+            case 23 -> MineCuboid.CuboidDirection.West;
+            case 31 -> MineCuboid.CuboidDirection.North;
+            case 40 -> MineCuboid.CuboidDirection.South;
+            default -> MineCuboid.CuboidDirection.Unknown;
+        };
     }
 
     public static Listener getListener() {
@@ -126,8 +118,15 @@ public class MineFacesGUI {
                                 } else {
                                     p.closeInventory();
                                     Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm.getPlugin(), () -> {
-                                        final BlockPickerGUI mp = new BlockPickerGUI(current.rm, current.m, p, PickType.FACE_MATERIAL, getDirection(e.getRawSlot()).name());
-                                        mp.openInventory(p);
+                                        final MaterialPickerGUI mpg = new MaterialPickerGUI(p, TranslatableLine.GUI_PICK_NEW_BLOCK_NAME.get(), MaterialPickerGUI.MaterialLists.ONLY_BLOCKS, mat -> {
+                                            if (mat != null) {
+                                                current.m.setFaceBlock(getDirection(e.getRawSlot()), mat);
+                                            }
+
+                                            final MineFacesGUI va = new MineFacesGUI(current.rm, p, current.m);
+                                            va.openInventory(p);
+                                        });
+                                        mpg.openInventory(p);
                                     }, 1);
                                 }
                         }

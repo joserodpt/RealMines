@@ -20,6 +20,7 @@ import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Text;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
@@ -31,19 +32,10 @@ public class MineFarmItem extends MineItem {
     private final FarmItem fi;
     private int age = 0;
 
-    public MineFarmItem() {
-        super();
-        this.fi = FarmItem.AIR;
-    }
-
-    public MineFarmItem(final FarmItem fi) {
-        super(fi.getIcon(), 0.1D, false, false, new ArrayList<>(), false);
-        this.fi = fi;
-    }
-
-    public MineFarmItem(final FarmItem fi, final Double percentage) {
-        super(fi.getIcon(), percentage, false, false, new ArrayList<>(), false);
-        this.fi = fi;
+    public MineFarmItem(final FarmItem c, final Double percentage, final Boolean disabledVanillaDrop, final Boolean disabledBlockMining, final int age, final List<MineAction> breakActions) {
+        super(c.getIcon(), percentage, disabledVanillaDrop, disabledBlockMining, breakActions, false);
+        this.fi = c;
+        this.age = age;
     }
 
     public MineFarmItem(final FarmItem c, final Double percentage, final int age) {
@@ -52,10 +44,23 @@ public class MineFarmItem extends MineItem {
         this.age = age;
     }
 
-    public MineFarmItem(final FarmItem c, final Double percentage, final Boolean disabledVanillaDrop, final Boolean disabledBlockMining, final int age, final List<MineAction> breakActions) {
-        super(c.getIcon(), percentage, disabledVanillaDrop, disabledBlockMining, breakActions, false);
-        this.fi = c;
-        this.age = age;
+    public MineFarmItem(final FarmItem fi, final Double percentage) {
+        super(fi.getIcon(), percentage, false, false, new ArrayList<>(), false);
+        this.fi = fi;
+    }
+
+    public MineFarmItem(final FarmItem fi) {
+        super(fi.getIcon(), 0.1D, false, false, new ArrayList<>(), false);
+        this.fi = fi;
+    }
+
+    public MineFarmItem(final Material m) {
+        this(FarmItem.valueOf(m));
+    }
+
+    public MineFarmItem() {
+        super();
+        this.fi = FarmItem.AIR;
     }
 
     @Override

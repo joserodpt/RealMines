@@ -22,12 +22,10 @@ import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.api.mine.types.BlockMine;
-import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.mine.types.farm.FarmMine;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Pagination;
 import joserodpt.realmines.api.utils.PercentageInput;
-import joserodpt.realmines.api.utils.PickType;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
@@ -40,7 +38,6 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
-import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -68,16 +65,16 @@ public class MineItensGUI {
     private final Inventory inv;
     private final UUID uuid;
     private final HashMap<Integer, MineItem> display = new HashMap<>();
-    private final RMine m;
+    private final RMine mine;
     int pageNumber = 0;
     Pagination<MineItem> p;
     private final RealMines rm;
 
-    public MineItensGUI(final RealMines rm, final Player target, final RMine min) {
+    public MineItensGUI(final RealMines rm, final Player target, final RMine mine) {
         this.rm = rm;
         this.uuid = target.getUniqueId();
-        this.m = min;
-        this.inv = Bukkit.getServer().createInventory(null, 54, TranslatableLine.GUI_MINE_BLOCKS_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.m.getDisplayName())).get());
+        this.mine = mine;
+        this.inv = Bukkit.getServer().createInventory(null, 54, TranslatableLine.GUI_MINE_BLOCKS_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.mine.getDisplayName())).get());
 
         this.load();
 
@@ -105,145 +102,118 @@ public class MineItensGUI {
                             return;
                         }
 
-                        if (e.getClickedInventory().getType() == InventoryType.PLAYER) {
-
-                            if (Items.getValidBlocks(current.m.getBlockPickType()).contains(e.getCurrentItem().getType())) {
-
-                                switch (current.m.getType()) {
-                                    case BLOCKS:
-                                        ((BlockMine) current.m).addItem(new MineBlockItem(e.getCurrentItem().getType()));
-                                        break;
-                                    case FARM:
-                                        FarmItem fi = FarmItem.valueOf(e.getCurrentItem().getType());
-                                        if (fi == null) {
-                                            return;
-                                        }
-                                        ((FarmMine) current.m).addFarmItem(new MineFarmItem(fi));
-                                        break;
-                                }
-
-                                p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 50, 50);
+                        switch (e.getRawSlot()) {
+                            case 49:
                                 p.closeInventory();
-                                Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm.getPlugin(), () -> {
-                                    final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
-                                    v.openInventory(p);
-                                }, 1);
-                            } else {
-                                TranslatableLine.SYSTEM_CANT_ADD_ITEM.send(p);
-                            }
-
-                        } else {
-                            switch (e.getRawSlot()) {
-                                case 49:
-                                    p.closeInventory();
-                                    current.rm.getGUIManager().openMine(current.m, p);
-                                    break;
-                                case 4:
-                                    if (current.m.getType() == RMine.Type.SCHEMATIC) {
-                                        return;
-                                    }
-
-                                    p.closeInventory();
-                                    BlockPickerGUI mp = null;
-                                    switch (current.m.getType()) {
-                                        case BLOCKS:
-                                            mp = new BlockPickerGUI(current.rm, current.m, p, PickType.BLOCK, "");
-                                            break;
-                                        case FARM:
-                                            mp = new BlockPickerGUI(current.rm, current.m, p, PickType.FARM_ITEM, "");
-                                            break;
-                                    }
-                                    if (mp != null)
-                                        mp.openInventory(p);
-                                    break;
-                                case 0:
-                                    current.m.setBreakingPermissionOn(!current.m.isBreakingPermissionOn());
-                                    current.m.saveData(RMine.Data.SETTINGS);
-                                    current.load();
-                                    break;
-                                case 8:
-                                    RMMinesConfig.file().set(current.m.getName() + ".Settings.Discard-Break-Action-Messages", !RMMinesConfig.file().getBoolean(current.m.getName() + ".Settings.Discard-Break-Action-Messages"));
-                                    RMMinesConfig.save();
-                                    current.load();
-                                    break;
-                                case 26:
-                                case 35:
-                                    this.nextPage(current);
-                                    p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
-                                    break;
-                                case 18:
-                                case 27:
-                                    this.backPage(current);
-                                    p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
-                                    break;
-                            }
-
-                            if (current.display.containsKey(e.getRawSlot())) {
-                                final MineItem minItem = current.display.get(e.getRawSlot());
-
-                                if (!minItem.isInteractable()) {
+                                current.rm.getGUIManager().openMine(current.mine, p);
+                                break;
+                            case 4:
+                                if (current.mine.getType() == RMine.Type.SCHEMATIC) {
                                     return;
                                 }
 
-                                switch (e.getClick()) {
-                                    case DROP:
-                                        if (minItem.isSchematicBlock()) {
-                                            return;
-                                        }
+                                p.closeInventory();
 
-                                        // eliminar
-                                        switch (current.m.getType()) {
-                                            case BLOCKS:
-                                                ((BlockMine) current.m).removeMineBlockItem(minItem);
-                                                break;
-                                            case FARM:
-                                                ((FarmMine) current.m).removeMineFarmItem(minItem);
-                                                break;
+                                final MaterialPickerGUI mpg = new MaterialPickerGUI(p, TranslatableLine.GUI_PICK_NEW_BLOCK_NAME.get(), current.mine.getType() == RMine.Type.FARM ? MaterialPickerGUI.MaterialLists.ONLY_FARM_ICONS : MaterialPickerGUI.MaterialLists.ONLY_BLOCKS, mat -> {
+                                    if (mat != null) {
+                                        switch (current.mine.getType()) {
+                                            case BLOCKS -> ((BlockMine) current.mine).addItem(new MineBlockItem(mat));
+                                            case FARM -> ((FarmMine) current.mine).addFarmItem(new MineFarmItem(mat));
                                         }
+                                    }
 
-                                        TranslatableLine.SYSTEM_REMOVE.setV1(TranslatableLine.ReplacableVar.OBJECT.eq(Text.beautifyMaterialName(minItem.getMaterial()))).send(p);
+                                    final MineItensGUI v = new MineItensGUI(current.rm, p, current.mine);
+                                    v.openInventory(p);
+                                });
+                                mpg.openInventory(p);
+                                break;
+                            case 0:
+                                current.mine.setBreakingPermissionOn(!current.mine.isBreakingPermissionOn());
+                                current.mine.saveData(RMine.Data.SETTINGS);
+                                current.load();
+                                break;
+                            case 8:
+                                RMMinesConfig.file().set(current.mine.getName() + ".Settings.Discard-Break-Action-Messages", !RMMinesConfig.file().getBoolean(current.mine.getName() + ".Settings.Discard-Break-Action-Messages"));
+                                RMMinesConfig.save();
+                                current.load();
+                                break;
+                            case 26:
+                            case 35:
+                                this.nextPage(current);
+                                p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
+                                break;
+                            case 18:
+                            case 27:
+                                this.backPage(current);
+                                p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
+                                break;
+                        }
+
+                        if (current.display.containsKey(e.getRawSlot())) {
+                            final MineItem minItem = current.display.get(e.getRawSlot());
+
+                            if (!minItem.isInteractable()) {
+                                return;
+                            }
+
+                            switch (e.getClick()) {
+                                case DROP:
+                                    if (minItem.isSchematicBlock()) {
+                                        return;
+                                    }
+
+                                    // eliminar
+                                    switch (current.mine.getType()) {
+                                        case BLOCKS:
+                                            ((BlockMine) current.mine).removeMineBlockItem(minItem);
+                                            break;
+                                        case FARM:
+                                            ((FarmMine) current.mine).removeMineFarmItem(minItem);
+                                            break;
+                                    }
+
+                                    TranslatableLine.SYSTEM_REMOVE.setV1(TranslatableLine.ReplacableVar.OBJECT.eq(Text.beautifyMaterialName(minItem.getMaterial()))).send(p);
+                                    current.load();
+                                    break;
+                                case SHIFT_RIGHT:
+                                    if (minItem instanceof MineFarmItem) {
+                                        ((MineFarmItem) minItem).addAge(-1);
+                                        current.mine.saveData(RMine.Data.BLOCKS);
                                         current.load();
-                                        break;
-                                    case SHIFT_RIGHT:
-                                        if (minItem instanceof MineFarmItem) {
-                                            ((MineFarmItem) minItem).addAge(-1);
-                                            current.m.saveData(RMine.Data.BLOCKS);
-                                            current.load();
-                                        } else {
-                                            //enable block drop
-                                            minItem.toggleBlockMining();
-                                            current.m.saveData(RMine.Data.BLOCKS);
-                                            current.load();
-                                        }
-                                        break;
-                                    case SHIFT_LEFT:
-                                        if (minItem instanceof MineFarmItem) {
-                                            ((MineFarmItem) minItem).addAge(1);
-                                            current.m.saveData(RMine.Data.BLOCKS);
-                                        } else {
-                                            //disable block drop
-                                            minItem.toggleVanillaBlockDrop();
-                                            current.m.saveData(RMine.Data.BLOCKS);
-                                        }
+                                    } else {
+                                        //enable block drop
+                                        minItem.toggleBlockMining();
+                                        current.mine.saveData(RMine.Data.BLOCKS);
                                         current.load();
-                                        break;
+                                    }
+                                    break;
+                                case SHIFT_LEFT:
+                                    if (minItem instanceof MineFarmItem) {
+                                        ((MineFarmItem) minItem).addAge(1);
+                                        current.mine.saveData(RMine.Data.BLOCKS);
+                                    } else {
+                                        //disable block drop
+                                        minItem.toggleVanillaBlockDrop();
+                                        current.mine.saveData(RMine.Data.BLOCKS);
+                                    }
+                                    current.load();
+                                    break;
 
-                                    case RIGHT:
-                                        p.closeInventory();
-                                        Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm.getPlugin(), () -> {
-                                            final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.m, minItem);
-                                            v.openInventory(p);
-                                        }, 2);
-                                        break;
-                                    default:
-                                        if (minItem.isSchematicBlock()) {
-                                            return;
-                                        }
+                                case RIGHT:
+                                    p.closeInventory();
+                                    Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm.getPlugin(), () -> {
+                                        final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, minItem);
+                                        v.openInventory(p);
+                                    }, 2);
+                                    break;
+                                default:
+                                    if (minItem.isSchematicBlock()) {
+                                        return;
+                                    }
 
-                                        // resto
-                                        current.editPercentage(p, minItem, current);
-                                        break;
-                                }
+                                    // resto
+                                    current.editPercentage(p, minItem, current);
+                                    break;
                             }
                         }
                     }
@@ -283,14 +253,14 @@ public class MineItensGUI {
     }
 
     public void load() {
-        switch (this.m.getType()) {
+        switch (this.mine.getType()) {
             case BLOCKS:
             case FARM:
             case SCHEMATIC:
-                this.p = new Pagination<>(28, this.m.getBlockIcons().stream().sorted(Comparator.comparingDouble(MineItem::getPercentage).reversed()).collect(Collectors.toList()));
+                this.p = new Pagination<>(28, this.mine.getBlockIcons().stream().sorted(Comparator.comparingDouble(MineItem::getPercentage).reversed()).collect(Collectors.toList()));
                 break;
             default:
-                rm.getPlugin().getLogger().warning("Unexpected value for mine items gui: " + this.m.getType().name());
+                rm.getPlugin().getLogger().warning("Unexpected value for mine items gui: " + this.mine.getType().name());
                 break;
         }
 
@@ -305,10 +275,10 @@ public class MineItensGUI {
             this.inv.setItem(i, placeholder);
         }
 
-        this.inv.setItem(0, Items.createItem(Material.FILLED_MAP, 1, "&e&lToggle Break Permission", Arrays.asList("&fClick here to toggle the break permission:", "&f" + this.m.getBreakPermission(), "&7State: " + (this.m.isBreakingPermissionOn() ? "&a&lON" : "&c&lOFF"))));
-        this.inv.setItem(8, Items.createItem(Material.COMPARATOR, 1, "&e&lDiscard Break Action Messages", Arrays.asList("&fClick here to toggle the messages.", "&7State: " + (RMMinesConfig.file().getBoolean(this.m.getName() + ".Settings.Discard-Break-Action-Messages") ? "&a&lON" : "&c&lOFF"))));
+        this.inv.setItem(0, Items.createItem(Material.FILLED_MAP, 1, "&e&lToggle Break Permission", Arrays.asList("&fClick here to toggle the break permission:", "&f" + this.mine.getBreakPermission(), "&7State: " + (this.mine.isBreakingPermissionOn() ? "&a&lON" : "&c&lOFF"))));
+        this.inv.setItem(8, Items.createItem(Material.COMPARATOR, 1, "&e&lDiscard Break Action Messages", Arrays.asList("&fClick here to toggle the messages.", "&7State: " + (RMMinesConfig.file().getBoolean(this.mine.getName() + ".Settings.Discard-Break-Action-Messages") ? "&a&lON" : "&c&lOFF"))));
 
-        this.inv.setItem(4, this.m.getType() != RMine.Type.SCHEMATIC ? add : placeholder);
+        this.inv.setItem(4, this.mine.getType() != RMine.Type.SCHEMATIC ? add : placeholder);
 
         for (int slot : new int[]{45, 46, 47, 48, 49, 50, 51, 52, 53, 36, 44, 9, 17}) {
             this.inv.setItem(slot, placeholder);
@@ -352,11 +322,11 @@ public class MineItensGUI {
         if (RMConfig.file().getBoolean("RealMines.useButtonGUIForPercentages")) {
             PercentageInput pi = new PercentageInput(p, rm.getPlugin(), (int) (a.getPercentage() * 100), percentage -> {
                 a.setPercentage((double) percentage / 100);
-                current.m.saveData(BlockMine.Data.BLOCKS);
+                current.mine.saveData(BlockMine.Data.BLOCKS);
 
                 TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(percentage))).send(p);
 
-                final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
+                final MineItensGUI v = new MineItensGUI(current.rm, p, current.mine);
                 v.openInventory(p);
             });
             pi.openInventory(p);
@@ -385,13 +355,13 @@ public class MineItensGUI {
                 d /= 100;
 
                 a.setPercentage(d);
-                current.m.saveData(BlockMine.Data.BLOCKS);
+                current.mine.saveData(BlockMine.Data.BLOCKS);
 
                 TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(d * 100))).send(p);
-                final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
+                final MineItensGUI v = new MineItensGUI(current.rm, p, current.mine);
                 v.openInventory(p);
             }, s -> {
-                final MineItensGUI v = new MineItensGUI(current.rm, p, current.m);
+                final MineItensGUI v = new MineItensGUI(current.rm, p, current.mine);
                 v.openInventory(p);
             });
         }

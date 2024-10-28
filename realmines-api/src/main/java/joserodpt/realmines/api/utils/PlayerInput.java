@@ -73,17 +73,18 @@ public class PlayerInput implements Listener {
         };
     }
 
-    private static void handlePlayerInput(final Player p, final String input, final UUID uuid) {
+    private static void handlePlayerInput(final Player p, String input, final UUID uuid) {
         final PlayerInput current = inputs.get(uuid);
         try {
             current.taskId.cancel();
             p.sendTitle("", "", 0, 1, 0);
             current.unregister();
+            String cleanInput = ChatColor.stripColor(Text.color(input));
             if (input.equalsIgnoreCase("cancel")) {
                 TranslatableLine.SYSTEM_INPUT_CANCELLED.send(p);
-                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.runCancel.run(input), 3);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.runCancel.run(cleanInput), 3);
             } else {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.runGo.run(input), 3);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.runGo.run(cleanInput), 3);
             }
         } catch (final Exception e) {
             TranslatableLine.SYSTEM_ERROR_OCCURRED.send(p);

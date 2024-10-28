@@ -23,7 +23,6 @@ import joserodpt.realmines.api.mine.components.actions.MineActionMoney;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.utils.GUIBuilder;
 import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.PickType;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
@@ -206,8 +205,13 @@ public class GUIManager {
                 inventory.addItem(e -> {
                     target.closeInventory();
                     Bukkit.getScheduler().scheduleSyncDelayedTask(rm.getPlugin(), () -> {
-                        final BlockPickerGUI s = new BlockPickerGUI(rm, m, target, PickType.ICON, "");
-                        s.openInventory(target);
+                        final MaterialPickerGUI mpg = new MaterialPickerGUI(target, TranslatableLine.GUI_SELECT_ICON_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).get(), MaterialPickerGUI.MaterialLists.ALL_MATERIALS, mat -> {
+                            if (mat != null) {
+                                m.setIcon(mat);
+                            }
+                            openMine(m, target);
+                        });
+                        mpg.openInventory(target);
                     }, 2);
                 }, Items.createItem(m.getIcon(), 1, TranslatableLine.GUI_ICON_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.Icon.Description")), 2);
 

@@ -677,7 +677,7 @@ public class MineManager extends MineManagerAPI {
                 final Location pos2 = new Location(p.getWorld(), r.getMinimumPoint().getBlockX(), r.getMinimumPoint().getBlockY(), r.getMinimumPoint().getBlockZ());
 
                 m.setPOS(pos1, pos2);
-                m.fill();
+                m.fillContent();
                 TranslatableLine.SYSTEM_REGION_UPDATED.send(p);
                 m.reset();
                 m.saveData(RMine.Data.LOCATION);

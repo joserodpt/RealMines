@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * This class is a region/cuboid from one location to another. It can be used
@@ -95,7 +96,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
         this.y2 = Math.max(y1, y2);
         this.z1 = Math.min(z1, z2);
         this.z2 = Math.max(z1, z2);
-		this.totalBlocks = this.getVolume();
+        this.totalBlocks = this.getVolume();
 
     }
 
@@ -113,7 +114,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
         this.y2 = (Integer) map.get("y2");
         this.z1 = (Integer) map.get("z1");
         this.z2 = (Integer) map.get("z2");
-		this.totalBlocks = this.getVolume();
+        this.totalBlocks = this.getVolume();
 
     }
 
@@ -144,7 +145,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
      *
      * @return Location of the lower northeast corner
      */
-    public Location getLowerNE() {
+    public Location getMin() {
         return new Location(this.getWorld(), this.x1, this.y1, this.z1);
     }
 
@@ -154,7 +155,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
      *
      * @return Location of the upper southwest corner
      */
-    public Location getUpperSW() {
+    public Location getMax() {
         return new Location(this.getWorld(), this.x2, this.y2, this.z2);
     }
 
@@ -535,14 +536,7 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
     }
 
     public List<Material> getBlockTypes() {
-        final List<Material> retm = new ArrayList<>();
-
-        for (final Block b : this) {
-            if (!retm.contains(b.getType()) && !b.getType().name().contains("AIR") && b.getType() != Material.STONE) {
-                retm.add(b.getType());
-            }
-        }
-        return retm;
+        return this.getBlocks().stream().map(Block::getType).filter(material -> !material.name().contains("AIR") && material != Material.STONE).collect(Collectors.toList());
     }
 
     /**
@@ -669,12 +663,12 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
     public class CuboidIterator implements Iterator<Block> {
         private final World w;
         private final int baseX;
-		private final int baseY;
-		private final int baseZ;
+        private final int baseY;
+        private final int baseZ;
         private int x, y, z;
         private final int sizeX;
-		private final int sizeY;
-		private final int sizeZ;
+        private final int sizeY;
+        private final int sizeZ;
 
         public CuboidIterator(final World w, final int x1, final int y1, final int z1, final int x2, final int y2, final int z2) {
             this.w = w;

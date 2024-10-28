@@ -13,21 +13,14 @@ package joserodpt.realmines.plugin.gui;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
-import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.mine.components.MineCuboid;
-import joserodpt.realmines.api.mine.components.items.MineBlockItem;
-import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
-import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.mine.types.farm.FarmItem;
-import joserodpt.realmines.api.mine.types.farm.FarmMine;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Pagination;
-import joserodpt.realmines.api.utils.PickType;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
-import joserodpt.realmines.plugin.RealMines;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -42,16 +35,19 @@ import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-public class BlockPickerGUI {
+public class MaterialPickerGUI {
 
-    private static final Map<UUID, BlockPickerGUI> inventories = new HashMap<>();
+    public enum MaterialLists {ALL_MATERIALS, ONLY_ITEMS, ONLY_BLOCKS, ONLY_FARM_ICONS}
+
+    private static final Map<UUID, MaterialPickerGUI> inventories = new HashMap<>();
     static final ItemStack placeholder = Items.createItem(Material.BLACK_STAINED_GLASS_PANE, 1, "");
     static final ItemStack next = Items.createItem(Material.GREEN_STAINED_GLASS, 1, TranslatableLine.GUI_NEXT_PAGE_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Next.Description"));
@@ -61,56 +57,61 @@ public class BlockPickerGUI {
             RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
     static ItemStack search = Items.createItem(Material.OAK_SIGN, 1, TranslatableLine.GUI_SEARCH_ITEM_NAME.get(),
             RMLanguageConfig.file().getStringList("GUI.Items.Close.Description"));
-    private final RealMines rm;
     private final UUID uuid;
-    private final List<Material> items;
     private final HashMap<Integer, Material> display = new HashMap<>();
-    private final RMine min;
-    private final PickType pt;
-    int pageNumber = 0;
+    private List<Material> onlyAllowedItems = new ArrayList<>();
+    private int pageNumber = 0;
     private final Pagination<Material> p;
     private final Inventory inv;
-    private final String add;
+    private final String title;
+    private final MaterialRunnable materialRunnable;
 
-    public BlockPickerGUI(final RealMines rm, final RMine m, final Player pl, final PickType pickType, final String additional) {
-        this.add = additional;
-        this.rm = rm;
+    public MaterialPickerGUI(final Player pl, final String title, MaterialLists ml, MaterialRunnable materialRunnable) {
         this.uuid = pl.getUniqueId();
-        this.min = m;
-        this.pt = pickType;
+        this.title = title;
+        this.materialRunnable = materialRunnable;
 
-        this.inv = Bukkit.getServer().createInventory(null, 54, Objects.requireNonNull(pickType) == PickType.ICON ? TranslatableLine.GUI_SELECT_ICON_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).get() : TranslatableLine.GUI_PICK_NEW_BLOCK_NAME.get());
+        this.inv = Bukkit.getServer().createInventory(null, 54, title);
 
-        this.items = Items.getValidBlocks(pt);
+        switch (ml) {
+            case ONLY_ITEMS -> this.onlyAllowedItems = Arrays.stream(Material.values())
+                    .filter(m -> !m.equals(Material.AIR) && m.isItem())
+                    .toList();
+            case ALL_MATERIALS ->
+                    this.onlyAllowedItems = Arrays.stream(Material.values()).filter(m -> !m.equals(Material.AIR) && m.isItem() && m.isBlock()).toList();
+            case ONLY_BLOCKS -> this.onlyAllowedItems = Arrays.stream(Material.values())
+                    .filter(m -> !m.equals(Material.AIR) && m.isSolid() && m.isBlock() && m.isItem())
+                    .collect(Collectors.toList());
+            case ONLY_FARM_ICONS -> this.onlyAllowedItems = FarmItem.getIcons();
+        }
 
-        this.p = new Pagination<>(28, this.items);
-        this.fillChest(this.p.getPage(this.pageNumber));
+        this.p = new Pagination<>(28, onlyAllowedItems);
+
+        try {
+            this.fillChest(this.p.getPage(this.pageNumber));
+        } catch (Exception ignord) {
+            this.fillChest(Collections.emptyList());
+        }
 
         this.register();
     }
 
-    public BlockPickerGUI(final RealMines rm, final RMine m, final Player pl, final PickType pickType, final String search, final String additional) {
-        this.add = additional;
-        this.rm = rm;
-
+    public MaterialPickerGUI(final Player pl, final String title, List<Material> onlyAllowedItems, MaterialRunnable materialRunnable, final String search) {
         this.uuid = pl.getUniqueId();
-        this.min = m;
-        this.pt = pickType;
+        this.title = title;
+        this.materialRunnable = materialRunnable;
+        this.onlyAllowedItems = onlyAllowedItems;
+        this.inv = Bukkit.getServer().createInventory(null, 54, title);
 
-        this.inv = Bukkit.getServer().createInventory(null, 54, Objects.requireNonNull(pickType) == PickType.ICON ? TranslatableLine.GUI_SELECT_ICON_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).get() : TranslatableLine.GUI_PICK_NEW_BLOCK_NAME.get());
+        this.p = new Pagination<>(28, onlyAllowedItems.stream().filter(material -> material.name().toLowerCase().contains(search.toLowerCase())).toList());
 
-        this.items = this.searchMaterial(search, pickType);
-
-        this.p = new Pagination<>(28, this.items);
-        this.fillChest(this.p.getPage(this.pageNumber));
+        try {
+            this.fillChest(this.p.getPage(this.pageNumber));
+        } catch (Exception ignord) {
+            this.fillChest(Collections.emptyList());
+        }
 
         this.register();
-    }
-
-    private List<Material> searchMaterial(final String s, final PickType pt) {
-        return Items.getValidBlocks(pt).stream()
-                .filter(m -> m.name().toLowerCase().contains(s.toLowerCase()))
-                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     public static Listener getListener() {
@@ -124,7 +125,7 @@ public class BlockPickerGUI {
                     }
                     final UUID uuid = clicker.getUniqueId();
                     if (inventories.containsKey(uuid)) {
-                        final BlockPickerGUI current = inventories.get(uuid);
+                        final MaterialPickerGUI current = inventories.get(uuid);
                         if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
                             return;
                         }
@@ -134,21 +135,19 @@ public class BlockPickerGUI {
                         switch (e.getRawSlot()) {
                             case 4:
                                 new PlayerInput(p, input -> {
+                                    /*
                                     if (current.searchMaterial(input, current.pt).isEmpty()) {
                                         TranslatableLine.SYSTEM_NOTHING_FOUND.send(p);
                                         current.exit(current.rm, p);
                                         return;
                                     }
-                                    final BlockPickerGUI df = new BlockPickerGUI(current.rm, current.min, p, current.pt, input, current.add);
-                                    df.openInventory(p);
-                                }, input -> {
-                                    p.closeInventory();
-                                    final MineItensGUI v = new MineItensGUI(current.rm, p, current.min);
-                                    v.openInventory(p);
-                                });
+                                     */
+                                    final MaterialPickerGUI mpg = new MaterialPickerGUI(p, current.title, current.onlyAllowedItems, current.materialRunnable, input);
+                                    mpg.openInventory(p);
+                                }, input -> current.exit(p));
                                 break;
                             case 49:
-                                current.exit(current.rm, p);
+                                current.exit(p);
                                 break;
                             case 26:
                             case 35:
@@ -163,33 +162,8 @@ public class BlockPickerGUI {
                         }
 
                         if (current.display.containsKey(e.getRawSlot())) {
-                            final Material a = current.display.get(e.getRawSlot());
-
-                            switch (current.pt) {
-                                case ICON:
-                                    current.min.setIcon(a);
-                                    current.min.saveData(BlockMine.Data.ICON);
-                                    current.exit(current.rm, p);
-                                    break;
-                                case FARM_ITEM:
-                                case BLOCK:
-                                    switch (current.min.getType()) {
-                                        case BLOCKS:
-                                            ((BlockMine) current.min).addItem(new MineBlockItem(a));
-                                            break;
-                                        case FARM:
-                                            ((FarmMine) current.min).addFarmItem(new MineFarmItem(FarmItem.valueOf(a)));
-                                            break;
-                                    }
-                                    current.exit(current.rm, p);
-                                    break;
-                                case FACE_MATERIAL:
-                                    final MineCuboid.CuboidDirection cd = MineCuboid.CuboidDirection.valueOf(current.add);
-                                    current.min.setFaceBlock(cd, a);
-
-                                    current.exit(current.rm, p);
-                                    break;
-                            }
+                            p.closeInventory();
+                            Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.materialRunnable.selectedMaterial(current.display.get(e.getRawSlot())), 3);
                         }
 
                         e.setCancelled(true);
@@ -197,7 +171,7 @@ public class BlockPickerGUI {
                 }
             }
 
-            private void backPage(final BlockPickerGUI asd) {
+            private void backPage(final MaterialPickerGUI asd) {
                 if (asd.p.exists(asd.pageNumber - 1)) {
                     --asd.pageNumber;
                 }
@@ -205,7 +179,7 @@ public class BlockPickerGUI {
                 asd.fillChest(asd.p.getPage(asd.pageNumber));
             }
 
-            private void nextPage(final BlockPickerGUI asd) {
+            private void nextPage(final MaterialPickerGUI asd) {
                 if (asd.p.exists(asd.pageNumber + 1)) {
                     ++asd.pageNumber;
                 }
@@ -276,29 +250,9 @@ public class BlockPickerGUI {
         }
     }
 
-    protected void exit(final RealMines rm, final Player p) {
-        unregister();
+    protected void exit(final Player p) {
         p.closeInventory();
-
-        switch (this.pt) {
-            case ICON:
-                rm.getGUIManager().openMine(this.min, p);
-                break;
-            case FARM_ITEM:
-            case BLOCK:
-                Bukkit.getScheduler().scheduleSyncDelayedTask(rm.getPlugin(), () -> {
-                    final MineItensGUI v = new MineItensGUI(rm, p, this.min);
-                    v.openInventory(p);
-                }, 1);
-
-                break;
-            case FACE_MATERIAL:
-                Bukkit.getScheduler().scheduleSyncDelayedTask(rm.getPlugin(), () -> {
-                    final MineFacesGUI va = new MineFacesGUI(rm, p, min);
-                    va.openInventory(p);
-                }, 1);
-                break;
-        }
+        Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> materialRunnable.selectedMaterial(null), 3);
     }
 
     public Inventory getInventory() {
@@ -311,5 +265,10 @@ public class BlockPickerGUI {
 
     private void unregister() {
         inventories.remove(this.uuid);
+    }
+
+    @FunctionalInterface
+    public interface MaterialRunnable {
+        void selectedMaterial(Material m);
     }
 }

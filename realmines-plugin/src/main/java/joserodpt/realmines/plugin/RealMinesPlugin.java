@@ -30,8 +30,8 @@ import joserodpt.realmines.plugin.command.MineCMD;
 import joserodpt.realmines.plugin.command.MineResetTaskCMD;
 import joserodpt.realmines.plugin.events.BlockEvents;
 import joserodpt.realmines.plugin.events.PlayerEvents;
-import joserodpt.realmines.plugin.gui.BlockPickerGUI;
 import joserodpt.realmines.plugin.gui.DirectoryBrowserGUI;
+import joserodpt.realmines.plugin.gui.MaterialPickerGUI;
 import joserodpt.realmines.plugin.gui.MineBreakActionsGUI;
 import joserodpt.realmines.plugin.gui.MineColorPickerGUI;
 import joserodpt.realmines.plugin.gui.MineFacesGUI;
@@ -100,7 +100,7 @@ public class RealMinesPlugin extends JavaPlugin {
                 MineListGUI.getListener(),
                 GUIBuilder.getListener(),
                 MineFacesGUI.getListener(),
-                BlockPickerGUI.getListener(),
+                MaterialPickerGUI.getListener(),
                 MineItensGUI.getListener(),
                 MineResetGUI.getListener(),
                 MineColorPickerGUI.getListener(),

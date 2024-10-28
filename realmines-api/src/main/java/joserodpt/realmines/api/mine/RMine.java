@@ -14,6 +14,10 @@ package joserodpt.realmines.api.mine;
  */
 
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.function.pattern.RandomPattern;
+import com.sk89q.worldedit.math.BlockVector3;
+import com.sk89q.worldedit.regions.CuboidRegion;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
@@ -28,8 +32,8 @@ import joserodpt.realmines.api.mine.components.MineSign;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.task.MineTimer;
 import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.PickType;
 import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.utils.WorldEditUtils;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -176,7 +180,26 @@ public abstract class RMine {
     }
     //block percentages
 
-    public abstract void fill();
+    public abstract void fillContent();
+
+    public void fillFaces() {
+        if (RMConfig.file().getBoolean("RealMines.useWorldEditForBlockPlacement")) {
+            for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
+                MineCuboid face = this.getMineCuboid().getFace(pair.getKey());
+                BlockVector3 p1 = BlockVector3.at(face.getMin().getX(), face.getMin().getY(), face.getMin().getZ());
+                BlockVector3 p2 = BlockVector3.at(face.getMax().getX(), face.getMax().getY(), face.getMax().getZ());
+
+                RandomPattern solid = new RandomPattern();
+                solid.add(BukkitAdapter.adapt(pair.getValue().createBlockData()).toBaseBlock(), 100);
+
+                WorldEditUtils.setBlocks(new CuboidRegion(BukkitAdapter.adapt(this.getWorld()), p1, p2), solid);
+            }
+        } else {
+            for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
+                this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
+            }
+        }
+    }
 
     public Map<Material, MineItem> getMineItems() {
         return this.mineItems;
@@ -223,7 +246,7 @@ public abstract class RMine {
             }
 
             this.kickPlayers(TranslatableLine.MINE_RESET_STARTING.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.getDisplayName())).get());
-            this.fill();
+            this.fillContent();
 
             //reset mined blocks
             this.minedBlocks = 0;
@@ -426,6 +449,7 @@ public abstract class RMine {
 
     public void setIcon(final Material a) {
         this.icon = a;
+        this.saveData(Data.ICON);
     }
 
     public boolean isHighlighted() {
@@ -501,8 +525,6 @@ public abstract class RMine {
         //update min e signs
         this.updateSigns();
     }
-
-    public abstract PickType getBlockPickType();
 
     public abstract void clearContents();
 

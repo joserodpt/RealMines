@@ -20,18 +20,9 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 public class Items {
-
-    public static List<Material> getValidBlocks(PickType pt) {
-        return Objects.requireNonNull(pt) == PickType.FARM_ITEM ? FarmItem.getIcons() : Arrays.stream(Material.values())
-                .filter(m -> !m.equals(Material.AIR) && m.isSolid() && m.isBlock() && m.isItem())
-                .collect(Collectors.toList());
-    }
 
     public static ItemStack createItem(Material m, final int quantidade, final String nome) {
         m = checkValidMaterialItem(m);

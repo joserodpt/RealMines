@@ -37,7 +37,6 @@ import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.mine.components.MineSign;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.components.items.MineSchematicItem;
-import joserodpt.realmines.api.utils.PickType;
 import joserodpt.realmines.api.utils.WorldEditUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -69,7 +68,7 @@ public class SchematicMine extends RMine {
         this.pasteClipboard = this.loadSchematic(schematicFile);
         this.pasteLocation = pasteLocation;
 
-        this.fill();
+        this.fillContent();
         this.processPastedBlocks();
         this.updateSigns();
     }
@@ -85,7 +84,7 @@ public class SchematicMine extends RMine {
         this.pasteClipboard = this.loadSchematic(schematicFile);
         this.pasteLocation = pasteLocation;
 
-        this.fill();
+        this.fillContent();
         if (RMMinesConfig.file().get(n + ".Blocks") == null) {
             processPastedBlocks();
         }
@@ -108,12 +107,9 @@ public class SchematicMine extends RMine {
     }
 
     @Override
-    public void fill() {
+    public void fillContent() {
         this.placeSchematic(this.pasteClipboard, this.pasteLocation);
-        //faces
-        for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
-            this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
-        }
+        super.fillFaces();
     }
 
     @Override
@@ -173,11 +169,6 @@ public class SchematicMine extends RMine {
                 RealMinesAPI.getInstance().getPlugin().getLogger().severe(e.getMessage());
             }
         }
-    }
-
-    @Override
-    public PickType getBlockPickType() {
-        return null;
     }
 
     @Override

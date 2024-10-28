@@ -21,7 +21,6 @@ import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.mine.components.MineSign;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
-import joserodpt.realmines.api.utils.PickType;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -47,7 +46,7 @@ public class FarmMine extends RMine {
         super(w, n, displayname, si, b, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
 
         this.setPOS(p1, p2);
-        this.fill();
+        this.fillContent();
         this.updateSigns();
     }
 
@@ -86,7 +85,7 @@ public class FarmMine extends RMine {
     }
 
     @Override
-    public void fill() {
+    public void fillContent() {
         this.sortCrops();
 
         if (!super.getMineItems().isEmpty()) {
@@ -104,18 +103,10 @@ public class FarmMine extends RMine {
                         placeFarmItems(target, under, fi);
                     }
                 }
-
-                // Set faces
-                for (Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
-                    this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
-                }
             });
         }
 
-        //faces
-        for (final Map.Entry<MineCuboid.CuboidDirection, Material> pair : this.faces.entrySet()) {
-            this.getMineCuboid().getFace(pair.getKey()).forEach(block -> block.setType(pair.getValue()));
-        }
+        super.fillFaces();
     }
 
     private void placeFarmItems(Block target, Block under, MineFarmItem fi) {
@@ -192,10 +183,5 @@ public class FarmMine extends RMine {
     private boolean contains(final MineFarmItem fi) {
         return super.getMineItems().values().stream()
                 .anyMatch(item -> ((MineFarmItem) item).getFarmItem() == fi.getFarmItem());
-    }
-
-    @Override
-    public PickType getBlockPickType() {
-        return PickType.FARM_ITEM;
     }
 }
