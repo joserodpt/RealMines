@@ -50,7 +50,16 @@ public class MineColorPickerGUI {
         this.inv = Bukkit.getServer().createInventory(null, InventoryType.DROPPER, TranslatableLine.GUI_COLOR_PICKER_NAME.get());
 
         this.mi = mi;
-        this.load();
+
+        this.inv.setItem(0, MineColor.RED.getItem(TranslatableLine.GUI_COLORS_RED.get(), this.colorsDescription));
+        this.inv.setItem(1, MineColor.GREEN.getItem(TranslatableLine.GUI_COLORS_GREEN.get(), this.colorsDescription));
+        this.inv.setItem(2, MineColor.BLUE.getItem(TranslatableLine.GUI_COLORS_BLUE.get(), this.colorsDescription));
+        this.inv.setItem(3, MineColor.BROWN.getItem(TranslatableLine.GUI_COLORS_BROWN.get(), this.colorsDescription));
+        this.inv.setItem(4, MineColor.GRAY.getItem(TranslatableLine.GUI_COLORS_GRAY.get(), this.colorsDescription));
+        this.inv.setItem(5, MineColor.WHITE.getItem(TranslatableLine.GUI_COLORS_WHITE.get(), this.colorsDescription));
+        this.inv.setItem(6, MineColor.ORANGE.getItem(TranslatableLine.GUI_COLORS_ORANGE.get(), this.colorsDescription));
+        this.inv.setItem(7, MineColor.YELLOW.getItem(TranslatableLine.GUI_COLORS_YELLOW.get(), this.colorsDescription));
+        this.inv.setItem(8, MineColor.PURPLE.getItem(TranslatableLine.GUI_COLORS_PURPLE.get(), this.colorsDescription));
 
         this.register();
     }
@@ -125,18 +134,6 @@ public class MineColorPickerGUI {
                 }
             }
         };
-    }
-
-    public void load() {
-        this.inv.setItem(0, MineColor.RED.getItem(TranslatableLine.GUI_COLORS_RED.get(), this.colorsDescription));
-        this.inv.setItem(1, MineColor.GREEN.getItem(TranslatableLine.GUI_COLORS_GREEN.get(), this.colorsDescription));
-        this.inv.setItem(2, MineColor.BLUE.getItem(TranslatableLine.GUI_COLORS_BLUE.get(), this.colorsDescription));
-        this.inv.setItem(3, MineColor.BROWN.getItem(TranslatableLine.GUI_COLORS_BROWN.get(), this.colorsDescription));
-        this.inv.setItem(4, MineColor.GRAY.getItem(TranslatableLine.GUI_COLORS_GRAY.get(), this.colorsDescription));
-        this.inv.setItem(5, MineColor.WHITE.getItem(TranslatableLine.GUI_COLORS_WHITE.get(), this.colorsDescription));
-        this.inv.setItem(6, MineColor.ORANGE.getItem(TranslatableLine.GUI_COLORS_ORANGE.get(), this.colorsDescription));
-        this.inv.setItem(7, MineColor.YELLOW.getItem(TranslatableLine.GUI_COLORS_YELLOW.get(), this.colorsDescription));
-        this.inv.setItem(8, MineColor.PURPLE.getItem(TranslatableLine.GUI_COLORS_PURPLE.get(), this.colorsDescription));
     }
 
     public void openInventory(final Player target) {

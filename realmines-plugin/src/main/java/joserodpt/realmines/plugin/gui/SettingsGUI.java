@@ -55,10 +55,10 @@ public class SettingsGUI {
         this.uuid = as.getUniqueId();
         this.inv = Bukkit.getServer().createInventory(null, 54, Text.color("&f&lReal&9&lMines &8| Settings"));
 
-        fillChest();
+        fillGUI();
     }
 
-    public void fillChest() {
+    public void fillGUI() {
         this.inv.clear();
 
         for (int number : new int[]{0, 1, 2, 9, 11, 18, 20, 27, 29, 36, 38, 45, 46, 47}) {
@@ -127,11 +127,11 @@ public class SettingsGUI {
                                 break;
                             case 10:
                                 current.def = Setting.REALM;
-                                current.fillChest();
+                                current.fillGUI();
                                 break;
                             case 19:
                                 current.def = Setting.PLAYERS;
-                                current.fillChest();
+                                current.fillGUI();
                                 break;
 
                             case 13:
@@ -198,7 +198,7 @@ public class SettingsGUI {
             private void toggle(String s, SettingsGUI sg) {
                 RMConfig.file().set("RealMines." + s, !RMConfig.file().getBoolean("RealMines." + s));
                 RMConfig.save();
-                sg.fillChest();
+                sg.fillGUI();
             }
         };
     }

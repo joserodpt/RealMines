@@ -130,7 +130,6 @@ public class MineFacesGUI {
                                     }, 1);
                                 }
                         }
-
                     }
                 }
             }

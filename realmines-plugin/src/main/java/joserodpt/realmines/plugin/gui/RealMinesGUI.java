@@ -27,7 +27,10 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
 
 public class RealMinesGUI {
 
@@ -40,10 +43,6 @@ public class RealMinesGUI {
         this.rm = rm;
         this.uuid = as.getUniqueId();
         this.inv = Bukkit.getServer().createInventory(null, 27, Text.color("&f&lReal&9&lMines &8Version " + rm.getPlugin().getDescription().getVersion()));
-
-        this.inv.clear();
-
-        //12, 14
 
         this.inv.setItem(12, Items.createItem(Material.DIAMOND_PICKAXE, 1, "&9&lMines",
                 Collections.singletonList("&fClick here to view the mines.")));
