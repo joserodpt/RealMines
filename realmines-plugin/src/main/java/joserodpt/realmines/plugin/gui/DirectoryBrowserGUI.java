@@ -206,19 +206,9 @@ public class DirectoryBrowserGUI {
         if (this.upDir != null)
             this.inv.setItem(4, Items.createItem(Material.COMPASS, 1, "&fClick to go up to: " + this.upDir, Collections.singletonList("&7Currently on: &7" + this.currentDir.getName())));
 
-        this.inv.setItem(45, placeholder);
-        this.inv.setItem(46, placeholder);
-        this.inv.setItem(47, placeholder);
-        this.inv.setItem(48, placeholder);
-        this.inv.setItem(49, placeholder);
-        this.inv.setItem(50, placeholder);
-        this.inv.setItem(51, placeholder);
-        this.inv.setItem(52, placeholder);
-        this.inv.setItem(53, placeholder);
-        this.inv.setItem(36, placeholder);
-        this.inv.setItem(44, placeholder);
-        this.inv.setItem(9, placeholder);
-        this.inv.setItem(17, placeholder);
+        for (int slot : new int[]{45, 46, 47, 48, 49, 50, 51, 52, 53, 36, 44, 9, 17}) {
+            this.inv.setItem(slot, placeholder);
+        }
 
         this.inv.setItem(18, back);
         this.inv.setItem(27, back);

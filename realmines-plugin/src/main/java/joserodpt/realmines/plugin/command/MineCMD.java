@@ -154,8 +154,10 @@ public class MineCMD extends CommandBase {
                         break;
                 }
             } else {
-                TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+                TranslatableLine.SYSTEM_MINE_EXISTS.send(commandSender);
             }
+        } else {
+            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
         }
     }
 
