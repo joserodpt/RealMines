@@ -85,7 +85,7 @@ public class MineItemsGUI {
         this.selectedBlockSet = selectedBlockSet;
         this.uuid = target.getUniqueId();
         this.mine = mine;
-        this.inv = Bukkit.getServer().createInventory(null, 54, TranslatableLine.GUI_MINE_BLOCKS_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.mine.getDisplayName())).get());
+        this.inv = Bukkit.getServer().createInventory(null, mine.getType() == RMine.Type.SCHEMATIC ? 45 : 54, TranslatableLine.GUI_MINE_BLOCKS_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.mine.getDisplayName())).get());
 
         this.load();
 
@@ -134,12 +134,11 @@ public class MineItemsGUI {
 
         this.inv.setItem(18, back);
         this.inv.setItem(27, back);
-        this.inv.setItem(45, back);
         this.inv.setItem(26, next);
         this.inv.setItem(35, next);
-        this.inv.setItem(53, next);
-        this.inv.setItem(39, Items.createItem(Material.LEVER, 1, "&fCurrent block set mode: " + mine.getBlockSetMode().getDisplayName(), List.of("&7Next: " + mine.getBlockSetMode().next().getDisplayName(), "&fClick here to change the block set mode.")));
-        this.inv.setItem(40, addSet);
+        this.inv.setItem(39, mine.getType() == RMine.Type.SCHEMATIC ? placeholder : Items.createItem(Material.LEVER, 1, "&fCurrent block set mode: " + mine.getBlockSetMode().getDisplayName(), List.of("&7Next: " + mine.getBlockSetMode().next().getDisplayName(), "&fClick here to change the block set mode.")));
+        this.inv.setItem(40, mine.getType() == RMine.Type.SCHEMATIC ? close : addSet);
+        this.inv.setItem(41, mine.getType() == RMine.Type.SCHEMATIC ? placeholder : close);
 
         int slot = 0;
         for (final ItemStack i : this.inv.getContents()) {
@@ -152,6 +151,14 @@ public class MineItemsGUI {
             ++slot;
         }
 
+        if (this.mine.getType() == RMine.Type.SCHEMATIC) {
+            return;
+        }
+
+
+        this.inv.setItem(53, next);
+        this.inv.setItem(45, back);
+
         for (int i : new int[]{46, 47, 48, 49, 50, 51, 52}) {
             if (this.inv.getItem(i) == null && !blockSets.isEmpty()) {
                 final RMBlockSet s = blockSets.get(0);
@@ -160,8 +167,6 @@ public class MineItemsGUI {
                 blockSets.remove(0);
             }
         }
-
-        this.inv.setItem(41, close);
     }
 
     public static Listener getListener() {
@@ -187,14 +192,25 @@ public class MineItemsGUI {
 
                         switch (e.getRawSlot()) {
                             case 39:
+                                if (current.mine.getType() == RMine.Type.SCHEMATIC) {
+                                    return;
+                                }
                                 current.mine.setBlockSetMode(current.mine.getBlockSetMode().next());
                                 current.load();
                                 break;
                             case 40:
+                                if (current.mine.getType() == RMine.Type.SCHEMATIC) {
+                                    p.closeInventory();
+                                    current.rm.getGUIManager().openMine(current.mine, p);
+                                    return;
+                                }
                                 current.mine.addBlockSet();
                                 current.load();
                                 break;
                             case 41:
+                                if (current.mine.getType() == RMine.Type.SCHEMATIC) {
+                                    return;
+                                }
                                 p.closeInventory();
                                 current.rm.getGUIManager().openMine(current.mine, p);
                                 break;

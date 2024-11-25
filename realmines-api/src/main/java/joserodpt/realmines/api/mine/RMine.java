@@ -398,7 +398,7 @@ public abstract class RMine {
         this.resetByTimeValue = this.config.getInt("reset.time.value");
         this.silent = this.config.getBoolean("reset.silent");
 
-        this.blockSetsMode = BlockSetsMode.valueOf(getSettingString(RMineSettings.BLOCK_SETS_MODE.getConfigKey()));
+        this.blockSetsMode = BlockSetsMode.valueOf(getSettingString(RMineSettings.BLOCK_SETS_MODE));
 
         //iterate over keys in the block-sets section
         for (String blockSetKey : this.config.getConfigurationSection("block-sets").getKeys(false)) {
