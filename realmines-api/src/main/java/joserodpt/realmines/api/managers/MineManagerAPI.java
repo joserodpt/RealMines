@@ -17,7 +17,6 @@ import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineIcon;
 import joserodpt.realmines.api.mine.components.MineSign;
 import joserodpt.realmines.api.mine.components.items.MineItem;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Cancellable;
@@ -27,8 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 public abstract class MineManagerAPI {
-    protected abstract Map<Material, MineItem> getBlocks(String mineName, RMine.Type type);
-
     public abstract List<String> getRegisteredMines();
 
     public abstract void loadMines();
@@ -38,10 +35,6 @@ public abstract class MineManagerAPI {
     public abstract void createFarmMine(Player p, String name);
 
     public abstract void createSchematicMine(Player p, String name);
-
-    public abstract void saveAllMineData(RMine mine);
-
-    public abstract void saveMine(RMine mine, RMine.Data t);
 
     public abstract List<MineIcon> getMineList();
 

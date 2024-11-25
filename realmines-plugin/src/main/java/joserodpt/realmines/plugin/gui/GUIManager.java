@@ -75,7 +75,7 @@ public class GUIManager {
                                 }
 
                                 mi.getBreakActions().add(new MineActionMoney(mi.getNewBreakActionCode(r.getName(), mi.getMaterial().name()), r.getName(), 50D, d));
-                                r.saveData(RMine.Data.BLOCKS);
+                                r.saveData(RMine.MineData.BLOCKS);
 
                                 final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
                                 v.openInventory(target);
@@ -105,7 +105,7 @@ public class GUIManager {
                                 }
 
                                 mi.getBreakActions().add(new MineActionDropItem(mi.getNewBreakActionCode(r.getName(), mi.getMaterial().name()), r.getName(), d, target.getInventory().getItemInMainHand().clone()));
-                                r.saveData(RMine.Data.BLOCKS);
+                                r.saveData(RMine.MineData.BLOCKS);
 
                                 final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
                                 v.openInventory(target);
@@ -130,7 +130,7 @@ public class GUIManager {
                                 }
 
                                 mi.getBreakActions().add(new MineActionGiveItem(mi.getNewBreakActionCode(r.getName(), mi.getMaterial().name()), r.getName(), d, target.getInventory().getItemInMainHand().clone()));
-                                r.saveData(RMine.Data.BLOCKS);
+                                r.saveData(RMine.MineData.BLOCKS);
 
                                 final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
                                 v.openInventory(target);
@@ -147,7 +147,7 @@ public class GUIManager {
                             Text.send(target, "Input in the chat the command for the break action to execute:");
                             new PlayerInput(target, s -> {
                                 mi.getBreakActions().add(new MineActionCommand(mi.getNewBreakActionCode(r.getName(), mi.getMaterial().name()), r.getName(), 50D, s));
-                                r.saveData(RMine.Data.BLOCKS);
+                                r.saveData(RMine.MineData.BLOCKS);
 
                                 final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
                                 v.openInventory(target);

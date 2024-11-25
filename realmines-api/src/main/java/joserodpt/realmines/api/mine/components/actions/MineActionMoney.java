@@ -14,8 +14,8 @@ package joserodpt.realmines.api.mine.components.actions;
  */
 
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
+import joserodpt.realmines.api.mine.RMineSettings;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Text;
 import org.bukkit.Bukkit;
@@ -36,11 +36,14 @@ public class MineActionMoney extends MineAction {
     }
 
     public void execute(final Player p, final Location l, double randomChance) {
+        if (super.getMine() == null) {
+            return;
+        }
         if (randomChance < super.getChance()) {
             if (RealMinesAPI.getInstance().getEconomy() != null) {
                 RealMinesAPI.getInstance().getEconomy().depositPlayer(p, money);
-                if (RMMinesConfig.file().getBoolean(super.getMineID() + ".Settings.Discard-Break-Action-Messages"))
-                    TranslatableLine.MINE_BREAK_ACTION_GIVE_MONEY.setV1(TranslatableLine.ReplacableVar.MONEY.eq(Text.formatNumber(money))).send(p);
+                if (super.getMine().getBooleanSetting(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
+                    TranslatableLine.MINE_BREAK_ACTION_DROP_ITEM.send(p);
             } else {
                 Bukkit.getLogger().warning("Economy not found or Vault not installed. Please install a compatible economy plugin.");
             }

@@ -15,7 +15,7 @@ package joserodpt.realmines.api.mine.components.items;
 
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMLanguageConfig;
-import joserodpt.realmines.api.config.RMMinesConfig;
+import joserodpt.realmines.api.config.RMMinesOldConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.utils.Items;
@@ -64,10 +64,12 @@ public class MineItem {
         this.isSchematicBlock = isSchematicBlock;
     }
 
+    //TODO
     public String getNewBreakActionCode(final String mineName, final String material) {
         final String characters = "abcdefghijklmnopqrstuvwxyz";
 
-        if (!RMMinesConfig.file().getSection(mineName + ".Blocks." + material).getKeys().contains("Break-Actions")) {
+
+        if (!RMMinesOldConfig.file().getSection(mineName + ".Blocks." + material).getKeys().contains("Break-Actions")) {
             return RealMinesAPI.getRand().ints(8, 0, characters.length())
                     .mapToObj(characters::charAt)
                     .map(Object::toString)
@@ -80,7 +82,7 @@ public class MineItem {
                     .mapToObj(characters::charAt)
                     .map(Object::toString)
                     .collect(Collectors.joining());
-        } while (RMMinesConfig.file().getSection(mineName + ".Blocks." + material + ".Break-Actions").getRoutesAsStrings(false).contains(ret));
+        } while (RMMinesOldConfig.file().getSection(mineName + ".Blocks." + material + ".Break-Actions").getRoutesAsStrings(false).contains(ret));
 
         return ret;
     }

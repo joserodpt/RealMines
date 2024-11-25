@@ -13,6 +13,8 @@ package joserodpt.realmines.api.mine.components.actions;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import joserodpt.realmines.api.RealMinesAPI;
+import joserodpt.realmines.api.mine.RMine;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -21,7 +23,8 @@ public abstract class MineAction {
 
     public enum Type {GIVE_MONEY, DROP_ITEM, GIVE_ITEM, EXECUTE_COMMAND, DUMMY}
 
-    private String id, mineID;
+    private String id;
+    private RMine mine;
     private Double chance = 0D;
     private boolean interactable = true;
 
@@ -30,25 +33,30 @@ public abstract class MineAction {
     }
 
     public MineAction(final String id, final String mineID, final Double chance) {
+        this.mine = RealMinesAPI.getInstance().getMineManager().getMine(mineID);
+        if (this.mine == null) {
+            this.interactable = false;
+            return;
+        }
+
         this.id = id;
-        this.mineID = mineID;
         this.chance = chance;
     }
 
     public boolean isInteractable() {
-        return interactable;
+        return this.interactable;
     }
 
     public String getID() {
-        return id;
+        return this.id;
     }
 
     public Double getChance() {
-        return chance;
+        return this.chance;
     }
 
-    public String getMineID() {
-        return mineID;
+    public RMine getMine() {
+        return this.mine;
     }
 
     public void setChance(Double d) {

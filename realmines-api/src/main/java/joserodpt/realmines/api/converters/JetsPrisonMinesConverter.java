@@ -14,23 +14,14 @@ package joserodpt.realmines.api.converters;
  */
 
 import dev.dejvokep.boostedyaml.YamlDocument;
-import dev.dejvokep.boostedyaml.block.implementation.Section;
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.mine.components.MineColor;
-import joserodpt.realmines.api.mine.components.items.MineBlockItem;
-import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.utils.Text;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
 
@@ -90,6 +81,9 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
 
                 Location max = new Location(w, xMax, yMax, zMax);
 
+
+                //TODO
+                /*
                 final BlockMine m = new BlockMine(w, ChatColor.stripColor(Text.color(mineName)), mineName, new HashMap<>(), new ArrayList<>(), min, max,
                         Material.GOLDEN_PICKAXE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, false, rm.getMineManager());
 
@@ -152,6 +146,8 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
 
                 rm.getMineManager().addMine(m);
                 Text.send(cmd, "&aSucessfully imported mine " + m.getDisplayName());
+
+                 */
 
             } catch (IllegalArgumentException e) {
                 Text.send(cmd, "&cError: This mine has a location that has an unknown world. &fSkipping!");

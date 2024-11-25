@@ -86,7 +86,7 @@ public class MineResetGUI {
                                     case LEFT:
                                         current.min.setReset(RMine.Reset.PERCENTAGE, !current.min.isResetBy(RMine.Reset.PERCENTAGE));
                                         current.load(current.min);
-                                        current.min.saveData(RMine.Data.SETTINGS);
+                                        current.min.saveData(RMine.MineData.SETTINGS);
                                         break;
                                     case RIGHT:
                                         current.editSetting(current.rm, 0, gp, current.min);
@@ -98,7 +98,7 @@ public class MineResetGUI {
                                     case LEFT:
                                         current.min.setReset(RMine.Reset.TIME, !current.min.isResetBy(RMine.Reset.TIME));
                                         current.load(current.min);
-                                        current.min.saveData(RMine.Data.SETTINGS);
+                                        current.min.saveData(RMine.MineData.SETTINGS);
                                         break;
                                     case RIGHT:
                                         current.editSetting(current.rm, 1, gp, current.min);
@@ -193,7 +193,7 @@ public class MineResetGUI {
                     }
 
                     m.setReset(RMine.Reset.PERCENTAGE, d);
-                    m.saveData(RMine.Data.SETTINGS);
+                    m.saveData(RMine.MineData.SETTINGS);
                     TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(d))).send(p);
 
                     final MineResetGUI v = new MineResetGUI(rm, p, m);
@@ -221,7 +221,7 @@ public class MineResetGUI {
                     }
 
                     m.setReset(RMine.Reset.TIME, d);
-                    m.saveData(RMine.Data.SETTINGS);
+                    m.saveData(RMine.MineData.SETTINGS);
                     TranslatableLine.SYSTEM_TIME_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(d))).send(p);
 
                     final MineResetGUI v = new MineResetGUI(rm, p, m);

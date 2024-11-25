@@ -15,9 +15,10 @@ package joserodpt.realmines.plugin.gui;
 
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
-import joserodpt.realmines.api.config.RMMinesConfig;
+import joserodpt.realmines.api.config.RMMinesOldConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
+import joserodpt.realmines.api.mine.RMineSettings;
 import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
@@ -129,12 +130,11 @@ public class MineItensGUI {
                                 break;
                             case 0:
                                 current.mine.setBreakingPermissionOn(!current.mine.isBreakingPermissionOn());
-                                current.mine.saveData(RMine.Data.SETTINGS);
+                                current.mine.saveData(RMine.MineData.SETTINGS);
                                 current.load();
                                 break;
                             case 8:
-                                RMMinesConfig.file().set(current.mine.getName() + ".Settings.Discard-Break-Action-Messages", !RMMinesConfig.file().getBoolean(current.mine.getName() + ".Settings.Discard-Break-Action-Messages"));
-                                RMMinesConfig.save();
+                                current.mine.setBooleanSetting(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES, !current.mine.getBooleanSetting(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES));
                                 current.load();
                                 break;
                             case 26:
@@ -178,23 +178,23 @@ public class MineItensGUI {
                                 case SHIFT_RIGHT:
                                     if (minItem instanceof MineFarmItem) {
                                         ((MineFarmItem) minItem).addAge(-1);
-                                        current.mine.saveData(RMine.Data.BLOCKS);
+                                        current.mine.saveData(RMine.MineData.BLOCKS);
                                         current.load();
                                     } else {
                                         //enable block drop
                                         minItem.toggleBlockMining();
-                                        current.mine.saveData(RMine.Data.BLOCKS);
+                                        current.mine.saveData(RMine.MineData.BLOCKS);
                                         current.load();
                                     }
                                     break;
                                 case SHIFT_LEFT:
                                     if (minItem instanceof MineFarmItem) {
                                         ((MineFarmItem) minItem).addAge(1);
-                                        current.mine.saveData(RMine.Data.BLOCKS);
+                                        current.mine.saveData(RMine.MineData.BLOCKS);
                                     } else {
                                         //disable block drop
                                         minItem.toggleVanillaBlockDrop();
-                                        current.mine.saveData(RMine.Data.BLOCKS);
+                                        current.mine.saveData(RMine.MineData.BLOCKS);
                                     }
                                     current.load();
                                     break;
@@ -276,7 +276,7 @@ public class MineItensGUI {
         }
 
         this.inv.setItem(0, Items.createItem(Material.FILLED_MAP, 1, "&e&lToggle Break Permission", Arrays.asList("&fClick here to toggle the break permission:", "&f" + this.mine.getBreakPermission(), "&7State: " + (this.mine.isBreakingPermissionOn() ? "&a&lON" : "&c&lOFF"))));
-        this.inv.setItem(8, Items.createItem(Material.COMPARATOR, 1, "&e&lDiscard Break Action Messages", Arrays.asList("&fClick here to toggle the messages.", "&7State: " + (RMMinesConfig.file().getBoolean(this.mine.getName() + ".Settings.Discard-Break-Action-Messages") ? "&a&lON" : "&c&lOFF"))));
+        this.inv.setItem(8, Items.createItem(Material.COMPARATOR, 1, "&e&lDiscard Break Action Messages", Arrays.asList("&fClick here to toggle the messages.", "&7State: " + (RMMinesOldConfig.file().getBoolean(this.mine.getName() + ".Settings.Discard-Break-Action-Messages") ? "&a&lON" : "&c&lOFF"))));
 
         this.inv.setItem(4, this.mine.getType() != RMine.Type.SCHEMATIC ? add : placeholder);
 
@@ -322,7 +322,7 @@ public class MineItensGUI {
         if (RMConfig.file().getBoolean("RealMines.useButtonGUIForPercentages")) {
             PercentageInput pi = new PercentageInput(p, rm.getPlugin(), (int) (a.getPercentage() * 100), percentage -> {
                 a.setPercentage((double) percentage / 100);
-                current.mine.saveData(BlockMine.Data.BLOCKS);
+                current.mine.saveData(RMine.MineData.BLOCKS);
 
                 TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(percentage))).send(p);
 
@@ -355,7 +355,7 @@ public class MineItensGUI {
                 d /= 100;
 
                 a.setPercentage(d);
-                current.mine.saveData(BlockMine.Data.BLOCKS);
+                current.mine.saveData(RMine.MineData.BLOCKS);
 
                 TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(d * 100))).send(p);
                 final MineItensGUI v = new MineItensGUI(current.rm, p, current.mine);

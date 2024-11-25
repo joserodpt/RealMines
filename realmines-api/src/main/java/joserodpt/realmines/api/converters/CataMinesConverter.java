@@ -16,19 +16,9 @@ package joserodpt.realmines.api.converters;
 import de.c4t4lysm.catamines.schedulers.MineManager;
 import de.c4t4lysm.catamines.utils.mine.mines.CuboidCataMine;
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.mine.components.MineColor;
-import joserodpt.realmines.api.mine.components.items.MineBlockItem;
-import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.utils.Text;
-import joserodpt.realmines.api.utils.WorldEditUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
-
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class CataMinesConverter implements RMConverterBase {
     private final RealMinesAPI rm;
@@ -62,6 +52,8 @@ public class CataMinesConverter implements RMConverterBase {
 
             Text.send(cmd, " &f> Mine has &b" + cataMine.getBlocks().size() + "&f blocks.");
 
+            //TODO
+            /*
             final BlockMine m = new BlockMine(Bukkit.getWorld(cataMine.getWorld()), ChatColor.stripColor(Text.color(cataMine.getName())), cataMine.getName(), new HashMap<>(), new ArrayList<>(), WorldEditUtils.toLocation(cataMine.getRegion().getMinimumPoint(), Bukkit.getWorld(cataMine.getWorld())), WorldEditUtils.toLocation(cataMine.getRegion().getMaximumPoint(), Bukkit.getWorld(cataMine.getWorld())),
                     Material.COBBLESTONE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, false, rm.getMineManager());
 
@@ -90,13 +82,15 @@ public class CataMinesConverter implements RMConverterBase {
             if (cataMine.getTeleportLocation().getY() >= 0) {
                 Text.send(cmd, " &f> Importing mine teleport position.");
                 m.setTeleport(cataMine.getTeleportLocation());
-                m.saveData(RMine.Data.TELEPORT);
+                m.saveData(RMine.MineData.TELEPORT);
             }
 
             m.saveAll();
 
             rm.getMineManager().addMine(m);
             Text.send(cmd, "&aSucessfully imported mine " + m.getDisplayName());
+
+             */
         }
 
         //end

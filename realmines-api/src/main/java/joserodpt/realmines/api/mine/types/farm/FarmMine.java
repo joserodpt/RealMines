@@ -13,27 +13,24 @@ package joserodpt.realmines.api.mine.types.farm;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.managers.MineManagerAPI;
+import joserodpt.realmines.api.mine.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.mine.components.MineColor;
 import joserodpt.realmines.api.mine.components.MineCuboid;
-import joserodpt.realmines.api.mine.components.MineSign;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 public class FarmMine extends RMine {
@@ -41,6 +38,7 @@ public class FarmMine extends RMine {
     private final List<MineItem> sorted = new ArrayList<>();
     private List<Block> mineGroundBlocks = new ArrayList<>();
 
+    /*
     public FarmMine(final World w, final String n, final String displayname, final Map<Material, MineItem> b, final List<MineSign> si, final Location p1, final Location p2, final Material i,
                     final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final boolean breakingPermissionOn, final MineManagerAPI mm) {
         super(w, n, displayname, si, b, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
@@ -48,6 +46,18 @@ public class FarmMine extends RMine {
         this.setPOS(p1, p2);
         this.fillContent();
         this.updateSigns();
+    }
+
+     */
+
+    //converting from old config to new config
+    public FarmMine(String name, Section mineConfigSection) throws RMFailedToLoadException {
+        super(name, mineConfigSection);
+    }
+
+    //after converting from old config to new config
+    public FarmMine(String name, YamlConfiguration config) throws RMFailedToLoadException {
+        super(name, config);
     }
 
     public void setPOS(Location p1, Location p2) {
@@ -170,13 +180,13 @@ public class FarmMine extends RMine {
 
     public void removeMineFarmItem(final MineItem mb) {
         super.getMineItems().remove(mb.getMaterial());
-        this.saveData(Data.BLOCKS);
+        this.saveData(MineData.BLOCKS);
     }
 
     public void addFarmItem(final MineFarmItem mineFarmItem) {
         if (!this.contains(mineFarmItem)) {
             super.getMineItems().put(mineFarmItem.getMaterial(), mineFarmItem);
-            this.saveData(Data.BLOCKS);
+            this.saveData(MineData.BLOCKS);
         }
     }
 

@@ -20,6 +20,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Random;
+import java.util.logging.Logger;
 
 public abstract class RealMinesAPI {
 
@@ -48,6 +49,8 @@ public abstract class RealMinesAPI {
     }
 
     public abstract JavaPlugin getPlugin();
+
+    public abstract Logger getLogger();
 
     public abstract MineManagerAPI getMineManager();
 

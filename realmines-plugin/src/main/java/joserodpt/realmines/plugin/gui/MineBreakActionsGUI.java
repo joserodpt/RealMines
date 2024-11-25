@@ -132,7 +132,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                 switch (e.getClick()) {
                                     case DROP:
                                         current.mineItem.getBreakActions().remove(a);
-                                        current.mine.saveData(RMine.Data.BLOCKS);
+                                        current.mine.saveData(RMine.MineData.BLOCKS);
                                         current.load();
                                         break;
                                     case RIGHT:
@@ -152,7 +152,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                                         break;
                                                 }
 
-                                                current.mine.saveData(RMine.Data.BLOCKS);
+                                                current.mine.saveData(RMine.MineData.BLOCKS);
                                                 break;
                                             case EXECUTE_COMMAND:
                                                 p.closeInventory();
@@ -160,7 +160,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                                 TranslatableLine.MINE_BREAK_ACTION_INPUT_COMMAND.send(p);
                                                 new PlayerInput(p, s -> {
                                                     ((MineActionCommand) a).setCommand(s);
-                                                    current.mine.saveData(RMine.Data.BLOCKS);
+                                                    current.mine.saveData(RMine.MineData.BLOCKS);
 
                                                     final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
                                                     v.openInventory(p);
@@ -183,7 +183,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                                     }
 
                                                     ((MineActionMoney) a).setAmount(d);
-                                                    current.mine.saveData(RMine.Data.BLOCKS);
+                                                    current.mine.saveData(RMine.MineData.BLOCKS);
 
                                                     final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
                                                     v.openInventory(p);
@@ -209,7 +209,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                             }
 
                                             a.setChance(d);
-                                            current.mine.saveData(RMine.Data.BLOCKS);
+                                            current.mine.saveData(RMine.MineData.BLOCKS);
 
                                             final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
                                             v.openInventory(p);

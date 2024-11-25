@@ -16,7 +16,7 @@ package joserodpt.realmines.plugin;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
-import joserodpt.realmines.api.config.RMMinesConfig;
+import joserodpt.realmines.api.config.RMMinesOldConfig;
 import joserodpt.realmines.api.config.RPMineResetTasksConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.converters.RMSupportedConverters;
@@ -93,7 +93,12 @@ public class RealMinesPlugin extends JavaPlugin {
         if (!folder.exists()) {
             folder.mkdir();
         }
-        RMMinesConfig.setup(this);
+        final File folder2 = new File(this.getDataFolder(), "mines");
+        if (!folder2.exists()) {
+            folder2.mkdir();
+        }
+
+        RMMinesOldConfig.setup(this);
 
         Arrays.asList(new PlayerEvents(realMines),
                 new BlockEvents(realMines),
@@ -110,7 +115,6 @@ public class RealMinesPlugin extends JavaPlugin {
                 PercentageInput.getListener(),
                 DirectoryBrowserGUI.getListener()
         ).forEach(listener -> this.pm.registerEvents(listener, this));
-
 
         //vault hook
         if (getServer().getPluginManager().getPlugin("Vault") != null) {

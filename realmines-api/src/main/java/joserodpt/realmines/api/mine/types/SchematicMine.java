@@ -27,36 +27,31 @@ import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import com.sk89q.worldedit.regions.Region;
 import com.sk89q.worldedit.session.ClipboardHolder;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
-import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.managers.MineManagerAPI;
+import joserodpt.realmines.api.mine.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.mine.components.MineColor;
-import joserodpt.realmines.api.mine.components.MineCuboid;
-import joserodpt.realmines.api.mine.components.MineSign;
-import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.components.items.MineSchematicItem;
 import joserodpt.realmines.api.utils.WorldEditUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class SchematicMine extends RMine {
 
-    private final String schematicFile;
-    private final Location pasteLocation;
-    private final Clipboard pasteClipboard;
-    private final MineManagerAPI mm;
+    private String schematicFile;
+    private Location pasteLocation;
+    private Clipboard pasteClipboard;
+    private MineManagerAPI mm;
 
+    /*
     public SchematicMine(final World w, final String n, final String displayname, final List<MineSign> si, final Location pasteLocation, final String schematicFile, final Material i,
                          final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final boolean breakingPermissionOn, final MineManagerAPI mm) {
 
@@ -85,10 +80,22 @@ public class SchematicMine extends RMine {
         this.pasteLocation = pasteLocation;
 
         this.fillContent();
-        if (RMMinesConfig.file().get(n + ".Blocks") == null) {
+        if (RMMinesOldConfig.file().get(n + ".Blocks") == null) {
             processPastedBlocks();
         }
         this.updateSigns();
+    }
+
+     */
+
+    //converting from old config to new config
+    public SchematicMine(String name, Section mineConfigSection) throws RMFailedToLoadException {
+        super(name, mineConfigSection);
+    }
+
+    //after converting from old config to new config
+    public SchematicMine(String name, YamlConfiguration config) throws RMFailedToLoadException {
+        super(name, config);
     }
 
     private void processPastedBlocks() {
@@ -103,7 +110,7 @@ public class SchematicMine extends RMine {
             }
         }
 
-        this.saveData(Data.BLOCKS);
+        this.saveData(MineData.BLOCKS);
     }
 
     @Override

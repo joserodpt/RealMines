@@ -13,8 +13,8 @@ package joserodpt.realmines.api.mine.components.actions;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.config.RMMinesConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
+import joserodpt.realmines.api.mine.RMineSettings;
 import joserodpt.realmines.api.utils.ItemStackSpringer;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Text;
@@ -36,9 +36,14 @@ public class MineActionDropItem extends MineAction {
     }
 
     public void execute(final Player p, final Location l, final double randomChance) {
+        if (super.getMine() == null) {
+            return;
+        }
+
         if (randomChance < super.getChance()) {
             Objects.requireNonNull(l.getWorld()).dropItemNaturally(l, this.i.clone());
-            if (RMMinesConfig.file().getBoolean(super.getMineID() + ".Settings.Discard-Break-Action-Messages"))
+
+            if (super.getMine().getBooleanSetting(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
                 TranslatableLine.MINE_BREAK_ACTION_DROP_ITEM.send(p);
         }
     }

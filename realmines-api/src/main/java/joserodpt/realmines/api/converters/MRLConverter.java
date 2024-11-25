@@ -14,19 +14,13 @@ package joserodpt.realmines.api.converters;
  */
 
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.mine.components.MineColor;
-import joserodpt.realmines.api.mine.components.items.MineBlockItem;
-import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.utils.Text;
-import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.configuration.serialization.ConfigurationSerialization;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -74,6 +68,8 @@ public class MRLConverter implements RMConverterBase {
 
             Text.send(cmd, " &f> Mine has &b" + blocks.size() + "&f blocks.");
 
+            //TODO
+            /*
             final BlockMine m = new BlockMine(MRLmine.getWorld(), ChatColor.stripColor(Text.color(MRLmine.getName())), MRLmine.getName(), new HashMap<>(), new ArrayList<>(), MRLmine.getMin(), MRLmine.getMax(),
                     Material.COBBLESTONE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, false, rm.getMineManager());
 
@@ -91,13 +87,15 @@ public class MRLConverter implements RMConverterBase {
             if (MRLmine.getTpY() >= 0) {
                 Text.send(cmd, " &f> Importing mine teleport position.");
                 m.setTeleport(MRLmine.getTpPos());
-                m.saveData(RMine.Data.TELEPORT);
+                m.saveData(RMine.MineData.TELEPORT);
             }
 
             m.saveAll();
 
             rm.getMineManager().addMine(m);
             Text.send(cmd, "&aSucessfully imported mine " + m.getDisplayName());
+
+             */
         }
         //end
         Text.send(cmd, "&aEnded Mine Import Process from &b" + this.getPlugin().getSourceName());
