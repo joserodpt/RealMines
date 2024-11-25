@@ -765,7 +765,10 @@ public abstract class RMine {
 
     public void processBlockBreakAction(final MineBlockBreakEvent e, final Double random) {
         if (e.isBroken() && this.getMineItems().containsKey(e.getMaterial())) {
-            this.getMineItems().get(e.getMaterial()).getBreakActions().forEach(mineAction -> mineAction.execute(e.getPlayer(), e.getBlock().getLocation(), random));
+            MineItem item = this.getMineItems().get(e.getMaterial());
+            if (item != null) {
+                item.getBreakActions().forEach(mineAction -> mineAction.execute(e.getPlayer(), e.getBlock().getLocation(), random));
+            }
         }
     }
 

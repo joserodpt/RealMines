@@ -25,8 +25,7 @@ public abstract class MineAction {
 
     public enum Type {GIVE_MONEY, DROP_ITEM, GIVE_ITEM, EXECUTE_COMMAND, DUMMY}
 
-    private String id;
-    private RMine mine;
+    private String id, mineID;
     private Double chance = 0D;
     private boolean interactable = true;
 
@@ -36,25 +35,15 @@ public abstract class MineAction {
 
     //generate new action
     public MineAction(final String mineID, final Double chance) {
-        this.mine = RealMinesAPI.getInstance().getMineManager().getMine(mineID);
-        if (this.mine == null) {
-            this.interactable = false;
-            return;
-        }
-
         this.id = getNewBreakActionCode();
+        this.mineID = mineID;
         this.chance = chance;
     }
 
     //for existing actions
     public MineAction(final String id, final String mineID, final Double chance) {
-        this.mine = RealMinesAPI.getInstance().getMineManager().getMine(mineID);
-        if (this.mine == null) {
-            this.interactable = false;
-            return;
-        }
-
         this.id = id;
+        this.mineID = mineID;
         this.chance = chance;
     }
 
@@ -71,7 +60,7 @@ public abstract class MineAction {
     }
 
     public RMine getMine() {
-        return this.mine;
+        return RealMinesAPI.getInstance().getMineManager().getMine(mineID);
     }
 
     public void setChance(Double d) {
@@ -93,5 +82,15 @@ public abstract class MineAction {
                 .mapToObj(characters::charAt)
                 .map(Object::toString)
                 .collect(Collectors.joining()) + "-" + System.currentTimeMillis() / 1000;
+    }
+
+    @Override
+    public String toString() {
+        return "MineAction{" +
+                "id='" + id + '\'' +
+                ", chance=" + chance +
+                ", type=" + getType().name() +
+                ", mine=" + mineID +
+                '}';
     }
 }
