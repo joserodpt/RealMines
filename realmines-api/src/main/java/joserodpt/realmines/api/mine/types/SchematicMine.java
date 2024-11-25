@@ -30,13 +30,13 @@ import com.sk89q.worldedit.session.ClipboardHolder;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
-import joserodpt.realmines.api.managers.MineManagerAPI;
-import joserodpt.realmines.api.mine.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.RMine;
+import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.components.items.MineSchematicItem;
 import joserodpt.realmines.api.utils.WorldEditUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -47,55 +47,44 @@ import java.nio.file.Files;
 public class SchematicMine extends RMine {
 
     private String schematicFile;
-    private Location pasteLocation;
     private Clipboard pasteClipboard;
-    private MineManagerAPI mm;
 
-    /*
-    public SchematicMine(final World w, final String n, final String displayname, final List<MineSign> si, final Location pasteLocation, final String schematicFile, final Material i,
-                         final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final boolean breakingPermissionOn, final MineManagerAPI mm) {
+    //converting from old config to new config
+    public SchematicMine(String name, Section mineConfigSection) throws RMFailedToLoadException {
+        super(name, mineConfigSection);
 
-        super(w, n, displayname, si, new HashMap<>(), i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
-
-        this.mm = mm;
-
-        this.schematicFile = schematicFile;
+        this.schematicFile = mineConfigSection.getString("Schematic-Filename");
         this.pasteClipboard = this.loadSchematic(schematicFile);
-        this.pasteLocation = pasteLocation;
 
         this.fillContent();
         this.processPastedBlocks();
         this.updateSigns();
     }
 
-    public SchematicMine(final World w, final String n, final String displayname, final Map<Material, MineItem> b, final List<MineSign> si, final Location pasteLocation, final String schematicFile, final Material i,
-                         final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final boolean breakingPermissionOn, final MineManagerAPI mm) {
-
-        super(w, n, displayname, si, b, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
-
-        this.mm = mm;
-
-        this.schematicFile = schematicFile;
-        this.pasteClipboard = this.loadSchematic(schematicFile);
-        this.pasteLocation = pasteLocation;
-
-        this.fillContent();
-        if (RMMinesOldConfig.file().get(n + ".Blocks") == null) {
-            processPastedBlocks();
-        }
-        this.updateSigns();
-    }
-
-     */
-
-    //converting from old config to new config
-    public SchematicMine(String name, Section mineConfigSection) throws RMFailedToLoadException {
-        super(name, mineConfigSection);
-    }
-
     //after converting from old config to new config
     public SchematicMine(String name, YamlConfiguration config) throws RMFailedToLoadException {
         super(name, config);
+
+        this.schematicFile = config.getString("schematic");
+        this.pasteClipboard = this.loadSchematic(schematicFile);
+
+        this.fillContent();
+        this.processPastedBlocks();
+        this.updateSigns();
+    }
+
+    //new schematic mine
+    public SchematicMine(String name, World w, String schematicFile) throws RMFailedToLoadException {
+        super(name, w);
+
+        this.schematicFile = schematicFile;
+        this.getMineConfig().set("schematic", schematicFile);
+        this.saveConfig();
+        this.pasteClipboard = this.loadSchematic(schematicFile);
+
+        this.fillContent();
+        this.processPastedBlocks();
+        this.updateSigns();
     }
 
     private void processPastedBlocks() {
@@ -115,7 +104,7 @@ public class SchematicMine extends RMine {
 
     @Override
     public void fillContent() {
-        this.placeSchematic(this.pasteClipboard, this.pasteLocation);
+        this.placeSchematic(this.pasteClipboard, this.getPOS1());
         super.fillFaces();
     }
 
@@ -130,7 +119,7 @@ public class SchematicMine extends RMine {
 
     //WORLD EDIT UTILS
     public Clipboard loadSchematic(final String name) {
-        final File folder = new File(mm.getSchematicFolder(), "schematics");
+        final File folder = new File(RealMinesAPI.getInstance().getMineManager().getSchematicFolder(), "schematics");
         final File file = new File(folder, name);
 
         Clipboard clipboard = null;
@@ -189,9 +178,5 @@ public class SchematicMine extends RMine {
         } else {
             this.getMineCuboid().clear();
         }
-    }
-
-    public Location getSchematicPlace() {
-        return this.pasteLocation;
     }
 }

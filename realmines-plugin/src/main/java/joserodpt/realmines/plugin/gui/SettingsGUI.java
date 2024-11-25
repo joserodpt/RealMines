@@ -137,7 +137,7 @@ public class SettingsGUI {
                             case 13:
                                 p.closeInventory();
 
-                                new PlayerInput(p, input -> {
+                                new PlayerInput(false, p, input -> {
                                     RMConfig.file().set("RealMines.Prefix", input);
                                     RMConfig.save();
                                     Text.send(p, "The plugin's prefix is now " + input);

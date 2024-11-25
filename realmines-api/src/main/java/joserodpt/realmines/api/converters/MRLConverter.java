@@ -14,7 +14,12 @@ package joserodpt.realmines.api.converters;
  */
 
 import joserodpt.realmines.api.RealMinesAPI;
+import joserodpt.realmines.api.mine.RMine;
+import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
+import joserodpt.realmines.api.mine.components.items.MineBlockItem;
+import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.utils.Text;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -68,34 +73,34 @@ public class MRLConverter implements RMConverterBase {
 
             Text.send(cmd, " &f> Mine has &b" + blocks.size() + "&f blocks.");
 
-            //TODO
-            /*
-            final BlockMine m = new BlockMine(MRLmine.getWorld(), ChatColor.stripColor(Text.color(MRLmine.getName())), MRLmine.getName(), new HashMap<>(), new ArrayList<>(), MRLmine.getMin(), MRLmine.getMax(),
-                    Material.COBBLESTONE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, false, rm.getMineManager());
+            try {
+                final BlockMine m = new BlockMine(ChatColor.stripColor(Text.color(MRLmine.getName())),
+                        MRLmine.getWorld(),
+                        MRLmine.getMin(), MRLmine.getMax());
 
-            blocks.forEach((material, aDouble) -> m.addItem(new MineBlockItem(material, aDouble / 100)));
+                m.setIcon(Material.COBBLESTONE);
 
-            final double value2 = MRLmine.getResetPercent();
-            if ((int) value2 != -1) {
-                m.setReset(RMine.Reset.PERCENTAGE, true);
-                m.setReset(RMine.Reset.PERCENTAGE, (int) (value2 * 100.0));
-                Text.send(cmd, " &f> Importing reset percentage of: &b" + (value2 * 100.0) + "%");
+                blocks.forEach((material, aDouble) -> m.addItem(new MineBlockItem(material, aDouble / 100)));
+
+                final double value2 = MRLmine.getResetPercent();
+                if ((int) value2 != -1) {
+                    m.setResetState(RMine.Reset.PERCENTAGE, true);
+                    m.setResetValue(RMine.Reset.PERCENTAGE, (int) (value2 * 100.0));
+                    Text.send(cmd, " &f> Importing reset percentage of: &b" + (value2 * 100.0) + "%");
+                }
+
+                m.reset(RMine.ResetCause.IMPORT);
+
+                if (MRLmine.getTpY() >= 0) {
+                    Text.send(cmd, " &f> Importing mine teleport position.");
+                    m.setTeleport(MRLmine.getTpPos());
+                }
+
+                rm.getMineManager().addMine(m);
+                Text.send(cmd, "&aSucessfully imported mine " + m.getDisplayName());
+            } catch (RMFailedToLoadException e) {
+                Text.send(cmd, "&cFailed to import mine " + e.getMineName() + " because: " + e.getReason());
             }
-
-            m.reset(RMine.ResetCause.CREATION);
-
-            if (MRLmine.getTpY() >= 0) {
-                Text.send(cmd, " &f> Importing mine teleport position.");
-                m.setTeleport(MRLmine.getTpPos());
-                m.saveData(RMine.MineData.TELEPORT);
-            }
-
-            m.saveAll();
-
-            rm.getMineManager().addMine(m);
-            Text.send(cmd, "&aSucessfully imported mine " + m.getDisplayName());
-
-             */
         }
         //end
         Text.send(cmd, "&aEnded Mine Import Process from &b" + this.getPlugin().getSourceName());

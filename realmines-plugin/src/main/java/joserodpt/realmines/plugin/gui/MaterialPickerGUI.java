@@ -134,7 +134,7 @@ public class MaterialPickerGUI {
 
                         switch (e.getRawSlot()) {
                             case 4:
-                                new PlayerInput(p, input -> {
+                                new PlayerInput(true, p, input -> {
                                     /*
                                     if (current.searchMaterial(input, current.pt).isEmpty()) {
                                         TranslatableLine.SYSTEM_NOTHING_FOUND.send(p);

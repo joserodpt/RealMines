@@ -1,4 +1,4 @@
-package joserodpt.realmines.api.mine;
+package joserodpt.realmines.api.mine.components;
 
 public enum RMineSettings {
     BREAK_PERMISSION("settings.break-permission", "Mine break permission"),

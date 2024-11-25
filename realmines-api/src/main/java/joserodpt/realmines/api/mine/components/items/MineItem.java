@@ -68,7 +68,6 @@ public class MineItem {
     public String getNewBreakActionCode(final String mineName, final String material) {
         final String characters = "abcdefghijklmnopqrstuvwxyz";
 
-
         if (!RMMinesOldConfig.file().getSection(mineName + ".Blocks." + material).getKeys().contains("Break-Actions")) {
             return RealMinesAPI.getRand().ints(8, 0, characters.length())
                     .mapToObj(characters::charAt)
@@ -113,6 +112,10 @@ public class MineItem {
 
     public List<MineAction> getBreakActions() {
         return this.breakActions;
+    }
+
+    public boolean hasBreakActions() {
+        return !this.breakActions.isEmpty();
     }
 
     public boolean isInteractable() {

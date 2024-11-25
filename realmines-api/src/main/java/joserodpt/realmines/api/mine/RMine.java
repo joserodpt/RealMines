@@ -28,6 +28,9 @@ import joserodpt.realmines.api.event.OnMineResetEvent;
 import joserodpt.realmines.api.mine.components.MineColor;
 import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.mine.components.MineSign;
+import joserodpt.realmines.api.mine.components.RMBlockSet;
+import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
+import joserodpt.realmines.api.mine.components.RMineSettings;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.mine.components.actions.MineActionCommand;
 import joserodpt.realmines.api.mine.components.actions.MineActionDropItem;
@@ -71,25 +74,27 @@ public abstract class RMine {
 
     public enum Type {BLOCKS, SCHEMATIC, FARM}
 
-    public enum ResetCause {COMMAND, PLUGIN, TIMER, CREATION}
+    public enum ResetCause {COMMAND, PLUGIN, TIMER, CREATION, IMPORT}
 
     public enum Reset {PERCENTAGE, TIME}
 
-    public enum MineData {BLOCKS, ICON, TELEPORT, SIGNS, LOCATION, SETTINGS, NAME, FACES, COLOR, MINE_TYPE, ALL}
+    public enum MineData {BLOCKS, ICON, RESET, TELEPORT, SIGNS, POS, NAME, DISPLAYNAME, FACES, COLOR, MINE_TYPE, ALL}
 
-    protected String name;
+    protected String name, displayName;
     private World w;
-    protected String displayName;
-    protected List<MineSign> signs = new ArrayList<>();
-    protected List<RMBlockSet> blockSets = new ArrayList<>();
-    protected int blockSetIndex = 0;
     protected Location teleport;
     protected Material icon;
-    protected boolean resetByPercentage, resetByTime, freezed, breakingPermissionOn, silent;
-    protected int minedBlocks, resetByTimeValue, resetByPercentageValue;
-    protected boolean highlight = false;
-    protected HashMap<MineCuboid.CuboidDirection, Material> faces = new HashMap<>();
+    protected List<MineSign> signs = new ArrayList<>();
+    protected List<RMBlockSet> blockSets = new ArrayList<>();
+    protected boolean freezed, silent;
 
+    protected boolean resetByTime = true, resetByPercentage = true;
+    protected int resetByTimeValue = 120, resetByPercentageValue = 20;
+
+    protected int minedBlocks, blockSetIndex;
+    protected boolean highlight = false;
+
+    protected HashMap<MineCuboid.CuboidDirection, Material> faces = new HashMap<>();
     protected MineTimer timer;
     protected MineColor color = MineColor.WHITE;
     protected MineCuboid mineCuboid;
@@ -97,10 +102,38 @@ public abstract class RMine {
     private File file;
     private FileConfiguration config;
 
+    //create new mine (for mines without pos1/2)
+    public RMine(String name, World w) throws RMFailedToLoadException {
+        this.name = ChatColor.stripColor(Text.color(name));
+        this.displayName = name;
+        this.w = w;
+
+        switch (getType()) {
+            case BLOCKS:
+                this.icon = Material.DIAMOND_ORE;
+                this.color = MineColor.BLUE;
+                break;
+            case SCHEMATIC:
+                this.icon = Material.FILLED_MAP;
+                this.color = MineColor.ORANGE;
+                break;
+            case FARM:
+                this.icon = Material.WHEAT;
+                this.color = MineColor.GREEN;
+                break;
+        }
+
+        checkConfig(true, false);
+
+        this.fillContent();
+        this.updateSigns();
+    }
+
     //create new mine
-    public RMine(String name) throws RMFailedToLoadException {
-        this.name = name;
-        checkConfig(true, true);
+    public RMine(String name, World w, Location pos1, Location pos2) throws RMFailedToLoadException {
+        this(name, w);
+        this.mineCuboid = new MineCuboid(pos1, pos2);
+        saveData(MineData.POS);
     }
 
     //converting from old config to new config
@@ -123,6 +156,10 @@ public abstract class RMine {
             config.set("pos1", pos1);
             String pos2 = mineConfigSection.getString("POS2.X") + ";" + mineConfigSection.getString("POS2.Y") + ";" + mineConfigSection.getString("POS2.Z");
             config.set("pos2", pos2);
+        } else {
+            this.config.set("schematic", mineConfigSection.getString("Schematic-Filename"));
+            String pos1 = mineConfigSection.getString("Place.X") + ";" + mineConfigSection.getString("Place.Y") + ";" + mineConfigSection.getString("Place.Z");
+            config.set("pos1", pos1);
         }
 
         this.config.set("reset.silent", mineConfigSection.getBoolean("Settings.Reset.Silent"));
@@ -223,6 +260,10 @@ public abstract class RMine {
         checkConfig(false, true);
     }
 
+    public FileConfiguration getMineConfig() {
+        return this.config;
+    }
+
     private void loadMineConfig() throws RMFailedToLoadException {
         final String name = this.getName();
 
@@ -311,7 +352,6 @@ public abstract class RMine {
 
         //settings
         this.silent = this.config.getBoolean("reset.silent");
-        this.breakingPermissionOn = this.config.getBoolean("settings.break-permission");
 
         //iterate over keys in the block-sets section
         for (String blockSetKey : this.config.getConfigurationSection("block-sets").getKeys(false)) {
@@ -397,10 +437,6 @@ public abstract class RMine {
         }
     }
 
-    public FileConfiguration getMineConfig() {
-        return this.config;
-    }
-
     public boolean getBooleanSetting(RMineSettings rMineSettings) {
         return this.getMineConfig().getBoolean(rMineSettings.getConfigKey());
     }
@@ -410,7 +446,7 @@ public abstract class RMine {
         this.saveConfig();
     }
 
-    private void checkConfig(boolean saveDefaultConfig, boolean loadConfig) throws RMFailedToLoadException {
+    private void setConfigFile(boolean saveDefaultConfig) {
         this.file = new File(RealMinesAPI.getInstance().getPlugin().getDataFolder() + "/mines/", this.getName() + ".yml");
         if (!this.file.exists()) {
             this.file.getParentFile().mkdirs();
@@ -428,12 +464,53 @@ public abstract class RMine {
         if (this.config == null) {
             this.config = YamlConfiguration.loadConfiguration(file);
         }
+    }
+
+    private void checkConfig(boolean saveDefaultConfig, boolean loadConfig) throws RMFailedToLoadException {
+        setConfigFile(saveDefaultConfig);
 
         if (loadConfig) loadMineConfig();
     }
 
-    private void setupDefaultConfig() {
+    public void rename(String s) {
+        this.name = s;
+        this.displayName = s;
 
+        setConfigFile(false);
+
+        this.saveData(MineData.NAME);
+        this.saveData(MineData.POS);
+    }
+
+    private void setupDefaultConfig() {
+        this.config.set("name", getName());
+        this.config.set("type", getType().name());
+        this.config.set("world", getWorld().getName());
+        this.config.set("icon", getIcon().name());
+        this.config.set("displayName", getDisplayName());
+        this.config.set("color", getMineColor());
+
+        if (getType() != Type.SCHEMATIC) {
+            String pos1 = getPOS1().getX() + ";" + getPOS1().getY() + ";" + getPOS1().getZ();
+            config.set("pos1", pos1);
+            String pos2 = getPOS2().getX() + ";" + getPOS2().getY() + ";" + getPOS2().getZ();
+            config.set("pos2", pos2);
+        }
+
+        this.config.set("reset.silent", isSilent());
+        this.config.set("reset.commands", Collections.emptyList());
+        this.config.set("reset.percentage.active", isResetBy(Reset.PERCENTAGE));
+        this.config.set("reset.percentage.value", getResetValue(Reset.PERCENTAGE));
+        this.config.set("reset.time.active", isResetBy(Reset.TIME));
+        this.config.set("reset.time.value", getResetValue(Reset.TIME));
+
+        this.config.set(RMineSettings.BREAK_PERMISSION.getConfigKey(), false);
+        this.config.set(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES.getConfigKey(), false);
+
+        this.config.set("signs", Collections.emptyList());
+        this.config.set("block-sets", Collections.emptyList());
+
+        saveConfig();
     }
 
     public void deleteConfig() {
@@ -466,6 +543,7 @@ public abstract class RMine {
 
     public void setMineColor(MineColor color) {
         this.color = color;
+        saveData(MineData.COLOR);
     }
 
     public boolean hasFaceBlock(final MineCuboid.CuboidDirection up) {
@@ -573,7 +651,7 @@ public abstract class RMine {
     }
 
     public void saveData(final MineData t) {
-        this.save(t);
+        this._save(t, true);
         if (!this.resetByTime) {
             this.timer.kill();
         } else {
@@ -581,27 +659,38 @@ public abstract class RMine {
         }
     }
 
-    private void save(MineData t) {
+    private void _save(MineData t, boolean save) {
         switch (t) {
             case ICON:
-                this.config.set("icon", this.icon.name());
+                this.config.set("icon", this.getIcon().name());
                 break;
             case TELEPORT:
-                this.config.set("teleport", this.teleport);
+                String teleport = this.teleport.getX() + ";" + this.teleport.getY() + ";" + this.teleport.getZ() + ";" + this.teleport.getYaw() + ";" + this.teleport.getPitch();
+                this.config.set("teleport", teleport);
+                break;
+            case RESET:
+                this.config.set("reset.silent", isSilent());
+                this.config.set("reset.percentage.active", isResetBy(Reset.PERCENTAGE));
+                this.config.set("reset.percentage.value", getResetValue(Reset.PERCENTAGE));
+                this.config.set("reset.time.active", isResetBy(Reset.TIME));
+                this.config.set("reset.time.value", getResetValue(Reset.TIME));
                 break;
             case SIGNS:
                 this.config.set("signs", this.getSignList());
                 break;
-            case LOCATION:
-                this.config.set("pos1", this.getPOS1());
-                this.config.set("pos2", this.getPOS2());
-                break;
-            case SETTINGS:
-                //
+            case POS:
+                if (getType() != Type.SCHEMATIC) {
+                    String pos1 = getPOS1().getX() + ";" + getPOS1().getY() + ";" + getPOS1().getZ();
+                    config.set("pos1", pos1);
+                    String pos2 = getPOS2().getX() + ";" + getPOS2().getY() + ";" + getPOS2().getZ();
+                    config.set("pos2", pos2);
+                }
                 break;
             case NAME:
-                this.config.set("displayName", this.displayName);
+                this.config.set("name", this.getName());
                 break;
+            case DISPLAYNAME:
+                this.config.set("displayName", this.getDisplayName());
             case FACES:
                 this.config.set("faces", this.getFaces().entrySet().stream().collect(Collectors.toMap(e -> e.getKey().name(), e -> e.getValue().name())));
                 break;
@@ -611,32 +700,43 @@ public abstract class RMine {
             case MINE_TYPE:
                 this.config.set("type", this.getType().name());
                 break;
+            case BLOCKS:
+                this.getBlockSets().forEach(blockSetObject -> {
+                    String blockSetKey = blockSetObject.getKey();
+
+                    blockSetObject.getItems().forEach(((material, mineItem) ->
+                    {
+                        String block = material.name();
+
+                        config.set("block-sets." + blockSetKey + "." + block + ".percentage", mineItem.getPercentage());
+
+                        if (mineItem.hasBreakActions()) {
+                            mineItem.getBreakActions().forEach(action -> {
+                                config.set("block-sets.default." + block + ".break-actions." + action + ".type", action.getType().name());
+                                config.set("block-sets.default." + block + ".break-actions." + action + ".chance", action.getChance());
+                                config.set("block-sets.default." + block + ".break-actions." + action + ".value", action.getValue());
+                            });
+                        }
+                    }));
+                });
+                break;
             case ALL:
-                this.save(MineData.ICON);
-                this.save(MineData.TELEPORT);
-                this.save(MineData.SIGNS);
-                this.save(MineData.LOCATION);
-                this.save(MineData.SETTINGS);
-                this.save(MineData.NAME);
-                this.save(MineData.FACES);
-                this.save(MineData.COLOR);
-                this.save(MineData.MINE_TYPE);
+                this._save(MineData.ICON, false);
+                this._save(MineData.TELEPORT, false);
+                this._save(MineData.SIGNS, false);
+                this._save(MineData.POS, false);
+                this._save(MineData.NAME, false);
+                this._save(MineData.FACES, false);
+                this._save(MineData.COLOR, false);
+                this._save(MineData.MINE_TYPE, false);
                 break;
         }
-        saveConfig();
+        if (save)
+            saveConfig();
     }
 
     public void setName(String newName) {
         this.name = newName;
-    }
-
-    public void saveAll() {
-        this.save(MineData.ALL);
-        if (!this.resetByTime) {
-            this.timer.kill();
-        } else {
-            this.timer.restart();
-        }
     }
 
     public void reset() {
@@ -677,7 +777,10 @@ public abstract class RMine {
         this.saveData(MineData.SIGNS);
     }
 
-    @SuppressWarnings("deprecation")
+    public List<RMBlockSet> getBlockSets() {
+        return this.blockSets;
+    }
+
     public void updateSigns() {
         Bukkit.getScheduler().runTask(RealMinesAPI.getInstance().getPlugin(), () -> {
             for (final MineSign ms : this.signs) {
@@ -816,18 +919,20 @@ public abstract class RMine {
 
     public void setSilent(boolean silent) {
         this.silent = silent;
+        saveData(MineData.RESET);
     }
 
-    public void setReset(final Reset e, final boolean b) {
+    public void setResetState(final Reset e, final boolean b) {
         switch (e) {
             case PERCENTAGE:
                 this.resetByPercentage = b;
             case TIME:
                 this.resetByTime = b;
         }
+        saveData(MineData.RESET);
     }
 
-    public void setReset(final Reset e, final int d) {
+    public void setResetValue(final Reset e, final int d) {
         switch (e) {
             case PERCENTAGE:
                 this.resetByPercentageValue = d;
@@ -836,6 +941,7 @@ public abstract class RMine {
                 this.resetByTimeValue = d;
                 break;
         }
+        saveData(MineData.RESET);
     }
 
     public Material getIcon() {
@@ -871,6 +977,7 @@ public abstract class RMine {
 
     public void setTeleport(final Location location) {
         this.teleport = location;
+        saveData(MineData.TELEPORT);
     }
 
     public List<MineSign> getSigns() {
@@ -939,14 +1046,6 @@ public abstract class RMine {
 
     public void setFreezed(boolean freezed) {
         this.freezed = freezed;
-    }
-
-    public void setBreakingPermissionOn(boolean breakingPermissionOn) {
-        this.breakingPermissionOn = breakingPermissionOn;
-    }
-
-    public boolean isBreakingPermissionOn() {
-        return this.breakingPermissionOn;
     }
 
     public String getBreakPermission() {

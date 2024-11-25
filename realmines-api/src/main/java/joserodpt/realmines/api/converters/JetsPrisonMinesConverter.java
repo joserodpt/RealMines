@@ -14,10 +14,16 @@ package joserodpt.realmines.api.converters;
  */
 
 import dev.dejvokep.boostedyaml.YamlDocument;
+import dev.dejvokep.boostedyaml.block.implementation.Section;
 import joserodpt.realmines.api.RealMinesAPI;
+import joserodpt.realmines.api.mine.RMine;
+import joserodpt.realmines.api.mine.components.items.MineBlockItem;
+import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.utils.Text;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
@@ -81,12 +87,12 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
 
                 Location max = new Location(w, xMax, yMax, zMax);
 
+                final BlockMine m = new BlockMine(ChatColor.stripColor(Text.color(mineName)),
+                        w,
+                        min,
+                        max);
 
-                //TODO
-                /*
-                final BlockMine m = new BlockMine(w, ChatColor.stripColor(Text.color(mineName)), mineName, new HashMap<>(), new ArrayList<>(), min, max,
-                        Material.GOLDEN_PICKAXE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, false, rm.getMineManager());
-
+                m.setIcon(Material.COBBLESTONE);
 
                 Section sec = (Section) mineFile.get("teleport_location");
                 if (sec != null) {
@@ -107,19 +113,19 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
                 int rTimer = mineFile.getInt("reset.timer");
 
                 if (rUseTimer) {
-                    m.setReset(RMine.Reset.TIME, true);
-                    m.setReset(RMine.Reset.TIME, rTimer);
+                    m.setResetState(RMine.Reset.TIME, true);
+                    m.setResetValue(RMine.Reset.TIME, rTimer);
                     Text.send(cmd, " &f> Importing reset delay of: &b" + rTimer + " seconds");
                 } else {
-                    m.setReset(RMine.Reset.TIME, false);
+                    m.setResetState(RMine.Reset.TIME, false);
                 }
 
                 boolean rUsePercentage = mineFile.getBoolean("reset.use_percentage");
                 double rPercentage = mineFile.getDouble("reset.percentage");
 
                 if (rUsePercentage) {
-                    m.setReset(RMine.Reset.PERCENTAGE, true);
-                    m.setReset(RMine.Reset.PERCENTAGE, (int) (rPercentage / 100.0));
+                    m.setResetState(RMine.Reset.PERCENTAGE, true);
+                    m.setResetValue(RMine.Reset.PERCENTAGE, (int) (rPercentage / 100.0));
                     Text.send(cmd, " &f> Importing reset percentage of: &b" + (rPercentage / 100.0) + "%");
                 }
 
@@ -142,12 +148,10 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
                     }
                 }
 
-                m.saveAll();
+                m.reset(RMine.ResetCause.IMPORT);
 
                 rm.getMineManager().addMine(m);
                 Text.send(cmd, "&aSucessfully imported mine " + m.getDisplayName());
-
-                 */
 
             } catch (IllegalArgumentException e) {
                 Text.send(cmd, "&cError: This mine has a location that has an unknown world. &fSkipping!");

@@ -16,6 +16,7 @@ package joserodpt.realmines.plugin.gui;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
+import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Pagination;
 import joserodpt.realmines.api.utils.Text;
@@ -156,7 +157,13 @@ public class DirectoryBrowserGUI {
                                 current.loadDirectory(f);
                             } else {
                                 p.closeInventory();
-                                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.onFileChoosen.fileRunnable(f), 3);
+                                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> {
+                                    try {
+                                        current.onFileChoosen.fileRunnable(f);
+                                    } catch (RMFailedToLoadException ex) {
+                                        throw new RuntimeException(ex);
+                                    }
+                                }, 3);
                             }
                         }
                     }
@@ -256,6 +263,6 @@ public class DirectoryBrowserGUI {
 
     @FunctionalInterface
     public interface FileRunnable {
-        void fileRunnable(File file);
+        void fileRunnable(File file) throws RMFailedToLoadException;
     }
 }

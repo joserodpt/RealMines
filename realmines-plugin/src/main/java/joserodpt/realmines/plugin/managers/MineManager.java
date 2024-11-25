@@ -23,19 +23,26 @@ import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.event.MineBlockBreakEvent;
 import joserodpt.realmines.api.event.RealMinesMineChangeEvent;
 import joserodpt.realmines.api.managers.MineManagerAPI;
-import joserodpt.realmines.api.mine.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineIcon;
 import joserodpt.realmines.api.mine.components.MineSign;
+import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
+import joserodpt.realmines.api.mine.components.RMineSettings;
+import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.components.items.MineItem;
+import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.api.mine.task.MineResetTask;
 import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.mine.types.SchematicMine;
 import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.mine.types.farm.FarmMine;
+import joserodpt.realmines.api.utils.PlayerInput;
+import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.gui.DirectoryBrowserGUI;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
@@ -131,13 +138,13 @@ public class MineManager extends MineManagerAPI {
                         String type = mineConfig.getString("type");
                         switch (type) {
                             case "BLOCKS":
-                                mines.put(mineName, new BlockMine(mineName, mineConfig));
+                                addMine(new BlockMine(mineName, mineConfig));
                                 break;
                             case "SCHEMATIC":
-                                mines.put(mineName, new SchematicMine(mineName, mineConfig));
+                                addMine(new SchematicMine(mineName, mineConfig));
                                 break;
                             case "FARM":
-                                mines.put(mineName, new FarmMine(mineName, mineConfig));
+                                addMine(new FarmMine(mineName, mineConfig));
                                 break;
                             default:
                                 throw new IllegalStateException("Unexpected value: " + type);
@@ -148,8 +155,6 @@ public class MineManager extends MineManagerAPI {
                     }
                 }
             }
-
-
         }
     }
 
@@ -163,17 +168,13 @@ public class MineManager extends MineManagerAPI {
                 final Location pos1 = new Location(p.getWorld(), r.getMaximumPoint().getBlockX(), r.getMaximumPoint().getBlockY(), r.getMaximumPoint().getBlockZ());
                 final Location pos2 = new Location(p.getWorld(), r.getMinimumPoint().getBlockX(), r.getMinimumPoint().getBlockY(), r.getMinimumPoint().getBlockZ());
 
-                //TODO
-                /*
-                final BlockMine m = new BlockMine(p.getWorld(), name, name, new HashMap<>(), new ArrayList<>(), pos1, pos2,
-                        Material.DIAMOND_ORE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, false, this);
+                final BlockMine m = new BlockMine(name, p.getWorld(), pos1, pos2);
 
-                this.addMine(m);
                 m.addItem(new MineBlockItem(Material.STONE, 1D));
                 m.reset(RMine.ResetCause.CREATION);
                 m.setTeleport(p.getLocation());
 
-                m.saveAll();
+                this.addMine(m);
 
                 Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(m, RealMinesMineChangeEvent.ChangeOperation.ADDED));
 
@@ -183,8 +184,7 @@ public class MineManager extends MineManagerAPI {
                     mat.forEach(material -> Text.send(p, " &7> &f" + material.name()));
                     TranslatableLine.SYSTEM_BLOCK_COUNT.setV1(TranslatableLine.ReplacableVar.COUNT.eq(String.valueOf(mat.size()))).send(p);
 
-
-                    new PlayerInput(p, input -> {
+                    new PlayerInput(true, p, input -> {
                         if (input.equalsIgnoreCase("yes")) {
                             mat.forEach(material -> m.addItem(new MineBlockItem(material, 0.1D)));
                             TranslatableLine.SYSTEM_BLOCKS_ADDED.setV1(TranslatableLine.ReplacableVar.COUNT.eq(String.valueOf(mat.size()))).send(p);
@@ -193,7 +193,6 @@ public class MineManager extends MineManagerAPI {
                     }, input -> TranslatableLine.SYSTEM_MINE_CREATED.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(p));
                 }
 
-                 */
             }
         } catch (final Exception ignored) {
             TranslatableLine.SYSTEM_BOUNDARIES_NOT_SET.send(p);
@@ -215,17 +214,13 @@ public class MineManager extends MineManagerAPI {
                     pos1.add(0, 1, 0);
                 }
 
-                //TODO
-                /*
-                final FarmMine m = new FarmMine(p.getWorld(), name, name, new HashMap<>(), new ArrayList<>(), pos1, pos2,
-                        Material.WHEAT, null, false, true, 20, 60, MineColor.GREEN, new HashMap<>(), false, false, this);
+
+                final FarmMine m = new FarmMine(name, p.getWorld(), pos1, pos2);
                 m.addFarmItem(new MineFarmItem(FarmItem.WHEAT, 1D));
 
                 this.addMine(m);
                 m.reset(RMine.ResetCause.CREATION);
                 m.setTeleport(p.getLocation());
-
-                m.saveAll();
 
                 Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(m, RealMinesMineChangeEvent.ChangeOperation.ADDED));
 
@@ -235,7 +230,7 @@ public class MineManager extends MineManagerAPI {
                     mat.forEach(material -> Text.send(p, " &7> &f" + material.name()));
                     TranslatableLine.SYSTEM_BLOCK_COUNT.setV1(TranslatableLine.ReplacableVar.COUNT.eq(String.valueOf(mat.size()))).send(p);
 
-                    new PlayerInput(p, input -> {
+                    new PlayerInput(true, p, input -> {
                         if (input.equalsIgnoreCase("yes")) {
                             mat.forEach(material -> m.addFarmItem(new MineFarmItem(FarmItem.valueOf(Material.WHEAT))));
                             TranslatableLine.SYSTEM_BLOCKS_ADDED.setV1(TranslatableLine.ReplacableVar.COUNT.eq(String.valueOf(mat.size()))).send(p);
@@ -243,8 +238,6 @@ public class MineManager extends MineManagerAPI {
                         TranslatableLine.SYSTEM_MINE_CREATED.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(p);
                     }, input -> TranslatableLine.SYSTEM_MINE_CREATED.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(p));
                 }
-
-                 */
             }
         } catch (final Exception ignored) {
             TranslatableLine.SYSTEM_BOUNDARIES_NOT_SET.send(p);
@@ -275,18 +268,13 @@ public class MineManager extends MineManagerAPI {
             }
 
             if (finalFile != null && finalFile.exists()) {
-                //TODO
-                /*
-                final SchematicMine m = new SchematicMine(p.getWorld(), name, name, new ArrayList<>(), p.getLocation(), finalFile.getName(),
-                        Material.FILLED_MAP, null, false, true, 20, 60, MineColor.ORANGE, new HashMap<>(), false, false, this);
+                final SchematicMine m = new SchematicMine(name, p.getWorld(), finalFile.getName());
 
                 this.addMine(m);
                 m.setTeleport(p.getLocation());
                 m.reset(RMine.ResetCause.CREATION);
-                m.saveAll();
 
                 Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(m, RealMinesMineChangeEvent.ChangeOperation.ADDED));
-            */
             } else {
 
                 TranslatableLine.SYSTEM_INVALID_SCHEMATIC.send(p);
@@ -345,7 +333,7 @@ public class MineManager extends MineManagerAPI {
             }
 
             if (mine.getMineCuboid().contains(block)) {
-                if (mine.isFreezed() || (mine.isBreakingPermissionOn() && !p.hasPermission(mine.getBreakPermission()))) {
+                if (mine.isFreezed() || (mine.getBooleanSetting(RMineSettings.BREAK_PERMISSION) && !p.hasPermission(mine.getBreakPermission()))) {
                     e.setCancelled(true);
                 } else {
                     if (mine.getType() == RMine.Type.FARM && !FarmItem.getCrops().contains(block.getType())) {
@@ -399,7 +387,7 @@ public class MineManager extends MineManagerAPI {
                 m.fillContent();
                 TranslatableLine.SYSTEM_REGION_UPDATED.send(p);
                 m.reset();
-                m.saveData(RMine.MineData.LOCATION);
+                m.saveData(RMine.MineData.POS);
 
                 Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(m, RealMinesMineChangeEvent.ChangeOperation.BOUNDS_UPDATED));
             }
@@ -457,21 +445,19 @@ public class MineManager extends MineManagerAPI {
     @Override
     public void renameMine(RMine m, String newName) {
         this.unregisterMine(m);
-        m.setName(newName);
-        m.setDisplayName(newName);
+        m.rename(ChatColor.stripColor(Text.color(newName)));
         this.registerMine(m);
     }
 
     @Override
     public void unregisterMine(final RMine m) {
-        RMMinesOldConfig.file().remove(m.getName());
-        RMMinesOldConfig.save();
+        m.deleteConfig();
         this.getMines().remove(m.getName());
     }
 
     @Override
     public void registerMine(final RMine m) {
-        this.getMines().put(m.getName(), m);
-        m.saveAll();
+        addMine(m);
+        m.saveData(RMine.MineData.ALL);
     }
 }

@@ -42,12 +42,14 @@ public class PlayerInput implements Listener {
     private final InputRunnable runGo;
     private final InputRunnable runCancel;
     private final BukkitTask taskId;
+    private boolean clearInput = true;
 
-    public PlayerInput(final Player p, final InputRunnable correct, final InputRunnable cancel) {
+    public PlayerInput(final boolean clearInput, final Player p, final InputRunnable correct, final InputRunnable cancel) {
         this.uuid = p.getUniqueId();
         p.closeInventory();
         this.runGo = correct;
         this.runCancel = cancel;
+        this.clearInput = clearInput;
         this.taskId = new BukkitRunnable() {
             public void run() {
                 p.getPlayer().sendTitle(PlayerInput.this.texts.get(0), PlayerInput.this.texts.get(1), 0, 21, 0);
@@ -62,7 +64,7 @@ public class PlayerInput implements Listener {
             @EventHandler(priority = EventPriority.HIGHEST)
             public void onPlayerChat(final AsyncPlayerChatEvent event) {
                 final Player p = event.getPlayer();
-                final String input = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', event.getMessage()));
+                final String input = event.getMessage();
                 final UUID uuid = p.getUniqueId();
 
                 if (inputs.containsKey(uuid)) {
@@ -75,6 +77,11 @@ public class PlayerInput implements Listener {
 
     private static void handlePlayerInput(final Player p, String input, final UUID uuid) {
         final PlayerInput current = inputs.get(uuid);
+
+        if (current.clearInput) {
+            input = ChatColor.stripColor(Text.color(input)).trim();
+        }
+
         try {
             current.taskId.cancel();
             p.sendTitle("", "", 0, 1, 0);

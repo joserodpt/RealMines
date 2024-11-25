@@ -15,10 +15,9 @@ package joserodpt.realmines.plugin.gui;
 
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
-import joserodpt.realmines.api.config.RMMinesOldConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.mine.RMineSettings;
+import joserodpt.realmines.api.mine.components.RMineSettings;
 import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
@@ -129,8 +128,7 @@ public class MineItensGUI {
                                 mpg.openInventory(p);
                                 break;
                             case 0:
-                                current.mine.setBreakingPermissionOn(!current.mine.isBreakingPermissionOn());
-                                current.mine.saveData(RMine.MineData.SETTINGS);
+                                current.mine.setBooleanSetting(RMineSettings.BREAK_PERMISSION, !current.mine.getBooleanSetting(RMineSettings.BREAK_PERMISSION));
                                 current.load();
                                 break;
                             case 8:
@@ -275,8 +273,8 @@ public class MineItensGUI {
             this.inv.setItem(i, placeholder);
         }
 
-        this.inv.setItem(0, Items.createItem(Material.FILLED_MAP, 1, "&e&lToggle Break Permission", Arrays.asList("&fClick here to toggle the break permission:", "&f" + this.mine.getBreakPermission(), "&7State: " + (this.mine.isBreakingPermissionOn() ? "&a&lON" : "&c&lOFF"))));
-        this.inv.setItem(8, Items.createItem(Material.COMPARATOR, 1, "&e&lDiscard Break Action Messages", Arrays.asList("&fClick here to toggle the messages.", "&7State: " + (RMMinesOldConfig.file().getBoolean(this.mine.getName() + ".Settings.Discard-Break-Action-Messages") ? "&a&lON" : "&c&lOFF"))));
+        this.inv.setItem(0, Items.createItem(Material.FILLED_MAP, 1, "&e&lToggle Break Permission", Arrays.asList("&fClick here to toggle the break permission:", "&f" + this.mine.getBreakPermission(), "&7State: " + (this.mine.getBooleanSetting(RMineSettings.BREAK_PERMISSION) ? "&a&lON" : "&c&lOFF"))));
+        this.inv.setItem(8, Items.createItem(Material.COMPARATOR, 1, "&e&lDiscard Break Action Messages", Arrays.asList("&fClick here to toggle the messages.", "&7State: " + (this.mine.getBooleanSetting(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES) ? "&a&lON" : "&c&lOFF"))));
 
         this.inv.setItem(4, this.mine.getType() != RMine.Type.SCHEMATIC ? add : placeholder);
 
@@ -331,7 +329,7 @@ public class MineItensGUI {
             });
             pi.openInventory(p);
         } else {
-            new PlayerInput(p, s -> {
+            new PlayerInput(true, p, s -> {
                 double d = 0D;
                 try {
                     d = Double.parseDouble(s.replace("%", ""));

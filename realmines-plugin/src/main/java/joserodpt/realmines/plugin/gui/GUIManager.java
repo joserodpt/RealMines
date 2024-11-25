@@ -65,7 +65,7 @@ public class GUIManager {
 
                 inventory.addItem(e -> {
                             Text.send(target, "Input in the chat the amount to give:");
-                            new PlayerInput(target, s -> {
+                            new PlayerInput(true, target, s -> {
                                 final double d;
                                 try {
                                     d = Double.parseDouble(s);
@@ -90,7 +90,7 @@ public class GUIManager {
                 inventory.addItem(e -> {
 
                             Text.send(target, "Input in the chat the chance for the break action (0-100%):");
-                            new PlayerInput(target, s -> {
+                            new PlayerInput(true, target, s -> {
                                 final double d;
                                 try {
                                     d = Double.parseDouble(s);
@@ -120,7 +120,7 @@ public class GUIManager {
                 inventory.addItem(e -> {
 
                             Text.send(target, "Input in the chat the chance for the break action (0-100%):");
-                            new PlayerInput(target, s -> {
+                            new PlayerInput(true, target, s -> {
                                 final double d;
                                 try {
                                     d = Double.parseDouble(s);
@@ -145,7 +145,7 @@ public class GUIManager {
                 inventory.addItem(e -> {
 
                             Text.send(target, "Input in the chat the command for the break action to execute:");
-                            new PlayerInput(target, s -> {
+                            new PlayerInput(true, target, s -> {
                                 mi.getBreakActions().add(new MineActionCommand(mi.getNewBreakActionCode(r.getName(), mi.getMaterial().name()), r.getName(), 50D, s));
                                 r.saveData(RMine.MineData.BLOCKS);
 
@@ -173,7 +173,7 @@ public class GUIManager {
 
                 inventory.addItem(e -> {
                     target.closeInventory();
-                    new PlayerInput(target, s -> {
+                    new PlayerInput(true, target, s -> {
                         rm.getMineManager().renameMine(m, s);
                         TranslatableLine.SYSTEM_MINE_RENAMED.setV1(TranslatableLine.ReplacableVar.NAME.eq(s)).send(target);
                         openMine(m, target);
@@ -217,7 +217,7 @@ public class GUIManager {
 
                 inventory.addItem(e -> {
                     target.closeInventory();
-                    new PlayerInput(target, s -> {
+                    new PlayerInput(false, target, s -> {
                         m.setDisplayName(s);
                         rm.getGUIManager().openMine(m, target);
                     }, s -> rm.getGUIManager().openMine(m, target));

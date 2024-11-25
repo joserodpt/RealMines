@@ -15,14 +15,15 @@ package joserodpt.realmines.api.mine.types.farm;
 
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import joserodpt.realmines.api.RealMinesAPI;
-import joserodpt.realmines.api.mine.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineCuboid;
+import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.Ageable;
@@ -44,11 +45,15 @@ public class FarmMine extends RMine {
         super(w, n, displayname, si, b, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
 
         this.setPOS(p1, p2);
-        this.fillContent();
-        this.updateSigns();
+
     }
 
      */
+
+    //new mine
+    public FarmMine(String name, World w, Location pos1, Location pos2) throws RMFailedToLoadException {
+        super(name, w, pos1, pos2);
+    }
 
     //converting from old config to new config
     public FarmMine(String name, Section mineConfigSection) throws RMFailedToLoadException {

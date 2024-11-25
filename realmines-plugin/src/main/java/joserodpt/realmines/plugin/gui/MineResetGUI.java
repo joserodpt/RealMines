@@ -84,9 +84,8 @@ public class MineResetGUI {
                             case 0:
                                 switch (e.getClick()) {
                                     case LEFT:
-                                        current.min.setReset(RMine.Reset.PERCENTAGE, !current.min.isResetBy(RMine.Reset.PERCENTAGE));
+                                        current.min.setResetState(RMine.Reset.PERCENTAGE, !current.min.isResetBy(RMine.Reset.PERCENTAGE));
                                         current.load(current.min);
-                                        current.min.saveData(RMine.MineData.SETTINGS);
                                         break;
                                     case RIGHT:
                                         current.editSetting(current.rm, 0, gp, current.min);
@@ -96,9 +95,8 @@ public class MineResetGUI {
                             case 4:
                                 switch (e.getClick()) {
                                     case LEFT:
-                                        current.min.setReset(RMine.Reset.TIME, !current.min.isResetBy(RMine.Reset.TIME));
+                                        current.min.setResetState(RMine.Reset.TIME, !current.min.isResetBy(RMine.Reset.TIME));
                                         current.load(current.min);
-                                        current.min.saveData(RMine.MineData.SETTINGS);
                                         break;
                                     case RIGHT:
                                         current.editSetting(current.rm, 1, gp, current.min);
@@ -176,7 +174,7 @@ public class MineResetGUI {
     protected void editSetting(final RealMines rm, final int i, final Player p, final RMine m) {
         switch (i) {
             case 0:
-                new PlayerInput(p, s -> {
+                new PlayerInput(true, p, s -> {
                     final int d;
                     try {
                         d = Integer.parseInt(s.replace("%", ""));
@@ -192,8 +190,7 @@ public class MineResetGUI {
                         return;
                     }
 
-                    m.setReset(RMine.Reset.PERCENTAGE, d);
-                    m.saveData(RMine.MineData.SETTINGS);
+                    m.setResetValue(RMine.Reset.PERCENTAGE, d);
                     TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(d))).send(p);
 
                     final MineResetGUI v = new MineResetGUI(rm, p, m);
@@ -204,7 +201,7 @@ public class MineResetGUI {
                 });
                 break;
             case 1:
-                new PlayerInput(p, s -> {
+                new PlayerInput(true, p, s -> {
                     final int d;
                     try {
                         d = Integer.parseInt(s.replace("%", ""));
@@ -220,8 +217,7 @@ public class MineResetGUI {
                         return;
                     }
 
-                    m.setReset(RMine.Reset.TIME, d);
-                    m.saveData(RMine.MineData.SETTINGS);
+                    m.setResetValue(RMine.Reset.TIME, d);
                     TranslatableLine.SYSTEM_TIME_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(d))).send(p);
 
                     final MineResetGUI v = new MineResetGUI(rm, p, m);

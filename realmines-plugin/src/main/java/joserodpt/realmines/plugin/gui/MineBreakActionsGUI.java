@@ -158,7 +158,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                                 p.closeInventory();
 
                                                 TranslatableLine.MINE_BREAK_ACTION_INPUT_COMMAND.send(p);
-                                                new PlayerInput(p, s -> {
+                                                new PlayerInput(false, p, s -> {
                                                     ((MineActionCommand) a).setCommand(s);
                                                     current.mine.saveData(RMine.MineData.BLOCKS);
 
@@ -173,7 +173,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                                 p.closeInventory();
 
                                                 TranslatableLine.MINE_BREAK_ACTION_INPUT_AMOUNT.send(p);
-                                                new PlayerInput(p, s -> {
+                                                new PlayerInput(true, p, s -> {
                                                     final double d;
                                                     try {
                                                         d = Double.parseDouble(s);
@@ -199,7 +199,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                     default:
                                         //chance chance
                                         TranslatableLine.MINE_BREAK_ACTION_INPUT_CHANCE.send(p);
-                                        new PlayerInput(p, s -> {
+                                        new PlayerInput(true, p, s -> {
                                             final double d;
                                             try {
                                                 d = Double.parseDouble(s);

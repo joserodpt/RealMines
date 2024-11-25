@@ -20,13 +20,15 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
-import joserodpt.realmines.api.mine.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.RMine;
+import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.utils.WorldEditUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -36,18 +38,10 @@ import java.util.List;
 public class BlockMine extends RMine {
     private final List<Material> sorted = new ArrayList<>();
 
-
-    /*
-    public BlockMine(final World w, final String n, final String displayname, final Map<Material, MineItem> b, final List<MineSign> si, final Location p1, final Location p2, final Material i,
-                     final Location t, final Boolean resetByPercentag, final Boolean resetByTim, final int rbpv, final int rbtv, final MineColor color, final HashMap<MineCuboid.CuboidDirection, Material> faces, final boolean silent, final boolean breakingPermissionOn, final MineManagerAPI mm) {
-
-        super(w, n, displayname, si, b, i, t, resetByPercentag, resetByTim, rbpv, rbtv, color, faces, silent, breakingPermissionOn, mm);
-
-        super.setPOS(p1, p2);
-        this.fillContent();
-        this.updateSigns();
+    //new mine
+    public BlockMine(String name, World w, Location pos1, Location pos2) throws RMFailedToLoadException {
+        super(name, w, pos1, pos2);
     }
-     */
 
     //converting from old config to new config
     public BlockMine(String name, Section mineConfigSection) throws RMFailedToLoadException {

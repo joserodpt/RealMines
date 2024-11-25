@@ -16,8 +16,16 @@ package joserodpt.realmines.api.converters;
 import de.c4t4lysm.catamines.schedulers.MineManager;
 import de.c4t4lysm.catamines.utils.mine.mines.CuboidCataMine;
 import joserodpt.realmines.api.RealMinesAPI;
+import joserodpt.realmines.api.mine.RMine;
+import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
+import joserodpt.realmines.api.mine.components.items.MineBlockItem;
+import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.utils.WorldEditUtils;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 
 public class CataMinesConverter implements RMConverterBase {
@@ -52,45 +60,49 @@ public class CataMinesConverter implements RMConverterBase {
 
             Text.send(cmd, " &f> Mine has &b" + cataMine.getBlocks().size() + "&f blocks.");
 
-            //TODO
-            /*
-            final BlockMine m = new BlockMine(Bukkit.getWorld(cataMine.getWorld()), ChatColor.stripColor(Text.color(cataMine.getName())), cataMine.getName(), new HashMap<>(), new ArrayList<>(), WorldEditUtils.toLocation(cataMine.getRegion().getMinimumPoint(), Bukkit.getWorld(cataMine.getWorld())), WorldEditUtils.toLocation(cataMine.getRegion().getMaximumPoint(), Bukkit.getWorld(cataMine.getWorld())),
-                    Material.COBBLESTONE, null, false, true, 20, 60, MineColor.WHITE, new HashMap<>(), false, false, rm.getMineManager());
+            World w = Bukkit.getWorld(cataMine.getWorld());
 
-            cataMine.getBlocks().forEach(cataMineBlock ->
-                    m.addItem(new MineBlockItem(cataMineBlock.getBlockData().getMaterial(), cataMineBlock.getChance() / 100)));
+            try {
+                final BlockMine m = new BlockMine(ChatColor.stripColor(Text.color(cataMine.getName())),
+                        w,
+                        WorldEditUtils.toLocation(cataMine.getRegion().getMinimumPoint(), w),
+                        WorldEditUtils.toLocation(cataMine.getRegion().getMaximumPoint(), w));
 
-            final double value2 = cataMine.getResetPercentage();
+                m.setIcon(Material.COBBLESTONE);
 
-            if ((int) value2 != -1) {
-                m.setReset(RMine.Reset.PERCENTAGE, true);
-                m.setReset(RMine.Reset.PERCENTAGE, (int) (value2 * 100.0));
-                Text.send(cmd, " &f> Importing reset percentage of: &b" + (value2 * 100.0) + "%");
+                cataMine.getBlocks().forEach(cataMineBlock ->
+                        m.addItem(new MineBlockItem(cataMineBlock.getBlockData().getMaterial(), cataMineBlock.getChance() / 100)));
+
+                final double value2 = cataMine.getResetPercentage();
+
+                if ((int) value2 != -1) {
+                    m.setResetState(RMine.Reset.PERCENTAGE, true);
+                    m.setResetValue(RMine.Reset.PERCENTAGE, (int) (value2 * 100.0));
+                    Text.send(cmd, " &f> Importing reset percentage of: &b" + (value2 * 100.0) + "%");
+                }
+
+                int value = cataMine.getResetDelay();
+                if (value > 5) {
+                    m.setResetState(RMine.Reset.TIME, true);
+                    m.setResetValue(RMine.Reset.TIME, value);
+                    Text.send(cmd, " &f> Importing reset delay of: &b" + value + " seconds");
+                } else {
+                    m.setResetState(RMine.Reset.TIME, false);
+                }
+
+                m.reset(RMine.ResetCause.IMPORT);
+
+                if (cataMine.getTeleportLocation().getY() >= 0) {
+                    Text.send(cmd, " &f> Importing mine teleport position.");
+                    m.setTeleport(cataMine.getTeleportLocation());
+                    m.saveData(RMine.MineData.TELEPORT);
+                }
+
+                rm.getMineManager().addMine(m);
+                Text.send(cmd, "&aSucessfully imported mine " + m.getDisplayName());
+            } catch (RMFailedToLoadException e) {
+                Text.send(cmd, "&cFailed to import mine " + cataMine.getName() + ". Reason: " + e.getReason());
             }
-
-            int value = cataMine.getResetDelay();
-            if (value > 5) {
-                m.setReset(RMine.Reset.TIME, true);
-                m.setReset(RMine.Reset.TIME, value);
-                Text.send(cmd, " &f> Importing reset delay of: &b" + value + " seconds");
-            } else {
-                m.setReset(RMine.Reset.TIME, false);
-            }
-
-            m.reset(RMine.ResetCause.CREATION);
-
-            if (cataMine.getTeleportLocation().getY() >= 0) {
-                Text.send(cmd, " &f> Importing mine teleport position.");
-                m.setTeleport(cataMine.getTeleportLocation());
-                m.saveData(RMine.MineData.TELEPORT);
-            }
-
-            m.saveAll();
-
-            rm.getMineManager().addMine(m);
-            Text.send(cmd, "&aSucessfully imported mine " + m.getDisplayName());
-
-             */
         }
 
         //end

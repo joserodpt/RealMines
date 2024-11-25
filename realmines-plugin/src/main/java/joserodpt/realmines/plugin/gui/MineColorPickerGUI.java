@@ -114,7 +114,6 @@ public class MineColorPickerGUI {
                         }
                         gp.playSound(gp.getLocation(), Sound.BLOCK_NOTE_BLOCK_CHIME, 50, 50);
                         gp.closeInventory();
-                        current.mi.saveData(RMine.MineData.COLOR);
                         Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm.getPlugin(), () -> current.rm.getGUIManager().openMine(current.mi, gp), 2);
                     }
                 }

@@ -238,7 +238,6 @@ public class MineCMD extends CommandBase {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
             m.setSilent(!m.isSilent());
-            m.saveData(RMine.MineData.SETTINGS);
 
             if (!m.isSilent()) {
                 TranslatableLine.SYSTEM_SILENT_OFF.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(commandSender);
@@ -258,7 +257,6 @@ public class MineCMD extends CommandBase {
     public void silentall(final CommandSender commandSender, final Boolean bol) {
         for (final RMine m : rm.getMineManager().getMines().values()) {
             m.setSilent(bol);
-            m.saveData(RMine.MineData.SETTINGS);
 
             if (!m.isSilent()) {
                 TranslatableLine.SYSTEM_SILENT_OFF.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).send(commandSender);

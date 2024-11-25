@@ -14,7 +14,7 @@ package joserodpt.realmines.api.mine.components.actions;
  */
 
 import joserodpt.realmines.api.config.TranslatableLine;
-import joserodpt.realmines.api.mine.RMineSettings;
+import joserodpt.realmines.api.mine.components.RMineSettings;
 import joserodpt.realmines.api.utils.ItemStackSpringer;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Text;

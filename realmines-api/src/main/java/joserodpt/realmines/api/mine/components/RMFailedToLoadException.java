@@ -1,4 +1,4 @@
-package joserodpt.realmines.api.mine;
+package joserodpt.realmines.api.mine.components;
 
 public class RMFailedToLoadException extends Exception {
     private final String mineName;
