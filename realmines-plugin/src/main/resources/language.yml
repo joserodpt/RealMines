@@ -160,7 +160,7 @@ GUI:
         - "&e&nShift-Right&r&f to decrease the age."
         - "&c&nQ (Drop)&r&f to remove this block."
     No-Blocks:
-      Name: "&f&lNo blocks in this mine!"
+      Name: "&f&lNo blocks in this set!"
       Description:
         - "&fClick on the upper icon to add a new block!"
     Mine:

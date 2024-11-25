@@ -71,7 +71,7 @@ public class CataMinesConverter implements RMConverterBase {
                 m.setIcon(Material.COBBLESTONE);
 
                 cataMine.getBlocks().forEach(cataMineBlock ->
-                        m.addItem(new MineBlockItem(cataMineBlock.getBlockData().getMaterial(), cataMineBlock.getChance() / 100)));
+                        m.addItem("default", new MineBlockItem(cataMineBlock.getBlockData().getMaterial(), cataMineBlock.getChance() / 100)));
 
                 final double value2 = cataMine.getResetPercentage();
 

@@ -106,7 +106,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                         switch (e.getRawSlot()) {
                             case 49:
                                 p.closeInventory();
-                                final MineItensGUI v = new MineItensGUI(current.rm, p, current.mine);
+                                final MineItemsGUI v = new MineItemsGUI(current.rm, p, current.mine);
                                 v.openInventory(p);
                                 break;
                             case 4:

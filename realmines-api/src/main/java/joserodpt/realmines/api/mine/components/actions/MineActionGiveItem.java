@@ -29,8 +29,15 @@ public class MineActionGiveItem extends MineAction {
 
     private ItemStack i;
 
+    //for existing
     public MineActionGiveItem(final String id, final String mineID, final Double chance, final ItemStack i) {
         super(id, mineID, chance);
+        this.i = i;
+    }
+
+    //generate new
+    public MineActionGiveItem(final String mineID, final Double chance, final ItemStack i) {
+        super(mineID, chance);
         this.i = i;
     }
 
@@ -40,7 +47,7 @@ public class MineActionGiveItem extends MineAction {
         }
         if (randomChance < super.getChance()) {
             p.getInventory().addItem(i);
-            if (super.getMine().getBooleanSetting(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
+            if (super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
                 TranslatableLine.MINE_BREAK_ACTION_DROP_ITEM.send(p);
         }
     }

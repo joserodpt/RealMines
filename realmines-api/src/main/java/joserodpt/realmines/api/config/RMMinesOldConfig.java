@@ -70,4 +70,11 @@ public class RMMinesOldConfig implements Listener {
             Bukkit.getLogger().log(Level.SEVERE, "Couldn't save " + name + "!");
         }
     }
+
+    public static void delete() {
+        if (configFile.getFile().delete()) {
+            fileExists = false;
+        }
+        configFile = null;
+    }
 }

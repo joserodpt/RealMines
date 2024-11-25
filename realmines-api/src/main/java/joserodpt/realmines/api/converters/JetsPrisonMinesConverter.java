@@ -142,7 +142,7 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
                     try {
                         mat = Material.valueOf(blockName);
 
-                        m.addItem(new MineBlockItem(mat, Double.parseDouble(chanceStr) / 100));
+                        m.addItem("default", new MineBlockItem(mat, Double.parseDouble(chanceStr) / 100));
                     } catch (IllegalArgumentException e) {
                         Text.send(cmd, "&cError: Could not find block: " + blockName + " for mine: " + mineName + ". &fSkipping!");
                     }

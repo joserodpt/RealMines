@@ -13,9 +13,7 @@ package joserodpt.realmines.api.mine.components.items;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMLanguageConfig;
-import joserodpt.realmines.api.config.RMMinesOldConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.utils.Items;
@@ -24,7 +22,6 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MineItem {
 
@@ -62,28 +59,6 @@ public class MineItem {
         this.disabledBlockMining = disabledBlockMining;
 
         this.isSchematicBlock = isSchematicBlock;
-    }
-
-    //TODO
-    public String getNewBreakActionCode(final String mineName, final String material) {
-        final String characters = "abcdefghijklmnopqrstuvwxyz";
-
-        if (!RMMinesOldConfig.file().getSection(mineName + ".Blocks." + material).getKeys().contains("Break-Actions")) {
-            return RealMinesAPI.getRand().ints(8, 0, characters.length())
-                    .mapToObj(characters::charAt)
-                    .map(Object::toString)
-                    .collect(Collectors.joining());
-        }
-
-        String ret;
-        do {
-            ret = RealMinesAPI.getRand().ints(8, 0, characters.length())
-                    .mapToObj(characters::charAt)
-                    .map(Object::toString)
-                    .collect(Collectors.joining());
-        } while (RMMinesOldConfig.file().getSection(mineName + ".Blocks." + material + ".Break-Actions").getRoutesAsStrings(false).contains(ret));
-
-        return ret;
     }
 
     public void toggleVanillaBlockDrop() {

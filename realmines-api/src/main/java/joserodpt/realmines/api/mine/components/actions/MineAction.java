@@ -19,6 +19,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.stream.Collectors;
+
 public abstract class MineAction {
 
     public enum Type {GIVE_MONEY, DROP_ITEM, GIVE_ITEM, EXECUTE_COMMAND, DUMMY}
@@ -32,6 +34,19 @@ public abstract class MineAction {
         this.interactable = false;
     }
 
+    //generate new action
+    public MineAction(final String mineID, final Double chance) {
+        this.mine = RealMinesAPI.getInstance().getMineManager().getMine(mineID);
+        if (this.mine == null) {
+            this.interactable = false;
+            return;
+        }
+
+        this.id = getNewBreakActionCode();
+        this.chance = chance;
+    }
+
+    //for existing actions
     public MineAction(final String id, final String mineID, final Double chance) {
         this.mine = RealMinesAPI.getInstance().getMineManager().getMine(mineID);
         if (this.mine == null) {
@@ -70,4 +85,13 @@ public abstract class MineAction {
     public abstract Object getValue();
 
     public abstract ItemStack getItem();
+
+    public String getNewBreakActionCode() {
+        final String characters = "abcdefghijklmnopqrstuvwxyz";
+
+        return "action-" + RealMinesAPI.getRand().ints(8, 0, characters.length())
+                .mapToObj(characters::charAt)
+                .map(Object::toString)
+                .collect(Collectors.joining()) + "-" + System.currentTimeMillis() / 1000;
+    }
 }

@@ -67,7 +67,7 @@ public class MineFarmItem extends MineItem {
     public ItemStack getItem() {
         return Items.createItem(super.getMaterial(), 1, TranslatableLine.GUI_FARM_ITEM_NAME.setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(this.fi.getIcon()))).setV2(TranslatableLine.ReplacableVar.AGE.eq(String.valueOf(this.getAge()))).get() + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Farm-Item.Description")
                 .stream()
-                .map(s -> Text.color(s.replaceAll("%percentage%", String.valueOf(super.getPercentage() * 100))))
+                .map(s -> Text.color(s.replaceAll("%percentage%", Text.formatPercentages(super.getPercentage()))))
                 .collect(Collectors.toList()));
     }
 

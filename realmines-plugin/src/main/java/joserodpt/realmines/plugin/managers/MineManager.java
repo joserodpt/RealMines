@@ -79,7 +79,7 @@ public class MineManager extends MineManagerAPI {
 
     @Override
     public void loadMines() {
-        if (RMMinesOldConfig.fileExists()) {
+        if (RMMinesOldConfig.fileExists() && RMMinesOldConfig.file() != null) {
             rm.getLogger().warning("Converting mines into the new format...");
 
             for (final String mineName : RMMinesOldConfig.file().getRoot().getRoutesAsStrings(false)) {
@@ -118,12 +118,10 @@ public class MineManager extends MineManagerAPI {
                 rm.getLogger().info("Mine " + mineName + " converted into the new format!");
             }
 
-            RMMinesOldConfig.file().getFile().delete();
+            RMMinesOldConfig.delete();
             rm.getLogger().warning("Conversion finished with success.");
         } else {
             //new mine loading system
-
-            //loop through all files in /mines folder
             File minesFolder = new File(rm.getPlugin().getDataFolder(), "mines");
 
             if (!minesFolder.exists()) {
@@ -170,7 +168,7 @@ public class MineManager extends MineManagerAPI {
 
                 final BlockMine m = new BlockMine(name, p.getWorld(), pos1, pos2);
 
-                m.addItem(new MineBlockItem(Material.STONE, 1D));
+                m.addItem("default", new MineBlockItem(Material.STONE, 1D));
                 m.reset(RMine.ResetCause.CREATION);
                 m.setTeleport(p.getLocation());
 
@@ -186,7 +184,7 @@ public class MineManager extends MineManagerAPI {
 
                     new PlayerInput(true, p, input -> {
                         if (input.equalsIgnoreCase("yes")) {
-                            mat.forEach(material -> m.addItem(new MineBlockItem(material, 0.1D)));
+                            mat.forEach(material -> m.addItem("default", new MineBlockItem(material, 0.1D)));
                             TranslatableLine.SYSTEM_BLOCKS_ADDED.setV1(TranslatableLine.ReplacableVar.COUNT.eq(String.valueOf(mat.size()))).send(p);
                         }
                         TranslatableLine.SYSTEM_MINE_CREATED.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(p);
@@ -216,7 +214,7 @@ public class MineManager extends MineManagerAPI {
 
 
                 final FarmMine m = new FarmMine(name, p.getWorld(), pos1, pos2);
-                m.addFarmItem(new MineFarmItem(FarmItem.WHEAT, 1D));
+                m.addFarmItem("default", new MineFarmItem(FarmItem.WHEAT, 1D));
 
                 this.addMine(m);
                 m.reset(RMine.ResetCause.CREATION);
@@ -232,7 +230,7 @@ public class MineManager extends MineManagerAPI {
 
                     new PlayerInput(true, p, input -> {
                         if (input.equalsIgnoreCase("yes")) {
-                            mat.forEach(material -> m.addFarmItem(new MineFarmItem(FarmItem.valueOf(Material.WHEAT))));
+                            mat.forEach(material -> m.addFarmItem("default", new MineFarmItem(FarmItem.valueOf(Material.WHEAT))));
                             TranslatableLine.SYSTEM_BLOCKS_ADDED.setV1(TranslatableLine.ReplacableVar.COUNT.eq(String.valueOf(mat.size()))).send(p);
                         }
                         TranslatableLine.SYSTEM_MINE_CREATED.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(p);
@@ -333,7 +331,7 @@ public class MineManager extends MineManagerAPI {
             }
 
             if (mine.getMineCuboid().contains(block)) {
-                if (mine.isFreezed() || (mine.getBooleanSetting(RMineSettings.BREAK_PERMISSION) && !p.hasPermission(mine.getBreakPermission()))) {
+                if (mine.isFreezed() || (mine.getSettingBool(RMineSettings.BREAK_PERMISSION) && !p.hasPermission(mine.getBreakPermission()))) {
                     e.setCancelled(true);
                 } else {
                     if (mine.getType() == RMine.Type.FARM && !FarmItem.getCrops().contains(block.getType())) {

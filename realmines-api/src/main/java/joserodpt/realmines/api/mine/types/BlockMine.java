@@ -21,6 +21,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.mine.RMine;
+import joserodpt.realmines.api.mine.components.RMBlockSet;
 import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.components.items.MineItem;
@@ -41,16 +42,25 @@ public class BlockMine extends RMine {
     //new mine
     public BlockMine(String name, World w, Location pos1, Location pos2) throws RMFailedToLoadException {
         super(name, w, pos1, pos2);
+
+        this.fillContent();
+        this.updateSigns();
     }
 
     //converting from old config to new config
     public BlockMine(String name, Section mineConfigSection) throws RMFailedToLoadException {
         super(name, mineConfigSection);
+
+        this.fillContent();
+        this.updateSigns();
     }
 
     //after converting from old config to new config
     public BlockMine(String name, YamlConfiguration config) throws RMFailedToLoadException {
         super(name, config);
+
+        this.fillContent();
+        this.updateSigns();
     }
 
     @Override
@@ -70,6 +80,7 @@ public class BlockMine extends RMine {
                 } catch (Exception e) {
                     Bukkit.getLogger().severe("Error while setting blocks for mine: " + this.getName());
                     Bukkit.getLogger().warning("Error: " + e.getMessage());
+                    e.printStackTrace();
                 }
             } else {
                 this.sortBlocks();
@@ -120,20 +131,18 @@ public class BlockMine extends RMine {
         return m;
     }
 
-    public void removeMineBlockItem(final MineItem mb) {
-        super.getMineItems().remove(mb.getMaterial());
+    public void removeMineBlockItem(final String blockSetKey, final MineItem mb) {
+        super.getBlockSet(blockSetKey).remove(mb);
         this.saveData(MineData.BLOCKS);
     }
 
-    public void addItem(final MineBlockItem mineBlock) {
-        if (!this.contains(mineBlock)) {
-            super.getMineItems().put(mineBlock.getMaterial(), mineBlock);
+    public void addItem(final String blockSetKey, final MineBlockItem mineBlock) {
+        Bukkit.getLogger().info("Adding block to mine: " + mineBlock.getMaterial() + " - " + blockSetKey);
+        RMBlockSet blockSet = this.getBlockSet(blockSetKey);
+        if (blockSet != null && !blockSet.contains(mineBlock)) {
+            blockSet.add(mineBlock);
             this.saveData(MineData.BLOCKS);
         }
-    }
-
-    private boolean contains(final MineBlockItem mineBlock) {
-        return super.getMineItems().containsKey(mineBlock.getMaterial());
     }
 
     @Override

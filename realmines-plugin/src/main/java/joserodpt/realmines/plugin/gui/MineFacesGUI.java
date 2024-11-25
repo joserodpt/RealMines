@@ -55,15 +55,19 @@ public class MineFacesGUI {
         this.uuid = as.getUniqueId();
         this.inv = Bukkit.getServer().createInventory(null, 54, TranslatableLine.GUI_FACES_NAME.get());
 
+        load();
+
+        this.register();
+    }
+
+    private void load() {
         this.inv.setItem(13, this.getIcon(m, MineCuboid.CuboidDirection.Up));
         this.inv.setItem(22, this.getIcon(m, MineCuboid.CuboidDirection.Down));
         this.inv.setItem(21, this.getIcon(m, MineCuboid.CuboidDirection.East));
         this.inv.setItem(23, this.getIcon(m, MineCuboid.CuboidDirection.West));
         this.inv.setItem(31, this.getIcon(m, MineCuboid.CuboidDirection.North));
         this.inv.setItem(40, this.getIcon(m, MineCuboid.CuboidDirection.South));
-
         this.inv.setItem(53, close);
-        this.register();
     }
 
     private static MineCuboid.CuboidDirection getDirection(final int rawSlot) {
@@ -110,11 +114,7 @@ public class MineFacesGUI {
                             case 40:
                                 if (e.getClick() == ClickType.DROP) {
                                     current.m.removeFaceblock(getDirection(e.getRawSlot()));
-                                    p.closeInventory();
-                                    Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm.getPlugin(), () -> {
-                                        final MineFacesGUI mp = new MineFacesGUI(current.rm, p, current.m);
-                                        mp.openInventory(p);
-                                    }, 1);
+                                    current.load();
                                 } else {
                                     p.closeInventory();
                                     Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm.getPlugin(), () -> {

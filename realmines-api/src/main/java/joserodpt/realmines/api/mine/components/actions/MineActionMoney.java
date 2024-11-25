@@ -30,8 +30,15 @@ public class MineActionMoney extends MineAction {
 
     private Double money;
 
+    //for existing
     public MineActionMoney(final String id, final String mineID, final Double chance, final Double money) {
         super(id, mineID, chance);
+        this.money = money;
+    }
+
+    //generate new
+    public MineActionMoney(final String mineID, final Double chance, final Double money) {
+        super(mineID, chance);
         this.money = money;
     }
 
@@ -42,7 +49,7 @@ public class MineActionMoney extends MineAction {
         if (randomChance < super.getChance()) {
             if (RealMinesAPI.getInstance().getEconomy() != null) {
                 RealMinesAPI.getInstance().getEconomy().depositPlayer(p, money);
-                if (super.getMine().getBooleanSetting(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
+                if (super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
                     TranslatableLine.MINE_BREAK_ACTION_DROP_ITEM.send(p);
             } else {
                 Bukkit.getLogger().warning("Economy not found or Vault not installed. Please install a compatible economy plugin.");

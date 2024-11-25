@@ -20,7 +20,7 @@ import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.ItemStackSpringer;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
-import joserodpt.realmines.plugin.gui.MineItensGUI;
+import joserodpt.realmines.plugin.gui.MineItemsGUI;
 import joserodpt.realmines.plugin.gui.MineListGUI;
 import joserodpt.realmines.plugin.gui.RealMinesGUI;
 import joserodpt.realmines.plugin.gui.SettingsGUI;
@@ -276,6 +276,7 @@ public class MineCMD extends CommandBase {
             final RMine m = rm.getMineManager().getMine(name);
             if (m != null) {
                 m.setHighlight(!m.isHighlighted());
+                Text.send(commandSender, m.getDisplayName() + " &r&fhighlight: " + (m.isHighlighted() ? "&aON" : "&cOFF"));
             } else {
                 TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
             }
@@ -293,7 +294,7 @@ public class MineCMD extends CommandBase {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
             if (m != null) {
-                final MineItensGUI v = new MineItensGUI(rm, (Player) commandSender, m);
+                final MineItemsGUI v = new MineItemsGUI(rm, (Player) commandSender, m);
                 v.openInventory((Player) commandSender);
             } else {
                 TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);

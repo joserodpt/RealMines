@@ -64,45 +64,76 @@ import org.bukkit.inventory.ItemStack;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public abstract class RMine {
 
-    public enum Type {BLOCKS, SCHEMATIC, FARM}
+    public void setBlockSetMode(BlockSetsMode next) {
+        this.blockSetsMode = next;
+        setSettingString(RMineSettings.BLOCK_SETS_MODE, this.getBlockSetMode().name());
+    }
 
-    public enum ResetCause {COMMAND, PLUGIN, TIMER, CREATION, IMPORT}
+    public enum Type {BLOCKS, SCHEMATIC, FARM;}
 
-    public enum Reset {PERCENTAGE, TIME}
+    public enum ResetCause {COMMAND, PLUGIN, TIMER, CREATION, IMPORT;}
 
-    public enum MineData {BLOCKS, ICON, RESET, TELEPORT, SIGNS, POS, NAME, DISPLAYNAME, FACES, COLOR, MINE_TYPE, ALL}
+    public enum Reset {PERCENTAGE, TIME;}
+
+    public enum BlockSetsMode {
+        INCREMENTAL("&aIncremental"),
+        RANDOM("&eRandom"),
+        NONE("&fNone");
+
+        String displayName;
+
+        BlockSetsMode(String displayName) {
+            this.displayName = displayName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public BlockSetsMode next() {
+            return values()[(ordinal() + 1) % values().length];
+        }
+    }
+
+    public enum MineData {BLOCKS, ICON, RESET, TELEPORT, SIGNS, POS, NAME, DISPLAYNAME, FACES, COLOR, MINE_TYPE, ALL;}
 
     protected String name, displayName;
+
     private World w;
     protected Location teleport;
     protected Material icon;
     protected List<MineSign> signs = new ArrayList<>();
-    protected List<RMBlockSet> blockSets = new ArrayList<>();
+    protected Map<String, RMBlockSet> blockSets = new HashMap<>();
+    protected BlockSetsMode blockSetsMode = BlockSetsMode.INCREMENTAL;
+
     protected boolean freezed, silent;
-
     protected boolean resetByTime = true, resetByPercentage = true;
+
     protected int resetByTimeValue = 120, resetByPercentageValue = 20;
-
     protected int minedBlocks, blockSetIndex;
-    protected boolean highlight = false;
 
-    protected HashMap<MineCuboid.CuboidDirection, Material> faces = new HashMap<>();
+    protected boolean highlight = false;
+    protected Map<MineCuboid.CuboidDirection, Material> faces = new HashMap<>();
+
     protected MineTimer timer;
     protected MineColor color = MineColor.WHITE;
     protected MineCuboid mineCuboid;
-
+    protected Location _pos1, _pos2;
     private File file;
-    private FileConfiguration config;
 
+    private FileConfiguration config;
     //create new mine (for mines without pos1/2)
+
     public RMine(String name, World w) throws RMFailedToLoadException {
         this.name = ChatColor.stripColor(Text.color(name));
         this.displayName = name;
@@ -128,15 +159,17 @@ public abstract class RMine {
         this.fillContent();
         this.updateSigns();
     }
-
     //create new mine
+
     public RMine(String name, World w, Location pos1, Location pos2) throws RMFailedToLoadException {
         this(name, w);
+        this._pos1 = pos1;
+        this._pos2 = pos2;
         this.mineCuboid = new MineCuboid(pos1, pos2);
         saveData(MineData.POS);
     }
-
     //converting from old config to new config
+
     public RMine(String name, Section mineConfigSection) throws RMFailedToLoadException {
         this.name = name;
 
@@ -158,8 +191,12 @@ public abstract class RMine {
             config.set("pos2", pos2);
         } else {
             this.config.set("schematic", mineConfigSection.getString("Schematic-Filename"));
-            String pos1 = mineConfigSection.getString("Place.X") + ";" + mineConfigSection.getString("Place.Y") + ";" + mineConfigSection.getString("Place.Z");
-            config.set("pos1", pos1);
+
+            //round the values to avoid floating point errors to 0 decimal places
+            float x = (float) Math.round(mineConfigSection.getDouble("Place.X") * 100) / 100;
+            float y = (float) Math.round(mineConfigSection.getDouble("Place.Y") * 100) / 100;
+            float z = (float) Math.round(mineConfigSection.getDouble("Place.Z") * 100) / 100;
+            config.set("pos1", x + ";" + y + ";" + z);
         }
 
         this.config.set("reset.silent", mineConfigSection.getBoolean("Settings.Reset.Silent"));
@@ -175,6 +212,7 @@ public abstract class RMine {
 
         this.config.set(RMineSettings.BREAK_PERMISSION.getConfigKey(), mineConfigSection.getBoolean("Settings.Break-Permission"));
         this.config.set(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES.getConfigKey(), mineConfigSection.getBoolean("Settings.Discard-Break-Action-Messages"));
+        this.config.set(RMineSettings.BLOCK_SETS_MODE.getConfigKey(), this.getBlockSetMode().name());
 
         this.config.set("signs", mineConfigSection.getStringList("Signs"));
 
@@ -193,6 +231,8 @@ public abstract class RMine {
         String teleport = x + ";" + y + ";" + z + ";" + yaw + ";" + pitch;
         this.config.set("teleport", teleport);
 
+        this.config.set("block-sets.default.description", "Default description for block set");
+        this.config.set("block-sets.default.icon", Material.CAULDRON.name());
 
         //check if "Blocks" is a string list
         //convert old list of blocks to one new block-set
@@ -217,11 +257,11 @@ public abstract class RMine {
                     RealMinesAPI.getInstance().getLogger().warning("Invalid pre version 1.6 block format for mine " + this.getName() + "! Skipping.");
                     continue;
                 }
-                this.config.set("block-sets.default." + content[0] + ".percentage", Double.parseDouble(content[1]));
+                this.config.set("block-sets.default.blocks." + content[0] + ".percentage", Double.parseDouble(content[1]));
             }
         } else {
             mineConfigSection.getSection("Blocks").getRoutesAsStrings(false).forEach(block -> {
-                config.set("block-sets.default." + block + ".percentage", mineConfigSection.getSection("Blocks").getDouble(block + ".Chance"));
+                config.set("block-sets.default.blocks." + block + ".percentage", mineConfigSection.getSection("Blocks").getDouble(block + ".Chance"));
 
                 //has any break actions?
                 if (mineConfigSection.getSection("Blocks").getSection(block).getSection("Break-Actions") != null) {
@@ -230,15 +270,15 @@ public abstract class RMine {
                         String type = mineConfigSection.getSection("Blocks").getSection(block).getSection("Break-Actions").getString(action + ".Type");
                         double chanceBA = mineConfigSection.getSection("Blocks").getSection(block).getSection("Break-Actions").getDouble(action + ".Chance");
 
-                        config.set("block-sets.default." + block + ".break-actions." + action + ".type", type);
-                        config.set("block-sets.default." + block + ".break-actions." + action + ".chance", chanceBA);
+                        config.set("block-sets.default.blocks." + block + ".break-actions." + action + ".type", type);
+                        config.set("block-sets.default.blocks." + block + ".break-actions." + action + ".chance", chanceBA);
 
                         Section breakActions = mineConfigSection.getSection("Blocks").getSection(block).getSection("Break-Actions");
 
                         for (String property : new String[]{"Command", "Amount", "Item"}) {
                             Object value = breakActions.get(action + "." + property);
                             if (value != null && !(value instanceof String && ((String) value).isEmpty())) {
-                                config.set("block-sets.default." + block + ".break-actions." + action + ".value", value);
+                                config.set("block-sets.default.blocks." + block + ".break-actions." + action + ".value", value);
                                 return;
                             }
                         }
@@ -304,7 +344,14 @@ public abstract class RMine {
             }
             final Location p1 = new Location(w, Double.parseDouble(pos1[0]), Double.parseDouble(pos1[1]), Double.parseDouble(pos1[2]));
             final Location p2 = new Location(w, Double.parseDouble(pos2[0]), Double.parseDouble(pos2[1]), Double.parseDouble(pos2[2]));
-            this.mineCuboid = new MineCuboid(p1, p2);
+            setPOS(p1, p2);
+        } else {
+            final String[] pos1 = this.config.getString("pos1").split(";");
+            if (pos1.length != 3) {
+                throw new RMFailedToLoadException(name, "[RealMines] Could not load pos1 for mine " + name + ". Invalid length args for pos1. Skipping");
+            }
+            final Location p1 = new Location(w, Double.parseDouble(pos1[0]), Double.parseDouble(pos1[1]), Double.parseDouble(pos1[2]));
+            this._pos1 = p1;
         }
 
         if (this.config.get("teleport") != null) {
@@ -349,86 +396,95 @@ public abstract class RMine {
         this.resetByPercentageValue = this.config.getInt("reset.percentage.value");
         this.resetByTime = this.config.getBoolean("reset.time.active");
         this.resetByTimeValue = this.config.getInt("reset.time.value");
-
-        //settings
         this.silent = this.config.getBoolean("reset.silent");
+
+        this.blockSetsMode = BlockSetsMode.valueOf(getSettingString(RMineSettings.BLOCK_SETS_MODE.getConfigKey()));
 
         //iterate over keys in the block-sets section
         for (String blockSetKey : this.config.getConfigurationSection("block-sets").getKeys(false)) {
             Map<Material, MineItem> items = new HashMap<>();
 
-            for (final String mat : this.config.getConfigurationSection("block-sets." + blockSetKey).getKeys(false)) {
-                final Double per = this.config.getDouble("block-sets." + blockSetKey + "." + mat + ".percentage");
-                final Boolean disabledVanillaDrop = this.config.getBoolean("block-sets." + blockSetKey + "." + mat + ".disabled-vanilla-drop");
-                final Boolean disabledBlockMining = this.config.getBoolean("block-sets." + blockSetKey + "." + mat + ".disabled-block-mining");
+            if (this.config.getConfigurationSection("block-sets." + blockSetKey + ".blocks") != null) {
+                for (final String mat : this.config.getConfigurationSection("block-sets." + blockSetKey + ".blocks").getKeys(false)) {
+                    final Double per = this.config.getDouble("block-sets." + blockSetKey + ".blocks." + mat + ".percentage");
+                    final Boolean disabledVanillaDrop = this.config.getBoolean("block-sets." + blockSetKey + ".blocks." + mat + ".disabled-vanilla-drop");
+                    final Boolean disabledBlockMining = this.config.getBoolean("block-sets." + blockSetKey + ".blocks." + mat + ".disabled-block-mining");
 
-                try {
-                    Material m = Material.valueOf(mat);
+                    try {
+                        Material m = Material.valueOf(mat);
 
-                    List<MineAction> actionsList = new ArrayList<>();
+                        List<MineAction> actionsList = new ArrayList<>();
 
-                    if (this.config.getConfigurationSection("block-sets." + blockSetKey + "." + mat + ".break-actions") != null) {
-                        for (final String actionID : this.config.getConfigurationSection("block-sets." + blockSetKey + "." + mat + ".break-actions").getKeys(false)) {
-                            final String actionRoute = "block-sets." + blockSetKey + "." + mat + ".break-actions." + actionID;
-                            final Double chance = this.config.getDouble(actionRoute + ".chance");
-                            try {
-                                MineAction.Type mineactiontype = MineAction.Type.valueOf(this.config.getString(actionRoute + ".type"));
-                                switch (mineactiontype) {
-                                    case EXECUTE_COMMAND:
-                                        actionsList.add(new MineActionCommand(actionID, name, chance, this.config.getString(actionRoute + ".value")));
-                                        break;
-                                    case DROP_ITEM:
-                                        String data = this.config.getString(actionRoute + ".value");
-                                        try {
-                                            actionsList.add(new MineActionDropItem(actionID, name, chance, ItemStackSpringer.getItemDeSerializedJSON(data).clone()));
-                                        } catch (Exception e) {
-                                            RealMinesAPI.getInstance().getPlugin().getLogger().severe("Badly formatted ItemStack: " + data);
-                                            RealMinesAPI.getInstance().getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
-                                            continue;
-                                        }
-                                        break;
-                                    case GIVE_ITEM:
-                                        String data2 = this.config.getString(actionRoute + ".value");
-                                        try {
-                                            actionsList.add(new MineActionGiveItem(actionID, name, chance, ItemStackSpringer.getItemDeSerializedJSON(data2)));
-                                        } catch (Exception e) {
-                                            RealMinesAPI.getInstance().getPlugin().getLogger().severe("Badly formatted ItemStack: " + data2);
-                                            RealMinesAPI.getInstance().getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
-                                            continue;
-                                        }
-                                        break;
-                                    case GIVE_MONEY:
-                                        if (RealMinesAPI.getInstance().getEconomy() == null) {
-                                            RealMinesAPI.getInstance().getPlugin().getLogger().warning("Money Break Action for " + mat + " will be ignored because Vault isn't installed on this server.");
-                                            continue;
-                                        }
+                        if (this.config.getConfigurationSection("block-sets." + blockSetKey + ".blocks." + mat + ".break-actions") != null) {
+                            for (final String actionID : this.config.getConfigurationSection("block-sets." + blockSetKey + ".blocks." + mat + ".break-actions").getKeys(false)) {
+                                final String actionRoute = "block-sets." + blockSetKey + ".blocks." + mat + ".break-actions." + actionID;
+                                final Double chance = this.config.getDouble(actionRoute + ".chance");
+                                try {
+                                    MineAction.Type mineactiontype = MineAction.Type.valueOf(this.config.getString(actionRoute + ".type"));
+                                    switch (mineactiontype) {
+                                        case EXECUTE_COMMAND:
+                                            actionsList.add(new MineActionCommand(actionID, name, chance, this.config.getString(actionRoute + ".value")));
+                                            break;
+                                        case DROP_ITEM:
+                                            String data = this.config.getString(actionRoute + ".value");
+                                            try {
+                                                actionsList.add(new MineActionDropItem(actionID, name, chance, ItemStackSpringer.getItemDeSerializedJSON(data).clone()));
+                                            } catch (Exception e) {
+                                                RealMinesAPI.getInstance().getPlugin().getLogger().severe("Badly formatted ItemStack: " + data);
+                                                RealMinesAPI.getInstance().getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
+                                                continue;
+                                            }
+                                            break;
+                                        case GIVE_ITEM:
+                                            String data2 = this.config.getString(actionRoute + ".value");
+                                            try {
+                                                actionsList.add(new MineActionGiveItem(actionID, name, chance, ItemStackSpringer.getItemDeSerializedJSON(data2)));
+                                            } catch (Exception e) {
+                                                RealMinesAPI.getInstance().getPlugin().getLogger().severe("Badly formatted ItemStack: " + data2);
+                                                RealMinesAPI.getInstance().getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
+                                                continue;
+                                            }
+                                            break;
+                                        case GIVE_MONEY:
+                                            if (RealMinesAPI.getInstance().getEconomy() == null) {
+                                                RealMinesAPI.getInstance().getPlugin().getLogger().warning("Money Break Action for " + mat + " will be ignored because Vault isn't installed on this server.");
+                                                continue;
+                                            }
 
-                                        actionsList.add(new MineActionMoney(actionID, name, chance, this.config.getDouble(actionRoute + ".value")));
-                                        break;
+                                            actionsList.add(new MineActionMoney(actionID, name, chance, this.config.getDouble(actionRoute + ".value")));
+                                            break;
+                                    }
+                                } catch (Exception e) {
+                                    RealMinesAPI.getInstance().getPlugin().getLogger().severe("Break Action Type " + this.config.getString(actionRoute + ".Type") + " is invalid! Skipping. This action is in mine: " + name);
                                 }
-                            } catch (Exception e) {
-                                RealMinesAPI.getInstance().getPlugin().getLogger().severe("Break Action Type " + this.config.getString(actionRoute + ".Type") + " is invalid! Skipping. This action is in mine: " + name);
                             }
                         }
-                    }
 
-                    switch (getType()) {
-                        case BLOCKS:
-                            items.put(m, new MineBlockItem(m, per, disabledVanillaDrop, disabledBlockMining, actionsList));
-                            break;
-                        case FARM:
-                            items.put(m, new MineFarmItem(FarmItem.valueOf(mat), per, disabledVanillaDrop, disabledBlockMining, this.config.getInt("block-sets" + blockSetKey + "." + mat + ".age"), actionsList));
-                            break;
-                        case SCHEMATIC:
-                            items.put(m, new MineSchematicItem(m, disabledVanillaDrop, disabledBlockMining, actionsList));
-                            break;
+                        switch (getType()) {
+                            case BLOCKS:
+                                items.put(m, new MineBlockItem(m, per, disabledVanillaDrop, disabledBlockMining, actionsList));
+                                break;
+                            case FARM:
+                                items.put(m, new MineFarmItem(FarmItem.valueOf(mat), per, disabledVanillaDrop, disabledBlockMining, this.config.getInt("block-sets" + blockSetKey + "." + mat + ".age"), actionsList));
+                                break;
+                            case SCHEMATIC:
+                                items.put(m, new MineSchematicItem(m, disabledVanillaDrop, disabledBlockMining, actionsList));
+                                break;
+                        }
+                    } catch (Exception e) {
+                        RealMinesAPI.getInstance().getPlugin().getLogger().severe("Material type " + mat + " is invalid! Skipping. This material is in mine: " + getName());
                     }
-                } catch (Exception e) {
-                    RealMinesAPI.getInstance().getPlugin().getLogger().severe("Material type " + mat + " is invalid! Skipping. This material is in mine: " + getName());
                 }
             }
 
-            this.blockSets.add(new RMBlockSet(blockSetKey, items));
+            Material icon = Material.BARRIER;
+            try {
+                icon = Material.getMaterial(Objects.requireNonNull(this.config.getString("block-sets." + blockSetKey + ".icon")));
+            } catch (Exception e) {
+                RealMinesAPI.getInstance().getPlugin().getLogger().severe("Icon for block set " + blockSetKey + " is invalid! Skipping.");
+            }
+
+            this.blockSets.put(blockSetKey, new RMBlockSet(blockSetKey, this.config.getString("block-sets." + blockSetKey + ".description"), icon, items));
         }
 
         this.timer = new MineTimer(this);
@@ -437,11 +493,20 @@ public abstract class RMine {
         }
     }
 
-    public boolean getBooleanSetting(RMineSettings rMineSettings) {
+    public String getSettingString(RMineSettings rMineSettings) {
+        return this.getMineConfig().getString(rMineSettings.getConfigKey());
+    }
+
+    public void setSettingString(RMineSettings rMineSettings, String s) {
+        this.getMineConfig().set(rMineSettings.getConfigKey(), s);
+        this.saveConfig();
+    }
+
+    public boolean getSettingBool(RMineSettings rMineSettings) {
         return this.getMineConfig().getBoolean(rMineSettings.getConfigKey());
     }
 
-    public void setBooleanSetting(RMineSettings rMineSettings, boolean b) {
+    public void setSettingBool(RMineSettings rMineSettings, boolean b) {
         this.getMineConfig().set(rMineSettings.getConfigKey(), b);
         this.saveConfig();
     }
@@ -525,6 +590,10 @@ public abstract class RMine {
         }
     }
 
+    public BlockSetsMode getBlockSetMode() {
+        return blockSetsMode;
+    }
+
     public void reloadConfig() {
         this.config = YamlConfiguration.loadConfiguration(file);
     }
@@ -555,15 +624,20 @@ public abstract class RMine {
     }
 
     public Location getPOS1() {
-        return this.getMineCuboid().getPOS1();
+        return _pos1;
     }
 
     public Location getPOS2() {
-        return this.getMineCuboid().getPOS2();
+        return _pos2;
     }
 
     public void setPOS(final Location p1, final Location p2) {
+        if (getType() != Type.SCHEMATIC) {
+            this._pos1 = p1;
+            this._pos2 = p2;
+        }
         this.mineCuboid = new MineCuboid(p1, p2);
+        saveData(MineData.POS);
     }
 
     public boolean hasTP() {
@@ -592,6 +666,7 @@ public abstract class RMine {
     }
 
     //block counts
+
     public int getBlockCount() {
         return this.getMineCuboid() == null ? 0 : this.getMineCuboid().getTotalBlocks();
     }
@@ -603,9 +678,10 @@ public abstract class RMine {
     public int getRemainingBlocks() {
         return this.getBlockCount() - this.getMinedBlocks();
     }
-    //block counts
 
+    //block counts
     //block percentages
+
     public int getRemainingBlocksPer() {
         return this.getBlockCount() == 0 ? 0 : (this.getRemainingBlocks() * 100 / this.getBlockCount());
     }
@@ -613,8 +689,8 @@ public abstract class RMine {
     public int getMinedBlocksPer() {
         return this.getBlockCount() == 0 ? 0 : (this.getMinedBlocks() * 100 / this.getBlockCount());
     }
-    //block percentages
 
+    //block percentages
     public abstract void fillContent();
 
     public void fillFaces() {
@@ -637,25 +713,94 @@ public abstract class RMine {
     }
 
     public Map<Material, MineItem> getMineItems() {
-        ++this.blockSetIndex;
-        if (this.blockSetIndex >= this.blockSets.size()) {
-            this.blockSetIndex = 0;
-        }
-
-        return this.blockSets.get(this.blockSetIndex).getItems();
+        return this.blockSets.values().stream()
+                .skip(this.blockSetIndex)
+                .findFirst()
+                .orElse(new RMBlockSet())
+                .getItems();
     }
 
-    public List<MineItem> getBlockIcons() {
-        return this.getMineItems().isEmpty() ? new ArrayList<>(Collections.singletonList(new MineItem())) :
-                new ArrayList<>(this.getMineItems().values());
+    public List<MineItem> getBlockIcons(String blockSet) {
+        return this.getMineItemsOfSet(blockSet).isEmpty() ? new ArrayList<>(Collections.singletonList(new MineItem())) :
+                new ArrayList<>(this.getMineItemsOfSet(blockSet).values());
+    }
+
+    public Map<Material, MineItem> getMineItemsOfSet(String key) {
+        if (key == null || key.isEmpty()) {
+            return getMineItems();
+        }
+
+        return this.getBlockSets().stream().filter(blockSet -> blockSet.getKey().equals(key)).findFirst().map(RMBlockSet::getItems).orElse(new HashMap<>());
+    }
+
+    public void removeBlockSet(RMBlockSet blockSet) {
+        this.blockSets.remove(blockSet.getKey());
+        this.saveData(MineData.BLOCKS);
+    }
+
+    public void addBlockSet() {
+        RMBlockSet s = new RMBlockSet();
+        this.blockSets.put(s.getKey(), s);
+        this.saveData(MineData.BLOCKS);
+    }
+
+    protected RMBlockSet getBlockSet(String blockSetKey) {
+        if (blockSetKey.equalsIgnoreCase("default") && !this.blockSets.containsKey("default")) {
+            RMBlockSet s = new RMBlockSet("default");
+            this.blockSets.put(s.getKey(), s);
+            this.saveData(MineData.BLOCKS);
+            return s;
+        }
+
+        return this.blockSets.get(blockSetKey);
+    }
+
+    public void renameBlockSet(String oldKey, String newKey) {
+        RMBlockSet blockSet = this.blockSets.get(oldKey);
+        this.blockSets.remove(oldKey);
+        blockSet.setKey(newKey);
+        this.blockSets.put(newKey, blockSet);
+        this.saveData(MineData.BLOCKS);
+    }
+
+    public void processBlockBreakAction(final MineBlockBreakEvent e, final Double random) {
+        if (e.isBroken() && this.getMineItems().containsKey(e.getMaterial())) {
+            this.getMineItems().get(e.getMaterial()).getBreakActions().forEach(mineAction -> mineAction.execute(e.getPlayer(), e.getBlock().getLocation(), random));
+        }
+    }
+
+    public void processBlockBreakEvent(final MineBlockBreakEvent event, final boolean reset) {
+        //add or remove to mined blocks
+        this.minedBlocks = Math.max(0, this.minedBlocks + (event.isBroken() ? 1 : -1));
+
+        if (event.getPlayer() != null) {
+            processBlockBreakAction(event, RealMinesAPI.getRand().nextDouble() * 100);
+        }
+
+        processBlockBreakEvent(reset);
+    }
+
+    private void processBlockBreakEvent(boolean reset) {
+        if (reset) {
+            //if mine reset percentage is lower, reset it
+            if (this.isResetBy(RMine.Reset.PERCENTAGE) & ((double) this.getRemainingBlocksPer() < this.getResetValue(RMine.Reset.PERCENTAGE))) {
+                this.kickPlayers(TranslatableLine.MINE_RESET_PERCENTAGE.get());
+                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), this::reset, 10);
+            }
+        }
+
+        //update min e signs
+        this.updateSigns();
     }
 
     public void saveData(final MineData t) {
         this._save(t, true);
-        if (!this.resetByTime) {
-            this.timer.kill();
-        } else {
-            this.timer.restart();
+        if (this.getTimer() != null) {
+            if (!this.resetByTime) {
+                this.timer.kill();
+            } else {
+                this.timer.restart();
+            }
         }
     }
 
@@ -684,6 +829,9 @@ public abstract class RMine {
                     config.set("pos1", pos1);
                     String pos2 = getPOS2().getX() + ";" + getPOS2().getY() + ";" + getPOS2().getZ();
                     config.set("pos2", pos2);
+                } else {
+                    String pos1 = getPOS1().getX() + ";" + getPOS1().getY() + ";" + getPOS1().getZ();
+                    config.set("pos1", pos1);
                 }
                 break;
             case NAME:
@@ -701,23 +849,31 @@ public abstract class RMine {
                 this.config.set("type", this.getType().name());
                 break;
             case BLOCKS:
+                config.set("block-sets", Collections.emptyList());
                 this.getBlockSets().forEach(blockSetObject -> {
                     String blockSetKey = blockSetObject.getKey();
 
-                    blockSetObject.getItems().forEach(((material, mineItem) ->
-                    {
-                        String block = material.name();
+                    config.set("block-sets." + blockSetKey + ".description", blockSetObject.getDescription());
+                    config.set("block-sets." + blockSetKey + ".icon", blockSetObject.getIconMaterial().name());
 
-                        config.set("block-sets." + blockSetKey + "." + block + ".percentage", mineItem.getPercentage());
+                    if (blockSetObject.getItems().isEmpty()) {
+                        config.set("block-sets." + blockSetKey + ".blocks", Collections.emptyList());
+                    } else {
+                        blockSetObject.getItems().forEach(((material, mineItem) ->
+                        {
+                            String block = material.name();
 
-                        if (mineItem.hasBreakActions()) {
-                            mineItem.getBreakActions().forEach(action -> {
-                                config.set("block-sets.default." + block + ".break-actions." + action + ".type", action.getType().name());
-                                config.set("block-sets.default." + block + ".break-actions." + action + ".chance", action.getChance());
-                                config.set("block-sets.default." + block + ".break-actions." + action + ".value", action.getValue());
-                            });
-                        }
-                    }));
+                            config.set("block-sets." + blockSetKey + ".blocks." + block + ".percentage", mineItem.getPercentage());
+
+                            if (mineItem.hasBreakActions()) {
+                                mineItem.getBreakActions().forEach(action -> {
+                                    config.set("block-sets." + blockSetKey + ".blocks." + block + ".break-actions." + action.getID() + ".type", action.getType().name());
+                                    config.set("block-sets." + blockSetKey + ".blocks." + block + ".break-actions." + action.getID() + ".chance", action.getChance());
+                                    config.set("block-sets." + blockSetKey + ".blocks." + block + ".break-actions." + action.getID() + ".value", action.getValue());
+                                });
+                            }
+                        }));
+                    }
                 });
                 break;
             case ALL:
@@ -752,6 +908,20 @@ public abstract class RMine {
                 return;
             }
 
+            switch (this.getBlockSetMode()) {
+                case INCREMENTAL:
+                    ++this.blockSetIndex;
+                    if (this.blockSetIndex >= this.blockSets.size()) {
+                        this.blockSetIndex = 0;
+                    }
+                    break;
+                case RANDOM:
+                    this.blockSetIndex = RealMinesAPI.getRand().nextInt(this.blockSets.size());
+                    break;
+                case NONE:
+                    break;
+            }
+
             this.kickPlayers(TranslatableLine.MINE_RESET_STARTING.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.getDisplayName())).get());
             this.fillContent();
 
@@ -777,8 +947,8 @@ public abstract class RMine {
         this.saveData(MineData.SIGNS);
     }
 
-    public List<RMBlockSet> getBlockSets() {
-        return this.blockSets;
+    public Collection<RMBlockSet> getBlockSets() {
+        return Collections.unmodifiableCollection(this.blockSets.values());
     }
 
     public void updateSigns() {
@@ -844,12 +1014,12 @@ public abstract class RMine {
     }
 
     public List<Player> getPlayersInMine() {
-        if (this.mineCuboid == null) {
+        if (this.getMineCuboid() == null) {
             return Collections.emptyList();
         }
 
         return Bukkit.getOnlinePlayers().stream()
-                .filter(p -> this.mineCuboid.contains(p.getLocation()))
+                .filter(p -> this.getMineCuboid().contains(p.getLocation()))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
@@ -859,13 +1029,13 @@ public abstract class RMine {
 
     public List<Location> getHighlightedCube() {
         final List<Location> result = new ArrayList<>();
-        final World world = this.mineCuboid.getPOS1().getWorld();
-        final double minX = Math.min(this.mineCuboid.getPOS1().getX(), this.mineCuboid.getPOS2().getX());
-        final double minY = Math.min(this.mineCuboid.getPOS1().getY(), this.mineCuboid.getPOS2().getY());
-        final double minZ = Math.min(this.mineCuboid.getPOS1().getZ(), this.mineCuboid.getPOS2().getZ());
-        final double maxX = Math.max(this.mineCuboid.getPOS1().getX() + 1, this.mineCuboid.getPOS2().getX() + 1);
-        final double maxY = Math.max(this.mineCuboid.getPOS1().getY() + 1, this.mineCuboid.getPOS2().getY() + 1);
-        final double maxZ = Math.max(this.mineCuboid.getPOS1().getZ() + 1, this.mineCuboid.getPOS2().getZ() + 1);
+        final World world = this.getMineCuboid().getPOS1().getWorld();
+        final double minX = Math.min(this.getMineCuboid().getPOS1().getX(), this.getMineCuboid().getPOS2().getX());
+        final double minY = Math.min(this.getMineCuboid().getPOS1().getY(), this.getMineCuboid().getPOS2().getY());
+        final double minZ = Math.min(this.getMineCuboid().getPOS1().getZ(), this.getMineCuboid().getPOS2().getZ());
+        final double maxX = Math.max(this.getMineCuboid().getPOS1().getX() + 1, this.getMineCuboid().getPOS2().getX() + 1);
+        final double maxY = Math.max(this.getMineCuboid().getPOS1().getY() + 1, this.getMineCuboid().getPOS2().getY() + 1);
+        final double maxZ = Math.max(this.getMineCuboid().getPOS1().getZ() + 1, this.getMineCuboid().getPOS2().getZ() + 1);
         final double dist = 0.5D;
         for (double x = minX; x <= maxX; x += dist) {
             for (double y = minY; y <= maxY; y += dist) {
@@ -1002,41 +1172,11 @@ public abstract class RMine {
         this.saveData(MineData.FACES);
     }
 
-    public HashMap<MineCuboid.CuboidDirection, Material> getFaces() {
+    public Map<MineCuboid.CuboidDirection, Material> getFaces() {
         return this.faces;
     }
 
     public abstract RMine.Type getType();
-
-    public void processBlockBreakAction(final MineBlockBreakEvent e, final Double random) {
-        if (e.isBroken() && this.getMineItems().containsKey(e.getMaterial())) {
-            this.getMineItems().get(e.getMaterial()).getBreakActions().forEach(mineAction -> mineAction.execute(e.getPlayer(), e.getBlock().getLocation(), random));
-        }
-    }
-
-    public void processBlockBreakEvent(final MineBlockBreakEvent event, final boolean reset) {
-        //add or remove to mined blocks
-        this.minedBlocks = Math.max(0, this.minedBlocks + (event.isBroken() ? 1 : -1));
-
-        if (event.getPlayer() != null) {
-            processBlockBreakAction(event, RealMinesAPI.getRand().nextDouble() * 100);
-        }
-
-        processBlockBreakEvent(reset);
-    }
-
-    private void processBlockBreakEvent(boolean reset) {
-        if (reset) {
-            //if mine reset percentage is lower, reset it
-            if (this.isResetBy(RMine.Reset.PERCENTAGE) & ((double) this.getRemainingBlocksPer() < this.getResetValue(RMine.Reset.PERCENTAGE))) {
-                this.kickPlayers(TranslatableLine.MINE_RESET_PERCENTAGE.get());
-                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), this::reset, 10);
-            }
-        }
-
-        //update min e signs
-        this.updateSigns();
-    }
 
     public abstract void clearContents();
 

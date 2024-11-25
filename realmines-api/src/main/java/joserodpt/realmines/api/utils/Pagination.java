@@ -15,6 +15,7 @@ package joserodpt.realmines.api.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 
 public class Pagination<T> extends ArrayList<T> {
@@ -30,7 +31,7 @@ public class Pagination<T> extends ArrayList<T> {
         this(pageSize, Arrays.asList(objects));
     }
 
-    public Pagination(final int pageSize, final List<T> objects) {
+    public Pagination(final int pageSize, final Collection<T> objects) {
         this.pageSize = pageSize;
         this.addAll(objects);
     }

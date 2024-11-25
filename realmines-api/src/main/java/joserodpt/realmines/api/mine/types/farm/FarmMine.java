@@ -17,6 +17,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineCuboid;
+import joserodpt.realmines.api.mine.components.RMBlockSet;
 import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
@@ -53,18 +54,25 @@ public class FarmMine extends RMine {
     //new mine
     public FarmMine(String name, World w, Location pos1, Location pos2) throws RMFailedToLoadException {
         super(name, w, pos1, pos2);
+        this.fillContent();
+        this.updateSigns();
     }
 
     //converting from old config to new config
     public FarmMine(String name, Section mineConfigSection) throws RMFailedToLoadException {
         super(name, mineConfigSection);
+        this.fillContent();
+        this.updateSigns();
     }
 
     //after converting from old config to new config
     public FarmMine(String name, YamlConfiguration config) throws RMFailedToLoadException {
         super(name, config);
+        this.fillContent();
+        this.updateSigns();
     }
 
+    @Override
     public void setPOS(Location p1, Location p2) {
         super.setPOS(p1, p2);
         this.checkFarmBlocks();
@@ -183,20 +191,16 @@ public class FarmMine extends RMine {
         }
     }
 
-    public void removeMineFarmItem(final MineItem mb) {
-        super.getMineItems().remove(mb.getMaterial());
+    public void removeMineFarmItem(final String blockSetKey, final MineItem mb) {
+        super.getBlockSet(blockSetKey).remove(mb);
         this.saveData(MineData.BLOCKS);
     }
 
-    public void addFarmItem(final MineFarmItem mineFarmItem) {
-        if (!this.contains(mineFarmItem)) {
-            super.getMineItems().put(mineFarmItem.getMaterial(), mineFarmItem);
+    public void addFarmItem(final String blockSetKey, final MineFarmItem mineFarmItem) {
+        RMBlockSet blockSet = this.getBlockSet(blockSetKey);
+        if (blockSet != null && !blockSet.contains(mineFarmItem)) {
+            blockSet.add(mineFarmItem);
             this.saveData(MineData.BLOCKS);
         }
-    }
-
-    private boolean contains(final MineFarmItem fi) {
-        return super.getMineItems().values().stream()
-                .anyMatch(item -> ((MineFarmItem) item).getFarmItem() == fi.getFarmItem());
     }
 }

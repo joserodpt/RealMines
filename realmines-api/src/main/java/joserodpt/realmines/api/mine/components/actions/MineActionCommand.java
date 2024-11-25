@@ -29,8 +29,15 @@ public class MineActionCommand extends MineAction {
     private final CommandSender cmdSndr = Bukkit.getServer().getConsoleSender();
     private String command;
 
+    //for existing
     public MineActionCommand(final String id, final String mineID, final Double chance, final String command) {
         super(id, mineID, chance);
+        this.command = command;
+    }
+
+    //generate new
+    public MineActionCommand(final String mineID, final Double chance, final String command) {
+        super(mineID, chance);
         this.command = command;
     }
 

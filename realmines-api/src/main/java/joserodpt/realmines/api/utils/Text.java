@@ -107,4 +107,11 @@ public class Text {
     public static String formatEpoch(long l) {
         return new java.text.SimpleDateFormat("HH:mm:ss dd/MM/yyyy").format(new java.util.Date(l));
     }
+
+    public static String formatPercentages(double percentage) {
+        // 0.12 -> 12%
+        // 0.123 -> 12.3%
+        // 0.1234 -> 12.34%
+        return new DecimalFormat("#.##").format(percentage * 100);
+    }
 }

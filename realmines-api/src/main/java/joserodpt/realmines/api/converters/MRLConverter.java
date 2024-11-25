@@ -80,7 +80,7 @@ public class MRLConverter implements RMConverterBase {
 
                 m.setIcon(Material.COBBLESTONE);
 
-                blocks.forEach((material, aDouble) -> m.addItem(new MineBlockItem(material, aDouble / 100)));
+                blocks.forEach((material, aDouble) -> m.addItem("default", new MineBlockItem(material, aDouble / 100)));
 
                 final double value2 = MRLmine.getResetPercent();
                 if ((int) value2 != -1) {

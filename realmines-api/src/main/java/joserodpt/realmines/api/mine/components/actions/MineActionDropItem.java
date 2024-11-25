@@ -30,8 +30,15 @@ public class MineActionDropItem extends MineAction {
 
     private ItemStack i;
 
+    //for existing
     public MineActionDropItem(final String id, final String mineID, final Double chance, final ItemStack i) {
         super(id, mineID, chance);
+        this.i = i;
+    }
+
+    //generate new
+    public MineActionDropItem(final String mineID, final Double chance, final ItemStack i) {
+        super(mineID, chance);
         this.i = i;
     }
 
@@ -43,7 +50,7 @@ public class MineActionDropItem extends MineAction {
         if (randomChance < super.getChance()) {
             Objects.requireNonNull(l.getWorld()).dropItemNaturally(l, this.i.clone());
 
-            if (super.getMine().getBooleanSetting(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
+            if (super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
                 TranslatableLine.MINE_BREAK_ACTION_DROP_ITEM.send(p);
         }
     }
