@@ -44,7 +44,7 @@ public class MineActionDummy extends MineAction {
     }
 
     @Override
-    public ItemStack getItem() {
+    public ItemStack getIcon() {
         return Items.createItem(Material.DEAD_BUSH, 1, "&fAdd Break Actions in the Icon Above");
     }
 }

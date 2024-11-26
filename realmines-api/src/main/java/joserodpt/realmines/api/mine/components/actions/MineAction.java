@@ -96,7 +96,7 @@ public abstract class MineAction {
 
     public abstract Object getValue();
 
-    public abstract ItemStack getItem();
+    public abstract ItemStack getIcon();
 
     public String getNewBreakActionCode() {
         final String characters = "abcdefghijklmnopqrstuvwxyz";

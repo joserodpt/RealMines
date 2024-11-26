@@ -72,7 +72,7 @@ public class MineActionMoney extends MineAction {
     }
 
     @Override
-    public ItemStack getItem() {
+    public ItemStack getIcon() {
         return Items.createItem(Material.EMERALD, 1, getType().getDisplayName() + " &r&f- " + Text.formatPercentages(super.getChance() / 100) + "%", Arrays.asList("&fAmount: &b" + Text.formatNumber(this.money), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the amount.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 

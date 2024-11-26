@@ -117,7 +117,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
         for (final ItemStack i : this.inv.getContents()) {
             if (i == null && !items.isEmpty()) {
                 final MineAction s = items.get(0);
-                this.inv.setItem(slot, s.getItem());
+                this.inv.setItem(slot, s.getIcon());
                 this.display.put(slot, s);
                 items.remove(0);
             }
