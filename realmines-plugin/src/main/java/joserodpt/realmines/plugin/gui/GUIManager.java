@@ -16,6 +16,7 @@ package joserodpt.realmines.plugin.gui;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
+import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.mine.components.actions.MineActionCommand;
 import joserodpt.realmines.api.mine.components.actions.MineActionDropItem;
 import joserodpt.realmines.api.mine.components.actions.MineActionGiveItem;
@@ -57,7 +58,7 @@ public class GUIManager {
         return ret;
     }
 
-    public void openBreakActionChooser(final Player target, final RMine r, final MineItem mi) {
+    public void openBreakActionChooser(final Player target, final RMine r, final MineItem mi, final String currentBlockSet) {
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -77,14 +78,14 @@ public class GUIManager {
                                 mi.getBreakActions().add(new MineActionMoney(r.getName(), 50D, d));
                                 r.saveData(RMine.MineData.BLOCKS);
 
-                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi, currentBlockSet);
                                 v.openInventory(target);
                             }, s -> {
-                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi, currentBlockSet);
                                 v.openInventory(target);
                             });
 
-                        }, Items.createItem(Material.EMERALD, 1, "&b&lGive Money"),
+                        }, Items.createItem(Material.EMERALD, 1, MineAction.MineActionType.GIVE_MONEY.getDisplayName()),
                         10);
 
                 inventory.addItem(e -> {
@@ -107,14 +108,14 @@ public class GUIManager {
                                 mi.getBreakActions().add(new MineActionDropItem(r.getName(), d, target.getInventory().getItemInMainHand().clone()));
                                 r.saveData(RMine.MineData.BLOCKS);
 
-                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi, currentBlockSet);
                                 v.openInventory(target);
                             }, s -> {
-                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi, currentBlockSet);
                                 v.openInventory(target);
                             });
 
-                        }, Items.createItem(Material.DROPPER, 1, "&b&lDrop Item"),
+                        }, Items.createItem(Material.DROPPER, 1, MineAction.MineActionType.DROP_ITEM.getDisplayName()),
                         12);
 
                 inventory.addItem(e -> {
@@ -132,14 +133,14 @@ public class GUIManager {
                                 mi.getBreakActions().add(new MineActionGiveItem(r.getName(), d, target.getInventory().getItemInMainHand().clone()));
                                 r.saveData(RMine.MineData.BLOCKS);
 
-                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi, currentBlockSet);
                                 v.openInventory(target);
                             }, s -> {
-                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi, currentBlockSet);
                                 v.openInventory(target);
                             });
 
-                        }, Items.createItem(Material.CHEST, 1, "&b&lGive Item"),
+                        }, Items.createItem(Material.CHEST, 1, MineAction.MineActionType.GIVE_ITEM.getDisplayName()),
                         14);
 
                 inventory.addItem(e -> {
@@ -149,14 +150,14 @@ public class GUIManager {
                                 mi.getBreakActions().add(new MineActionCommand(r.getName(), 50D, s));
                                 r.saveData(RMine.MineData.BLOCKS);
 
-                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi, currentBlockSet);
                                 v.openInventory(target);
                             }, s -> {
-                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi);
+                                final MineBreakActionsGUI v = new MineBreakActionsGUI(rm, target, r, mi, currentBlockSet);
                                 v.openInventory(target);
                             });
 
-                        }, Items.createItem(Material.COMMAND_BLOCK, 1, "&b&lExecute Command"),
+                        }, Items.createItem(Material.COMMAND_BLOCK, 1, MineAction.MineActionType.EXECUTE_COMMAND.getDisplayName()),
                         16);
 
                 inventory.openInventory(target);

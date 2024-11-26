@@ -23,7 +23,28 @@ import java.util.stream.Collectors;
 
 public abstract class MineAction {
 
-    public enum Type {GIVE_MONEY, DROP_ITEM, GIVE_ITEM, EXECUTE_COMMAND, DUMMY}
+    public enum MineActionType {
+        GIVE_MONEY("&a&lGive Money", "&aMoney"),
+        DROP_ITEM("&e&lDrop Item", "&eDrop"),
+        GIVE_ITEM("&b&lGive Item", "&bGive"),
+        EXECUTE_COMMAND("&c&lExecute Command", "&cCommand"),
+        DUMMY("&d&lDummy", "&dDummy");
+
+        private final String displayName, shortName;
+
+        MineActionType(String displayName, String shortName) {
+            this.displayName = displayName;
+            this.shortName = shortName;
+        }
+
+        public String getDisplayName() {
+            return displayName;
+        }
+
+        public String getShortName() {
+            return shortName;
+        }
+    }
 
     private String id, mineID;
     private Double chance = 0D;
@@ -69,7 +90,9 @@ public abstract class MineAction {
 
     public abstract void execute(final Player p, final Location loc, double randomChance);
 
-    public abstract Type getType();
+    public abstract MineActionType getType();
+
+    public abstract String getValueString();
 
     public abstract Object getValue();
 

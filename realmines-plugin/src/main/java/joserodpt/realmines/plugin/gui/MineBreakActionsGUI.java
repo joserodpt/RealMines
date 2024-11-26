@@ -69,10 +69,12 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
     private int pageNumber = 0;
     private Pagination<MineAction> p;
     private final RealMines rm;
+    private final String currentBlockSet;
 
-    public MineBreakActionsGUI(final RealMines rm, final Player target, final RMine min, final MineItem mineItem) {
+    public MineBreakActionsGUI(final RealMines rm, final Player target, final RMine min, final MineItem mineItem, final String currentBlockSet) {
         this.rm = rm;
         this.uuid = target.getUniqueId();
+        this.currentBlockSet = currentBlockSet;
         this.mine = min;
         this.mineItem = mineItem;
         this.inv = Bukkit.getServer().createInventory(null, 54, Text.beautifyMaterialName(mineItem.getMaterial()) + " break actions");
@@ -80,6 +82,49 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
         this.load();
 
         this.register();
+    }
+
+    public void load() {
+        List<MineAction> actions = this.mine.getMineItemsOfSet(currentBlockSet).get(this.mineItem.getMaterial()).getBreakActions();
+        if (actions.isEmpty()) {
+            this.p = new Pagination<>(28, Collections.singletonList(new MineActionDummy()));
+        } else {
+            this.p = new Pagination<>(28, actions.stream().sorted(Comparator.comparingDouble(MineAction::getChance).reversed()).collect(Collectors.toList()));
+        }
+
+        this.fillChest(this.p.getPage(this.pageNumber));
+    }
+
+    public void fillChest(final List<MineAction> items) {
+        this.inv.clear();
+        this.display.clear();
+
+        for (int i = 0; i < 9; ++i) {
+            this.inv.setItem(i, placeholder);
+        }
+        this.inv.setItem(4, add);
+
+        for (int slot : new int[]{45, 46, 47, 48, 49, 50, 51, 52, 53, 36, 44, 9, 17}) {
+            this.inv.setItem(slot, placeholder);
+        }
+
+        this.inv.setItem(18, back);
+        this.inv.setItem(27, back);
+        this.inv.setItem(26, next);
+        this.inv.setItem(35, next);
+
+        int slot = 0;
+        for (final ItemStack i : this.inv.getContents()) {
+            if (i == null && !items.isEmpty()) {
+                final MineAction s = items.get(0);
+                this.inv.setItem(slot, s.getItem());
+                this.display.put(slot, s);
+                items.remove(0);
+            }
+            ++slot;
+        }
+
+        this.inv.setItem(49, close);
     }
 
     public static Listener getListener() {
@@ -111,7 +156,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                 break;
                             case 4:
                                 p.closeInventory();
-                                current.rm.getGUIManager().openBreakActionChooser(p, current.mine, current.mineItem);
+                                current.rm.getGUIManager().openBreakActionChooser(p, current.mine, current.mineItem, current.currentBlockSet);
                                 break;
                             case 26:
                             case 35:
@@ -162,10 +207,10 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                                     ((MineActionCommand) a).setCommand(s);
                                                     current.mine.saveData(RMine.MineData.BLOCKS);
 
-                                                    final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
+                                                    final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem, current.currentBlockSet);
                                                     v.openInventory(p);
                                                 }, s -> {
-                                                    final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
+                                                    final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem, current.currentBlockSet);
                                                     v.openInventory(p);
                                                 });
                                                 break;
@@ -185,10 +230,10 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                                     ((MineActionMoney) a).setAmount(d);
                                                     current.mine.saveData(RMine.MineData.BLOCKS);
 
-                                                    final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
+                                                    final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem, current.currentBlockSet);
                                                     v.openInventory(p);
                                                 }, s -> {
-                                                    final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
+                                                    final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem, current.currentBlockSet);
                                                     v.openInventory(p);
                                                 });
                                                 break;
@@ -211,10 +256,10 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                             a.setChance(d);
                                             current.mine.saveData(RMine.MineData.BLOCKS);
 
-                                            final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
+                                            final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem, current.currentBlockSet);
                                             v.openInventory(p);
                                         }, s -> {
-                                            final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem);
+                                            final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, current.mineItem, current.currentBlockSet);
                                             v.openInventory(p);
                                         });
                                         break;
@@ -255,48 +300,6 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                 }
             }
         };
-    }
-
-    public void load() {
-        if (this.mine.getMineItems().get(this.mineItem.getMaterial()).getBreakActions().isEmpty()) {
-            this.p = new Pagination<>(28, Collections.singletonList(new MineActionDummy()));
-        } else {
-            this.p = new Pagination<>(28, this.mine.getMineItems().get(this.mineItem.getMaterial()).getBreakActions().stream().sorted(Comparator.comparingDouble(MineAction::getChance).reversed()).collect(Collectors.toList()));
-        }
-
-        this.fillChest(this.p.getPage(this.pageNumber));
-    }
-
-    public void fillChest(final List<MineAction> items) {
-        this.inv.clear();
-        this.display.clear();
-
-        for (int i = 0; i < 9; ++i) {
-            this.inv.setItem(i, placeholder);
-        }
-        this.inv.setItem(4, add);
-
-        for (int slot : new int[]{45, 46, 47, 48, 49, 50, 51, 52, 53, 36, 44, 9, 17}) {
-            this.inv.setItem(slot, placeholder);
-        }
-
-        this.inv.setItem(18, back);
-        this.inv.setItem(27, back);
-        this.inv.setItem(26, next);
-        this.inv.setItem(35, next);
-
-        int slot = 0;
-        for (final ItemStack i : this.inv.getContents()) {
-            if (i == null && !items.isEmpty()) {
-                final MineAction s = items.get(0);
-                this.inv.setItem(slot, s.getItem());
-                this.display.put(slot, s);
-                items.remove(0);
-            }
-            ++slot;
-        }
-
-        this.inv.setItem(49, close);
     }
 
     public void openInventory(final Player target) {

@@ -41,10 +41,11 @@ public class MineBlockItem extends MineItem {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItem(super.getMaterial(), 1, TranslatableLine.GUI_MINE_BLOCK_NAME.setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(super.getMaterial()))).get() + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Mine-Block.Block.Description")
+        ItemStack i = Items.createItem(super.getMaterial(), 1, TranslatableLine.GUI_MINE_BLOCK_NAME.setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(super.getMaterial()))).get() + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Mine-Block.Block.Description")
                 .stream()
                 .map(s -> Text.color(s.replaceAll("%percentage%", Text.formatPercentages(super.getPercentage()))))
                 .collect(Collectors.toList()));
+        return super.getBreakActions().isEmpty() ? i : Items.addBreakActionsLore(i, super.getBreakActionsTextList());
     }
 
     @Override

@@ -263,6 +263,9 @@ public abstract class RMine {
             mineConfigSection.getSection("Blocks").getRoutesAsStrings(false).forEach(block -> {
                 config.set("block-sets.default.blocks." + block + ".percentage", mineConfigSection.getSection("Blocks").getDouble(block + ".Chance"));
 
+                config.set("block-sets.default.blocks." + block + ".disabled-vanilla-drop", mineConfigSection.getSection("Blocks").getBoolean(block + ".Disabled-Vanilla-Drop", false));
+                config.set("block-sets.default.blocks." + block + ".disabled-block-mining", mineConfigSection.getSection("Blocks").getBoolean(block + ".Disabled-Block-Mining", false));
+
                 //has any break actions?
                 if (mineConfigSection.getSection("Blocks").getSection(block).getSection("Break-Actions") != null) {
                     //get a map of break actions
@@ -420,7 +423,7 @@ public abstract class RMine {
                                 final String actionRoute = "block-sets." + blockSetKey + ".blocks." + mat + ".break-actions." + actionID;
                                 final Double chance = this.config.getDouble(actionRoute + ".chance");
                                 try {
-                                    MineAction.Type mineactiontype = MineAction.Type.valueOf(this.config.getString(actionRoute + ".type"));
+                                    MineAction.MineActionType mineactiontype = MineAction.MineActionType.valueOf(this.config.getString(actionRoute + ".type"));
                                     switch (mineactiontype) {
                                         case EXECUTE_COMMAND:
                                             actionsList.add(new MineActionCommand(actionID, name, chance, this.config.getString(actionRoute + ".value")));
@@ -446,11 +449,6 @@ public abstract class RMine {
                                             }
                                             break;
                                         case GIVE_MONEY:
-                                            if (RealMinesAPI.getInstance().getEconomy() == null) {
-                                                RealMinesAPI.getInstance().getPlugin().getLogger().warning("Money Break Action for " + mat + " will be ignored because Vault isn't installed on this server.");
-                                                continue;
-                                            }
-
                                             actionsList.add(new MineActionMoney(actionID, name, chance, this.config.getDouble(actionRoute + ".value")));
                                             break;
                                     }
@@ -658,7 +656,7 @@ public abstract class RMine {
 
     public void setDisplayName(final String input) {
         this.displayName = input;
-        this.saveData(MineData.NAME);
+        this.saveData(MineData.DISPLAYNAME);
     }
 
     public MineCuboid getMineCuboid() {
@@ -718,6 +716,14 @@ public abstract class RMine {
                 .findFirst()
                 .orElse(new RMBlockSet())
                 .getItems();
+    }
+
+    public String getCurrentBlockSet() {
+        return this.blockSets.values().stream()
+                .skip(this.blockSetIndex)
+                .findFirst()
+                .map(RMBlockSet::getKey)
+                .orElse("default");
     }
 
     public List<MineItem> getBlockIcons(String blockSet) {
@@ -867,6 +873,8 @@ public abstract class RMine {
                             String block = material.name();
 
                             config.set("block-sets." + blockSetKey + ".blocks." + block + ".percentage", mineItem.getPercentage());
+                            config.set("block-sets." + blockSetKey + ".blocks." + block + ".disabled-vanilla-drop", mineItem.areVanillaDropsDisabled());
+                            config.set("block-sets." + blockSetKey + ".blocks." + block + ".disabled-block-mining", mineItem.isBlockMiningDisabled());
 
                             if (mineItem.hasBreakActions()) {
                                 mineItem.getBreakActions().forEach(action -> {

@@ -18,7 +18,6 @@ import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.RMineSettings;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Text;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -49,17 +48,22 @@ public class MineActionMoney extends MineAction {
         if (randomChance < super.getChance()) {
             if (RealMinesAPI.getInstance().getEconomy() != null) {
                 RealMinesAPI.getInstance().getEconomy().depositPlayer(p, money);
-                if (super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
+                if (!super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
                     TranslatableLine.MINE_BREAK_ACTION_DROP_ITEM.send(p);
             } else {
-                Bukkit.getLogger().warning("Economy not found or Vault not installed. Please install a compatible economy plugin.");
+                RealMinesAPI.getInstance().getLogger().warning("Economy not found or Vault not installed. Please install a compatible economy plugin. Skipping break action ID " + getID());
             }
         }
     }
 
     @Override
-    public MineAction.Type getType() {
-        return MineAction.Type.GIVE_MONEY;
+    public MineActionType getType() {
+        return MineActionType.GIVE_MONEY;
+    }
+
+    @Override
+    public String getValueString() {
+        return Text.formatNumber(this.money);
     }
 
     @Override
@@ -69,7 +73,7 @@ public class MineActionMoney extends MineAction {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItem(Material.EMERALD, 1, "&b&lGive Money &r&f- " + super.getChance() + "%", Arrays.asList("&fAmount: &b" + Text.formatNumber(this.money), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the amount.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
+        return Items.createItem(Material.EMERALD, 1, getType().getDisplayName() + " &r&f- " + Text.formatPercentages(super.getChance()) + "%", Arrays.asList("&fAmount: &b" + Text.formatNumber(this.money), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the amount.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 
     public void setAmount(Double d) {

@@ -48,16 +48,18 @@ public class MineActionCommand extends MineAction {
 
         if (randomChance < super.getChance()) {
             String cmd2Exec = this.command.replace("%player%", p.getName()).replace("%blockloc%", Text.location2Command(l));
-            if (!cmd2Exec.startsWith("/")) {
-                cmd2Exec = "/" + cmd2Exec;
-            }
             Bukkit.getServer().dispatchCommand(cmdSndr, cmd2Exec);
         }
     }
 
     @Override
-    public Type getType() {
-        return Type.EXECUTE_COMMAND;
+    public MineActionType getType() {
+        return MineActionType.EXECUTE_COMMAND;
+    }
+
+    @Override
+    public String getValueString() {
+        return this.command;
     }
 
     @Override
@@ -67,7 +69,7 @@ public class MineActionCommand extends MineAction {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItem(Material.COMMAND_BLOCK, 1, "&b&lExecute Command &r&f- " + super.getChance() + "%", Arrays.asList("&fCommand: &b/" + this.command, "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the command.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
+        return Items.createItem(Material.COMMAND_BLOCK, 1, getType().getDisplayName() + " &r&f- " + Text.formatPercentages(super.getChance()) + "%", Arrays.asList("&fCommand: &b/" + this.command, "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the command.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 
     public void setCommand(String s) {

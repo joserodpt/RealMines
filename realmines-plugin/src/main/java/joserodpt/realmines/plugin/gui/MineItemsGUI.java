@@ -77,7 +77,7 @@ public class MineItemsGUI {
     private final RealMines rm;
 
     public MineItemsGUI(final RealMines rm, final Player target, final RMine mine) {
-        this(rm, target, mine, "default");
+        this(rm, target, mine, mine.getCurrentBlockSet());
     }
 
     public MineItemsGUI(final RealMines rm, final Player target, final RMine mine, final String selectedBlockSet) {
@@ -317,7 +317,7 @@ public class MineItemsGUI {
                                     case RIGHT:
                                         p.closeInventory();
                                         Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm.getPlugin(), () -> {
-                                            final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, minItem);
+                                            final MineBreakActionsGUI v = new MineBreakActionsGUI(current.rm, p, current.mine, minItem, current.selectedBlockSet);
                                             v.openInventory(p);
                                         }, 2);
                                         break;

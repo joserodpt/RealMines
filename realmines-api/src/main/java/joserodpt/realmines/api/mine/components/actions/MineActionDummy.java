@@ -29,8 +29,13 @@ public class MineActionDummy extends MineAction {
     }
 
     @Override
-    public Type getType() {
-        return Type.DUMMY;
+    public MineActionType getType() {
+        return MineActionType.DUMMY;
+    }
+
+    @Override
+    public String getValueString() {
+        return "";
     }
 
     @Override

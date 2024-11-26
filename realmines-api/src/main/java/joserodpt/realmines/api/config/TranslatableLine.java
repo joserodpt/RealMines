@@ -27,7 +27,7 @@ public enum TranslatableLine {
     MINE_NO_TELEPORT_LOCATION("Mines.No-Teleport-Location"),
     // break actions
     MINE_BREAK_ACTION_GIVE_MONEY("Mines.Break-Actions.Give-Money", ReplacableVar.MONEY),
-    MINE_BREAK_ACTION_DROP_ITEM("Mines.Break-Actions.Drop-Item", ReplacableVar.NAME),
+    MINE_BREAK_ACTION_DROP_ITEM("Mines.Break-Actions.Drop-Item"),
     MINE_BREAK_ACTION_GIVE_ITEM("Mines.Break-Actions.Give-Item"),
     MINE_BREAK_ACTION_INPUT_COMMAND("Mines.Break-Actions.Input.Command"),
     MINE_BREAK_ACTION_INPUT_AMOUNT("Mines.Break-Actions.Input.Amount"),

@@ -17,11 +17,14 @@ import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.utils.Items;
+import joserodpt.realmines.api.utils.Text;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MineItem {
 
@@ -87,6 +90,10 @@ public class MineItem {
 
     public List<MineAction> getBreakActions() {
         return this.breakActions;
+    }
+
+    protected @NotNull List<String> getBreakActionsTextList() {
+        return this.getBreakActions().stream().map(action -> "&7- " + action.getType().getShortName() + "&r&f: " + action.getValueString() + " &f(&e" + Text.formatPercentages(action.getChance() / 100) + "%&f)").collect(Collectors.toList());
     }
 
     public boolean hasBreakActions() {

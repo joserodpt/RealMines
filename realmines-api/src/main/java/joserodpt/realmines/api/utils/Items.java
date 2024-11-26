@@ -88,4 +88,19 @@ public class Items {
         item.setItemMeta(meta);
         return item;
     }
+
+    public static ItemStack addBreakActionsLore(final ItemStack i, final List<String> add) {
+        final ItemMeta meta = i.getItemMeta();
+        if (meta != null) {
+            List<String> lore = meta.getLore();
+            if (lore != null) {
+                lore.add("&6");
+                lore.add("&fBreak Actions:");
+                lore.addAll(add);
+                meta.setLore(Text.color(lore));
+                i.setItemMeta(meta);
+            }
+        }
+        return i;
+    }
 }

@@ -47,14 +47,19 @@ public class MineActionGiveItem extends MineAction {
         }
         if (randomChance < super.getChance()) {
             p.getInventory().addItem(i);
-            if (super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
-                TranslatableLine.MINE_BREAK_ACTION_DROP_ITEM.send(p);
+            if (!super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
+                TranslatableLine.MINE_BREAK_ACTION_GIVE_ITEM.send(p);
         }
     }
 
     @Override
-    public MineAction.Type getType() {
-        return Type.GIVE_ITEM;
+    public MineActionType getType() {
+        return MineActionType.GIVE_ITEM;
+    }
+
+    @Override
+    public String getValueString() {
+        return Text.beautifyMaterialName(this.i.getType());
     }
 
     @Override
@@ -64,7 +69,7 @@ public class MineActionGiveItem extends MineAction {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItem(Material.CHEST, 1, "&b&lGive Item &r&f- " + super.getChance() + "%", Arrays.asList("&fItem: &bx" + this.i.getAmount() + " " + Text.beautifyMaterialName(this.i.getType()), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the item.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
+        return Items.createItem(Material.CHEST, 1, getType().getDisplayName() + " &r&f- " + Text.formatPercentages(super.getChance()) + "%", Arrays.asList("&fItem: &bx" + this.i.getAmount() + " " + Text.beautifyMaterialName(this.i.getType()), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the item.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 
     public void setItem(ItemStack itemInMainHand) {
