@@ -69,7 +69,7 @@ public class MineActionGiveItem extends MineAction {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItem(Material.CHEST, 1, getType().getDisplayName() + " &r&f- " + Text.formatPercentages(super.getChance()) + "%", Arrays.asList("&fItem: &bx" + this.i.getAmount() + " " + Text.beautifyMaterialName(this.i.getType()), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the item.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
+        return Items.createItem(Material.CHEST, 1, getType().getDisplayName() + " &r&f- " + Text.formatPercentages(super.getChance() / 100) + "%", Arrays.asList("&fItem: &bx" + this.i.getAmount() + " " + Text.beautifyMaterialName(this.i.getType()), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the item.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 
     public void setItem(ItemStack itemInMainHand) {
