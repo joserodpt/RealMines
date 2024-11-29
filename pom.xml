@@ -11,6 +11,8 @@
 
     <properties>
         <revision>1.7</revision>
+        <java.version>16</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <modules>
         <module>realmines-plugin</module>
