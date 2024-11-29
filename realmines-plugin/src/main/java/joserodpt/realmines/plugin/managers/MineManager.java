@@ -134,6 +134,13 @@ public class MineManager extends MineManagerAPI {
                         YamlConfiguration mineConfig = YamlConfiguration.loadConfiguration(file);
                         String mineName = mineConfig.getString("name");
                         String type = mineConfig.getString("type");
+
+                        if (mineName == null || type == null) {
+                            rm.getLogger().warning("Failed to load mine " + file.getName() + "!");
+                            rm.getLogger().warning("Error: name or type not found.");
+                            continue;
+                        }
+
                         switch (type) {
                             case "BLOCKS":
                                 addMine(new BlockMine(mineName, mineConfig));
@@ -212,7 +219,6 @@ public class MineManager extends MineManagerAPI {
                     pos1.add(0, 1, 0);
                 }
 
-
                 final FarmMine m = new FarmMine(name, p.getWorld(), pos1, pos2);
                 m.addFarmItem("default", new MineFarmItem(FarmItem.WHEAT, 1D));
 
@@ -238,6 +244,7 @@ public class MineManager extends MineManagerAPI {
                 }
             }
         } catch (final Exception ignored) {
+            ignored.printStackTrace();
             TranslatableLine.SYSTEM_BOUNDARIES_NOT_SET.send(p);
         }
     }

@@ -18,6 +18,7 @@ import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.PlayerInput;
+import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -191,7 +192,7 @@ public class MineResetGUI {
                     }
 
                     m.setResetValue(RMine.Reset.PERCENTAGE, d);
-                    TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(d))).send(p);
+                    TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(Text.formatPercentages(d) + "%")).send(p);
 
                     final MineResetGUI v = new MineResetGUI(rm, p, m);
                     v.openInventory(p);

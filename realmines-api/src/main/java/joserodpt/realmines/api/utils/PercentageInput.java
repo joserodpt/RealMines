@@ -56,7 +56,7 @@ public class PercentageInput {
     }
 
     public void setInventory() {
-        List<String> desc = Arrays.asList("&f&lCurrent: &e&l" + percentage + "%", "&7", "&aClick &fto add.", "&cQ (Drop) &fto remove.");
+        List<String> desc = Arrays.asList("&f&lCurrent: &e&l" + percentage + "%", "&7", "&a&nClick&r&f to add.", "&c&nQ (Drop)&r&f to remove.");
         this.inv.setItem(0, Items.createItem(Material.EMERALD_ORE, 1, "&f&l1%", desc));
         this.inv.setItem(1, Items.createItem(Material.EMERALD_ORE, 2, "&f&l2%", desc));
         this.inv.setItem(2, Items.createItem(Material.EMERALD_ORE, 5, "&f&l5%", desc));

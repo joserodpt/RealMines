@@ -132,8 +132,8 @@ public abstract class RMine {
     private File file;
 
     private FileConfiguration config;
-    //create new mine (for mines without pos1/2)
 
+    //create new mine (for mines without pos1/2)
     public RMine(String name, World w) throws RMFailedToLoadException {
         this.name = ChatColor.stripColor(Text.color(name));
         this.displayName = name;
@@ -159,14 +159,35 @@ public abstract class RMine {
         this.fillContent();
         this.updateSigns();
     }
-    //create new mine
 
+    //create new mine
     public RMine(String name, World w, Location pos1, Location pos2) throws RMFailedToLoadException {
-        this(name, w);
+        this.name = ChatColor.stripColor(Text.color(name));
+        this.displayName = name;
+        this.w = w;
         this._pos1 = pos1;
         this._pos2 = pos2;
         this.mineCuboid = new MineCuboid(pos1, pos2);
-        saveData(MineData.POS);
+
+        switch (getType()) {
+            case BLOCKS:
+                this.icon = Material.DIAMOND_ORE;
+                this.color = MineColor.BLUE;
+                break;
+            case SCHEMATIC:
+                this.icon = Material.FILLED_MAP;
+                this.color = MineColor.ORANGE;
+                break;
+            case FARM:
+                this.icon = Material.WHEAT;
+                this.color = MineColor.GREEN;
+                break;
+        }
+
+        checkConfig(true, false);
+
+        this.fillContent();
+        this.updateSigns();
     }
     //converting from old config to new config
 
@@ -265,6 +286,11 @@ public abstract class RMine {
 
                 config.set("block-sets.default.blocks." + block + ".disabled-vanilla-drop", mineConfigSection.getSection("Blocks").getBoolean(block + ".Disabled-Vanilla-Drop", false));
                 config.set("block-sets.default.blocks." + block + ".disabled-block-mining", mineConfigSection.getSection("Blocks").getBoolean(block + ".Disabled-Block-Mining", false));
+
+                //check if it has an age entry
+                if (mineConfigSection.getSection("Blocks").getSection(block).get("Age") != null) {
+                    config.set("block-sets.default.blocks." + block + ".age", mineConfigSection.getSection("Blocks").getInt(block + ".Age"));
+                }
 
                 //has any break actions?
                 if (mineConfigSection.getSection("Blocks").getSection(block).getSection("Break-Actions") != null) {
@@ -463,7 +489,7 @@ public abstract class RMine {
                                 items.put(m, new MineBlockItem(m, per, disabledVanillaDrop, disabledBlockMining, actionsList));
                                 break;
                             case FARM:
-                                items.put(m, new MineFarmItem(FarmItem.valueOf(mat), per, disabledVanillaDrop, disabledBlockMining, this.config.getInt("block-sets" + blockSetKey + "." + mat + ".age"), actionsList));
+                                items.put(m, new MineFarmItem(FarmItem.valueOf(mat), per, disabledVanillaDrop, disabledBlockMining, this.config.getInt("block-sets." + blockSetKey + ".blocks." + mat + ".age", 0), actionsList));
                                 break;
                             case SCHEMATIC:
                                 items.put(m, new MineSchematicItem(m, disabledVanillaDrop, disabledBlockMining, actionsList));
@@ -516,7 +542,11 @@ public abstract class RMine {
             try {
                 this.file.createNewFile();
                 if (saveDefaultConfig) {
-                    setupDefaultConfig();
+                    if (this.config == null) {
+                        this.config = YamlConfiguration.loadConfiguration(file);
+                    }
+                    saveDefaultConfig();
+                    return;
                 }
             } catch (IOException e) {
                 RealMinesAPI.getInstance().getLogger().severe("RealMinesAPI threw an error while creating config for " + this.getName());
@@ -545,19 +575,19 @@ public abstract class RMine {
         this.saveData(MineData.POS);
     }
 
-    private void setupDefaultConfig() {
+    private void saveDefaultConfig() {
         this.config.set("name", getName());
         this.config.set("type", getType().name());
         this.config.set("world", getWorld().getName());
         this.config.set("icon", getIcon().name());
         this.config.set("displayName", getDisplayName());
-        this.config.set("color", getMineColor());
+        this.config.set("color", getMineColor().name());
 
         if (getType() != Type.SCHEMATIC) {
             String pos1 = getPOS1().getX() + ";" + getPOS1().getY() + ";" + getPOS1().getZ();
-            config.set("pos1", pos1);
+            this.config.set("pos1", pos1);
             String pos2 = getPOS2().getX() + ";" + getPOS2().getY() + ";" + getPOS2().getZ();
-            config.set("pos2", pos2);
+            this.config.set("pos2", pos2);
         }
 
         this.config.set("reset.silent", isSilent());
@@ -569,6 +599,7 @@ public abstract class RMine {
 
         this.config.set(RMineSettings.BREAK_PERMISSION.getConfigKey(), false);
         this.config.set(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES.getConfigKey(), false);
+        this.config.set(RMineSettings.BLOCK_SETS_MODE.getConfigKey(), this.getBlockSetMode().name());
 
         this.config.set("signs", Collections.emptyList());
         this.config.set("block-sets", Collections.emptyList());
@@ -589,7 +620,7 @@ public abstract class RMine {
     }
 
     public BlockSetsMode getBlockSetMode() {
-        return blockSetsMode;
+        return this.blockSetsMode;
     }
 
     public void reloadConfig() {
@@ -875,6 +906,10 @@ public abstract class RMine {
                             config.set("block-sets." + blockSetKey + ".blocks." + block + ".percentage", mineItem.getPercentage());
                             config.set("block-sets." + blockSetKey + ".blocks." + block + ".disabled-vanilla-drop", mineItem.areVanillaDropsDisabled());
                             config.set("block-sets." + blockSetKey + ".blocks." + block + ".disabled-block-mining", mineItem.isBlockMiningDisabled());
+
+                            if (mineItem instanceof MineFarmItem) {
+                                config.set("block-sets." + blockSetKey + ".blocks." + block + ".age", ((MineFarmItem) mineItem).getAge());
+                            }
 
                             if (mineItem.hasBreakActions()) {
                                 mineItem.getBreakActions().forEach(action -> {
