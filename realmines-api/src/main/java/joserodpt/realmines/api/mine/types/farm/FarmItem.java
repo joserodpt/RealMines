@@ -101,6 +101,14 @@ public enum FarmItem {
         return Arrays.stream(FarmItem.values()).map(FarmItem::getCrop).collect(Collectors.toList());
     }
 
+    public static Material getIconFromCrop(Material cropMaterial) {
+        return Arrays.stream(FarmItem.values())
+                .filter(fi -> fi.getCrop().equals(cropMaterial))
+                .map(FarmItem::getIcon)
+                .findFirst()
+                .orElse(Material.AIR);
+    }
+
     public Material getIcon() {
         return this.icon;
     }

@@ -19,14 +19,17 @@ import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
-import org.bukkit.block.Block;
+import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 
 public class BlockEvents implements Listener {
 
@@ -49,11 +52,16 @@ public class BlockEvents implements Listener {
         rm.getMineManager().findBlockUpdate(e.getPlayer(), e, e.getBlock(), false);
     }
 
+    @EventHandler
+    public void onFarmStep(PlayerInteractEvent e) {
+        if (e.getAction() == Action.PHYSICAL && e.getClickedBlock().getType() == Material.FARMLAND) {
+            rm.getMineManager().findBlockUpdate(e.getPlayer(), e, e.getClickedBlock().getRelative(BlockFace.UP), true);
+        }
+    }
+
     @EventHandler //for creeper explosions
     public void onEntityExplode(final EntityExplodeEvent e) {
-        for (Block block : e.blockList()) {
-            rm.getMineManager().findBlockUpdate(null, e, block, true);
-        }
+        e.blockList().forEach(block -> rm.getMineManager().findBlockUpdate(null, e, block, true));
     }
 
     @EventHandler

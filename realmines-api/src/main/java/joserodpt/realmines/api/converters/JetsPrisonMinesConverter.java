@@ -96,10 +96,6 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
 
                 Section sec = (Section) mineFile.get("teleport_location");
                 if (sec != null) {
-                    for (String routesAsString : sec.getRoutesAsStrings(false)) {
-                        Bukkit.getLogger().warning(routesAsString);
-                    }
-
                     double spawnX = sec.getDouble("x");
                     double spawnY = sec.getDouble("y");
                     double spawnZ = sec.getDouble("z");

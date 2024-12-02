@@ -467,7 +467,7 @@ public class MineItemsGUI {
                 a.setPercentage((double) percentage / 100);
                 current.mine.saveData(RMine.MineData.BLOCKS);
 
-                TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(Text.formatPercentages(percentage) + "%")).send(p);
+                TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(percentage == 0 ? "0%" : Text.formatPercentages((double) percentage / 100) + "%")).send(p);
 
                 final MineItemsGUI v = new MineItemsGUI(current.rm, p, current.mine, current.selectedBlockSet);
                 v.openInventory(p);

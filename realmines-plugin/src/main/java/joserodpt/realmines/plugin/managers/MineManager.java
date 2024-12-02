@@ -344,7 +344,7 @@ public class MineManager extends MineManagerAPI {
                     if (mine.getType() == RMine.Type.FARM && !FarmItem.getCrops().contains(block.getType())) {
                         e.setCancelled(true);
                     } else {
-                        MineItem mi = mine.getMineItems().get(block.getType());
+                        MineItem mi = mine.getMineItems().get(mine.getType() == RMine.Type.FARM ? FarmItem.getIconFromCrop(block.getType()) : block.getType());
                         if (mi != null) {
                             if (mi.isBlockMiningDisabled()) {
                                 e.setCancelled(true);
@@ -370,7 +370,11 @@ public class MineManager extends MineManagerAPI {
 
     @Override
     public void unloadMines() {
-        this.getMines().values().forEach(mine -> mine.getTimer().kill());
+        for (RMine mine : this.getMines().values()) {
+            if (mine.getTimer() != null) {
+                mine.getTimer().kill();
+            }
+        }
         this.clearMemory();
     }
 

@@ -113,7 +113,8 @@ public class RealMinesPlugin extends JavaPlugin {
                 RealMinesGUI.getListener(),
                 SettingsGUI.getListener(),
                 PercentageInput.getListener(),
-                DirectoryBrowserGUI.getListener()
+                DirectoryBrowserGUI.getListener(),
+                PlayerInput.getListener()
         ).forEach(listener -> this.pm.registerEvents(listener, this));
 
         //vault hook
@@ -198,8 +199,6 @@ public class RealMinesPlugin extends JavaPlugin {
                 e.printStackTrace();
             }
         }
-
-        this.pm.registerEvents(PlayerInput.getListener(), this);
 
         getLogger().info("Finished loading in " + ((System.currentTimeMillis() - start) / 1000F) + " seconds.");
         getLogger().info("<------------------ RealMines vPT ------------------>".replace("PT", this.getDescription().getVersion()));
