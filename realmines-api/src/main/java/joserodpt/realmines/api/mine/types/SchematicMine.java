@@ -31,12 +31,12 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.mine.RMine;
+import joserodpt.realmines.api.mine.components.RMBlockSet;
 import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.components.items.MineSchematicItem;
 import joserodpt.realmines.api.utils.WorldEditUtils;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.configuration.file.YamlConfiguration;
 
@@ -74,11 +74,12 @@ public class SchematicMine extends RMine {
     }
 
     //new schematic mine
-    public SchematicMine(String name, World w, String schematicFile) throws RMFailedToLoadException {
-        super(name, w);
+    public SchematicMine(String name, Location l, String schematicFile) throws RMFailedToLoadException {
+        super(name, l.getWorld());
 
         this.schematicFile = schematicFile;
         this.getMineConfig().set("schematic", schematicFile);
+        this.setPOS(l, null);
         this.saveConfig();
         this.pasteClipboard = this.loadSchematic(schematicFile);
 
@@ -88,18 +89,21 @@ public class SchematicMine extends RMine {
     }
 
     private void processPastedBlocks() {
-        for (Block block : this.getMineCuboid()) {
-            Material type = block.getType();
-            if (type == Material.AIR) {
-                continue;
+        //add default blockset if it doesn't exist
+        RMBlockSet defaultBlockSet = this.getBlockSet("default");
+        if (defaultBlockSet == null) {
+            defaultBlockSet = addBlockSet("default");
+            for (Block block : this.getMineCuboid()) {
+                Material type = block.getType();
+                if (type == Material.AIR) {
+                    continue;
+                }
+
+                defaultBlockSet.add(new MineSchematicItem(type));
             }
 
-            if (!super.getMineItems().containsKey(type)) {
-                super.getMineItems().put(type, new MineSchematicItem(type));
-            }
+            this.saveData(MineData.BLOCKS);
         }
-
-        this.saveData(MineData.BLOCKS);
     }
 
     @Override

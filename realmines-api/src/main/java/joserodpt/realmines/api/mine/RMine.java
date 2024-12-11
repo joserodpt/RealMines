@@ -79,11 +79,11 @@ public abstract class RMine {
         setSettingString(RMineSettings.BLOCK_SETS_MODE, this.getBlockSetMode().name());
     }
 
-    public enum Type {BLOCKS, SCHEMATIC, FARM;}
+    public enum Type {BLOCKS, SCHEMATIC, FARM}
 
-    public enum ResetCause {COMMAND, PLUGIN, TIMER, CREATION, IMPORT;}
+    public enum ResetCause {COMMAND, PLUGIN, TIMER, CREATION, IMPORT}
 
-    public enum Reset {PERCENTAGE, TIME;}
+    public enum Reset {PERCENTAGE, TIME}
 
     public enum BlockSetsMode {
         INCREMENTAL("&aIncremental"),
@@ -105,7 +105,7 @@ public abstract class RMine {
         }
     }
 
-    public enum MineData {BLOCKS, ICON, RESET, TELEPORT, SIGNS, POS, NAME, DISPLAYNAME, FACES, COLOR, MINE_TYPE, ALL;}
+    public enum MineData {BLOCKS, ICON, RESET, TELEPORT, SIGNS, POS, NAME, DISPLAYNAME, FACES, COLOR, MINE_TYPE, ALL}
 
     protected String name, displayName;
 
@@ -238,9 +238,7 @@ public abstract class RMine {
         this.config.set("signs", mineConfigSection.getStringList("Signs"));
 
         if (mineConfigSection.getSection("Faces") != null) {
-            mineConfigSection.getSection("Faces").getRoutesAsStrings(false).forEach(face -> {
-                this.config.set("faces." + face, mineConfigSection.getString("Faces." + face));
-            });
+            mineConfigSection.getSection("Faces").getRoutesAsStrings(false).forEach(face -> this.config.set("faces." + face, mineConfigSection.getString("Faces." + face)));
         }
 
         //round the values to avoid floating point errors to two decimal places
@@ -375,7 +373,12 @@ public abstract class RMine {
             final Location p2 = new Location(w, Double.parseDouble(pos2[0]), Double.parseDouble(pos2[1]), Double.parseDouble(pos2[2]));
             setPOS(p1, p2);
         } else {
-            final String[] pos1 = this.config.getString("pos1").split(";");
+            final String posSTR = this.config.getString("pos1");
+            if (posSTR == null) {
+                throw new RMFailedToLoadException(name, "[RealMines] Could not load pos1 for mine " + name + ". Invalid pos1. Skipping");
+            }
+
+            final String[] pos1 = posSTR.split(";");
             if (pos1.length != 3) {
                 throw new RMFailedToLoadException(name, "[RealMines] Could not load pos1 for mine " + name + ". Invalid length args for pos1. Skipping");
             }
@@ -430,85 +433,88 @@ public abstract class RMine {
         this.blockSetsMode = BlockSetsMode.valueOf(getSettingString(RMineSettings.BLOCK_SETS_MODE));
 
         //iterate over keys in the block-sets section
-        for (String blockSetKey : this.config.getConfigurationSection("block-sets").getKeys(false)) {
-            Map<Material, MineItem> items = new HashMap<>();
 
-            if (this.config.getConfigurationSection("block-sets." + blockSetKey + ".blocks") != null) {
-                for (final String mat : this.config.getConfigurationSection("block-sets." + blockSetKey + ".blocks").getKeys(false)) {
-                    final Double per = this.config.getDouble("block-sets." + blockSetKey + ".blocks." + mat + ".percentage");
-                    final Boolean disabledVanillaDrop = this.config.getBoolean("block-sets." + blockSetKey + ".blocks." + mat + ".disabled-vanilla-drop");
-                    final Boolean disabledBlockMining = this.config.getBoolean("block-sets." + blockSetKey + ".blocks." + mat + ".disabled-block-mining");
+        if (this.config.getConfigurationSection("block-sets") != null) {
+            for (String blockSetKey : this.config.getConfigurationSection("block-sets").getKeys(false)) {
+                Map<Material, MineItem> items = new HashMap<>();
 
-                    try {
-                        Material m = Material.valueOf(mat);
+                if (this.config.getConfigurationSection("block-sets." + blockSetKey + ".blocks") != null) {
+                    for (final String mat : this.config.getConfigurationSection("block-sets." + blockSetKey + ".blocks").getKeys(false)) {
+                        final Double per = this.config.getDouble("block-sets." + blockSetKey + ".blocks." + mat + ".percentage");
+                        final Boolean disabledVanillaDrop = this.config.getBoolean("block-sets." + blockSetKey + ".blocks." + mat + ".disabled-vanilla-drop");
+                        final Boolean disabledBlockMining = this.config.getBoolean("block-sets." + blockSetKey + ".blocks." + mat + ".disabled-block-mining");
 
-                        List<MineAction> actionsList = new ArrayList<>();
+                        try {
+                            Material m = Material.valueOf(mat);
 
-                        if (this.config.getConfigurationSection("block-sets." + blockSetKey + ".blocks." + mat + ".break-actions") != null) {
-                            for (final String actionID : this.config.getConfigurationSection("block-sets." + blockSetKey + ".blocks." + mat + ".break-actions").getKeys(false)) {
-                                final String actionRoute = "block-sets." + blockSetKey + ".blocks." + mat + ".break-actions." + actionID;
-                                final Double chance = this.config.getDouble(actionRoute + ".chance");
-                                try {
-                                    MineAction.MineActionType mineactiontype = MineAction.MineActionType.valueOf(this.config.getString(actionRoute + ".type"));
-                                    switch (mineactiontype) {
-                                        case EXECUTE_COMMAND:
-                                            actionsList.add(new MineActionCommand(actionID, name, chance, this.config.getString(actionRoute + ".value")));
-                                            break;
-                                        case DROP_ITEM:
-                                            String data = this.config.getString(actionRoute + ".value");
-                                            try {
-                                                actionsList.add(new MineActionDropItem(actionID, name, chance, ItemStackSpringer.getItemDeSerializedJSON(data).clone()));
-                                            } catch (Exception e) {
-                                                RealMinesAPI.getInstance().getPlugin().getLogger().severe("Badly formatted ItemStack: " + data);
-                                                RealMinesAPI.getInstance().getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
-                                                continue;
-                                            }
-                                            break;
-                                        case GIVE_ITEM:
-                                            String data2 = this.config.getString(actionRoute + ".value");
-                                            try {
-                                                actionsList.add(new MineActionGiveItem(actionID, name, chance, ItemStackSpringer.getItemDeSerializedJSON(data2)));
-                                            } catch (Exception e) {
-                                                RealMinesAPI.getInstance().getPlugin().getLogger().severe("Badly formatted ItemStack: " + data2);
-                                                RealMinesAPI.getInstance().getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
-                                                continue;
-                                            }
-                                            break;
-                                        case GIVE_MONEY:
-                                            actionsList.add(new MineActionMoney(actionID, name, chance, this.config.getDouble(actionRoute + ".value")));
-                                            break;
+                            List<MineAction> actionsList = new ArrayList<>();
+
+                            if (this.config.getConfigurationSection("block-sets." + blockSetKey + ".blocks." + mat + ".break-actions") != null) {
+                                for (final String actionID : this.config.getConfigurationSection("block-sets." + blockSetKey + ".blocks." + mat + ".break-actions").getKeys(false)) {
+                                    final String actionRoute = "block-sets." + blockSetKey + ".blocks." + mat + ".break-actions." + actionID;
+                                    final Double chance = this.config.getDouble(actionRoute + ".chance");
+                                    try {
+                                        MineAction.MineActionType mineactiontype = MineAction.MineActionType.valueOf(this.config.getString(actionRoute + ".type"));
+                                        switch (mineactiontype) {
+                                            case EXECUTE_COMMAND:
+                                                actionsList.add(new MineActionCommand(actionID, name, chance, this.config.getString(actionRoute + ".value")));
+                                                break;
+                                            case DROP_ITEM:
+                                                String data = this.config.getString(actionRoute + ".value");
+                                                try {
+                                                    actionsList.add(new MineActionDropItem(actionID, name, chance, ItemStackSpringer.getItemDeSerializedJSON(data).clone()));
+                                                } catch (Exception e) {
+                                                    RealMinesAPI.getInstance().getPlugin().getLogger().severe("Badly formatted ItemStack: " + data);
+                                                    RealMinesAPI.getInstance().getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
+                                                    continue;
+                                                }
+                                                break;
+                                            case GIVE_ITEM:
+                                                String data2 = this.config.getString(actionRoute + ".value");
+                                                try {
+                                                    actionsList.add(new MineActionGiveItem(actionID, name, chance, ItemStackSpringer.getItemDeSerializedJSON(data2)));
+                                                } catch (Exception e) {
+                                                    RealMinesAPI.getInstance().getPlugin().getLogger().severe("Badly formatted ItemStack: " + data2);
+                                                    RealMinesAPI.getInstance().getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
+                                                    continue;
+                                                }
+                                                break;
+                                            case GIVE_MONEY:
+                                                actionsList.add(new MineActionMoney(actionID, name, chance, this.config.getDouble(actionRoute + ".value")));
+                                                break;
+                                        }
+                                    } catch (Exception e) {
+                                        RealMinesAPI.getInstance().getPlugin().getLogger().severe("Break Action Type " + this.config.getString(actionRoute + ".Type") + " is invalid! Skipping. This action is in mine: " + name);
                                     }
-                                } catch (Exception e) {
-                                    RealMinesAPI.getInstance().getPlugin().getLogger().severe("Break Action Type " + this.config.getString(actionRoute + ".Type") + " is invalid! Skipping. This action is in mine: " + name);
                                 }
                             }
-                        }
 
-                        switch (getType()) {
-                            case BLOCKS:
-                                items.put(m, new MineBlockItem(m, per, disabledVanillaDrop, disabledBlockMining, actionsList));
-                                break;
-                            case FARM:
-                                items.put(m, new MineFarmItem(FarmItem.valueOf(mat), per, disabledVanillaDrop, disabledBlockMining, this.config.getInt("block-sets." + blockSetKey + ".blocks." + mat + ".age", 0), actionsList));
-                                break;
-                            case SCHEMATIC:
-                                items.put(m, new MineSchematicItem(m, disabledVanillaDrop, disabledBlockMining, actionsList));
-                                break;
+                            switch (getType()) {
+                                case BLOCKS:
+                                    items.put(m, new MineBlockItem(m, per, disabledVanillaDrop, disabledBlockMining, actionsList));
+                                    break;
+                                case FARM:
+                                    items.put(m, new MineFarmItem(FarmItem.valueOf(mat), per, disabledVanillaDrop, disabledBlockMining, this.config.getInt("block-sets." + blockSetKey + ".blocks." + mat + ".age", 0), actionsList));
+                                    break;
+                                case SCHEMATIC:
+                                    items.put(m, new MineSchematicItem(m, disabledVanillaDrop, disabledBlockMining, actionsList));
+                                    break;
+                            }
+                        } catch (Exception e) {
+                            RealMinesAPI.getInstance().getPlugin().getLogger().severe("Material type " + mat + " is invalid! Skipping. This material is in mine: " + getName());
                         }
-                    } catch (Exception e) {
-                        RealMinesAPI.getInstance().getPlugin().getLogger().severe("Material type " + mat + " is invalid! Skipping. This material is in mine: " + getName());
                     }
                 }
-            }
 
-            Material icon = Material.BARRIER;
-            try {
-                icon = Material.getMaterial(Objects.requireNonNull(this.config.getString("block-sets." + blockSetKey + ".icon")));
-            } catch (Exception e) {
-                RealMinesAPI.getInstance().getPlugin().getLogger().severe("Icon for block set " + blockSetKey + " is invalid! Skipping.");
-            }
+                Material icon = Material.BARRIER;
+                try {
+                    icon = Material.getMaterial(Objects.requireNonNull(this.config.getString("block-sets." + blockSetKey + ".icon")));
+                } catch (Exception e) {
+                    RealMinesAPI.getInstance().getPlugin().getLogger().severe("Icon for block set " + blockSetKey + " is invalid! Skipping.");
+                }
 
-            this.blockSets.put(blockSetKey, new RMBlockSet(blockSetKey, this.config.getString("block-sets." + blockSetKey + ".description"), icon, items));
+                this.blockSets.put(blockSetKey, new RMBlockSet(blockSetKey, this.config.getString("block-sets." + blockSetKey + ".description"), icon, items));
+            }
         }
 
         this.timer = new MineTimer(this);
@@ -661,11 +667,18 @@ public abstract class RMine {
     }
 
     public void setPOS(final Location p1, final Location p2) {
-        if (getType() != Type.SCHEMATIC) {
+        if (p2 == null) {
+            //it's a setPOS for a schematic mine
             this._pos1 = p1;
-            this._pos2 = p2;
+            this._pos2 = p1;
+        } else {
+            if (getType() != Type.SCHEMATIC) {
+                this._pos1 = p1;
+                this._pos2 = p2;
+            }
+            this.mineCuboid = new MineCuboid(p1, p2);
         }
-        this.mineCuboid = new MineCuboid(p1, p2);
+
         saveData(MineData.POS);
     }
 
@@ -775,10 +788,16 @@ public abstract class RMine {
         this.saveData(MineData.BLOCKS);
     }
 
-    public void addBlockSet() {
-        RMBlockSet s = new RMBlockSet();
+    public RMBlockSet addBlockSet(String name) {
+        RMBlockSet s;
+        if (name == null) {
+            s = new RMBlockSet();
+        } else {
+            s = new RMBlockSet(name);
+        }
         this.blockSets.put(s.getKey(), s);
         this.saveData(MineData.BLOCKS);
+        return s;
     }
 
     protected RMBlockSet getBlockSet(String blockSetKey) {
@@ -850,7 +869,7 @@ public abstract class RMine {
                 this.config.set("icon", this.getIcon().name());
                 break;
             case TELEPORT:
-                String teleport = this.teleport.getX() + ";" + this.teleport.getY() + ";" + this.teleport.getZ() + ";" + this.teleport.getYaw() + ";" + this.teleport.getPitch();
+                String teleport = this.teleport.getBlockX() + ";" + this.teleport.getBlockY() + ";" + this.teleport.getBlockZ() + ";" + this.teleport.getYaw() + ";" + this.teleport.getPitch();
                 this.config.set("teleport", teleport);
                 break;
             case RESET:
@@ -864,14 +883,12 @@ public abstract class RMine {
                 this.config.set("signs", this.getSignList());
                 break;
             case POS:
+                String pos1 = getPOS1().getBlockX() + ";" + getPOS1().getBlockY() + ";" + getPOS1().getBlockZ();
+                config.set("pos1", pos1);
+
                 if (getType() != Type.SCHEMATIC) {
-                    String pos1 = getPOS1().getX() + ";" + getPOS1().getY() + ";" + getPOS1().getZ();
-                    config.set("pos1", pos1);
-                    String pos2 = getPOS2().getX() + ";" + getPOS2().getY() + ";" + getPOS2().getZ();
+                    String pos2 = getPOS2().getBlockX() + ";" + getPOS2().getBlockY() + ";" + getPOS2().getBlockZ();
                     config.set("pos2", pos2);
-                } else {
-                    String pos1 = getPOS1().getX() + ";" + getPOS1().getY() + ";" + getPOS1().getZ();
-                    config.set("pos1", pos1);
                 }
                 break;
             case NAME:

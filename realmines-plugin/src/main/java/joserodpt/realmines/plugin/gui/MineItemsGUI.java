@@ -204,7 +204,7 @@ public class MineItemsGUI {
                                     current.rm.getGUIManager().openMine(current.mine, p);
                                     return;
                                 }
-                                current.mine.addBlockSet();
+                                current.mine.addBlockSet(null);
                                 current.load();
                                 break;
                             case 41:

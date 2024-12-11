@@ -294,6 +294,10 @@ public class MineCMD extends CommandBase {
         if (commandSender instanceof Player) {
             final RMine m = rm.getMineManager().getMine(name);
             if (m != null) {
+                if (m.getBlockSets().isEmpty()) {
+                    return;
+                }
+
                 final MineItemsGUI v = new MineItemsGUI(rm, (Player) commandSender, m);
                 v.openInventory((Player) commandSender);
             } else {

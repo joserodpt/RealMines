@@ -273,7 +273,7 @@ public class MineManager extends MineManagerAPI {
             }
 
             if (finalFile != null && finalFile.exists()) {
-                final SchematicMine m = new SchematicMine(name, p.getWorld(), finalFile.getName());
+                final SchematicMine m = new SchematicMine(name, p.getLocation(), finalFile.getName());
 
                 this.addMine(m);
                 m.setTeleport(p.getLocation());

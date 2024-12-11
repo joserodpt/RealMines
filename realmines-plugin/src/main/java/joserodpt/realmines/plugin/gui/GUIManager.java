@@ -184,6 +184,10 @@ public class GUIManager {
                 inventory.addItem(e -> {
                             target.closeInventory();
                             Bukkit.getScheduler().scheduleSyncDelayedTask(rm.getPlugin(), () -> {
+                                if (m.getBlockSets().isEmpty()) {
+                                    return;
+                                }
+
                                 final MineItemsGUI v = new MineItemsGUI(rm, target, m);
                                 v.openInventory(target);
                             }, 2);

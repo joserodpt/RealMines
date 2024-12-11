@@ -87,6 +87,6 @@ public class RMBlockSet {
     }
 
     public void add(MineItem mineBlock) {
-        items.put(mineBlock.getMaterial(), mineBlock);
+        this.items.put(mineBlock.getMaterial(), mineBlock);
     }
 }
