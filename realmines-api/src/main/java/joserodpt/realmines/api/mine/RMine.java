@@ -1086,10 +1086,6 @@ public abstract class RMine {
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    public void removeDependencies() {
-        this.signs.forEach(ms -> ms.getBlock().getLocation().getWorld().getBlockAt(ms.getBlock().getLocation()).setType(Material.AIR));
-    }
-
     public List<Location> getHighlightedCube() {
         final List<Location> result = new ArrayList<>();
         final World world = this.getMineCuboid().getPOS1().getWorld();

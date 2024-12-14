@@ -420,8 +420,12 @@ public class MineManager extends MineManagerAPI {
         if (mine != null) {
             Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(mine, RealMinesMineChangeEvent.ChangeOperation.REMOVED));
             mine.clear();
-            mine.getTimer().kill();
-            mine.removeDependencies();
+            if (mine.getTimer() != null) {
+                mine.getTimer().kill();
+            }
+            if (mine.getSigns() != null || !mine.getSigns().isEmpty()) {
+                mine.getSigns().forEach(ms -> ms.getBlock().getLocation().getWorld().getBlockAt(ms.getBlock().getLocation()).setType(Material.AIR));
+            }
             for (final MineResetTask task : rm.getMineResetTasksManager().getTasks()) {
                 if (task.hasMine(mine)) {
                     task.removeMine(mine);
