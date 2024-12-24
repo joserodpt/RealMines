@@ -9,6 +9,13 @@
     <version>1.8.2</version>
     <packaging>jar</packaging>
 
+    <parent>
+        <groupId>joserodpt.realmines</groupId>
+        <artifactId>realmines-parent</artifactId>
+        <version>1.8.2</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
     <name>RealMinesAPI</name>
 
     <properties>
