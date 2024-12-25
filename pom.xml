@@ -54,4 +54,15 @@
         <defaultGoal>clean install</defaultGoal>
     </build>
 
+    <distributionManagement>
+        <snapshotRepository>
+            <id>neziw-repo</id>
+            <url>https://repo.neziw.ovh/snapshots</url>
+        </snapshotRepository>
+        <repository>
+            <id>neziw-repo</id>
+            <url>https://repo.neziw.ovh/releases</url>
+        </repository>
+    </distributionManagement>
+
 </project>
