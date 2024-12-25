@@ -46,10 +46,28 @@ public class MineActionGiveItem extends MineAction {
             return;
         }
         if (randomChance < super.getChance()) {
-            p.getInventory().addItem(i);
-            if (!super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
-                TranslatableLine.MINE_BREAK_ACTION_GIVE_ITEM.send(p);
+            if (hasSpace(p, i)) {
+                p.getInventory().addItem(i);
+                if (!super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
+                    TranslatableLine.MINE_BREAK_ACTION_GIVE_ITEM.send(p);
+            } else {
+                p.getWorld().dropItemNaturally(p.getLocation(), i);
+                Text.send(p, "&cYour inventory is full. &fThe give item has dropped!");
+            }
         }
+    }
+
+    private boolean hasSpace(Player p, ItemStack i) {
+        for (ItemStack slot : p.getInventory().getContents()) {
+            if (slot == null || slot.getType() == Material.AIR) {
+                // Found an empty slot
+                return true;
+            } else if (slot.isSimilar(i) && slot.getAmount() + i.getAmount() <= slot.getMaxStackSize()) {
+                // Found a slot with the same item and enough space
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
