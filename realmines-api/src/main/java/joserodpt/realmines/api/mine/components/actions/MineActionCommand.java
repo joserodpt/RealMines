@@ -15,6 +15,7 @@ package joserodpt.realmines.api.mine.components.actions;
 
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Text;
+import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -48,6 +49,9 @@ public class MineActionCommand extends MineAction {
 
         if (randomChance < super.getChance()) {
             String cmd2Exec = this.command.replace("%player%", p.getName()).replace("%blockloc%", Text.location2Command(l));
+            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+                cmd2Exec = PlaceholderAPI.setPlaceholders(p, cmd2Exec);
+            }
             Bukkit.getServer().dispatchCommand(cmdSndr, cmd2Exec);
         }
     }
