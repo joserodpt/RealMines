@@ -41,18 +41,17 @@ public class MineActionMoney extends MineAction {
         this.money = money;
     }
 
-    public void execute(final Player p, final Location l, double randomChance) {
+    public void execute(final Player p, final Location l) {
         if (super.getMine() == null) {
             return;
         }
-        if (randomChance < super.getChance()) {
-            if (RealMinesAPI.getInstance().getEconomy() != null) {
-                RealMinesAPI.getInstance().getEconomy().depositPlayer(p, money);
-                if (!super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
-                    TranslatableLine.MINE_BREAK_ACTION_DROP_ITEM.send(p);
-            } else {
-                RealMinesAPI.getInstance().getLogger().warning("Economy not found or Vault not installed. Please install a compatible economy plugin. Skipping break action ID " + getID());
-            }
+
+        if (RealMinesAPI.getInstance().getEconomy() != null) {
+            RealMinesAPI.getInstance().getEconomy().depositPlayer(p, money);
+            if (!super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
+                TranslatableLine.MINE_BREAK_ACTION_DROP_ITEM.send(p);
+        } else {
+            RealMinesAPI.getInstance().getLogger().warning("Economy not found or Vault not installed. Please install a compatible economy plugin. Skipping break action ID " + getID());
         }
     }
 

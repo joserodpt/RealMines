@@ -823,7 +823,20 @@ public abstract class RMine {
         if (e.isBroken() && this.getMineItems().containsKey(e.getMaterial())) {
             MineItem item = this.getMineItems().get(e.getMaterial());
             if (item != null) {
-                item.getBreakActions().forEach(mineAction -> mineAction.execute(e.getPlayer(), e.getBlock().getLocation(), random));
+                MineAction exec = null;
+                for (MineAction breakAction : item.getBreakActions()) {
+                    if (random < breakAction.getChance()) {
+                        if (exec == null) {
+                            exec = breakAction;
+                        } else if (breakAction.getChance() < exec.getChance()) { //if the new action has a lower chance than the current one, replace it
+                            exec = breakAction;
+                        }
+                    }
+                }
+
+                if (exec != null) { //execute the action
+                    exec.execute(e.getPlayer(), e.getBlock().getLocation());
+                }
             }
         }
     }
@@ -842,7 +855,7 @@ public abstract class RMine {
     private void processBlockBreakEvent(boolean reset) {
         if (reset) {
             //if mine reset percentage is lower, reset it
-            if (this.isResetBy(RMine.Reset.PERCENTAGE) & ((double) this.getRemainingBlocksPer() < this.getResetValue(RMine.Reset.PERCENTAGE))) {
+            if (this.isResetBy(Reset.PERCENTAGE) & ((double) this.getRemainingBlocksPer() < this.getResetValue(Reset.PERCENTAGE))) {
                 this.kickPlayers(TranslatableLine.MINE_RESET_PERCENTAGE.get());
                 Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), this::reset, 10);
             }
@@ -1127,23 +1140,17 @@ public abstract class RMine {
     }
 
     public boolean isResetBy(final Reset e) {
-        switch (e) {
-            case PERCENTAGE:
-                return this.resetByPercentage;
-            case TIME:
-                return this.resetByTime;
-        }
-        return false;
+        return switch (e) {
+            case PERCENTAGE -> this.resetByPercentage;
+            case TIME -> this.resetByTime;
+        };
     }
 
     public int getResetValue(final Reset e) {
-        switch (e) {
-            case PERCENTAGE:
-                return this.resetByPercentageValue;
-            case TIME:
-                return this.resetByTimeValue;
-        }
-        return -1;
+        return switch (e) {
+            case PERCENTAGE -> this.resetByPercentageValue;
+            case TIME -> this.resetByTimeValue;
+        };
     }
 
     public void setSilent(boolean silent) {
@@ -1235,7 +1242,7 @@ public abstract class RMine {
         return this.faces;
     }
 
-    public abstract RMine.Type getType();
+    public abstract Type getType();
 
     public abstract void clearContents();
 

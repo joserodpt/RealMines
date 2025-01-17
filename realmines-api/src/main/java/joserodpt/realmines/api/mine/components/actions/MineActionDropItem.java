@@ -42,17 +42,15 @@ public class MineActionDropItem extends MineAction {
         this.i = i;
     }
 
-    public void execute(final Player p, final Location l, final double randomChance) {
+    public void execute(final Player p, final Location l) {
         if (super.getMine() == null) {
             return;
         }
 
-        if (randomChance < super.getChance()) {
-            Objects.requireNonNull(l.getWorld()).dropItemNaturally(l, this.i.clone());
+        Objects.requireNonNull(l.getWorld()).dropItemNaturally(l, this.i.clone());
 
-            if (!super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
-                TranslatableLine.MINE_BREAK_ACTION_DROP_ITEM.send(p);
-        }
+        if (!super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
+            TranslatableLine.MINE_BREAK_ACTION_DROP_ITEM.send(p);
     }
 
     @Override

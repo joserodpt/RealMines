@@ -88,7 +88,7 @@ public abstract class MineAction {
         this.chance = d;
     }
 
-    public abstract void execute(final Player p, final Location loc, double randomChance);
+    public abstract void execute(final Player p, final Location loc);
 
     public abstract MineActionType getType();
 

@@ -41,19 +41,20 @@ public class MineActionGiveItem extends MineAction {
         this.i = i;
     }
 
-    public void execute(final Player p, final Location l, final double randomChance) {
+    public void execute(final Player p, final Location l) {
         if (super.getMine() == null) {
             return;
         }
-        if (randomChance < super.getChance()) {
-            if (hasSpace(p, i)) {
-                p.getInventory().addItem(i);
-                if (!super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
-                    TranslatableLine.MINE_BREAK_ACTION_GIVE_ITEM.send(p);
-            } else {
-                p.getWorld().dropItemNaturally(p.getLocation(), i);
-                Text.send(p, "&cYour inventory is full. &fThe give item has dropped!");
-            }
+
+        if (!super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES)) {
+            TranslatableLine.MINE_BREAK_ACTION_GIVE_ITEM.send(p);
+        }
+
+        if (hasSpace(p, i)) {
+            p.getInventory().addItem(i);
+        } else {
+            p.getWorld().dropItemNaturally(p.getLocation(), i);
+            Text.send(p, "&cYour inventory is full. &fThe item was dropped!");
         }
     }
 

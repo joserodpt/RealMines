@@ -42,18 +42,16 @@ public class MineActionCommand extends MineAction {
         this.command = command;
     }
 
-    public void execute(final Player p, final Location l, final double randomChance) {
+    public void execute(final Player p, final Location l) {
         if (super.getMine() == null) {
             return;
         }
 
-        if (randomChance < super.getChance()) {
-            String cmd2Exec = this.command.replace("%player%", p.getName()).replace("%blockloc%", Text.location2Command(l));
-            if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                cmd2Exec = PlaceholderAPI.setPlaceholders(p, cmd2Exec);
-            }
-            Bukkit.getServer().dispatchCommand(cmdSndr, cmd2Exec);
+        String cmd2Exec = this.command.replace("%player%", p.getName()).replace("%blockloc%", Text.location2Command(l));
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            cmd2Exec = PlaceholderAPI.setPlaceholders(p, cmd2Exec);
         }
+        Bukkit.getServer().dispatchCommand(cmdSndr, cmd2Exec);
     }
 
     @Override

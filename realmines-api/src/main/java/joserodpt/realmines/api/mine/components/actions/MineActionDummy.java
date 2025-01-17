@@ -25,7 +25,7 @@ public class MineActionDummy extends MineAction {
         super();
     }
 
-    public void execute(final Player p, final Location l, double randomChance) {
+    public void execute(final Player p, final Location l) {
     }
 
     @Override
