@@ -682,7 +682,7 @@ public abstract class RMine {
         saveData(MineData.POS);
     }
 
-    public void setWorld(final World w) {
+    private void setWorld(final World w) {
         this.w = w;
     }
 
