@@ -678,8 +678,12 @@ public abstract class RMine {
             }
             this.mineCuboid = new MineCuboid(p1, p2);
         }
-
+        this.setWorld(p1.getWorld());
         saveData(MineData.POS);
+    }
+
+    public void setWorld(final World w) {
+        this.w = w;
     }
 
     public boolean hasTP() {
@@ -897,6 +901,7 @@ public abstract class RMine {
                 break;
             case POS:
                 String pos1 = getPOS1().getBlockX() + ";" + getPOS1().getBlockY() + ";" + getPOS1().getBlockZ();
+                config.set("world", getWorld().getName());
                 config.set("pos1", pos1);
 
                 if (getType() != Type.SCHEMATIC) {

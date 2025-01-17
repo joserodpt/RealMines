@@ -13,6 +13,8 @@ package joserodpt.realmines.plugin.managers;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import com.sk89q.worldedit.LocalSession;
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.bukkit.WorldEditPlugin;
 import com.sk89q.worldedit.regions.Region;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
@@ -386,7 +388,10 @@ public class MineManager extends MineManagerAPI {
 
         final WorldEditPlugin w = (WorldEditPlugin) Bukkit.getServer().getPluginManager().getPlugin("WorldEdit");
         try {
-            final Region r = w.getSession(p.getPlayer()).getSelection(w.getSession(p.getPlayer()).getSelectionWorld());
+            final LocalSession localSession = w.getSession(p.getPlayer());
+            //final Region r = w.getSession(p.getPlayer()).getSelection(w.getSession(p.getPlayer()).getSelectionWorld());
+
+            final Region r = localSession.getSelection(BukkitAdapter.adapt(p.getWorld()));
 
             if (r != null) {
                 final Location pos1 = new Location(p.getWorld(), r.getMaximumPoint().getBlockX(), r.getMaximumPoint().getBlockY(), r.getMaximumPoint().getBlockZ());
