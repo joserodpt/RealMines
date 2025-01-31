@@ -59,7 +59,7 @@ public class FarmMine extends RMine {
     public FarmMine(String name, YamlConfiguration config) throws RMFailedToLoadException {
         super(name, config);
 
-        if (RMConfig.file().getBoolean("RealMines.disableMineResetOnServerStart", false)) {
+        if (!RMConfig.file().getBoolean("RealMines.disableMineResetOnServerStart", false)) {
             this.fillContent();
         }
         this.updateSigns();

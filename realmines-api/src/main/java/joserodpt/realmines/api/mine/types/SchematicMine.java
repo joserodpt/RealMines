@@ -68,7 +68,7 @@ public class SchematicMine extends RMine {
         this.schematicFile = config.getString("schematic");
         this.pasteClipboard = this.loadSchematic(schematicFile);
 
-        if (RMConfig.file().getBoolean("RealMines.disableMineResetOnServerStart", false)) {
+        if (!RMConfig.file().getBoolean("RealMines.disableMineResetOnServerStart", false)) {
             this.fillContent();
             this.processPastedBlocks();
         }
