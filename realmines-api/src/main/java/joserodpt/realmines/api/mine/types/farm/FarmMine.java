@@ -15,6 +15,7 @@ package joserodpt.realmines.api.mine.types.farm;
 
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import joserodpt.realmines.api.RealMinesAPI;
+import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.mine.components.RMBlockSet;
@@ -57,7 +58,10 @@ public class FarmMine extends RMine {
     //after converting from old config to new config
     public FarmMine(String name, YamlConfiguration config) throws RMFailedToLoadException {
         super(name, config);
-        this.fillContent();
+
+        if (RMConfig.file().getBoolean("RealMines.disableMineResetOnServerStart", false)) {
+            this.fillContent();
+        }
         this.updateSigns();
     }
 

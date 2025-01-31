@@ -59,6 +59,9 @@ public class BlockMine extends RMine {
     public BlockMine(String name, YamlConfiguration config) throws RMFailedToLoadException {
         super(name, config);
 
+        if (RMConfig.file().getBoolean("RealMines.disableMineResetOnServerStart", false)) {
+            this.fillContent();
+        }
         this.fillContent();
         this.updateSigns();
     }
