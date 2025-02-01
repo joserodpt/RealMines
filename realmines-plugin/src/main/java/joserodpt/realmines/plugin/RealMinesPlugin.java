@@ -13,6 +13,10 @@ package joserodpt.realmines.plugin;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
+import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
+import dev.triumphteam.cmd.core.message.MessageKey;
+import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
@@ -43,10 +47,10 @@ import joserodpt.realmines.plugin.gui.SettingsGUI;
 import joserodpt.realpermissions.api.RealPermissionsAPI;
 import joserodpt.realpermissions.api.pluginhook.ExternalPlugin;
 import joserodpt.realpermissions.api.pluginhook.ExternalPluginPermission;
-import me.mattstudios.mf.base.CommandManager;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -54,7 +58,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -127,39 +130,48 @@ public class RealMinesPlugin extends JavaPlugin {
                 }
             }
         }
+        BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(this);
 
-        CommandManager commandManager = new CommandManager(this);
-
-        commandManager.hideTabComplete(true);
         //command suggestions
-        commandManager.getCompletionHandler().register("#createsuggestions", input -> IntStream.range(0, 100)
-                .mapToObj(i -> "Mine" + i)
-                .collect(Collectors.toList()));
-        commandManager.getCompletionHandler().register("#minetasksuggestions", input ->
-                IntStream.range(0, 50)
+        commandManager.registerSuggestion(SuggestionKey.of("#createsuggestions"),
+                (sender, context) -> IntStream.range(0, 100)
+                        .mapToObj(i -> "Mine" + i)
+                        .collect(Collectors.toList())
+        );
+
+        commandManager.registerSuggestion(SuggestionKey.of("#minetasksuggestions"),
+                (sender, context) -> IntStream.range(0, 50)
                         .mapToObj(i -> "MineResetTask" + i)
                         .collect(Collectors.toList())
         );
 
-        commandManager.getCompletionHandler().register("#types", input ->
-                new ArrayList<>(Arrays.asList("b", "s", "f", "blocks", "farm", "schem", "schematic"))
+        commandManager.registerSuggestion(SuggestionKey.of("#types"),
+                (sender, context) -> Arrays.asList("b", "s", "f", "blocks", "farm", "schem", "schematic")
         );
 
-        commandManager.getCompletionHandler().register("#converters", input ->
-                new ArrayList<>(Arrays.stream(RMSupportedConverters.values()).map(RMSupportedConverters::getSourceName).collect(Collectors.toList()))
+        commandManager.registerSuggestion(SuggestionKey.of("#converters"),
+                (sender, context) -> Arrays.stream(RMSupportedConverters.values())
+                        .map(RMSupportedConverters::getSourceName)
+                        .collect(Collectors.toList())
         );
 
-        commandManager.getCompletionHandler().register("#mines", input -> realMines.getMineManager().getRegisteredMines());
-        commandManager.getCompletionHandler().register("#minetasks", input -> realMines.getMineResetTasksManager().getRegisteredTasks());
+        commandManager.registerSuggestion(SuggestionKey.of("#mines"),
+                (sender, context) -> realMines.getMineManager().getRegisteredMines()
+        );
+
+        commandManager.registerSuggestion(SuggestionKey.of("#minetasks"),
+                (sender, context) -> realMines.getMineResetTasksManager().getRegisteredTasks()
+        );
 
         //command messages
-        commandManager.getMessageHandler().register("cmd.no.exists", TranslatableLine.SYSTEM_ERROR_COMMAND::send);
-        commandManager.getMessageHandler().register("cmd.no.permission", TranslatableLine.SYSTEM_ERROR_PERMISSION::send);
-        commandManager.getMessageHandler().register("cmd.wrong.usage", TranslatableLine.SYSTEM_ERROR_USAGE::send);
+        commandManager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> TranslatableLine.SYSTEM_ERROR_COMMAND.send(sender));
+        commandManager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> TranslatableLine.SYSTEM_ERROR_USAGE.send(sender));
+        commandManager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> TranslatableLine.SYSTEM_ERROR_PERMISSION.send(sender));
 
         //registo de comandos #portugal
-        commandManager.register(new MineCMD(realMines));
-        commandManager.register(new MineResetTaskCMD(realMines));
+        commandManager.registerCommand(new MineCMD(realMines));
+        commandManager.registerCommand(new MineResetTaskCMD(realMines));
+
         getLogger().info("Loading Mines.");
         realMines.getMineManager().loadMines();
         realMines.getMineResetTasksManager().loadTasks();

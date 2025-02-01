@@ -13,28 +13,26 @@ package joserodpt.realmines.plugin.command;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import dev.triumphteam.cmd.bukkit.annotation.Permission;
+import dev.triumphteam.cmd.core.BaseCommand;
+import dev.triumphteam.cmd.core.annotation.ArgName;
+import dev.triumphteam.cmd.core.annotation.Command;
+import dev.triumphteam.cmd.core.annotation.Default;
+import dev.triumphteam.cmd.core.annotation.SubCommand;
+import dev.triumphteam.cmd.core.annotation.Suggestion;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.task.MineResetTask;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
-import me.mattstudios.mf.annotations.Alias;
-import me.mattstudios.mf.annotations.Command;
-import me.mattstudios.mf.annotations.Completion;
-import me.mattstudios.mf.annotations.Default;
-import me.mattstudios.mf.annotations.Permission;
-import me.mattstudios.mf.annotations.SubCommand;
-import me.mattstudios.mf.annotations.WrongUsage;
-import me.mattstudios.mf.base.CommandBase;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
 
-@Command("realminesresettask")
-@Alias({"minesresettask", "rmrt"})
-public class MineResetTaskCMD extends CommandBase {
+@Command(value = "realminesresettask", alias = {"minesresettask", "rmrt"})
+public class MineResetTaskCMD extends BaseCommand {
 
     private final RealMines rm;
 
@@ -49,10 +47,9 @@ public class MineResetTaskCMD extends CommandBase {
     }
 
     @SubCommand("create")
-    @Completion({"#minetasksuggestions", "#range:300"})
     @Permission("realmines.admin")
-    @WrongUsage("&c/rmrt create <name> <delay>")
-    public void createcmd(final CommandSender commandSender, final String name, final Integer delay) {
+    //@WrongUsage("&c/rmrt create <name> <delay>")
+    public void createcmd(final CommandSender commandSender, @Suggestion("#minetasksuggestions") final String name, @ArgName("#int") final Integer delay) {
         if (commandSender instanceof Player) {
             final MineResetTask mrt = this.rm.getMineResetTasksManager().getTask(ChatColor.stripColor(Text.color(name)));
             if (mrt == null) {
@@ -67,10 +64,9 @@ public class MineResetTaskCMD extends CommandBase {
     }
 
     @SubCommand("remove")
-    @Completion("#minetasks")
     @Permission("realmines.admin")
-    @WrongUsage("&c/rmrt create <name> <delay>")
-    public void removecmd(final CommandSender commandSender, final String name) {
+    //@WrongUsage("&c/rmrt create <name> <delay>")
+    public void removecmd(final CommandSender commandSender, @Suggestion("#minetasks") final String name) {
         if (commandSender instanceof Player) {
             final MineResetTask mrt = this.rm.getMineResetTasksManager().getTask(name);
             if (mrt != null) {
@@ -85,10 +81,9 @@ public class MineResetTaskCMD extends CommandBase {
     }
 
     @SubCommand("link")
-    @Completion({"#minetasks", "#mines"})
     @Permission("realmines.admin")
-    @WrongUsage("&c/rmrt link <taskname> <mine>")
-    public void linkcmd(final CommandSender commandSender, final String name, final String mine) {
+    //@WrongUsage("&c/rmrt link <taskname> <mine>")
+    public void linkcmd(final CommandSender commandSender, @Suggestion("#minetasks") final String name, @Suggestion("#mines") final String mine) {
         if (commandSender instanceof Player) {
             final MineResetTask mrt = this.rm.getMineResetTasksManager().getTask(name);
             if (mrt != null) {
@@ -108,10 +103,9 @@ public class MineResetTaskCMD extends CommandBase {
     }
 
     @SubCommand("unlink")
-    @Completion({"#minetasks", "#mines"})
     @Permission("realmines.admin")
-    @WrongUsage("&c/rmrt unlink <taskname> <mine>")
-    public void unlinkcmd(final CommandSender commandSender, final String name, final String mine) {
+    //@WrongUsage("&c/rmrt unlink <taskname> <mine>")
+    public void unlinkcmd(final CommandSender commandSender, @Suggestion("#minetasks") final String name, @Suggestion("#mines") final String mine) {
         if (commandSender instanceof Player) {
             final MineResetTask mrt = this.rm.getMineResetTasksManager().getTask(name);
             if (mrt != null) {
