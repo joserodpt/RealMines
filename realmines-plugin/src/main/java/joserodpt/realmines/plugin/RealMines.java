@@ -30,7 +30,6 @@ public class RealMines extends RealMinesAPI {
     private final MineManager mineManager;
     private final MineResetTasksManager mineResetTasksManager;
     private final GUIManager guiManager;
-    private final Economy econ;
 
     public RealMines(RealMinesPlugin plugin) {
         this.plugin = plugin;
@@ -39,7 +38,6 @@ public class RealMines extends RealMinesAPI {
         this.mineManager = new MineManager(this);
         this.mineResetTasksManager = new MineResetTasksManager(this);
         this.guiManager = new GUIManager(this);
-        this.econ = plugin.getEconomy();
     }
 
     @Override
@@ -82,7 +80,7 @@ public class RealMines extends RealMinesAPI {
 
     @Override
     public Economy getEconomy() {
-        return this.econ;
+        return this.plugin.getEconomy();
     }
 
     @Override

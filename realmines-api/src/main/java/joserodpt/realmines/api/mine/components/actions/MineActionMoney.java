@@ -49,7 +49,7 @@ public class MineActionMoney extends MineAction {
         if (RealMinesAPI.getInstance().getEconomy() != null) {
             RealMinesAPI.getInstance().getEconomy().depositPlayer(p, money);
             if (!super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
-                TranslatableLine.MINE_BREAK_ACTION_DROP_ITEM.send(p);
+                Text.send(p, TranslatableLine.MINE_BREAK_ACTION_GIVE_MONEY.setV1(TranslatableLine.ReplacableVar.MONEY.eq(Text.formatNumber(money))).get());
         } else {
             RealMinesAPI.getInstance().getLogger().warning("Economy not found or Vault not installed. Please install a compatible economy plugin. Skipping break action ID " + getID());
         }
