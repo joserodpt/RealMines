@@ -33,6 +33,7 @@ import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.RMBlockSet;
 import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
+import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.components.items.MineSchematicItem;
 import joserodpt.realmines.api.utils.WorldEditUtils;
 import org.bukkit.Location;
@@ -43,6 +44,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.List;
 
 public class SchematicMine extends RMine {
 
@@ -95,6 +97,9 @@ public class SchematicMine extends RMine {
         RMBlockSet defaultBlockSet = this.getBlockSet("default");
         if (defaultBlockSet == null) {
             defaultBlockSet = addBlockSet("default");
+        }
+
+        if (defaultBlockSet.getItems().isEmpty()) {
             for (Block block : this.getMineCuboid()) {
                 Material type = block.getType();
                 if (type == Material.AIR) {
@@ -106,6 +111,12 @@ public class SchematicMine extends RMine {
 
             this.saveData(MineData.BLOCKS);
         }
+    }
+
+    @Override
+    public List<MineItem> getBlockIcons(String blockSet) {
+        processPastedBlocks(); // in case the schematic was pasted after the mine was created, we need to update the blockset
+        return super.getBlockIcons(blockSet);
     }
 
     @Override

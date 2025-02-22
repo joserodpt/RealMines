@@ -32,11 +32,11 @@ public class MineBlockItem extends MineItem {
     }
 
     public MineBlockItem(final Material m, final Double percentage) {
-        super(m, percentage, false, false, new ArrayList<>(), false);
+        super(m, percentage, false, false, new ArrayList<>());
     }
 
     public MineBlockItem(final Material m, final Double percentage, final Boolean disabledVanillaDrop, final Boolean disabledBlockMining, final List<MineAction> breakActions) {
-        super(m, percentage, disabledVanillaDrop, disabledBlockMining, breakActions, false);
+        super(m, percentage, disabledVanillaDrop, disabledBlockMining, breakActions);
     }
 
     @Override

@@ -273,7 +273,7 @@ public class MineItemsGUI {
 
                                 switch (e.getClick()) {
                                     case DROP:
-                                        if (minItem.isSchematicBlock()) {
+                                        if (current.mine.getType() == RMine.Type.SCHEMATIC) {
                                             return;
                                         }
 
@@ -322,7 +322,7 @@ public class MineItemsGUI {
                                         }, 2);
                                         break;
                                     default:
-                                        if (minItem.isSchematicBlock()) {
+                                        if (current.mine.getType() == RMine.Type.SCHEMATIC) {
                                             return;
                                         }
 

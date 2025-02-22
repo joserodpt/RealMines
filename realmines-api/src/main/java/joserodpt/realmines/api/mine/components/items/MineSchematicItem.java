@@ -31,7 +31,7 @@ public class MineSchematicItem extends MineItem {
     }
 
     public MineSchematicItem(final Material m, final Boolean disabledVanillaDrop, final Boolean disabledBlockMining, final List<MineAction> actionsList) {
-        super(m, 1D, disabledVanillaDrop, disabledBlockMining, actionsList, true);
+        super(m, 1D, disabledVanillaDrop, disabledBlockMining, actionsList);
     }
 
     @Override

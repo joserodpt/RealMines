@@ -36,8 +36,6 @@ public class MineItem {
     private Boolean disabledBlockMining = false;
     private List<MineAction> breakActions;
 
-    private boolean isSchematicBlock = false;
-
     public MineItem() {
     }
 
@@ -54,14 +52,12 @@ public class MineItem {
         this.breakActions = new ArrayList<>();
     }
 
-    public MineItem(Material material, Double percentage, boolean disabledVanillaDrop, boolean disabledBlockMining, final List<MineAction> breakActions, boolean isSchematicBlock) {
+    public MineItem(Material material, Double percentage, boolean disabledVanillaDrop, boolean disabledBlockMining, final List<MineAction> breakActions) {
         this.material = material;
         this.percentage = percentage;
         this.breakActions = breakActions;
         this.disabledVanillaDrop = disabledVanillaDrop;
         this.disabledBlockMining = disabledBlockMining;
-
-        this.isSchematicBlock = isSchematicBlock;
     }
 
     public void toggleVanillaBlockDrop() {
@@ -78,10 +74,6 @@ public class MineItem {
 
     public Boolean isBlockMiningDisabled() {
         return this.disabledBlockMining;
-    }
-
-    public boolean isSchematicBlock() {
-        return isSchematicBlock;
     }
 
     public ItemStack getItem() {
