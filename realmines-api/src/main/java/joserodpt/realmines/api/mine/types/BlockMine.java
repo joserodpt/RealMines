@@ -62,7 +62,6 @@ public class BlockMine extends RMine {
         if (!RMConfig.file().getBoolean("RealMines.disableMineResetOnServerStart", false)) {
             this.fillContent();
         }
-        this.fillContent();
         this.updateSigns();
     }
 
