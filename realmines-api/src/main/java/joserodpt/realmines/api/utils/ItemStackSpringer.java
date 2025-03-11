@@ -9,7 +9,7 @@ package joserodpt.realmines.api.utils;
  *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
  *
  * Licensed under the MIT License
- * @author José Rodrigues © 2019-2024
+ * @author José Rodrigues © 2019-2025
  * @link https://github.com/joserodpt/RealMines
  */
 
@@ -45,7 +45,7 @@ import java.util.stream.IntStream;
 
 public class ItemStackSpringer {
 
-    private static Gson gson = new Gson();
+    private static final Gson gson = new Gson();
 
     public static String getItemSerializedJSON(ItemStack i) {
         return gson.toJson(getItemSerialized(i));
