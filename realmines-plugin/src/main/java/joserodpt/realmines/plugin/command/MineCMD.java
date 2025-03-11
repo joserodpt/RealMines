@@ -19,11 +19,9 @@ import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.annotation.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Suggestion;
-import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.converters.RMSupportedConverters;
 import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.utils.ItemStackSpringer;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realmines.plugin.gui.MineItemsGUI;
@@ -396,6 +394,7 @@ public class MineCMD extends BaseCommand {
         }
     }
 
+    /*
     @SubCommand("registerItemInConfig")
     @Permission("realmines.admin")
     //@WrongUsage("&c/mine ri <item name>")
@@ -406,4 +405,33 @@ public class MineCMD extends BaseCommand {
         RMConfig.save();
     }
 
+    @SubCommand("give")
+    @Permission("realmines.admin")
+    //@WrongUsage("&c/mine ri <item name>")
+    @SuppressWarnings("unused")
+    public void giveItems(final CommandSender commandSender, @Suggestion("#mines") final String name) {
+        final Player p = (Player) commandSender;
+
+        ItemStack visiblePickaxe = new ItemStack(Material.DIAMOND_PICKAXE);
+        ItemMeta visibleMeta = visiblePickaxe.getItemMeta();
+        if (visibleMeta != null) {
+            visibleMeta.addEnchant(Enchantment.DIG_SPEED, 5, true);
+            visiblePickaxe.setItemMeta(visibleMeta);
+        }
+
+        // Second pickaxe with hidden Efficiency enchantment
+        ItemStack hiddenPickaxe = new ItemStack(Material.DIAMOND_PICKAXE);
+        ItemMeta hiddenMeta = hiddenPickaxe.getItemMeta();
+        if (hiddenMeta != null) {
+            hiddenMeta.addEnchant(Enchantment.LUCK, 3, true);
+            hiddenMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            hiddenMeta.addItemFlags(ItemFlag.HIDE_PLACED_ON);
+            hiddenMeta.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+            hiddenPickaxe.setItemMeta(hiddenMeta);
+        }
+
+        // Give the player the items
+        p.getInventory().addItem(visiblePickaxe, hiddenPickaxe);
+    }
+     */
 }

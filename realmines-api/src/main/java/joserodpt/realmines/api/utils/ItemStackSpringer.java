@@ -22,6 +22,7 @@ import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BannerMeta;
 import org.bukkit.inventory.meta.BookMeta;
@@ -95,6 +96,15 @@ public class ItemStackSpringer {
             singleItem.put(ItemCategories.ENCHANTMENTS.name(), i.getEnchantments().entrySet().stream()
                     .map(entry -> entry.getKey().getKey().getKey() + ":" + entry.getValue())
                     .collect(Collectors.joining(";")));
+        }
+
+        //save item's itemflags
+        if (i.hasItemMeta()) {
+            if (!i.getItemMeta().getItemFlags().isEmpty()) {
+                singleItem.put(ItemCategories.ITEM_FLAGS.name(), i.getItemMeta().getItemFlags().stream()
+                        .map(Enum::name)
+                        .collect(Collectors.joining(";")));
+            }
         }
 
         //Leather Armor Items
@@ -259,6 +269,19 @@ public class ItemStackSpringer {
                     debugPrint(ItemStackSpringer.class, "Trying to apply " + enchantmentName + " - " + enchantmentLevel);
                     if (enchantment != null) {
                         i.addUnsafeEnchantment(enchantment, enchantmentLevel);
+                    }
+                }
+            }
+            if (ItemCategories.ITEM_FLAGS.name().equals(key)) {
+                String[] flags = value.toString().split(";");
+                for (String flagName : flags) {
+                    try {
+                        ItemFlag flag = ItemFlag.valueOf(flagName);
+                        assert meta != null;
+                        meta.addItemFlags(flag);
+                        i.setItemMeta(meta);
+                    } catch (IllegalArgumentException e) {
+                        RealMinesAPI.getInstance().getPlugin().getLogger().severe(flagName + " isn't a known ItemFlag (is this a bug?) Skipping this flag.");
                     }
                 }
             }
@@ -462,7 +485,7 @@ public class ItemStackSpringer {
     }
 
     public enum ItemCategories {
-        SLOT, NAME, MATERIAL, AMOUNT, DAMAGE, LORE, ENCHANTMENTS, EMPTY,
+        SLOT, NAME, MATERIAL, AMOUNT, DAMAGE, LORE, ENCHANTMENTS, EMPTY, ITEM_FLAGS,
         LEATHER_ARMOR_COLOR, BANNER_PATTERNS, BOOK_DATA, BOOK_ENCHANTMENTS, FIREWORK_DATA, POTION_DATA
     }
 
