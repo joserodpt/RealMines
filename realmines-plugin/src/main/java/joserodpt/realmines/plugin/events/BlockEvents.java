@@ -13,6 +13,7 @@ package joserodpt.realmines.plugin.events;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import com.google.common.collect.ImmutableSet;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.event.MineBlockBreakEvent;
 import joserodpt.realmines.api.mine.RMine;
@@ -30,6 +31,8 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+
+import java.util.Set;
 
 public class BlockEvents implements Listener {
 
@@ -69,9 +72,13 @@ public class BlockEvents implements Listener {
         e.getMine().processBlockBreakEvent(e, true);
     }
 
+    private final Set<String> signset = ImmutableSet.of("pm", "pl", "bm", "br", "b", "pb", "tl", "sl");
+
     @EventHandler
     public void onSignChange(final SignChangeEvent event) {
-        if (event.getLine(0).contains("[realmines]") || event.getLine(0).contains("[RealMines]")) {
+        if (event.getLine(0).contains("[realmines]")
+                || event.getLine(0).contains("[rm]")
+                || event.getLine(0).contains("[RealMines]")) {
             event.setLine(0, Text.getPrefix());
             final String name = event.getLine(1);
 
@@ -80,7 +87,7 @@ public class BlockEvents implements Listener {
             if (m != null) {
                 final String modif = event.getLine(2);
                 assert modif != null;
-                if (rm.getMineManager().signset.contains(modif.toLowerCase())) {
+                if (signset.contains(modif.toLowerCase())) {
                     m.addSign(event.getBlock(), modif);
                     m.updateSigns();
                 } else {

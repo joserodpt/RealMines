@@ -19,6 +19,8 @@ import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.Countdown;
 
+import java.util.Objects;
+
 public class MineTimer {
 
     private Countdown count;
@@ -42,6 +44,10 @@ public class MineTimer {
             if (RMConfig.file().getStringList("RealMines.announceTimes") != null && RMConfig.file().getStringList("RealMines.announceTimes").contains(String.valueOf(count.getSecondsLeft()))) {
                 if (this.m.isSilent()) return;
                 this.m.broadcastMessage(TranslatableLine.MINE_RESET_WARNING.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.m.getDisplayName())).setV2(TranslatableLine.ReplacableVar.TIME.eq(String.valueOf(count.getSecondsLeft()))).get());
+            }
+
+            if (this.m.getSigns().stream().anyMatch(mineSign -> Objects.equals(mineSign.getModifier(), "sl") || Objects.equals(mineSign.getModifier(), "tl"))) {
+                this.m.updateSigns();
             }
         });
 

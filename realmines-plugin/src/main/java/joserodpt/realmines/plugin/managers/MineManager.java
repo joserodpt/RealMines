@@ -65,7 +65,6 @@ import java.util.stream.Collectors;
 public class MineManager extends MineManagerAPI {
 
     private final RealMinesAPI rm;
-    public final List<String> signset = Arrays.asList("pm", "pl", "bm", "br");
     private final Map<String, RMine> mines = new HashMap<>();
 
     public MineManager(RealMinesAPI rm) {
@@ -373,8 +372,8 @@ public class MineManager extends MineManagerAPI {
     @Override
     public void unloadMines() {
         for (RMine mine : this.getMines().values()) {
-            if (mine.getTimer() != null) {
-                mine.getTimer().kill();
+            if (mine.getMineTimer() != null) {
+                mine.getMineTimer().kill();
             }
         }
         this.clearMemory();
@@ -412,12 +411,12 @@ public class MineManager extends MineManagerAPI {
 
     @Override
     public void stopTasks() {
-        this.getMines().values().forEach(mine -> mine.getTimer().kill());
+        this.getMines().values().forEach(mine -> mine.getMineTimer().kill());
     }
 
     @Override
     public void startTasks() {
-        this.getMines().values().forEach(mine -> mine.getTimer().start());
+        this.getMines().values().forEach(mine -> mine.getMineTimer().start());
     }
 
     @Override
@@ -425,8 +424,8 @@ public class MineManager extends MineManagerAPI {
         if (mine != null) {
             Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(mine, RealMinesMineChangeEvent.ChangeOperation.REMOVED));
             mine.clear();
-            if (mine.getTimer() != null) {
-                mine.getTimer().kill();
+            if (mine.getMineTimer() != null) {
+                mine.getMineTimer().kill();
             }
             if (mine.getSigns() != null || !mine.getSigns().isEmpty()) {
                 mine.getSigns().forEach(ms -> ms.getBlock().getLocation().getWorld().getBlockAt(ms.getBlock().getLocation()).setType(Material.AIR));

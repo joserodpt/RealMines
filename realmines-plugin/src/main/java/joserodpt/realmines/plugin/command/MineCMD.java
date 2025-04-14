@@ -105,7 +105,7 @@ public class MineCMD extends BaseCommandWA {
     @Permission("realmines.admin")
     @SuppressWarnings("unused")
     public void listcmd(final CommandSender commandSender) {
-        rm.getMineManager().getMines().values().forEach(mine -> Text.send(commandSender, "&7> &f" + mine.getName() + " &r&7(&f" + mine.getDisplayName() + "&r&7)"));
+        rm.getMineManager().getMines().values().forEach(mine -> Text.send(commandSender, "&f" + mine.getName() + " &r&7(&f" + mine.getDisplayName() + "&r&7)"));
     }
 
     @SubCommand("create")

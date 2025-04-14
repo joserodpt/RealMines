@@ -42,6 +42,7 @@ import joserodpt.realmines.api.mine.components.items.MineSchematicItem;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.api.mine.task.MineTimer;
 import joserodpt.realmines.api.mine.types.farm.FarmItem;
+import joserodpt.realmines.api.utils.Countdown;
 import joserodpt.realmines.api.utils.ItemStackSpringer;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Text;
@@ -90,7 +91,7 @@ public abstract class RMine {
         RANDOM("&eRandom"),
         NONE("&fNone");
 
-        String displayName;
+        final String displayName;
 
         BlockSetsMode(String displayName) {
             this.displayName = displayName;
@@ -155,9 +156,6 @@ public abstract class RMine {
         }
 
         checkConfig(true, false);
-
-        this.fillContent();
-        this.updateSigns();
     }
 
     //create new mine
@@ -185,12 +183,9 @@ public abstract class RMine {
         }
 
         checkConfig(true, false);
-
-        this.fillContent();
-        this.updateSigns();
     }
-    //converting from old config to new config
 
+    //converting from old config to new config
     public RMine(String name, Section mineConfigSection) throws RMFailedToLoadException {
         this.name = name;
 
@@ -698,6 +693,10 @@ public abstract class RMine {
         return Text.getProgressBar(this.getRemainingBlocks(), this.getBlockCount(), 10, '■', ChatColor.GREEN, ChatColor.RED);
     }
 
+    public String getPercentageBar() {
+        return this.getBar() + Text.color(" &r&f") + this.getRemainingBlocksPer() + "%";
+    }
+
     public String getDisplayName() {
         return this.displayName;
     }
@@ -871,7 +870,7 @@ public abstract class RMine {
 
     public void saveData(final MineData t) {
         this._save(t, true);
-        if (this.getTimer() != null) {
+        if (this.getMineTimer() != null) {
             if (!this.resetByTime) {
                 this.timer.kill();
             } else {
@@ -1020,6 +1019,9 @@ public abstract class RMine {
                     Bukkit.broadcastMessage(Text.getPrefix() + TranslatableLine.MINE_RESET_ANNOUNCEMENT.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.getDisplayName())).get());
                 }
             }
+
+            // reset blocks
+            this.updateSigns();
         }
     }
 
@@ -1040,6 +1042,26 @@ public abstract class RMine {
                     final String modif = ms.getModifier();
 
                     switch (modif.toLowerCase()) {
+                        case "tl":
+                            if (this.getMineTimer().getCountdown() != null) {
+                                sign.setLine(1, Countdown.format(this.getMineTimer().getCountdown().getSecondsLeft() * 1000L));
+                                sign.setLine(2, Text.color("&6"));
+                            }
+                            break;
+                        case "sl":
+                            if (this.getMineTimer().getCountdown() != null) {
+                                sign.setLine(1, Integer.toString(this.getMineTimer().getCountdown().getSecondsLeft()));
+                                sign.setLine(2, Text.color("&6"));
+                            }
+                            break;
+                        case "b":
+                            sign.setLine(1, this.getBar());
+                            sign.setLine(2, Text.color("&6"));
+                            break;
+                        case "pb":
+                            sign.setLine(1, this.getPercentageBar());
+                            sign.setLine(2, Text.color("&6"));
+                            break;
                         case "pm":
                             sign.setLine(1, this.getMinedBlocksPer() + "%");
                             sign.setLine(2, TranslatableLine.SIGNS_MINED_ON.get());
@@ -1223,10 +1245,6 @@ public abstract class RMine {
 
     public List<MineSign> getSigns() {
         return this.signs;
-    }
-
-    public MineTimer getTimer() {
-        return this.timer;
     }
 
     public Material getFaceBlock(final MineCuboid.CuboidDirection up) {
