@@ -57,7 +57,7 @@
     <distributionManagement>
         <snapshotRepository>
             <id>neziw-repo</id>
-            <url>https://repo.neziw.ovh/snapshots</url>
+            <url>https://repo.neziw.ovh/#/snapshots</url>
         </snapshotRepository>
         <repository>
             <id>neziw-repo</id>
