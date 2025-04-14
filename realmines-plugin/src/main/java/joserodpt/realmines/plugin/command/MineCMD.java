@@ -14,7 +14,6 @@ package joserodpt.realmines.plugin.command;
  */
 
 import dev.triumphteam.cmd.bukkit.annotation.Permission;
-import dev.triumphteam.cmd.core.BaseCommand;
 import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.annotation.SubCommand;
@@ -35,7 +34,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @Command(value = "realmines", alias = {"mine", "rm"})
-public class MineCMD extends BaseCommand {
+public class MineCMD extends BaseCommandWA {
 
     private final RealMines rm;
 
@@ -60,7 +59,7 @@ public class MineCMD extends BaseCommand {
     @SubCommand(value = "reload", alias = "rl")
     @Permission("realmines.admin")
     @SuppressWarnings("unused")
-    public void reloadcmd(final CommandSender commandSender) {
+    public void reload(final CommandSender commandSender) {
         this.rm.reload();
         TranslatableLine.SYSTEM_RELOADED.send(commandSender);
     }
@@ -111,7 +110,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand("create")
     @Permission("realmines.admin")
-    ////@WrongUsage("&c/mine create <name> <type>")
+    @WrongUsage("&c/mine create <name> <type>")
     @SuppressWarnings("unused")
     public void createcmd(final CommandSender commandSender, @Suggestion("#createsuggestions") final String name, @Suggestion("#types") final String type) {
         if (name == null || name.isEmpty()) {
@@ -154,7 +153,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand("settings")
     @Permission("realmines.admin")
-    ////@WrongUsage("&c/mine settings")
+    @WrongUsage("&c/mine settings")
     @SuppressWarnings("unused")
     public void settingscmd(final CommandSender commandSender) {
         if (commandSender instanceof Player) {
@@ -168,7 +167,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand("settp")
     @Permission("realmines.admin")
-    ////@WrongUsage("&c/mine settp <name>")
+    @WrongUsage("&c/mine settp <name>")
     @SuppressWarnings("unused")
     public void settpcmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
         if (commandSender instanceof Player) {
@@ -187,7 +186,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand("tp")
     @Permission("realmines.tp")
-    ////@WrongUsage("&c/mine tp <name>")
+    @WrongUsage("&c/mine tp <name>")
     @SuppressWarnings("unused")
     public void tpmine(final CommandSender commandSender, @Suggestion("#mines") final String name) {
         if (commandSender instanceof Player) {
@@ -204,7 +203,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand(value = "import", alias = {"imp", "conv", "convert"})
     @Permission("realmines.import")
-    //@WrongUsage("&c/mine import <converter>")
+    @WrongUsage("&c/mine import <converter>")
     @SuppressWarnings("unused")
     public void importIntoRM(final CommandSender commandSender, @Suggestion("#converters") final String name) {
         try {
@@ -217,7 +216,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand(value = "silent", alias = "s")
     @Permission("realmines.silent")
-    //@WrongUsage("&c/mine silent <name>")
+    @WrongUsage("&c/mine silent <name>")
     @SuppressWarnings("unused")
     public void silent(final CommandSender commandSender, @Suggestion("#mines") final String name) {
         final RMine m = rm.getMineManager().getMine(name);
@@ -236,7 +235,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand(value = "silentall", alias = "sa")
     @Permission("realmines.silent")
-    //@WrongUsage("&c/mine silentall <true/false>")
+    @WrongUsage("&c/mine silentall <true/false>")
     @SuppressWarnings("unused")
     public void silentall(final CommandSender commandSender, final Boolean bol) {
         for (final RMine m : rm.getMineManager().getMines().values()) {
@@ -252,7 +251,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand("highlight")
     @Permission("realmines.admin")
-    //@WrongUsage("&c/mine highlight <name>")
+    @WrongUsage("&c/mine highlight <name>")
     @SuppressWarnings("unused")
     public void highlight(final CommandSender commandSender, @Suggestion("#mines") final String name) {
         if (commandSender instanceof Player) {
@@ -270,7 +269,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand("blocks")
     @Permission("realmines.admin")
-    //@WrongUsage("&c/mine blocks <name>")
+    @WrongUsage("&c/mine blocks <name>")
     @SuppressWarnings("unused")
     public void blocks(final CommandSender commandSender, @Suggestion("#mines") final String name) {
         if (commandSender instanceof Player) {
@@ -292,7 +291,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand(value = "mine", alias = "m")
     @Permission("realmines.admin")
-    //@WrongUsage("&c/mine m <name>")
+    @WrongUsage("&c/mine m <name>")
     @SuppressWarnings("unused")
     public void minecmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
         if (commandSender instanceof Player) {
@@ -309,7 +308,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand(value = "reset", alias = "r")
     @Permission("realmines.reset")
-    //@WrongUsage("&c/mine reset <name>")
+    @WrongUsage("&c/mine reset <name>")
     @SuppressWarnings("unused")
     public void resetcmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
         final RMine m = rm.getMineManager().getMine(name);
@@ -322,7 +321,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand(value = "rename", alias = "rn")
     @Permission("realmines.admin")
-    //@WrongUsage("&c/mine rename <name> <new_name>")
+    @WrongUsage("&c/mine rename <name> <new_name>")
     @SuppressWarnings("unused")
     public void renamecmd(final CommandSender commandSender, @Suggestion("#mines") final String name, final String newName) {
         final RMine m = rm.getMineManager().getMine(name);
@@ -336,7 +335,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand(value = "delete", alias = "del")
     @Permission("realmines.admin")
-    //@WrongUsage("&c/mine delete <name>")
+    @WrongUsage("&c/mine delete <name>")
     @SuppressWarnings("unused")
     public void deletecmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
         final RMine m = rm.getMineManager().getMine(name);
@@ -350,7 +349,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand(value = "clear", alias = "c")
     @Permission("realmines.admin")
-    //@WrongUsage("&c/mine clear <name>")
+    @WrongUsage("&c/mine clear <name>")
     @SuppressWarnings("unused")
     public void clearcmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
         final RMine m = rm.getMineManager().getMine(name);
@@ -364,7 +363,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand("setbounds")
     @Permission("realmines.admin")
-    //@WrongUsage("&c/mine setbounds <name>")
+    @WrongUsage("&c/mine setbounds <name>")
     @SuppressWarnings("unused")
     public void setboundscmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
         if (commandSender instanceof Player) {
@@ -381,7 +380,7 @@ public class MineCMD extends BaseCommand {
 
     @SubCommand("freeze")
     @Permission("realmines.admin")
-    //@WrongUsage("&c/mine freeze <name>")
+    @WrongUsage("&c/mine freeze <name>")
     @SuppressWarnings("unused")
     public void freezecmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
         final RMine m = rm.getMineManager().getMine(name);
@@ -395,29 +394,43 @@ public class MineCMD extends BaseCommand {
     }
 
     /*
-    @SubCommand("registerItemInConfig")
+    @SubCommand("item2config")
     @Permission("realmines.admin")
-    //@WrongUsage("&c/mine ri <item name>")
     @SuppressWarnings("unused")
-    public void registerItemInConfig(final CommandSender commandSender, @Suggestion("#mines") final String name) {
+    public void item2config(final CommandSender commandSender, @Suggestion("#mines") final String name) {
         final Player p = (Player) commandSender;
         RMConfig.file().set("Items." + name, ItemStackSpringer.getItemSerializedJSON(p.getInventory().getItemInMainHand()));
         RMConfig.save();
     }
 
+    @SubCommand("config2item")
+    @Permission("realmines.admin")
+    @SuppressWarnings("unused")
+    public void config2item(final CommandSender commandSender, @Suggestion("#mines") final String name) {
+        final Player p = (Player) commandSender;
+        p.getInventory().addItem(ItemStackSpringer.getItemDeSerializedJSON(RMConfig.file().getString("Items." + name)));
+    }
+
     @SubCommand("give")
     @Permission("realmines.admin")
-    //@WrongUsage("&c/mine ri <item name>")
+    @WrongUsage("&c/mine ri <item name>")
     @SuppressWarnings("unused")
-    public void giveItems(final CommandSender commandSender, @Suggestion("#mines") final String name) {
+    public void giveItems(final CommandSender commandSender) {
         final Player p = (Player) commandSender;
 
-        ItemStack visiblePickaxe = new ItemStack(Material.DIAMOND_PICKAXE);
-        ItemMeta visibleMeta = visiblePickaxe.getItemMeta();
-        if (visibleMeta != null) {
-            visibleMeta.addEnchant(Enchantment.DIG_SPEED, 5, true);
-            visiblePickaxe.setItemMeta(visibleMeta);
+        ItemStack customSword = new ItemStack(Material.DIAMOND_SWORD);
+        ItemMeta meta = customSword.getItemMeta();
+
+        if (meta != null) {
+            meta.setDisplayName(ChatColor.AQUA + "Legendary Blade");
+            meta.addAttributeModifier(Attribute.GENERIC_ATTACK_DAMAGE, new AttributeModifier(
+                    UUID.randomUUID(), "extra_damage", 10.0, AttributeModifier.Operation.ADD_NUMBER));
+            meta.addAttributeModifier(Attribute.GENERIC_MOVEMENT_SPEED, new AttributeModifier(
+                    UUID.randomUUID(), "extra_speed", 0.05, AttributeModifier.Operation.ADD_SCALAR));
+            customSword.setItemMeta(meta);
         }
+
+        p.getInventory().addItem(customSword);
 
         // Second pickaxe with hidden Efficiency enchantment
         ItemStack hiddenPickaxe = new ItemStack(Material.DIAMOND_PICKAXE);
@@ -431,7 +444,7 @@ public class MineCMD extends BaseCommand {
         }
 
         // Give the player the items
-        p.getInventory().addItem(visiblePickaxe, hiddenPickaxe);
+        p.getInventory().addItem(hiddenPickaxe);
     }
      */
 }

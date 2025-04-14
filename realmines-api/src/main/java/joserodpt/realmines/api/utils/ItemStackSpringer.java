@@ -13,13 +13,17 @@ package joserodpt.realmines.api.utils;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Multimap;
 import com.google.gson.Gson;
 import joserodpt.realmines.api.RealMinesAPI;
 import org.bukkit.Color;
 import org.bukkit.FireworkEffect;
 import org.bukkit.Material;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.block.banner.Pattern;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.inventory.ItemFlag;
@@ -81,29 +85,43 @@ public class ItemStackSpringer {
             }
         }
 
-        //save display name
-        if (i.hasItemMeta() && i.getItemMeta().hasDisplayName()) {
-            singleItem.put(ItemCategories.NAME.name(), i.getItemMeta().getDisplayName());
-        }
-
-        //save item's lore
-        if (i.hasItemMeta() && i.getItemMeta().hasLore()) {
-            singleItem.put(ItemCategories.LORE.name(), i.getItemMeta().getLore());
-        }
-
-        //save item's enchants
-        if (i.hasItemMeta() && i.getItemMeta().hasEnchants()) {
-            singleItem.put(ItemCategories.ENCHANTMENTS.name(), i.getEnchantments().entrySet().stream()
-                    .map(entry -> entry.getKey().getKey().getKey() + ":" + entry.getValue())
-                    .collect(Collectors.joining(";")));
-        }
-
-        //save item's itemflags
         if (i.hasItemMeta()) {
+            //save display name
+            if (i.getItemMeta().hasDisplayName()) {
+                singleItem.put(ItemCategories.NAME.name(), i.getItemMeta().getDisplayName());
+            }
+
+            //save item's lore
+            if (i.getItemMeta().hasLore()) {
+                singleItem.put(ItemCategories.LORE.name(), i.getItemMeta().getLore());
+            }
+
+            //save item's enchants
+            if (i.getItemMeta().hasEnchants()) {
+                singleItem.put(ItemCategories.ENCHANTMENTS.name(), i.getEnchantments().entrySet().stream()
+                        .map(entry -> entry.getKey().getKey().getKey() + ":" + entry.getValue())
+                        .collect(Collectors.joining(";")));
+            }
+
+            //save item's itemflags
             if (!i.getItemMeta().getItemFlags().isEmpty()) {
                 singleItem.put(ItemCategories.ITEM_FLAGS.name(), i.getItemMeta().getItemFlags().stream()
                         .map(Enum::name)
                         .collect(Collectors.joining(";")));
+            }
+
+            if (i.getItemMeta().hasAttributeModifiers()) {
+                Map<String, Map<String, Object>> attributes = new HashMap<>();
+
+                for (Attribute attribute : i.getItemMeta().getAttributeModifiers().keySet()) {
+                    attributes.put(attribute.name(), i.getItemMeta().getAttributeModifiers(attribute)
+                            .stream()
+                            .collect(Collectors.toMap(AttributeModifier::getName, AttributeModifier::serialize)));
+                }
+
+                if (!attributes.isEmpty()) {
+                    singleItem.put(ItemCategories.ITEM_ATTRIBUTES.name(), attributes);
+                }
             }
         }
 
@@ -224,8 +242,14 @@ public class ItemStackSpringer {
         int amount;
         try {
             amount = (int) data.get(ItemCategories.AMOUNT.name());
-        } catch (Exception ignored) {
-            amount = 1;
+        } catch (Exception e) {
+            try {
+                amount = (int) ((double) data.get(ItemCategories.AMOUNT.name()));
+            } catch (Exception e2) {
+                amount = 1;
+                RealMinesAPI.getInstance().getPlugin().getLogger().severe("Could not load item amount for " + m.name() + " - defaulting to 1");
+                e2.printStackTrace();
+            }
         }
         ItemStack i = new ItemStack(m, amount);
 
@@ -368,6 +392,25 @@ public class ItemStackSpringer {
 
                 i.setItemMeta(potionMeta);
             }
+            if (ItemCategories.ITEM_ATTRIBUTES.name().equals(key)) {
+                Map<String, Map<String, Map<String, Object>>> attributesData =
+                        (Map<String, Map<String, Map<String, Object>>>) value;
+
+                Multimap<Attribute, AttributeModifier> attributeModifiers = ArrayListMultimap.create();
+
+                for (Map.Entry<String, Map<String, Map<String, Object>>> entry : attributesData.entrySet()) {
+                    Attribute attribute = Attribute.valueOf(entry.getKey());
+                    Map<String, Map<String, Object>> modifiersData = entry.getValue();
+
+                    for (Map.Entry<String, Map<String, Object>> modifierEntry : modifiersData.entrySet()) {
+                        AttributeModifier modifier = AttributeModifier.deserialize(modifierEntry.getValue());
+                        attributeModifiers.put(attribute, modifier);
+                    }
+                }
+
+                meta.setAttributeModifiers(attributeModifiers);
+                i.setItemMeta(meta);
+            }
         }
 
         debugPrint(ItemStackSpringer.class, "Item Deserialized: " + i);
@@ -485,7 +528,7 @@ public class ItemStackSpringer {
     }
 
     public enum ItemCategories {
-        SLOT, NAME, MATERIAL, AMOUNT, DAMAGE, LORE, ENCHANTMENTS, EMPTY, ITEM_FLAGS,
+        SLOT, NAME, MATERIAL, AMOUNT, DAMAGE, LORE, ENCHANTMENTS, EMPTY, ITEM_FLAGS, ITEM_ATTRIBUTES,
         LEATHER_ARMOR_COLOR, BANNER_PATTERNS, BOOK_DATA, BOOK_ENCHANTMENTS, FIREWORK_DATA, POTION_DATA
     }
 

@@ -30,6 +30,7 @@ import joserodpt.realmines.api.utils.GUIBuilder;
 import joserodpt.realmines.api.utils.PercentageInput;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.plugin.command.BaseCommandWA;
 import joserodpt.realmines.plugin.command.MineCMD;
 import joserodpt.realmines.plugin.command.MineResetTaskCMD;
 import joserodpt.realmines.plugin.events.BlockEvents;
@@ -60,6 +61,8 @@ import org.bukkit.scheduler.BukkitTask;
 import java.io.File;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -163,14 +166,18 @@ public class RealMinesPlugin extends JavaPlugin {
                 (sender, context) -> realMines.getMineResetTasksManager().getRegisteredTasks()
         );
 
+        //registo de comandos #portugal
+        Map<String, BaseCommandWA> commands = new HashMap<>();
+        registerCommand("realmines", new MineCMD(realMines), commands, commandManager);
+        registerCommand("realminesresettask", new MineResetTaskCMD(realMines), commands, commandManager);
+
         //command messages
         commandManager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> TranslatableLine.SYSTEM_ERROR_COMMAND.send(sender));
-        commandManager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> TranslatableLine.SYSTEM_ERROR_USAGE.send(sender));
+        commandManager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> {
+            Bukkit.getLogger().warning(context.getCommand() + " " + context.getSubCommand());
+            Text.send(sender, commands.get(context.getCommand()).getWrongUsage(context.getSubCommand()));
+        });
         commandManager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> TranslatableLine.SYSTEM_ERROR_PERMISSION.send(sender));
-
-        //registo de comandos #portugal
-        commandManager.registerCommand(new MineCMD(realMines));
-        commandManager.registerCommand(new MineResetTaskCMD(realMines));
 
         getLogger().info("Loading Mines.");
         realMines.getMineManager().loadMines();
@@ -223,6 +230,11 @@ public class RealMinesPlugin extends JavaPlugin {
                 this.getLogger().warning("There is a new update available! Version: " + version + " https://www.spigotmc.org/resources/73707/");
             }
         });
+    }
+
+    private void registerCommand(String realmines, BaseCommandWA mineCMD, Map<String, BaseCommandWA> commands, BukkitCommandManager<CommandSender> commandManager) {
+        commands.put(realmines, mineCMD);
+        commandManager.registerCommand(mineCMD);
     }
 
     private void printASCII() {

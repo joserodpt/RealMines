@@ -50,24 +50,29 @@ public class MineActionGiveItem extends MineAction {
             TranslatableLine.MINE_BREAK_ACTION_GIVE_ITEM.send(p);
         }
 
-        if (hasSpace(p, i)) {
-            p.getInventory().addItem(i);
+        ItemStack item = getClonedItem();
+        if (hasSpace(p, item)) {
+            p.getInventory().addItem(item);
         } else {
-            p.getWorld().dropItemNaturally(p.getLocation(), i);
+            p.getWorld().dropItemNaturally(l, item);
             Text.send(p, "&cYour inventory is full. &fThe item was dropped!");
         }
     }
 
-    private boolean hasSpace(Player p, ItemStack i) {
-        for (ItemStack slot : p.getInventory().getContents()) {
+    private boolean hasSpace(Player p, ItemStack item) {
+        for (int i = 0; i < p.getInventory().getContents().length; ++i) {
+            if (i == 36 || i == 37 || i == 38 || i == 39) { // skip armor slots
+                continue;
+            }
+
+            ItemStack slot = p.getInventory().getItem(i);
             if (slot == null || slot.getType() == Material.AIR) {
-                // Found an empty slot
                 return true;
-            } else if (slot.isSimilar(i) && slot.getAmount() + i.getAmount() <= slot.getMaxStackSize()) {
-                // Found a slot with the same item and enough space
+            } else if (slot.isSimilar(item) && (slot.getAmount() + item.getAmount() <= slot.getMaxStackSize())) {
                 return true;
             }
         }
+
         return false;
     }
 
@@ -78,31 +83,37 @@ public class MineActionGiveItem extends MineAction {
 
     @Override
     public String getValueString() {
-        return Text.beautifyMaterialName(this.i.getType());
+        ItemStack tmp = this.getClonedItem();
+        return "x" + tmp.getAmount() + " " + Text.beautifyMaterialName(tmp.getType());
     }
 
     @Override
     public String getValue() {
-        return ItemStackSpringer.getItemSerializedJSON(this.i.clone());
+        return ItemStackSpringer.getItemSerializedJSON(this.getClonedItem().clone());
     }
 
     @Override
     public ItemStack getIcon() {
-        return Items.createItem(Material.CHEST, 1, getType().getDisplayName() + " &r&f- " + Text.formatPercentages(super.getChance() / 100) + "%", Arrays.asList("&fItem: &bx" + this.i.getAmount() + " " + Text.beautifyMaterialName(this.i.getType()), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the item.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
+        ItemStack tmp = this.getClonedItem();
+        return Items.createItem(Material.CHEST, 1, getType().getDisplayName() + " &r&f- " + Text.formatPercentages(super.getChance() / 100) + "%", Arrays.asList("&fItem: &bx" + tmp.getAmount() + " " + Text.beautifyMaterialName(tmp.getType()), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the item.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 
     public void setItem(ItemStack itemInMainHand) {
         if (itemInMainHand == null || itemInMainHand.getType() == Material.AIR) {
             return;
         }
-        this.i = itemInMainHand;
+        this.i = itemInMainHand.clone();
     }
 
     @Override
     public String toString() {
         return "MineActionItem{" +
-                "i=" + i +
+                "i=" + getClonedItem() +
                 ", chance=" + super.getChance() +
                 '}';
+    }
+
+    private ItemStack getClonedItem() {
+        return i.clone();
     }
 }

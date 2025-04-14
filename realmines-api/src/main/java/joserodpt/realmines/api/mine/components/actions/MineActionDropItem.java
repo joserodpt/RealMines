@@ -60,7 +60,7 @@ public class MineActionDropItem extends MineAction {
 
     @Override
     public String getValueString() {
-        return Text.beautifyMaterialName(this.i.getType());
+        return "x" + this.i.getAmount() + " " + Text.beautifyMaterialName(this.i.getType());
     }
 
     @Override
