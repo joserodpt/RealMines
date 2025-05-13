@@ -16,6 +16,8 @@ package joserodpt.realmines.api.mine.components.items;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
+import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
+import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Text;
 import org.bukkit.Material;
@@ -40,6 +42,12 @@ public class MineItem {
     }
 
     public MineItem(Material material) {
+        if (this instanceof MineBlockItem && !material.isBlock()) {
+            throw new IllegalArgumentException("Material " + material + " is not a block.");
+        }
+        if (this instanceof MineFarmItem && FarmItem.valueOf(material) == null) {
+            throw new IllegalArgumentException("Material " + material + " is not a farm item.");
+        }
         this.material = material;
         this.percentage = 0.1D;
         this.breakActions = new ArrayList<>();

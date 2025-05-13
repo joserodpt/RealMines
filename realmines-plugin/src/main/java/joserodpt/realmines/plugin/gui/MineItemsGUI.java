@@ -262,6 +262,20 @@ public class MineItemsGUI {
                                 this.nextPageBlockSets(current);
                                 p.playSound(p.getLocation(), Sound.ITEM_BOOK_PAGE_TURN, 50, 50);
                                 break;
+                            default:
+                                if (e.getRawSlot() >= e.getView().getTopInventory().getSize()) {
+                                    try {
+                                        switch (current.mine.getType()) {
+                                            case BLOCKS ->
+                                                    ((BlockMine) current.mine).addItem(current.selectedBlockSet, new MineBlockItem(e.getCurrentItem().getType()));
+                                            case FARM ->
+                                                    ((FarmMine) current.mine).addFarmItem(current.selectedBlockSet, new MineFarmItem(e.getCurrentItem().getType()));
+                                        }
+                                        current.load();
+                                    } catch (Exception a) {
+                                        Text.send(p, "&cYou can't add that block to the mine.");
+                                    }
+                                }
                         }
 
                         if (current.display.containsKey(e.getRawSlot())) {

@@ -139,7 +139,6 @@ public class BlockMine extends RMine {
     }
 
     public void addItem(final String blockSetKey, final MineBlockItem mineBlock) {
-        Bukkit.getLogger().info("Adding block to mine: " + mineBlock.getMaterial() + " - " + blockSetKey);
         RMBlockSet blockSet = this.getBlockSet(blockSetKey);
         if (blockSet != null && !blockSet.contains(mineBlock)) {
             blockSet.add(mineBlock);
