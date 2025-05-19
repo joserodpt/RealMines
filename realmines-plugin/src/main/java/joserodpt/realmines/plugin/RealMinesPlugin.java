@@ -174,7 +174,6 @@ public class RealMinesPlugin extends JavaPlugin {
         //command messages
         commandManager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> TranslatableLine.SYSTEM_ERROR_COMMAND.send(sender));
         commandManager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> {
-            Bukkit.getLogger().warning(context.getCommand() + " " + context.getSubCommand());
             Text.send(sender, commands.get(context.getCommand()).getWrongUsage(context.getSubCommand()));
         });
         commandManager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> TranslatableLine.SYSTEM_ERROR_PERMISSION.send(sender));
