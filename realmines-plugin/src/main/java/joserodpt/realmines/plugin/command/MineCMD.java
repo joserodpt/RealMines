@@ -81,24 +81,16 @@ public class MineCMD extends BaseCommandWA {
     @Permission("realmines.admin")
     @SuppressWarnings("unused")
     public void stoptaskscmd(final CommandSender commandSender) {
-        if (commandSender instanceof Player) {
-            rm.getMineManager().stopTasks();
-            TranslatableLine.SYSTEM_STOPPED_MINE_TASKS.send(commandSender);
-        } else {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
-        }
+        rm.getMineManager().stopTasks();
+        TranslatableLine.SYSTEM_STOPPED_MINE_TASKS.send(commandSender);
     }
 
     @SubCommand("starttasks")
     @Permission("realmines.admin")
     @SuppressWarnings("unused")
     public void starttaskcmd(final CommandSender commandSender) {
-        if (commandSender instanceof Player) {
-            rm.getMineManager().startTasks();
-            TranslatableLine.SYSTEM_STARTED_MINE_TASKS.send(commandSender);
-        } else {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
-        }
+        rm.getMineManager().startTasks();
+        TranslatableLine.SYSTEM_STARTED_MINE_TASKS.send(commandSender);
     }
 
     @SubCommand(value = "list", alias = "l")
