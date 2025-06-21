@@ -497,7 +497,7 @@ public class MineItemsGUI {
                     this.editPercentage(p, a, current);
                 }
 
-                if (d < 1D) {
+                if (d < 0D) {
                     TranslatableLine.SYSTEM_INPUT_PERCENTAGE_ERROR_GREATER.send(p);
                     this.editPercentage(p, a, current);
                     return;
