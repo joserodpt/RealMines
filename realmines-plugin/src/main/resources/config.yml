@@ -10,6 +10,7 @@ RealMines:
   useWorldEditForBlockPlacement: true
   ignoreAirBlocksSchematicPasting: true
   disableMineResetOnServerStart: false
+  disableMineClearingWhenDeleting: false
   announceTimes:
     - 30
     - 20
@@ -19,4 +20,4 @@ RealMines:
     - 3
     - 2
     - 1
-Version: 9
+Version: 10

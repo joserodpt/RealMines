@@ -423,7 +423,11 @@ public class MineManager extends MineManagerAPI {
     public void deleteMine(final RMine mine) {
         if (mine != null) {
             Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(mine, RealMinesMineChangeEvent.ChangeOperation.REMOVED));
-            mine.clear();
+
+            if (RMConfig.file().getBoolean("RealMines.disableMineClearingWhenDeleting", false)) {
+                mine.clear();
+            }
+
             if (mine.getMineTimer() != null) {
                 mine.getMineTimer().kill();
             }
