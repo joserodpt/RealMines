@@ -219,6 +219,7 @@ System:
   Input-Cancelled: "&fInput canceled."
   Error-Occurred: "&cAn error occurred. Contact JoseGamer_PT on www.spigotmc.org"
   Error-Permission: "&fYou &cdo not &fhave permission to execute this command!"
+  Error-Break-Permission: "&fYou &cdo not &fhave permission to break blocks in this mine!"
   Error-Command: "&cThe command you're trying to run doesn't exist!"
   Error-Usage: "&cWrong usage for the command!"
   Nothing-Found: "&fNothing found for your search criteria."
@@ -247,4 +248,4 @@ Signs:
   Mined-Blocks-On: "mined blocks on"
   Blocks-On: "blocks on"
   Left-On: "left on"
-Version: 7
+Version: 8

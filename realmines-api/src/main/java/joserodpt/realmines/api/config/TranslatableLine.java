@@ -112,6 +112,7 @@ public enum TranslatableLine {
     SYSTEM_INPUT_CANCELLED("System.Input-Cancelled"),
     SYSTEM_ERROR_OCCURRED("System.Error-Occurred"),
     SYSTEM_ERROR_PERMISSION("System.Error-Permission"),
+    SYSTEM_ERROR_BREAK_PERMISSION("System.Error-Break-Permission"),
     SYSTEM_ERROR_COMMAND("System.Error-Command"),
     SYSTEM_ERROR_USAGE("System.Error-Usage"),
     SYSTEM_NOTHING_FOUND("System.Nothing-Found"),

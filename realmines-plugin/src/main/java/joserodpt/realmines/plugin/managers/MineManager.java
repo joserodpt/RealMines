@@ -244,8 +244,8 @@ public class MineManager extends MineManagerAPI {
                     }, input -> TranslatableLine.SYSTEM_MINE_CREATED.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(p));
                 }
             }
-        } catch (final Exception ignored) {
-            ignored.printStackTrace();
+        } catch (final Exception e) {
+            e.printStackTrace();
             TranslatableLine.SYSTEM_BOUNDARIES_NOT_SET.send(p);
         }
     }
@@ -339,7 +339,14 @@ public class MineManager extends MineManagerAPI {
             }
 
             if (mine.getMineCuboid().contains(block)) {
-                if (mine.isFreezed() || (mine.getSettingBool(RMineSettings.BREAK_PERMISSION) && !p.hasPermission(mine.getBreakPermission()))) {
+                if ((mine.getSettingBool(RMineSettings.BREAK_PERMISSION) && !p.hasPermission(mine.getBreakPermission()))
+                        || (mine.getSettingBool(RMineSettings.BLOCK_SETS_MODE) && !mine.getMineCuboid().getBlockTypes().contains(block.getType()))) {
+                    e.setCancelled(true);
+                    TranslatableLine.SYSTEM_ERROR_BREAK_PERMISSION.send(p);
+                    return null;
+                }
+
+                if (mine.isFreezed()) {
                     e.setCancelled(true);
                 } else {
                     if (mine.getType() == RMine.Type.FARM && !FarmItem.getCrops().contains(block.getType())) {
