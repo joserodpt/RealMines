@@ -80,6 +80,7 @@ public class SettingsGUI {
                 this.inv.setItem(23, Items.createItem(Material.FILLED_MAP, 1, "&eTeleport Message " + (RMConfig.file().getBoolean("RealMines.teleportMessage") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle the teleportation messages.")));
                 this.inv.setItem(24, Items.createItem(Material.MAP, 1, "&eAction Bar Messages " + (RMConfig.file().getBoolean("RealMines.actionbarMessages") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle action bar messages.")));
                 this.inv.setItem(25, Items.createItem(Material.TNT, 1, "&eReset Mines with No Online Players " + (RMConfig.file().getBoolean("RealMines.resetMinesWhenNoPlayers") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
+                this.inv.setItem(26, Items.createItem(Material.CHEST, 1, "&eSend Mined Items to Inventory " + (RMConfig.file().getBoolean("RealMines.sendMinedItemsToInventory") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle sending the mined", "&fitems directly to the player's inventory.")));
 
                 break;
         }
@@ -169,6 +170,9 @@ public class SettingsGUI {
                                 break;
                             case 25:
                                 toggle("resetMinesWhenNoPlayers", current);
+                                break;
+                            case 26:
+                                toggle("sendMinedItemsToInventory", current);
                                 break;
 
                             case 37:

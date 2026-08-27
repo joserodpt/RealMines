@@ -45,6 +45,8 @@ public abstract class MineManagerAPI {
 
     public abstract MineItem findBlockUpdate(Player p, Cancellable e, Block b, boolean broken);
 
+    public abstract RMine getMineWithBlock(Block b);
+
     public abstract List<MineSign> getSigns();
 
     public abstract void unloadMines();

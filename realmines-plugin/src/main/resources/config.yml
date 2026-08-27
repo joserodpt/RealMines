@@ -3,6 +3,7 @@ RealMines:
   teleportPlayers: true
   teleportMessage: true
   actionbarMessages: true
+  sendMinedItemsToInventory: false
   placeFarmLandBelowCrop: true
   resetMinesWhenNoPlayers: false
   broadcastResetMessageOnlyInWorld: false
@@ -20,4 +21,4 @@ RealMines:
     - 3
     - 2
     - 1
-Version: 10
+Version: 11

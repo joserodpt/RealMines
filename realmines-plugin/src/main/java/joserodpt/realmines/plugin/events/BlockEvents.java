@@ -14,14 +14,19 @@ package joserodpt.realmines.plugin.events;
  */
 
 import com.google.common.collect.ImmutableSet;
+import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.event.MineBlockBreakEvent;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
@@ -31,7 +36,9 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
 
+import java.util.Collection;
 import java.util.Set;
 
 public class BlockEvents implements Listener {
@@ -47,6 +54,33 @@ public class BlockEvents implements Listener {
         final MineItem mi = rm.getMineManager().findBlockUpdate(e.getPlayer(), e, e.getBlock(), true);
         if (mi != null && mi.areVanillaDropsDisabled()) {
             e.setDropItems(false);
+            return;
+        }
+
+        if (!e.isCancelled() && RMConfig.file().getBoolean("RealMines.sendMinedItemsToInventory")
+                && rm.getMineManager().getMineWithBlock(e.getBlock()) != null) {
+            sendDropsToInventory(e.getPlayer(), e);
+        }
+    }
+
+    private void sendDropsToInventory(final Player p, final BlockBreakEvent e) {
+        if (p.getGameMode() == GameMode.CREATIVE) {
+            return;
+        }
+
+        final Block block = e.getBlock();
+        final Collection<ItemStack> drops = block.getDrops(p.getInventory().getItemInMainHand());
+        if (drops.isEmpty()) {
+            return;
+        }
+
+        //vanilla drops are replaced by the ones given to the player
+        e.setDropItems(false);
+
+        final Location loc = block.getLocation().add(0.5D, 0.5D, 0.5D);
+        for (final ItemStack drop : drops) {
+            //whatever doesn't fit in the player's inventory is dropped on the ground
+            p.getInventory().addItem(drop).values().forEach(leftover -> block.getWorld().dropItemNaturally(loc, leftover));
         }
     }
 

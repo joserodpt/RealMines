@@ -332,6 +332,16 @@ public class MineManager extends MineManagerAPI {
     }
 
     @Override
+    public RMine getMineWithBlock(final Block block) {
+        for (final RMine mine : this.getMines().values()) {
+            if (mine.getMineCuboid() != null && mine.getMineCuboid().contains(block)) {
+                return mine;
+            }
+        }
+        return null;
+    }
+
+    @Override
     public MineItem findBlockUpdate(final Player p, final Cancellable e, final Block block, final boolean broken) {
         for (final RMine mine : this.getMines().values()) {
             if (mine.getMineCuboid() == null) {
