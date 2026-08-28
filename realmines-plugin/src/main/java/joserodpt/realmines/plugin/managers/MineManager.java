@@ -436,7 +436,7 @@ public class MineManager extends MineManagerAPI {
 
     @Override
     public void startTasks() {
-        this.getMines().values().forEach(mine -> mine.getMineTimer().start());
+        this.getMines().values().stream().filter(mine -> mine.getMineTimer() != null).forEach(mine -> mine.getMineTimer().start());
     }
 
     @Override

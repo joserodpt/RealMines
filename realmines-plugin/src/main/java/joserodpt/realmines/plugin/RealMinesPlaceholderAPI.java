@@ -161,10 +161,11 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
             final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
-                if (m.getMineTimer().getCountdown() == null) {
+                final Integer secondsLeft = m.getCountdown();
+                if (secondsLeft == null) {
                     return "-1";
                 }
-                return Integer.toString(m.getMineTimer().getCountdown().getSecondsLeft());
+                return Integer.toString(secondsLeft);
             } else {
                 return "No mine named: " + mine;
             }
@@ -175,10 +176,11 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
             final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
-                if (m.getMineTimer().getCountdown() == null) {
+                final Integer secondsLeft = m.getCountdown();
+                if (secondsLeft == null) {
                     return "-1";
                 }
-                return Countdown.format(m.getMineTimer().getCountdown().getSecondsLeft() * 1000L);
+                return Countdown.format(secondsLeft * 1000L);
             } else {
                 return "No mine named: " + mine;
             }

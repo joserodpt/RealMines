@@ -179,6 +179,9 @@ public abstract class RMine {
         }
 
         checkConfig(true, false);
+
+        //mines created at runtime don't go through loadMineConfig, so the timer has to be set up here
+        this.setupTimer();
     }
 
     //create new mine
@@ -206,6 +209,9 @@ public abstract class RMine {
         }
 
         checkConfig(true, false);
+
+        //mines created at runtime don't go through loadMineConfig, so the timer has to be set up here
+        this.setupTimer();
     }
 
     //converting from old config to new config
@@ -550,9 +556,17 @@ public abstract class RMine {
             }
         }
 
+        this.setupTimer();
+    }
+
+    protected void setupTimer() {
+        if (this.timer != null) {
+            this.timer.kill();
+        }
+
         this.timer = new MineTimer(this);
         if (this.resetByTime) {
-            int countdown = this.config.getInt("reset.time.countdown", this.resetByTimeValue);
+            int countdown = this.config == null ? this.resetByTimeValue : this.config.getInt("reset.time.countdown", this.resetByTimeValue);
             this.timer.start();
             this.setCountdown(countdown);
         }
@@ -1123,14 +1137,14 @@ public abstract class RMine {
 
                     switch (modif.toLowerCase()) {
                         case "tl":
-                            if (this.getMineTimer().getCountdown() != null) {
-                                sign.setLine(1, Countdown.format(this.getMineTimer().getCountdown().getSecondsLeft() * 1000L));
+                            if (this.getCountdown() != null) {
+                                sign.setLine(1, Countdown.format(this.getCountdown() * 1000L));
                                 sign.setLine(2, Text.color("&6"));
                             }
                             break;
                         case "sl":
-                            if (this.getMineTimer().getCountdown() != null) {
-                                sign.setLine(1, Integer.toString(this.getMineTimer().getCountdown().getSecondsLeft()));
+                            if (this.getCountdown() != null) {
+                                sign.setLine(1, Integer.toString(this.getCountdown()));
                                 sign.setLine(2, Text.color("&6"));
                             }
                             break;
