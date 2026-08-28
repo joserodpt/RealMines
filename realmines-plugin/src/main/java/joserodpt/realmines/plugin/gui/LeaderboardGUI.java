@@ -21,8 +21,8 @@ import joserodpt.realmines.api.database.RMPlayerData;
 import joserodpt.realmines.api.managers.DatabaseManagerAPI;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Pagination;
+import joserodpt.realmines.api.utils.PlayerHeads;
 import joserodpt.realmines.api.utils.Text;
-import joserodpt.realmines.api.utils.skulls.SkullCreator;
 import joserodpt.realmines.plugin.RealMines;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -92,6 +92,23 @@ public class LeaderboardGUI {
         this.empty = entries.isEmpty();
         this.p = new Pagination<>(28, entries);
         this.fillChest(getPage(this.pageNumber));
+
+        //almost everyone on a leaderboard is offline, so their skins won't be known yet. Draw with
+        //what we have, fetch the rest in the background, and repaint once they arrive.
+        final List<UUID> heads = new ArrayList<>();
+        for (final Entry entry : entries) {
+            heads.add(entry.uuid);
+        }
+        PlayerHeads.preload(heads, this::repaint);
+    }
+
+    /**
+     * Redraws the current page in place. Skipped if the player has since closed or replaced this GUI.
+     */
+    private void repaint() {
+        if (inventories.get(this.uuid) == this) {
+            this.fillChest(getPage(this.pageNumber));
+        }
     }
 
     private List<Entry> collect() {
@@ -316,9 +333,8 @@ public class LeaderboardGUI {
         }
 
         ItemStack getItem() {
-            return Items.changeItemStack("&9#" + this.rank + " &f" + this.name,
-                    Arrays.asList("&fBlocks mined: &b" + Text.formatNumber(this.amount)),
-                    SkullCreator.itemFromUuid(this.uuid));
+            return PlayerHeads.getHead(this.uuid, "&9#" + this.rank + " &f" + this.name,
+                    Arrays.asList("&fBlocks mined: &b" + Text.formatNumber(this.amount)));
         }
     }
 }

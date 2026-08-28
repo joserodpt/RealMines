@@ -96,6 +96,16 @@
                                         <include>**</include>
                                     </includes>
                                 </filter>
+                                <!-- Same problem in our own API: the SkullCreator version patches are only
+                                     reached through Class.forName, so minimizeJar dropped all three and every
+                                     player head silently came out with no texture. This is our own code, not a
+                                     library to trim, so keep the whole module. -->
+                                <filter>
+                                    <artifact>joserodpt:RealMinesAPI</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
                             </filters>
                         </configuration>
                     </execution>

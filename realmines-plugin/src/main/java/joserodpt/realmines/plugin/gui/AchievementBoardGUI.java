@@ -19,8 +19,8 @@ import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.database.RMPlayerStats;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Pagination;
+import joserodpt.realmines.api.utils.PlayerHeads;
 import joserodpt.realmines.api.utils.Text;
-import joserodpt.realmines.api.utils.skulls.SkullCreator;
 import joserodpt.realmines.plugin.RealMines;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -85,6 +85,20 @@ public class AchievementBoardGUI {
     public void load() {
         this.p = new Pagination<>(28, new ArrayList<>(this.rm.getAchievementsManager().getAchievements()));
         this.fillChest(getPage(this.pageNumber));
+
+        //the board can be opened for an offline player, whose skin the server won't know
+        if (this.stats != null) {
+            PlayerHeads.preload(java.util.Collections.singletonList(this.stats.getUUID()), this::repaint);
+        }
+    }
+
+    /**
+     * Redraws the current page in place. Skipped if the player has since closed or replaced this GUI.
+     */
+    private void repaint() {
+        if (inventories.get(this.uuid) == this) {
+            this.fillChest(getPage(this.pageNumber));
+        }
     }
 
     /**
@@ -140,10 +154,10 @@ public class AchievementBoardGUI {
             lore.add(Text.color("&8First seen: " + Text.formatEpoch(this.stats.getFirstJoin())));
         }
 
-        final ItemStack head = this.stats == null
-                ? Items.createItem(Material.PLAYER_HEAD, 1, "")
-                : SkullCreator.itemFromUuid(this.stats.getUUID());
-        return Items.changeItemStack(Text.color("&9" + this.targetName), lore, head);
+        if (this.stats == null) {
+            return Items.createItem(Material.PLAYER_HEAD, 1, Text.color("&9" + this.targetName), lore);
+        }
+        return PlayerHeads.getHead(this.stats.getUUID(), "&9" + this.targetName, lore);
     }
 
     public static Listener getListener() {

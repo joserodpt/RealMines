@@ -15,6 +15,7 @@ package joserodpt.realmines.plugin.events;
 
 import joserodpt.realmines.api.event.MineBlockBreakEvent;
 import joserodpt.realmines.api.managers.DatabaseManagerAPI;
+import joserodpt.realmines.api.utils.PlayerHeads;
 import joserodpt.realmines.plugin.RealMines;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -107,6 +108,10 @@ public class StatsEvents implements Listener {
 
     @EventHandler
     public void onQuit(final PlayerQuitEvent e) {
+        //dropped so a player who changed their skin gets the new one on their next join.
+        //done before the database check, since heads work with or without stats being on
+        PlayerHeads.forget(e.getPlayer().getUniqueId());
+
         final DatabaseManagerAPI db = this.rm.getDatabaseManager();
         if (db == null) {
             return;
