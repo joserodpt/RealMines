@@ -9,7 +9,7 @@ package joserodpt.realmines.plugin.events;
  *  \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
  *
  * Licensed under the MIT License
- * @author José Rodrigues © 2019-2025
+ * @author José Rodrigues © 2019-2026
  * @link https://github.com/joserodpt/RealMines
  */
 
