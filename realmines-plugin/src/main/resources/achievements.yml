@@ -1,0 +1,101 @@
+# ______           ____  ____
+# | ___ \         | |  \/  (_)
+# | |_/ /___  __ _| | .  . |_ _ __   ___  ___
+# |    // _ \/ _` | | |\/| | | '_ \ / _ \/ __|
+# | |\ \  __/ (_| | | |  | | | | | |  __/\__ \
+# \_| \_\___|\__,_|_\_|  |_/_|_| |_|\___||___/
+#
+# Achievements shown on the achievement board (/rm achievements).
+#
+# Each entry is keyed by a unique id. That id is what gets stored in the database once a player
+# unlocks it, so renaming a key makes players able to earn it a second time.
+#
+#  Display-Name : name shown in the GUI.
+#  Icon         : material used as the GUI icon. Glows once unlocked.
+#  Description  : lore lines. %goal% and %material% are replaced.
+#  Type         : TOTAL_BLOCKS - counts every block mined inside any mine.
+#                 MATERIAL     - counts only blocks of the material below.
+#  Material     : required when Type is MATERIAL.
+#  Goal         : how many blocks are needed.
+#  Announce     : true to broadcast the unlock to the whole server.
+#  Rewards      : optional. Same format as a mine's break actions.
+#                 type: GIVE_MONEY | EXECUTE_COMMAND | GIVE_ITEM | DROP_ITEM
+#                 value: amount for GIVE_MONEY, the command (no leading slash) for EXECUTE_COMMAND,
+#                        a serialized item for GIVE_ITEM / DROP_ITEM (use /rm item2config to get one)
+#                 chance: 100.0 to always give the reward. Lower values make it random.
+#                 %player% and %blockloc% are replaced in commands.
+
+Achievements:
+  first_steps:
+    Display-Name: "&a&lFirst Steps"
+    Icon: WOODEN_PICKAXE
+    Description:
+      - "&7Mine your first &a%goal% &7blocks."
+    Type: TOTAL_BLOCKS
+    Goal: 100
+    Announce: false
+    Rewards:
+      reward-1:
+        type: GIVE_MONEY
+        chance: 100.0
+        value: 100.0
+
+  seasoned_miner:
+    Display-Name: "&e&lSeasoned Miner"
+    Icon: STONE_PICKAXE
+    Description:
+      - "&7Mine a total of &e%goal% &7blocks."
+    Type: TOTAL_BLOCKS
+    Goal: 10000
+    Announce: true
+    Rewards:
+      reward-1:
+        type: GIVE_MONEY
+        chance: 100.0
+        value: 2500.0
+
+  legendary_miner:
+    Display-Name: "&6&lLegendary Miner"
+    Icon: NETHERITE_PICKAXE
+    Description:
+      - "&7Mine a total of &6%goal% &7blocks."
+    Type: TOTAL_BLOCKS
+    Goal: 1000000
+    Announce: true
+    Rewards:
+      reward-1:
+        type: GIVE_MONEY
+        chance: 100.0
+        value: 250000.0
+
+  diamond_hunter:
+    Display-Name: "&b&lDiamond Hunter"
+    Icon: DIAMOND_ORE
+    Description:
+      - "&7Mine &b%goal% &7blocks of &b%material%&7."
+    Type: MATERIAL
+    Material: DIAMOND_ORE
+    Goal: 1000
+    Announce: true
+    Rewards:
+      reward-1:
+        type: GIVE_MONEY
+        chance: 100.0
+        value: 10000.0
+
+  emerald_hunter:
+    Display-Name: "&a&lEmerald Hunter"
+    Icon: EMERALD_ORE
+    Description:
+      - "&7Mine &a%goal% &7blocks of &a%material%&7."
+    Type: MATERIAL
+    Material: EMERALD_ORE
+    Goal: 500
+    Announce: true
+    Rewards:
+      reward-1:
+        type: GIVE_MONEY
+        chance: 100.0
+        value: 15000.0
+
+Version: 1

@@ -138,7 +138,20 @@ public enum TranslatableLine {
     SIGNS_MINED_BLOCKS_ON("Signs.Mined-Blocks-On"),
     SIGNS_BLOCKS_ON("Signs.Blocks-On"),
 
-    SIGNS_LEFT_ON("Signs.Left-On");
+    SIGNS_LEFT_ON("Signs.Left-On"),
+
+    // Achievements and stats
+    ACHIEVEMENT_UNLOCKED("Achievements.Unlocked", ReplacableVar.NAME),
+    ACHIEVEMENT_BROADCAST("Achievements.Broadcast", ReplacableVar.NAME, ReplacableVar.OBJECT),
+    ACHIEVEMENT_REWARD("Achievements.Reward", ReplacableVar.VALUE),
+    ACHIEVEMENTS_DISABLED("Achievements.Disabled"),
+    ACHIEVEMENTS_NONE_CONFIGURED("Achievements.None-Configured"),
+    STATS_HEADER("Stats.Header", ReplacableVar.NAME),
+    STATS_TOTAL_MINED("Stats.Total-Mined", ReplacableVar.VALUE),
+    STATS_ACHIEVEMENTS("Stats.Achievements", ReplacableVar.VALUE, ReplacableVar.PERCENTAGE),
+    STATS_TOP_MATERIAL("Stats.Top-Material", ReplacableVar.MATERIAL, ReplacableVar.VALUE),
+    STATS_NO_DATA("Stats.No-Data", ReplacableVar.NAME),
+    STATS_PLAYER_NOT_FOUND("Stats.Player-Not-Found", ReplacableVar.NAME);
 
     private final String configPath;
     private ReplacableVar v1, v2 = null;

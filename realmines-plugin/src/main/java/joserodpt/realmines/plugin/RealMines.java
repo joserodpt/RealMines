@@ -14,13 +14,17 @@ package joserodpt.realmines.plugin;
  */
 
 import joserodpt.realmines.api.RealMinesAPI;
+import joserodpt.realmines.api.config.RMAchievementsConfig;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.plugin.gui.GUIManager;
+import joserodpt.realmines.plugin.managers.AchievementsManager;
+import joserodpt.realmines.plugin.managers.DatabaseManager;
 import joserodpt.realmines.plugin.managers.MineManager;
 import joserodpt.realmines.plugin.managers.MineResetTasksManager;
 import net.milkbowl.vault.economy.Economy;
 
+import java.sql.SQLException;
 import java.util.logging.Logger;
 
 public class RealMines extends RealMinesAPI {
@@ -30,6 +34,8 @@ public class RealMines extends RealMinesAPI {
     private final MineManager mineManager;
     private final MineResetTasksManager mineResetTasksManager;
     private final GUIManager guiManager;
+    private final AchievementsManager achievementsManager;
+    private DatabaseManager databaseManager;
 
     public RealMines(RealMinesPlugin plugin) {
         this.plugin = plugin;
@@ -38,6 +44,20 @@ public class RealMines extends RealMinesAPI {
         this.mineManager = new MineManager(this);
         this.mineResetTasksManager = new MineResetTasksManager(this);
         this.guiManager = new GUIManager(this);
+        this.achievementsManager = new AchievementsManager(this);
+    }
+
+    /**
+     * Opens the stats database. A failure here only turns stats off - the rest of the plugin
+     * carries on working, which is why every caller has to null check {@link #getDatabaseManager()}.
+     */
+    public void setupDatabase() {
+        try {
+            this.databaseManager = new DatabaseManager(this);
+        } catch (SQLException | RuntimeException e) {
+            this.logger.severe("Couldn't connect to the database, player stats and achievements are disabled: " + e.getMessage());
+            this.databaseManager = null;
+        }
     }
 
     @Override
@@ -65,6 +85,23 @@ public class RealMines extends RealMinesAPI {
     }
 
     @Override
+    public DatabaseManager getDatabaseManager() {
+        return this.databaseManager;
+    }
+
+    /**
+     * Whether mined blocks should be counted. Turning this off keeps whatever is already saved.
+     */
+    public boolean isStatsEnabled() {
+        return RMConfig.file().getBoolean("RealMines.Stats.Enabled", true);
+    }
+
+    @Override
+    public AchievementsManager getAchievementsManager() {
+        return this.achievementsManager;
+    }
+
+    @Override
     public boolean hasNewUpdate() {
         return plugin.newUpdate;
     }
@@ -73,6 +110,8 @@ public class RealMines extends RealMinesAPI {
     public void reload() {
         RMConfig.reload();
         RMLanguageConfig.reload();
+        RMAchievementsConfig.reload();
+        this.achievementsManager.loadAchievements();
         this.mineManager.unloadMines();
         this.mineManager.loadMines();
         this.logger.info("[RealMines] Loaded " + this.mineManager.getMines().size() + " mines and " + this.mineManager.getSigns().size() + " mine signs.");

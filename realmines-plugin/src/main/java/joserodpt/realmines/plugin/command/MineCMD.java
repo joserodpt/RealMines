@@ -20,18 +20,26 @@ import dev.triumphteam.cmd.core.annotation.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Suggestion;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.converters.RMSupportedConverters;
+import joserodpt.realmines.api.database.RMPlayerData;
+import joserodpt.realmines.api.database.RMPlayerStats;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
+import joserodpt.realmines.plugin.gui.AchievementBoardGUI;
+import joserodpt.realmines.plugin.gui.LeaderboardGUI;
 import joserodpt.realmines.plugin.gui.MineItemsGUI;
 import joserodpt.realmines.plugin.gui.MineListGUI;
 import joserodpt.realmines.plugin.gui.RealMinesGUI;
 import joserodpt.realmines.plugin.gui.SettingsGUI;
+import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 @Command(value = "realmines", alias = {"mine", "rm"})
 public class MineCMD extends BaseCommandWA {
@@ -230,6 +238,152 @@ public class MineCMD extends BaseCommandWA {
         } else {
             TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
         }
+    }
+
+    @SubCommand(value = "achievements", alias = "ach")
+    @Permission("realmines.achievements")
+    @SuppressWarnings("unused")
+    public void achievementscmd(final CommandSender commandSender) {
+        if (!(commandSender instanceof Player)) {
+            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+            return;
+        }
+
+        final Player p = (Player) commandSender;
+        if (!canShowBoard(p)) {
+            return;
+        }
+        //their own stats are in memory while they are online, so this never waits on the database
+        new AchievementBoardGUI(rm, p, p.getName(), rm.getDatabaseManager().getStats(p.getUniqueId())).openInventory(p);
+    }
+
+    @SubCommand(value = "viewachievements", alias = "vach")
+    @Permission("realmines.achievements.others")
+    @WrongUsage("&c/mine viewachievements <player>")
+    @SuppressWarnings("unused")
+    public void viewachievementscmd(final CommandSender commandSender, @Suggestion("#players") final String name) {
+        if (!(commandSender instanceof Player)) {
+            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+            return;
+        }
+
+        final Player p = (Player) commandSender;
+        if (!canShowBoard(p)) {
+            return;
+        }
+
+        //an offline player's rows have to be read off the database, so the GUI opens once they arrive
+        findPlayer(p, name, data -> rm.getDatabaseManager().loadStats(data.getUUID(),
+                stats -> new AchievementBoardGUI(rm, p, data.getName(), stats).openInventory(p)));
+    }
+
+    private boolean canShowBoard(final Player p) {
+        if (rm.getDatabaseManager() == null) {
+            TranslatableLine.ACHIEVEMENTS_DISABLED.send(p);
+            return false;
+        }
+        if (rm.getAchievementsManager().getAchievements().isEmpty()) {
+            TranslatableLine.ACHIEVEMENTS_NONE_CONFIGURED.send(p);
+            return false;
+        }
+        return true;
+    }
+
+    @SubCommand(value = "top", alias = {"leaderboard", "lb"})
+    @Permission("realmines.top")
+    @SuppressWarnings("unused")
+    public void topcmd(final CommandSender commandSender) {
+        if (!(commandSender instanceof Player)) {
+            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+            return;
+        }
+        if (rm.getDatabaseManager() == null) {
+            TranslatableLine.ACHIEVEMENTS_DISABLED.send(commandSender);
+            return;
+        }
+
+        final LeaderboardGUI lb = new LeaderboardGUI(rm, (Player) commandSender);
+        lb.openInventory((Player) commandSender);
+    }
+
+    @SubCommand("stats")
+    @Permission("realmines.achievements")
+    @SuppressWarnings("unused")
+    public void statscmd(final CommandSender commandSender) {
+        if (!(commandSender instanceof Player)) {
+            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+            return;
+        }
+        if (rm.getDatabaseManager() == null) {
+            TranslatableLine.ACHIEVEMENTS_DISABLED.send(commandSender);
+            return;
+        }
+
+        final Player p = (Player) commandSender;
+        sendStats(p, p.getName(), rm.getDatabaseManager().getStats(p.getUniqueId()));
+    }
+
+    @SubCommand(value = "viewstats", alias = "vstats")
+    @Permission("realmines.achievements.others")
+    @WrongUsage("&c/mine viewstats <player>")
+    @SuppressWarnings("unused")
+    public void viewstatscmd(final CommandSender commandSender, @Suggestion("#players") final String name) {
+        if (rm.getDatabaseManager() == null) {
+            TranslatableLine.ACHIEVEMENTS_DISABLED.send(commandSender);
+            return;
+        }
+
+        findPlayer(commandSender, name, data -> rm.getDatabaseManager().loadStats(data.getUUID(),
+                stats -> sendStats(commandSender, data.getName(), stats)));
+    }
+
+    private void sendStats(final CommandSender to, final String targetName, final RMPlayerStats stats) {
+        if (stats == null || stats.getTotalBlocksMined() <= 0) {
+            Text.send(to, TranslatableLine.STATS_NO_DATA
+                    .setV1(TranslatableLine.ReplacableVar.NAME.eq(targetName)).get());
+            return;
+        }
+
+        Text.send(to, TranslatableLine.STATS_HEADER
+                .setV1(TranslatableLine.ReplacableVar.NAME.eq(targetName)).get());
+        Text.send(to, TranslatableLine.STATS_TOTAL_MINED
+                .setV1(TranslatableLine.ReplacableVar.VALUE.eq(Text.formatNumber(stats.getTotalBlocksMined()))).get());
+
+        final int total = rm.getAchievementsManager().getAchievements().size();
+        final int unlocked = rm.getAchievementsManager().getUnlockedCount(stats);
+        Text.send(to, TranslatableLine.STATS_ACHIEVEMENTS
+                .setV1(TranslatableLine.ReplacableVar.VALUE.eq(unlocked + "/" + total))
+                .setV2(TranslatableLine.ReplacableVar.PERCENTAGE.eq(
+                        total == 0 ? "0" : String.valueOf(Math.round(unlocked * 100D / total)))).get());
+
+        Material best = null;
+        long bestAmount = 0;
+        for (final Map.Entry<Material, Long> entry : stats.getBlocksMined().entrySet()) {
+            if (entry.getValue() > bestAmount) {
+                bestAmount = entry.getValue();
+                best = entry.getKey();
+            }
+        }
+        if (best != null) {
+            Text.send(to, TranslatableLine.STATS_TOP_MATERIAL
+                    .setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(best)))
+                    .setV2(TranslatableLine.ReplacableVar.VALUE.eq(Text.formatNumber(bestAmount))).get());
+        }
+    }
+
+    /**
+     * Resolves a player by name without ever asking Mojang: online players first, then whoever has
+     * mining stats saved. The callback only runs if somebody was found.
+     */
+    private void findPlayer(final CommandSender to, final String name, final Consumer<RMPlayerData> callback) {
+        rm.getDatabaseManager().findPlayer(name, data -> {
+            if (data == null) {
+                Text.send(to, TranslatableLine.STATS_PLAYER_NOT_FOUND
+                        .setV1(TranslatableLine.ReplacableVar.NAME.eq(name)).get());
+                return;
+            }
+            callback.accept(data);
+        });
     }
 
     @SubCommand(value = "import", alias = {"imp", "conv", "convert"})

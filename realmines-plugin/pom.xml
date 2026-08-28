@@ -61,6 +61,8 @@
                                     <include>dev.triumphteam:triumph-cmd-core</include>
                                     <include>dev.triumphteam:triumph-cmd-bukkit</include>
                                     <include>joserodpt:RealMinesAPI</include>
+                                    <include>com.j256.ormlite:ormlite-core</include>
+                                    <include>com.j256.ormlite:ormlite-jdbc</include>
                                 </includes>
                             </artifactSet>
 
@@ -85,6 +87,14 @@
                                         <exclude>META-INF/**</exclude>
                                         <exclude>org/jetbrains/annotations/**</exclude>
                                     </excludes>
+                                </filter>
+                                <!-- ORMLite resolves DatabaseType/field converters reflectively, so minimizeJar
+                                     would strip classes that are only ever reached at runtime. Keep them all. -->
+                                <filter>
+                                    <artifact>com.j256.ormlite:*</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
                                 </filter>
                             </filters>
                         </configuration>

@@ -14,6 +14,8 @@ package joserodpt.realmines.api;
  */
 
 import com.google.common.base.Preconditions;
+import joserodpt.realmines.api.managers.AchievementsManagerAPI;
+import joserodpt.realmines.api.managers.DatabaseManagerAPI;
 import joserodpt.realmines.api.managers.MineManagerAPI;
 import joserodpt.realmines.api.managers.MineResetTasksManagerAPI;
 import net.milkbowl.vault.economy.Economy;
@@ -55,6 +57,14 @@ public abstract class RealMinesAPI {
     public abstract MineManagerAPI getMineManager();
 
     public abstract MineResetTasksManagerAPI getMineResetTasksManager();
+
+    /**
+     * The player stats store, or null if the database couldn't be reached at startup.
+     * Always null check before using it.
+     */
+    public abstract DatabaseManagerAPI getDatabaseManager();
+
+    public abstract AchievementsManagerAPI getAchievementsManager();
 
     public abstract boolean hasNewUpdate();
 

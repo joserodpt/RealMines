@@ -21,4 +21,14 @@ RealMines:
     - 3
     - 2
     - 1
-Version: 11
+  Stats:
+    # Track how many blocks each player mines, powering the achievement board and the leaderboards.
+    # Turning this off stops all tracking, but keeps whatever is already saved in the database.
+    Enabled: true
+    # How often, in seconds, changed player stats are written to the database.
+    # Counting happens in memory, so this only controls how much progress a server crash could lose.
+    # Stats are also flushed when a player quits and when the server shuts down.
+    Flush-Interval-Seconds: 60
+    # How many entries the leaderboard GUI shows.
+    Leaderboard-Size: 28
+Version: 12

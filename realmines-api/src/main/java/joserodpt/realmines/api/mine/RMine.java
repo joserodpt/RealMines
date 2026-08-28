@@ -32,10 +32,6 @@ import joserodpt.realmines.api.mine.components.RMBlockSet;
 import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.components.RMineSettings;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
-import joserodpt.realmines.api.mine.components.actions.MineActionCommand;
-import joserodpt.realmines.api.mine.components.actions.MineActionDropItem;
-import joserodpt.realmines.api.mine.components.actions.MineActionGiveItem;
-import joserodpt.realmines.api.mine.components.actions.MineActionMoney;
 import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.components.items.MineSchematicItem;
@@ -43,7 +39,6 @@ import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.api.mine.task.MineTimer;
 import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.utils.Countdown;
-import joserodpt.realmines.api.utils.ItemStackSpringer;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.api.utils.WorldEditUtils;
@@ -491,33 +486,14 @@ public abstract class RMine {
                                     final Double chance = this.config.getDouble(actionRoute + ".chance");
                                     try {
                                         MineAction.MineActionType mineactiontype = MineAction.MineActionType.valueOf(this.config.getString(actionRoute + ".type"));
-                                        switch (mineactiontype) {
-                                            case EXECUTE_COMMAND:
-                                                actionsList.add(new MineActionCommand(actionID, name, chance, this.config.getString(actionRoute + ".value")));
-                                                break;
-                                            case DROP_ITEM:
-                                                String data = this.config.getString(actionRoute + ".value");
-                                                try {
-                                                    actionsList.add(new MineActionDropItem(actionID, name, chance, ItemStackSpringer.getItemDeSerializedJSON(data).clone()));
-                                                } catch (Exception e) {
-                                                    RealMinesAPI.getInstance().getPlugin().getLogger().severe("Badly formatted ItemStack: " + data);
-                                                    RealMinesAPI.getInstance().getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
-                                                    continue;
-                                                }
-                                                break;
-                                            case GIVE_ITEM:
-                                                String data2 = this.config.getString(actionRoute + ".value");
-                                                try {
-                                                    actionsList.add(new MineActionGiveItem(actionID, name, chance, ItemStackSpringer.getItemDeSerializedJSON(data2)));
-                                                } catch (Exception e) {
-                                                    RealMinesAPI.getInstance().getPlugin().getLogger().severe("Badly formatted ItemStack: " + data2);
-                                                    RealMinesAPI.getInstance().getPlugin().getLogger().warning("Item Serialized for " + mat + " isn't valid! Skipping.");
-                                                    continue;
-                                                }
-                                                break;
-                                            case GIVE_MONEY:
-                                                actionsList.add(new MineActionMoney(actionID, name, chance, this.config.getDouble(actionRoute + ".value")));
-                                                break;
+                                        try {
+                                            MineAction action = MineAction.deserialize(actionID, name, mineactiontype, chance, this.config.get(actionRoute + ".value"));
+                                            if (action != null) {
+                                                actionsList.add(action);
+                                            }
+                                        } catch (Exception e) {
+                                            RealMinesAPI.getInstance().getPlugin().getLogger().severe("Badly formatted " + mineactiontype.name() + " value: " + this.config.getString(actionRoute + ".value"));
+                                            RealMinesAPI.getInstance().getPlugin().getLogger().warning("Break action " + actionID + " for " + mat + " isn't valid! Skipping.");
                                         }
                                     } catch (Exception e) {
                                         RealMinesAPI.getInstance().getPlugin().getLogger().severe("Break Action Type " + this.config.getString(actionRoute + ".Type") + " is invalid! Skipping. This action is in mine: " + name);

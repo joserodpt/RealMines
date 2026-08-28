@@ -18,9 +18,11 @@ import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
 import dev.triumphteam.cmd.core.message.MessageKey;
 import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import joserodpt.realmines.api.RealMinesAPI;
+import joserodpt.realmines.api.config.RMAchievementsConfig;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.RMMinesOldConfig;
+import joserodpt.realmines.api.config.RMSQLConfig;
 import joserodpt.realmines.api.config.RPMineResetTasksConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.converters.RMSupportedConverters;
@@ -35,7 +37,10 @@ import joserodpt.realmines.plugin.command.MineCMD;
 import joserodpt.realmines.plugin.command.MineResetTaskCMD;
 import joserodpt.realmines.plugin.events.BlockEvents;
 import joserodpt.realmines.plugin.events.PlayerEvents;
+import joserodpt.realmines.plugin.events.StatsEvents;
+import joserodpt.realmines.plugin.gui.AchievementBoardGUI;
 import joserodpt.realmines.plugin.gui.DirectoryBrowserGUI;
+import joserodpt.realmines.plugin.gui.LeaderboardGUI;
 import joserodpt.realmines.plugin.gui.MaterialPickerGUI;
 import joserodpt.realmines.plugin.gui.MineBreakActionsGUI;
 import joserodpt.realmines.plugin.gui.MineColorPickerGUI;
@@ -53,6 +58,7 @@ import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -72,6 +78,7 @@ public class RealMinesPlugin extends JavaPlugin {
     public Boolean newUpdate = false;
     private PluginManager pm = Bukkit.getPluginManager();
     private BukkitTask mineHighlight;
+    private BukkitTask statsFlush;
     private Economy econ;
 
     @Override
@@ -91,6 +98,12 @@ public class RealMinesPlugin extends JavaPlugin {
         RMConfig.setup(this);
         RPMineResetTasksConfig.setup(this);
         RMLanguageConfig.setup(this);
+        RMSQLConfig.setup(this);
+        RMAchievementsConfig.setup(this);
+
+        //stats have to be up before the listeners that write to them
+        realMines.setupDatabase();
+        realMines.getAchievementsManager().loadAchievements();
 
         //mkdir folder
         final File folder = new File(this.getDataFolder(), "schematics");
@@ -106,6 +119,9 @@ public class RealMinesPlugin extends JavaPlugin {
 
         Arrays.asList(new PlayerEvents(realMines),
                 new BlockEvents(realMines),
+                new StatsEvents(realMines),
+                AchievementBoardGUI.getListener(),
+                LeaderboardGUI.getListener(),
                 MineListGUI.getListener(),
                 GUIBuilder.getListener(),
                 MineFacesGUI.getListener(),
@@ -161,6 +177,12 @@ public class RealMinesPlugin extends JavaPlugin {
                 (sender, context) -> realMines.getMineManager().getRegisteredMines()
         );
 
+        commandManager.registerSuggestion(SuggestionKey.of("#players"),
+                (sender, context) -> Bukkit.getOnlinePlayers().stream()
+                        .map(Player::getName)
+                        .collect(Collectors.toList())
+        );
+
         commandManager.registerSuggestion(SuggestionKey.of("#minetasks"),
                 (sender, context) -> realMines.getMineResetTasksManager().getRegisteredTasks()
         );
@@ -202,6 +224,22 @@ public class RealMinesPlugin extends JavaPlugin {
 
         }.runTaskTimerAsynchronously(this, 0, 10);
 
+        //blocks are counted in memory, this is what actually puts them on disk
+        if (realMines.getDatabaseManager() != null) {
+            final long flushTicks = Math.max(1L, RMConfig.file().getInt("RealMines.Stats.Flush-Interval-Seconds", 60)) * 20L;
+            this.statsFlush = new BukkitRunnable() {
+                @Override
+                public void run() {
+                    //already off the main thread, so both of these can query directly.
+                    //flushing first means the leaderboards pick up what was just written.
+                    realMines.getDatabaseManager().flushAll(false);
+                    realMines.getDatabaseManager().refreshLeaderboards();
+                }
+            }.runTaskTimerAsynchronously(this, 20L, flushTicks);
+
+            getLogger().info("Loaded " + realMines.getAchievementsManager().getAchievements().size() + " achievements.");
+        }
+
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new RealMinesPlaceholderAPI(realMines).register();
             getLogger().info("Hooked onto PlaceholderAPI!");
@@ -221,7 +259,10 @@ public class RealMinesPlugin extends JavaPlugin {
                         new ExternalPluginPermission("realmines.tp.<name>", "Allow permission to teleport to a mine.", Collections.singletonList("rm tp <name>")),
                         new ExternalPluginPermission("realmines.silent", "Allow permission to silence a mine.", Arrays.asList("rm silent", "rm silentall")),
                         new ExternalPluginPermission("realmines.reset", "Allow permission to reset all mines."),
-                        new ExternalPluginPermission("realmines.update.notify", "Notification of a plugin update to the player.")
+                        new ExternalPluginPermission("realmines.update.notify", "Notification of a plugin update to the player."),
+                        new ExternalPluginPermission("realmines.achievements", "Allow the player to see their own mining stats and achievements.", Arrays.asList("rm achievements", "rm stats")),
+                        new ExternalPluginPermission("realmines.achievements.others", "Allow the player to see somebody else's mining stats and achievements.", Arrays.asList("rm viewachievements <player>", "rm viewstats <player>")),
+                        new ExternalPluginPermission("realmines.top", "Allow the player to see the mining leaderboard.", Collections.singletonList("rm top"))
                 ), this.getDescription().getVersion()));
             } catch (Exception e) {
                 getLogger().warning("Error while trying to register RealMines permissions onto RealPermissions.");
@@ -266,6 +307,16 @@ public class RealMinesPlugin extends JavaPlugin {
         if (this.mineHighlight != null) {
             this.mineHighlight.cancel();
         }
+        if (this.statsFlush != null) {
+            this.statsFlush.cancel();
+        }
+
+        //the scheduler refuses async tasks from here on, so this last write has to be synchronous
+        if (realMines.getDatabaseManager() != null) {
+            realMines.getDatabaseManager().flushAll(false);
+            realMines.getDatabaseManager().close();
+        }
+
         realMines.getMineManager().clearMemory();
 
     }

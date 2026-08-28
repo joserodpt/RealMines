@@ -133,6 +133,34 @@ GUI:
       Name: "&c&lClose"
       Description:
         - "&fClick here to close this."
+    Achievements:
+      Name: "&e&lAchievements"
+      Description:
+        - "&fClick here to view the achievement board."
+    Leaderboard:
+      Name: "&6&lLeaderboard"
+      Description:
+        - "&fClick here to view the top miners."
+    Leaderboard-Mode:
+      Name: "&b&lSorting by: &f%value%"
+      Description:
+        - "&fClick here to sort by a block instead."
+        - "&e&nRight-Click&r&f to go back to the total."
+    Achievement-Locked:
+      Description:
+        - "&8Locked"
+        - "&f%bar%"
+        - "&fProgress: &b%value%"
+    Achievement-Unlocked:
+      Description:
+        - "&a&lUnlocked!"
+    Achievement-Rewards:
+      Name: "&fRewards:"
+    Leaderboard-Empty:
+      Name: "&cNothing here yet"
+      Description:
+        - "&7Nobody has mined this yet, or the"
+        - "&7leaderboard hasn't refreshed since they did."
     Mine-Block:
       Block:
         Name: "&3&l%material%"
@@ -251,4 +279,17 @@ Signs:
   Mined-Blocks-On: "mined blocks on"
   Blocks-On: "blocks on"
   Left-On: "left on"
-Version: 9
+Achievements:
+  Unlocked: "&aAchievement unlocked: &r%name%"
+  Broadcast: "&r%object% &fjust unlocked the achievement &r%name%&f!"
+  Reward: "&fReward: &b%value%"
+  Disabled: "&cPlayer stats are turned off on this server."
+  None-Configured: "&cThere are no achievements configured."
+Stats:
+  Header: "&9Mining stats of &f%name%"
+  Total-Mined: "&fBlocks mined: &b%value%"
+  Achievements: "&fAchievements: &b%value% &7(%percentage%%)"
+  Top-Material: "&fMost mined: &b%material% &7(%value%)"
+  No-Data: "&f%name% &chasn't mined anything yet."
+  Player-Not-Found: "&cNo player named &f%name% &cwas found."
+Version: 10

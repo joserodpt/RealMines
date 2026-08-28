@@ -43,7 +43,7 @@ public class MineActionCommand extends MineAction {
     }
 
     public void execute(final Player p, final Location l) {
-        if (super.getMine() == null) {
+        if (super.isOrphaned()) {
             return;
         }
 
