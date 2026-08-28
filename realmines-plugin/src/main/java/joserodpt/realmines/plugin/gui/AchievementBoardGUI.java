@@ -168,8 +168,9 @@ public class AchievementBoardGUI {
                         switch (e.getRawSlot()) {
                             case 45:
                                 p.closeInventory();
-                                final LeaderboardGUI lb = new LeaderboardGUI(current.rm, p);
-                                lb.openInventory(p);
+                                //opened a tick later, once the close has actually gone through
+                                Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm.getPlugin(),
+                                        () -> new LeaderboardGUI(current.rm, p).openInventory(p), 1);
                                 break;
                             case 49:
                                 p.closeInventory();
@@ -210,8 +211,12 @@ public class AchievementBoardGUI {
                         return;
                     }
                     final UUID uuid = e.getPlayer().getUniqueId();
-                    if (inventories.containsKey(uuid)) {
-                        inventories.get(uuid).unregister();
+                    final AchievementBoardGUI current = inventories.get(uuid);
+                    //only when this GUI's own inventory is the one closing. Switching to another
+                    //GUI registers the new one first, so unregistering on any close at all would
+                    //kill it before the player ever gets to click it
+                    if (current != null && e.getInventory().equals(current.getInventory())) {
+                        current.unregister();
                     }
                 }
             }
@@ -219,16 +224,15 @@ public class AchievementBoardGUI {
     }
 
     public void openInventory(final Player target) {
-        final Inventory inv = this.getInventory();
-        final InventoryView openInv = target.getOpenInventory();
-        if (openInv != null) {
-            final Inventory openTop = target.getOpenInventory().getTopInventory();
-            if (openTop != null && openTop.getType().name().equalsIgnoreCase(inv.getType().name())) {
-                openTop.setContents(inv.getContents());
-            } else {
-                target.openInventory(inv);
-            }
+        final InventoryView open = target.getOpenInventory();
+        //fillChest writes straight into this inventory, so when it is already the one on screen the
+        //player is looking at the current contents and there is nothing to reopen.
+        //Matching on inventory type instead would treat any other 54 slot chest GUI as this one and
+        //paint into it, leaving this GUI updating an inventory nobody is looking at.
+        if (open != null && this.inv.equals(open.getTopInventory())) {
+            return;
         }
+        target.openInventory(this.inv);
     }
 
     public Inventory getInventory() {
