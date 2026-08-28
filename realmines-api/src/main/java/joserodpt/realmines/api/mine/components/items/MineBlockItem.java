@@ -41,10 +41,18 @@ public class MineBlockItem extends MineItem {
 
     @Override
     public ItemStack getItem() {
-        ItemStack i = Items.createItem(super.getMaterial(), 1, TranslatableLine.GUI_MINE_BLOCK_NAME.setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(super.getMaterial()))).get() + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Mine-Block.Block.Description")
+        List<String> description = RMLanguageConfig.file().getStringList("GUI.Items.Mine-Block.Block.Description")
                 .stream()
                 .map(s -> Text.color(s.replaceAll("%percentage%", Text.formatPercentages(super.getPercentage()))))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+
+        if (super.hasDepthRange()) {
+            description.add(Math.min(1, description.size()), Text.color(RMLanguageConfig.file().getString("GUI.Items.Mine-Block.Block.Depth", "&fDepth: &b%min%% &f- &b%max%%")
+                    .replaceAll("%min%", Text.formatPercentages(super.getDepthMin()))
+                    .replaceAll("%max%", Text.formatPercentages(super.getDepthMax()))));
+        }
+
+        ItemStack i = Items.createItem(super.getMaterial(), 1, TranslatableLine.GUI_MINE_BLOCK_NAME.setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(super.getMaterial()))).get() + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), description);
         return super.getBreakActions().isEmpty() ? i : Items.addBreakActionsLore(i, super.getBreakActionsTextList());
     }
 

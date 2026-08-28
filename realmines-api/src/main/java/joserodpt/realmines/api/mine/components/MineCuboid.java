@@ -522,6 +522,43 @@ public class MineCuboid implements Iterable<Block>, Cloneable, ConfigurationSeri
     }
 
     /**
+     * Get the size of this Cuboid along the axis of the given direction.
+     *
+     * @param dir - The direction (must be one of the six faces)
+     * @return The amount of one-block-thick layers this Cuboid has along that axis
+     */
+    public int getSize(final CuboidDirection dir) {
+        switch (dir) {
+            case Up:
+            case Down:
+                return this.getSizeY();
+            case North:
+            case South:
+                return this.getSizeX();
+            case East:
+            case West:
+                return this.getSizeZ();
+            default:
+                throw new IllegalArgumentException("Invalid direction " + dir);
+        }
+    }
+
+    /**
+     * Get the one-block-thick layer at the given depth, counting from the face of
+     * the given direction. Index 0 is the face itself.
+     * <p>
+     * Note: the returned Cuboid is built from raw co-ordinates, so getPOS1() and
+     * getPOS2() are null on it - use getMin() and getMax() instead.
+     *
+     * @param dir   - The face the depth is counted from
+     * @param index - How many blocks away from that face the layer is
+     * @return The Cuboid representing that layer
+     */
+    public MineCuboid getLayer(final CuboidDirection dir, final int index) {
+        return this.getFace(dir).shift(dir.opposite(), index);
+    }
+
+    /**
      * Check if the Cuboid contains only blocks of the given type
      *
      * @param m - The block ID to check for

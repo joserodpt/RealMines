@@ -136,6 +136,7 @@ public class MineItemsGUI {
         this.inv.setItem(27, back);
         this.inv.setItem(26, next);
         this.inv.setItem(35, next);
+        this.inv.setItem(38, mine.getType() == RMine.Type.BLOCKS ? Items.createItem(Material.LADDER, 1, "&e&lDepth Layers", Arrays.asList("&fMake materials only spawn at a certain depth.", "&7Depth 0% is at the &f" + mine.getDepthDirection().name() + " &7face.", "&6", "&fClick here to edit the depth of each block.")) : placeholder);
         this.inv.setItem(39, mine.getType() == RMine.Type.SCHEMATIC ? placeholder : Items.createItem(Material.LEVER, 1, "&fCurrent block set mode: " + mine.getBlockSetMode().getDisplayName(), List.of("&7Next: " + mine.getBlockSetMode().next().getDisplayName(), "&fClick here to change the block set mode.")));
         this.inv.setItem(40, mine.getType() == RMine.Type.SCHEMATIC ? close : addSet);
         this.inv.setItem(41, mine.getType() == RMine.Type.SCHEMATIC ? placeholder : close);
@@ -191,6 +192,17 @@ public class MineItemsGUI {
                         }
 
                         switch (e.getRawSlot()) {
+                            case 38:
+                                if (current.mine.getType() != RMine.Type.BLOCKS) {
+                                    return;
+                                }
+
+                                p.closeInventory();
+                                Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm.getPlugin(), () -> {
+                                    final MineDepthGUI v = new MineDepthGUI(current.rm, p, current.mine, current.selectedBlockSet);
+                                    v.openInventory(p);
+                                }, 2);
+                                break;
                             case 39:
                                 if (current.mine.getType() == RMine.Type.SCHEMATIC) {
                                     return;

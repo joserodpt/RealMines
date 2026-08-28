@@ -21,6 +21,7 @@ import dev.dejvokep.boostedyaml.block.implementation.Section;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.mine.RMine;
+import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.mine.components.RMBlockSet;
 import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.components.items.MineBlockItem;
@@ -34,7 +35,9 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class BlockMine extends RMine {
     private final List<Material> sorted = new ArrayList<>();
@@ -68,6 +71,12 @@ public class BlockMine extends RMine {
     @Override
     public void fillContent() {
         if (!super.getMineItems().isEmpty()) {
+            if (this.hasDepthRanges()) {
+                this.fillContentByDepth();
+                super.fillFaces();
+                return;
+            }
+
             if (RMConfig.file().getBoolean("RealMines.useWorldEditForBlockPlacement")) {
                 try {
                     //blocks
@@ -110,27 +119,119 @@ public class BlockMine extends RMine {
 
     private void sortBlocks() {
         this.sorted.clear();
-
-        for (final MineItem d : super.getMineItems().values()) {
-            final double percentage = d.getPercentage() * this.getBlockCount();
-
-            for (int i = 0; i <= (int) percentage; ++i) {
-                if (this.sorted.size() != this.getBlockCount()) {
-                    this.sorted.add(d.getMaterial());
-                }
-            }
-        }
+        this.sorted.addAll(buildBag(super.getMineItems().values(), this.getBlockCount(), 1D));
     }
 
     private Material getBlock() {
+        return drawBlock(this.sorted);
+    }
+
+    /**
+     * Builds the pool of materials a region is filled from: each item takes up a
+     * slice of the pool proportional to its percentage, scaled by the given factor.
+     */
+    private static List<Material> buildBag(final Collection<MineItem> items, final int blockCount, final double scale) {
+        final List<Material> bag = new ArrayList<>();
+
+        for (final MineItem d : items) {
+            final double percentage = d.getPercentage() * scale * blockCount;
+
+            for (int i = 0; i <= (int) percentage; ++i) {
+                if (bag.size() != blockCount) {
+                    bag.add(d.getMaterial());
+                }
+            }
+        }
+
+        return bag;
+    }
+
+    /**
+     * Takes a random material out of the given pool. An exhausted pool means the
+     * region isn't fully covered by the mine's percentages, so it's filled with air.
+     */
+    private static Material drawBlock(final List<Material> bag) {
         final Material m;
-        if (!this.sorted.isEmpty()) {
-            m = this.sorted.get(RealMinesAPI.getRand().nextInt(this.sorted.size()));
-            this.sorted.remove(m);
+        if (!bag.isEmpty()) {
+            m = bag.get(RealMinesAPI.getRand().nextInt(bag.size()));
+            bag.remove(m);
         } else {
             m = Material.AIR;
         }
         return m;
+    }
+
+    private boolean hasDepthRanges() {
+        return super.getMineItems().values().stream().anyMatch(MineItem::hasDepthRange);
+    }
+
+    /**
+     * Fills the mine one layer at a time, from the mine's depth origin face towards
+     * the opposite one, so that each material only spawns inside its depth range.
+     * Materials that aren't allowed at a given depth have their share redistributed
+     * over the ones that are, keeping the layer as filled as it would be otherwise.
+     */
+    private void fillContentByDepth() {
+        final MineCuboid cuboid = this.getMineCuboid();
+        final MineCuboid.CuboidDirection direction = this.getDepthDirection();
+        final int layerCount = cuboid.getSize(direction);
+
+        final Collection<MineItem> mineItems = super.getMineItems().values();
+        final double totalPercentage = mineItems.stream().mapToDouble(MineItem::getPercentage).sum();
+
+        if (RMConfig.file().getBoolean("RealMines.useWorldEditForBlockPlacement")) {
+            try {
+                for (int i = 0; i < layerCount; ++i) {
+                    final List<MineItem> eligible = getItemsAtDepth(mineItems, i, layerCount);
+
+                    //WorldEdit normalizes the weights of a random pattern by itself
+                    final RandomPattern randomPattern = new RandomPattern();
+                    if (eligible.isEmpty()) {
+                        //no material may spawn at this depth, so the layer is left empty
+                        randomPattern.add(BukkitAdapter.adapt(Material.AIR.createBlockData()).toBaseBlock(), 1D);
+                    } else {
+                        eligible.forEach(mineItem -> randomPattern.add(BukkitAdapter.adapt(mineItem.getMaterial().createBlockData()).toBaseBlock(), mineItem.getPercentage()));
+                    }
+
+                    final MineCuboid layer = cuboid.getLayer(direction, i);
+                    final BlockVector3 point1 = BlockVector3.at(layer.getMin().getX(), layer.getMin().getY(), layer.getMin().getZ());
+                    final BlockVector3 point2 = BlockVector3.at(layer.getMax().getX(), layer.getMax().getY(), layer.getMax().getZ());
+                    WorldEditUtils.setBlocks(new CuboidRegion(BukkitAdapter.adapt(this.getWorld()), point1, point2), randomPattern);
+                }
+            } catch (Exception e) {
+                Bukkit.getLogger().severe("Error while setting blocks for mine: " + this.getName());
+                Bukkit.getLogger().warning("Error: " + e.getMessage());
+                e.printStackTrace();
+            }
+            return;
+        }
+
+        Bukkit.getScheduler().runTask(RealMinesAPI.getInstance().getPlugin(), () -> {
+            for (int i = 0; i < layerCount; ++i) {
+                final List<MineItem> eligible = getItemsAtDepth(mineItems, i, layerCount);
+                final double eligiblePercentage = eligible.stream().mapToDouble(MineItem::getPercentage).sum();
+                //what the materials of this layer can't fill is given to the ones that can
+                final double scale = eligiblePercentage <= 0 ? 0D : totalPercentage / eligiblePercentage;
+
+                final MineCuboid layer = cuboid.getLayer(direction, i);
+                final List<Material> bag = buildBag(eligible, layer.getTotalBlocks(), scale);
+
+                for (final Block block : layer) {
+                    final Material set = drawBlock(bag);
+                    if (block.getType() != set) {
+                        block.setType(set);
+                    }
+                }
+            }
+        });
+    }
+
+    private static List<MineItem> getItemsAtDepth(final Collection<MineItem> items, final int layer, final int layerCount) {
+        //the middle of a layer is what decides which materials it can hold
+        final double depth = (layer + 0.5D) / layerCount;
+        return items.stream()
+                .filter(mineItem -> mineItem.getPercentage() > 0 && mineItem.isAllowedAtDepth(depth))
+                .collect(Collectors.toList());
     }
 
     public void removeMineBlockItem(final String blockSetKey, final MineItem mb) {

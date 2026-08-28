@@ -30,6 +30,7 @@ to provide Server Owners and Players with a fast and reliable mines system.
 * Search function for Adding Blocks
 * GUI for managing individual Mines
 * Player Input System to accept input from the user
+* Depth ranges, so materials only spawn at a certain depth of the mine
 
 ----
 

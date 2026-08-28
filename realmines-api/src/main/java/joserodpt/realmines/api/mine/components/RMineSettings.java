@@ -4,6 +4,7 @@ public enum RMineSettings {
     BREAK_PERMISSION("settings.break-permission", "Mine break permission"),
     DISCARD_BREAK_ACTION_MESSAGES("settings.discard-break-action-messages", "Discard break action messages"),
     BLOCK_SETS_MODE("settings.block-sets-mode", "Block sets mode"),
+    DEPTH_DIRECTION("settings.depth-direction", "Depth origin face"),
     ;
 
     private final String key, description;

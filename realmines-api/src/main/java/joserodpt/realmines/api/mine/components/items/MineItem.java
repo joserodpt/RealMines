@@ -37,6 +37,8 @@ public class MineItem {
     private Boolean disabledVanillaDrop = false;
     private Boolean disabledBlockMining = false;
     private List<MineAction> breakActions;
+    //depth range, from 0 to 1, relative to the mine's depth origin face
+    private double depthMin = 0.0D, depthMax = 1.0D;
 
     public MineItem() {
     }
@@ -66,6 +68,30 @@ public class MineItem {
         this.breakActions = breakActions;
         this.disabledVanillaDrop = disabledVanillaDrop;
         this.disabledBlockMining = disabledBlockMining;
+    }
+
+    public double getDepthMin() {
+        return this.depthMin;
+    }
+
+    public double getDepthMax() {
+        return this.depthMax;
+    }
+
+    public void setDepthRange(double min, double max) {
+        min = Math.max(0D, Math.min(1D, min));
+        max = Math.max(0D, Math.min(1D, max));
+
+        this.depthMin = Math.min(min, max);
+        this.depthMax = Math.max(min, max);
+    }
+
+    public boolean hasDepthRange() {
+        return this.depthMin > 0D || this.depthMax < 1D;
+    }
+
+    public boolean isAllowedAtDepth(final double ratio) {
+        return ratio >= this.depthMin && ratio <= this.depthMax;
     }
 
     public void toggleVanillaBlockDrop() {

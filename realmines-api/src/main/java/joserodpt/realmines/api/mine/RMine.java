@@ -66,6 +66,7 @@ import org.jetbrains.annotations.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -79,6 +80,20 @@ public abstract class RMine {
     public void setBlockSetMode(BlockSetsMode next) {
         this.blockSetsMode = next;
         setSettingString(RMineSettings.BLOCK_SETS_MODE, this.getBlockSetMode().name());
+    }
+
+    public MineCuboid.CuboidDirection getDepthDirection() {
+        return this.depthDirection;
+    }
+
+    public void setDepthDirection(MineCuboid.CuboidDirection dir) {
+        this.depthDirection = dir;
+        setSettingString(RMineSettings.DEPTH_DIRECTION, dir.name());
+    }
+
+    public MineCuboid.CuboidDirection nextDepthDirection() {
+        int index = DEPTH_DIRECTIONS.indexOf(this.getDepthDirection());
+        return DEPTH_DIRECTIONS.get((index + 1) % DEPTH_DIRECTIONS.size());
     }
 
     public enum Type {BLOCKS, SCHEMATIC, FARM}
@@ -109,6 +124,12 @@ public abstract class RMine {
 
     public enum MineData {BLOCKS, ICON, RESET, COUNTDOWN, TELEPORT, SIGNS, POS, NAME, DISPLAYNAME, FACES, COLOR, MINE_TYPE, ALL}
 
+    //the faces a mine's depth can be measured from: index 0 of this list is the default
+    public static final List<MineCuboid.CuboidDirection> DEPTH_DIRECTIONS = Collections.unmodifiableList(Arrays.asList(
+            MineCuboid.CuboidDirection.Up, MineCuboid.CuboidDirection.Down,
+            MineCuboid.CuboidDirection.North, MineCuboid.CuboidDirection.South,
+            MineCuboid.CuboidDirection.East, MineCuboid.CuboidDirection.West));
+
     protected String name, displayName;
 
     private World w;
@@ -117,6 +138,7 @@ public abstract class RMine {
     protected List<MineSign> signs = new ArrayList<>();
     protected Map<String, RMBlockSet> blockSets = new HashMap<>();
     protected BlockSetsMode blockSetsMode = BlockSetsMode.INCREMENTAL;
+    protected MineCuboid.CuboidDirection depthDirection = DEPTH_DIRECTIONS.get(0);
 
     protected boolean freezed, silent;
     protected boolean resetByTime = true, resetByPercentage = true;
@@ -231,6 +253,7 @@ public abstract class RMine {
         this.config.set(RMineSettings.BREAK_PERMISSION.getConfigKey(), mineConfigSection.getBoolean("Settings.Break-Permission"));
         this.config.set(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES.getConfigKey(), mineConfigSection.getBoolean("Settings.Discard-Break-Action-Messages"));
         this.config.set(RMineSettings.BLOCK_SETS_MODE.getConfigKey(), this.getBlockSetMode().name());
+        this.config.set(RMineSettings.DEPTH_DIRECTION.getConfigKey(), this.getDepthDirection().name());
 
         this.config.set("signs", mineConfigSection.getStringList("Signs"));
 
@@ -429,6 +452,16 @@ public abstract class RMine {
 
         this.blockSetsMode = BlockSetsMode.valueOf(getSettingString(RMineSettings.BLOCK_SETS_MODE));
 
+        //mines created before this setting existed default to the top face
+        try {
+            MineCuboid.CuboidDirection dir = MineCuboid.CuboidDirection.valueOf(getSettingString(RMineSettings.DEPTH_DIRECTION));
+            if (DEPTH_DIRECTIONS.contains(dir)) {
+                this.depthDirection = dir;
+            }
+        } catch (Exception ignored) {
+            this.depthDirection = DEPTH_DIRECTIONS.get(0);
+        }
+
         //iterate over keys in the block-sets section
 
         if (this.config.getConfigurationSection("block-sets") != null) {
@@ -488,7 +521,10 @@ public abstract class RMine {
 
                             switch (getType()) {
                                 case BLOCKS:
-                                    items.put(m, new MineBlockItem(m, per, disabledVanillaDrop, disabledBlockMining, actionsList));
+                                    MineBlockItem blockItem = new MineBlockItem(m, per, disabledVanillaDrop, disabledBlockMining, actionsList);
+                                    blockItem.setDepthRange(this.config.getDouble("block-sets." + blockSetKey + ".blocks." + mat + ".depth.min", 0D),
+                                            this.config.getDouble("block-sets." + blockSetKey + ".blocks." + mat + ".depth.max", 1D));
+                                    items.put(m, blockItem);
                                     break;
                                 case FARM:
                                     items.put(m, new MineFarmItem(FarmItem.valueOf(mat), per, disabledVanillaDrop, disabledBlockMining, this.config.getInt("block-sets." + blockSetKey + ".blocks." + mat + ".age", 0), actionsList));
@@ -605,6 +641,7 @@ public abstract class RMine {
         this.config.set(RMineSettings.BREAK_PERMISSION.getConfigKey(), false);
         this.config.set(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES.getConfigKey(), false);
         this.config.set(RMineSettings.BLOCK_SETS_MODE.getConfigKey(), this.getBlockSetMode().name());
+        this.config.set(RMineSettings.DEPTH_DIRECTION.getConfigKey(), this.getDepthDirection().name());
 
         this.config.set("signs", Collections.emptyList());
         this.config.set("block-sets", Collections.emptyList());
@@ -977,6 +1014,11 @@ public abstract class RMine {
                             config.set("block-sets." + blockSetKey + ".blocks." + block + ".percentage", mineItem.getPercentage());
                             config.set("block-sets." + blockSetKey + ".blocks." + block + ".disabled-vanilla-drop", mineItem.areVanillaDropsDisabled());
                             config.set("block-sets." + blockSetKey + ".blocks." + block + ".disabled-block-mining", mineItem.isBlockMiningDisabled());
+
+                            if (mineItem.hasDepthRange()) {
+                                config.set("block-sets." + blockSetKey + ".blocks." + block + ".depth.min", mineItem.getDepthMin());
+                                config.set("block-sets." + blockSetKey + ".blocks." + block + ".depth.max", mineItem.getDepthMax());
+                            }
 
                             if (mineItem instanceof MineFarmItem) {
                                 config.set("block-sets." + blockSetKey + ".blocks." + block + ".age", ((MineFarmItem) mineItem).getAge());

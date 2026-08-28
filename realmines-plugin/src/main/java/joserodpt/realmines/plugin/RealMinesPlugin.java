@@ -39,6 +39,7 @@ import joserodpt.realmines.plugin.gui.DirectoryBrowserGUI;
 import joserodpt.realmines.plugin.gui.MaterialPickerGUI;
 import joserodpt.realmines.plugin.gui.MineBreakActionsGUI;
 import joserodpt.realmines.plugin.gui.MineColorPickerGUI;
+import joserodpt.realmines.plugin.gui.MineDepthGUI;
 import joserodpt.realmines.plugin.gui.MineFacesGUI;
 import joserodpt.realmines.plugin.gui.MineItemsGUI;
 import joserodpt.realmines.plugin.gui.MineListGUI;
@@ -108,6 +109,7 @@ public class RealMinesPlugin extends JavaPlugin {
                 MineListGUI.getListener(),
                 GUIBuilder.getListener(),
                 MineFacesGUI.getListener(),
+                MineDepthGUI.getListener(),
                 MaterialPickerGUI.getListener(),
                 MineItemsGUI.getListener(),
                 MineResetGUI.getListener(),

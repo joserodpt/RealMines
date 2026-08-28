@@ -136,6 +136,7 @@ GUI:
     Mine-Block:
       Block:
         Name: "&3&l%material%"
+        Depth: "&fDepth: &b%min%% &f- &b%max%%"
         Description:
           - "&fPercentage: &b%percentage%%"
           - "&6"
@@ -250,4 +251,4 @@ Signs:
   Mined-Blocks-On: "mined blocks on"
   Blocks-On: "blocks on"
   Left-On: "left on"
-Version: 8
+Version: 9
