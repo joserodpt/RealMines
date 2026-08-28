@@ -22,7 +22,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class MineBlockBreakEvent extends Event {
+public class RealMinesBlockBreakEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
@@ -32,7 +32,7 @@ public class MineBlockBreakEvent extends Event {
     private final Block b;
     private final Player p;
 
-    public MineBlockBreakEvent(final Cancellable cancellable, final Player p, final RMine m, final Block b, final boolean broken) {
+    public RealMinesBlockBreakEvent(final Cancellable cancellable, final Player p, final RMine m, final Block b, final boolean broken) {
         this.cancellable = cancellable;
         this.p = p;
         this.mine = m;

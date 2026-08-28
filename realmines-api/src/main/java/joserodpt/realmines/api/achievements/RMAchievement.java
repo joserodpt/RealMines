@@ -17,7 +17,7 @@ import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.database.RMPlayerStats;
-import joserodpt.realmines.api.event.PlayerAchievementUnlockEvent;
+import joserodpt.realmines.api.event.RealMinesPlayerUnlockAchievementEvent;
 import joserodpt.realmines.api.managers.DatabaseManagerAPI;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.utils.Items;
@@ -138,7 +138,7 @@ public class RMAchievement {
             return;
         }
 
-        final PlayerAchievementUnlockEvent event = new PlayerAchievementUnlockEvent(player, this);
+        final RealMinesPlayerUnlockAchievementEvent event = new RealMinesPlayerUnlockAchievementEvent(player, this);
         Bukkit.getPluginManager().callEvent(event);
         if (event.isCancelled()) {
             return;

@@ -19,7 +19,7 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.jetbrains.annotations.NotNull;
 
-public class OnMineResetEvent extends Event implements Cancellable {
+public class RealMinesOnMineResetEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
@@ -28,7 +28,7 @@ public class OnMineResetEvent extends Event implements Cancellable {
     private boolean cancelled = false;
 
 
-    public OnMineResetEvent(final RMine m, final RMine.ResetCause rc) {
+    public RealMinesOnMineResetEvent(final RMine m, final RMine.ResetCause rc) {
         this.mine = m;
         this.resetCause = rc;
     }

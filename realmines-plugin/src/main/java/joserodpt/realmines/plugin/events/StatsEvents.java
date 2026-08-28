@@ -13,7 +13,7 @@ package joserodpt.realmines.plugin.events;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.event.MineBlockBreakEvent;
+import joserodpt.realmines.api.event.RealMinesBlockBreakEvent;
 import joserodpt.realmines.api.managers.DatabaseManagerAPI;
 import joserodpt.realmines.api.utils.PlayerHeads;
 import joserodpt.realmines.plugin.RealMines;
@@ -78,7 +78,7 @@ public class StatsEvents implements Listener {
     }
 
     @EventHandler(priority = EventPriority.MONITOR)
-    public void onMineBlockBreak(final MineBlockBreakEvent e) {
+    public void onMineBlockBreak(final RealMinesBlockBreakEvent e) {
         //the event also fires when a block is placed inside a mine, which is not something a player
         //should get credit for, and never something that takes credit away
         if (!e.isBroken()) {

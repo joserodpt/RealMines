@@ -23,8 +23,8 @@ import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
-import joserodpt.realmines.api.event.MineBlockBreakEvent;
-import joserodpt.realmines.api.event.OnMineResetEvent;
+import joserodpt.realmines.api.event.RealMinesBlockBreakEvent;
+import joserodpt.realmines.api.event.RealMinesOnMineResetEvent;
 import joserodpt.realmines.api.mine.components.MineColor;
 import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.mine.components.MineSign;
@@ -879,7 +879,7 @@ public abstract class RMine {
         this.saveData(MineData.BLOCKS);
     }
 
-    public void processBlockBreakAction(final MineBlockBreakEvent e, final Double random) {
+    public void processBlockBreakAction(final RealMinesBlockBreakEvent e, final Double random) {
         if (e.isBroken() && this.getMineItems().containsKey(e.getMaterial())) {
             MineItem item = this.getMineItems().get(e.getMaterial());
             if (item != null) {
@@ -906,7 +906,7 @@ public abstract class RMine {
         }
     }
 
-    public void processBlockBreakEvent(final MineBlockBreakEvent event, final boolean reset) {
+    public void processBlockBreakEvent(final RealMinesBlockBreakEvent event, final boolean reset) {
         //add or remove to mined blocks
         this.minedBlocks = Math.max(0, this.minedBlocks + (event.isBroken() ? 1 : -1));
 
@@ -1052,7 +1052,7 @@ public abstract class RMine {
     public void reset(ResetCause re) {
         if (!Bukkit.getOnlinePlayers().isEmpty() || RMConfig.file().getBoolean("RealMines.resetMinesWhenNoPlayers")) {
 
-            OnMineResetEvent event = new OnMineResetEvent(this, re);
+            RealMinesOnMineResetEvent event = new RealMinesOnMineResetEvent(this, re);
             Bukkit.getServer().getPluginManager().callEvent(event);
             if (event.isCancelled()) {
                 return;

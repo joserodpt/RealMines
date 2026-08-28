@@ -16,7 +16,7 @@ package joserodpt.realmines.plugin.events;
 import com.google.common.collect.ImmutableSet;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
-import joserodpt.realmines.api.event.MineBlockBreakEvent;
+import joserodpt.realmines.api.event.RealMinesBlockBreakEvent;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.utils.Text;
@@ -102,7 +102,7 @@ public class BlockEvents implements Listener {
     }
 
     @EventHandler
-    public void mineBlockBreak(final MineBlockBreakEvent e) {
+    public void mineBlockBreak(final RealMinesBlockBreakEvent e) {
         e.getMine().processBlockBreakEvent(e, true);
     }
 

@@ -23,7 +23,7 @@ import org.bukkit.event.HandlerList;
  * Fired right before an achievement's rewards are handed out. Cancelling it stops the rewards, the
  * message and the unlock from being recorded, so the player can still earn it later.
  */
-public class PlayerAchievementUnlockEvent extends Event implements Cancellable {
+public class RealMinesPlayerUnlockAchievementEvent extends Event implements Cancellable {
 
     private static final HandlerList HANDLERS = new HandlerList();
 
@@ -31,7 +31,7 @@ public class PlayerAchievementUnlockEvent extends Event implements Cancellable {
     private final RMAchievement achievement;
     private boolean cancelled;
 
-    public PlayerAchievementUnlockEvent(final Player player, final RMAchievement achievement) {
+    public RealMinesPlayerUnlockAchievementEvent(final Player player, final RMAchievement achievement) {
         this.player = player;
         this.achievement = achievement;
     }

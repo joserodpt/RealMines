@@ -22,7 +22,7 @@ import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMMinesOldConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
-import joserodpt.realmines.api.event.MineBlockBreakEvent;
+import joserodpt.realmines.api.event.RealMinesBlockBreakEvent;
 import joserodpt.realmines.api.event.RealMinesMineChangeEvent;
 import joserodpt.realmines.api.managers.MineManagerAPI;
 import joserodpt.realmines.api.mine.RMine;
@@ -367,7 +367,7 @@ public class MineManager extends MineManagerAPI {
                             if (mi.isBlockMiningDisabled()) {
                                 e.setCancelled(true);
                             } else {
-                                Bukkit.getPluginManager().callEvent(new MineBlockBreakEvent(e, p, mine, block, broken));
+                                Bukkit.getPluginManager().callEvent(new RealMinesBlockBreakEvent(e, p, mine, block, broken));
                                 if (!e.isCancelled()) {
                                     return mine.getMineItems().get(block.getType());
                                 }
