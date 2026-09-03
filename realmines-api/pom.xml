@@ -92,6 +92,11 @@
             <id>codemc-snapshots</id>
             <url>https://repo.codemc.io/repository/maven-snapshots/</url>
         </repository>
+        <!-- In-project file repository for jars with no upstream Maven repo. -->
+        <repository>
+            <id>realmines-local-libs</id>
+            <url>file://${project.basedir}/../libs</url>
+        </repository>
     </repositories>
 
     <dependencies>
@@ -146,12 +151,15 @@
             <version>1.7.1</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Vendored: CataMines has no public Maven repository. Resolved from the
+             in-project repository at /libs (see libs/README.md). Marked optional so
+             it is never chased by projects depending on RealMinesAPI. -->
         <dependency>
             <groupId>de.c4t4lysm</groupId>
             <artifactId>catamines</artifactId>
-            <version>3.0.0</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/../libs/CataMines-2.5.11.jar</systemPath>
+            <version>2.5.11</version>
+            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>

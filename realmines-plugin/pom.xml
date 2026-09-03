@@ -22,6 +22,9 @@
     <properties>
         <java.version>16</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <!-- JitPack coordinate for joserodpt/RealPermissions. Swap for a tag (e.g.
+             v0.4.4) once the upstream repo has one; commit hashes are stable too. -->
+        <realpermissions.version>1e7015a05e</realpermissions.version>
     </properties>
 
     <build>
@@ -142,10 +145,6 @@
             <url>https://maven.enginehub.org/repo/</url>
         </repository>
         <repository>
-            <id>skullcreator-repo</id>
-            <url>https://dl.bintray.com/deanveloper/SkullCreator</url>
-        </repository>
-        <repository>
             <id>placeholderapi</id>
             <url>https://repo.extendedclip.com/content/repositories/placeholderapi/</url>
         </repository>
@@ -226,12 +225,13 @@
             <version>1.7</version>
             <scope>compile</scope>
         </dependency>
+        <!-- Soft hook: only touched when the RealPermissions plugin is present at
+             runtime, so it stays provided and is never shaded in. -->
         <dependency>
-            <groupId>joserodpt</groupId>
-            <artifactId>RealPermissions</artifactId>
-            <version>0.4.2</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/RealPermissions.jar</systemPath>
+            <groupId>com.github.joserodpt.RealPermissions</groupId>
+            <artifactId>realpermissions-api</artifactId>
+            <version>${realpermissions.version}</version>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

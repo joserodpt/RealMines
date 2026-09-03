@@ -553,25 +553,26 @@ from the schematic.
 
 ## API
 
-RealMines ships a separate API module, `joserodpt:RealMinesAPI`, which the plugin jar already contains at runtime.
+RealMines ships a separate API module, `RealMinesAPI`, which the plugin jar already contains at runtime.
 
 ### Adding the dependency
 
-Build and install it into your local repository:
-
-```bash
-git clone https://github.com/joserodpt/RealMines.git
-cd RealMines
-mvn clean install
-```
+Released versions are published through [JitPack](https://jitpack.io/#joserodpt/RealMines) - no manual `mvn install` needed.
 
 **Maven**
 
 ```xml
+<repositories>
+    <repository>
+        <id>jitpack.io</id>
+        <url>https://jitpack.io</url>
+    </repository>
+</repositories>
+
 <dependency>
-    <groupId>joserodpt</groupId>
+    <groupId>com.github.joserodpt.RealMines</groupId>
     <artifactId>RealMinesAPI</artifactId>
-    <version>1.9</version>
+    <version>v1.9</version>
     <scope>provided</scope>
 </dependency>
 ```
@@ -579,8 +580,29 @@ mvn clean install
 **Gradle**
 
 ```groovy
-compileOnly 'joserodpt:RealMinesAPI:1.9'
+repositories {
+    maven { url 'https://jitpack.io' }
+}
+
+dependencies {
+    compileOnly 'com.github.joserodpt.RealMines:RealMinesAPI:v1.9'
+}
 ```
+
+Any git tag, branch (`master-SNAPSHOT`) or commit hash works as the version.
+
+<details>
+<summary>Building from source instead</summary>
+
+```bash
+git clone https://github.com/joserodpt/RealMines.git
+cd RealMines
+mvn clean install
+```
+
+That installs `joserodpt:RealMinesAPI:1.9` into your local `~/.m2` repository, which you can then depend on with those coordinates and no extra repository.
+
+</details>
 
 Then add RealMines to your `plugin.yml`:
 

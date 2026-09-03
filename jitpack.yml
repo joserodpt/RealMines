@@ -1,0 +1,4 @@
+# JitPack builds this repo on demand so RealMinesAPI can be consumed without a
+# manual `git clone && mvn install`. Java 21 matches .github/workflows/maven.yml.
+jdk:
+  - openjdk21

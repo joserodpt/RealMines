@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  CataMines is distributed only as a SpigotMC download - there is no public
+  source repository and no upstream Maven repository to resolve it from, so the
+  jar is vendored here instead. This pom exists purely so the jar is a real
+  Maven artifact rather than a <systemPath> hack; see libs/README.md.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>de.c4t4lysm</groupId>
+    <artifactId>catamines</artifactId>
+    <version>2.5.11</version>
+    <packaging>jar</packaging>
+    <name>CataMines</name>
+</project>
