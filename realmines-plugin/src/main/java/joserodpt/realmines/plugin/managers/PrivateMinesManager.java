@@ -998,9 +998,11 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
         if (instance == null || !instance.isPrivate()) {
             return true;
         }
-        //explosions come through with no player: never let those chew up someone's mine
+        //an explosion comes through with no player behind it. It is only ever asked about blocks inside
+        //the region, which are the mine's own blocks and there to be mined, so blasting them counts like
+        //any other break. Everything around the mine is kept out of the blast by BlockEvents instead
         if (p == null) {
-            return false;
+            return true;
         }
         final PrivateMineData data = instance.getPrivateData();
         return data.isOwner(p) || data.isTrusted(p.getUniqueId()) || p.hasPermission(ADMIN_PERMISSION);

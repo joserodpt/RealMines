@@ -312,6 +312,7 @@ PrivateMines:
   Claim-Failed: "&cCouldn't create your private mine. Check the console."
   No-Mine: "&cYou don't have a private mine yet."
   Not-Yours: "&cThis private mine isn't yours."
+  Cant-Build: "&cYou can only mine and build inside your own private mine."
   Released: "&aYour private mine &r%mine% &awas released."
   Refunded: "&aYou were refunded &f%value%&a."
   Trusted-Added: "&f%player% &acan now use your private mine."

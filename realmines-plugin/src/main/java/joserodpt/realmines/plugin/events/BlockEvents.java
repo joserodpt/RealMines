@@ -17,10 +17,12 @@ import com.google.common.collect.ImmutableSet;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.event.RealMinesBlockBreakEvent;
+import joserodpt.realmines.api.managers.PrivateMinesWorld;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
+import joserodpt.realmines.plugin.managers.PrivateMinesManager;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -39,7 +41,10 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 public class BlockEvents implements Listener {
 
@@ -49,7 +54,59 @@ public class BlockEvents implements Listener {
         this.rm = rm;
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    /**
+     * Last time each player was told they can't build here, so a held down mouse button doesn't fill
+     * their chat with the same line.
+     */
+    private final Map<UUID, Long> refusedAt = new HashMap<>();
+    private static final long REFUSED_COOLDOWN_MS = 3000L;
+
+    /**
+     * Whether a block in the private mines world is out of bounds for this player.
+     * <p>
+     * That world is RealMines' own: the only blocks anybody has business touching in it are the ones
+     * inside a mine, and which of those is then the mine's own business - {@code findBlockUpdate} asks
+     * whether they own it or are trusted on it. Everything else is plugin built: the walkway, its fence,
+     * the floor under the pit and the empty space between slots.
+     */
+    private boolean outsideAnyMine(final Player p, final Block block) {
+        if (!block.getWorld().getName().equals(PrivateMinesWorld.NAME)
+                || p.hasPermission(PrivateMinesManager.ADMIN_PERMISSION)) {
+            return false;
+        }
+        return rm.getMineManager().getMineWithBlock(block) == null;
+    }
+
+    private void refuse(final Player p) {
+        final long now = System.currentTimeMillis();
+        final Long last = this.refusedAt.get(p.getUniqueId());
+        if (last != null && now - last < REFUSED_COOLDOWN_MS) {
+            return;
+        }
+        //dropped once stale, so this never grows with the number of players ever refused
+        this.refusedAt.values().removeIf(stamp -> now - stamp >= REFUSED_COOLDOWN_MS);
+        this.refusedAt.put(p.getUniqueId(), now);
+        TranslatableLine.PRIVATE_MINE_CANT_BUILD.send(p);
+    }
+
+    //LOW, so a block that is out of bounds is refused before the mine handling below looks at it
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPrivateWorldBreak(final BlockBreakEvent e) {
+        if (this.outsideAnyMine(e.getPlayer(), e.getBlock())) {
+            e.setCancelled(true);
+            this.refuse(e.getPlayer());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPrivateWorldPlace(final BlockPlaceEvent e) {
+        if (this.outsideAnyMine(e.getPlayer(), e.getBlock())) {
+            e.setCancelled(true);
+            this.refuse(e.getPlayer());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(final BlockBreakEvent e) {
         final MineItem mi = rm.getMineManager().findBlockUpdate(e.getPlayer(), e, e.getBlock(), true);
         if (mi != null && mi.areVanillaDropsDisabled()) {
@@ -96,12 +153,20 @@ public class BlockEvents implements Listener {
         }
     }
 
-    @EventHandler //for creeper explosions
+    @EventHandler //for creeper and TNT explosions
     public void onEntityExplode(final EntityExplodeEvent e) {
-        //one blast reports every block through the same event, so a block inside somebody's private mine
-        //has to be dropped from the list rather than cancelling the explosion for everyone
+        //one blast reports every block through the same event, so blocks that have to survive it are
+        //dropped from the list rather than cancelling the explosion for everyone
         e.blockList().removeIf(block -> {
             final RMine mine = rm.getMineManager().getMineWithBlock(block);
+
+            //in RealMines' own world a blast may take a mine's blocks and nothing else. The fence and the
+            //floor under the pit are barriers, which no explosion touches anyway; the walkway is not
+            if (block.getWorld().getName().equals(PrivateMinesWorld.NAME)) {
+                return mine == null;
+            }
+
+            //anywhere else, a private mine is somebody's property that a stray blast must not reach
             return mine != null && mine.isPrivate();
         });
 

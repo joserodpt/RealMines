@@ -171,6 +171,7 @@ public enum TranslatableLine {
     PRIVATE_MINE_CLAIM_FAILED("PrivateMines.Claim-Failed"),
     PRIVATE_MINE_NO_MINE("PrivateMines.No-Mine"),
     PRIVATE_MINE_NOT_YOURS("PrivateMines.Not-Yours"),
+    PRIVATE_MINE_CANT_BUILD("PrivateMines.Cant-Build"),
     PRIVATE_MINE_RELEASED("PrivateMines.Released", ReplacableVar.MINE),
     PRIVATE_MINE_REFUNDED("PrivateMines.Refunded", ReplacableVar.VALUE),
     PRIVATE_MINE_TRUSTED_ADDED("PrivateMines.Trusted-Added", ReplacableVar.PLAYER),

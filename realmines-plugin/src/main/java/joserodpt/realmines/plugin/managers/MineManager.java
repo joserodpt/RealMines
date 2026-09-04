@@ -370,10 +370,13 @@ public class MineManager extends MineManagerAPI {
                     return null;
                 }
 
-                if ((mine.getSettingBool(RMineSettings.BREAK_PERMISSION) && !p.hasPermission(mine.getBreakPermission()))
+                //p is null on the explosion path, so every check on it has to tolerate that
+                if ((p != null && mine.getSettingBool(RMineSettings.BREAK_PERMISSION) && !p.hasPermission(mine.getBreakPermission()))
                         || (mine.getSettingBool(RMineSettings.BLOCK_SETS_MODE) && !mine.getMineCuboid().getBlockTypes().contains(block.getType()))) {
                     e.setCancelled(true);
-                    TranslatableLine.SYSTEM_ERROR_BREAK_PERMISSION.send(p);
+                    if (p != null) {
+                        TranslatableLine.SYSTEM_ERROR_BREAK_PERMISSION.send(p);
+                    }
                     return null;
                 }
 

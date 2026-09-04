@@ -289,8 +289,14 @@ draw and nothing to keep in step when the mine changes:
 The walkway block is `Private-Mines.Platform-Material` in `private-mines/config.yml`, `SMOOTH_STONE` by
 default; the fence and the floor under the pit are always barriers, so they stay invisible and unbreakable.
 How far the walkway reaches is per template, `placement.platform-width` — set it to `0` for no platform at
-all, say when a `shell-schematic` already brings one. The walkway itself is an ordinary block, so a player
-can break it: `BARRIER` or `BEDROCK` are the way out if that matters on your server.
+all, say when a `shell-schematic` already brings one.
+
+Nothing in `realminespm` can be built on or broken except the inside of a mine. Outside one — the walkway,
+its fence, the space between slots — breaking and placing is refused for anybody without
+`realmines.privatemines.admin`, and explosions have every block that isn't part of a mine dropped from the
+blast, so TNT and creepers can only take a mine's own blocks. Inside a mine the usual rule applies: its
+owner, whoever they trust, and admins. A blast counts towards the mine's remaining blocks like any other
+break, so blowing one up can trigger its percentage reset.
 
 Releasing a private mine, or having a time-limited one expire, teleports whoever is standing on it to the
 main world's spawn — or wherever an admin put it with `/rm setdefaultlocation`. Nothing is left to stand on
