@@ -185,7 +185,8 @@ public class PrivateMineManageGUI {
                 switch (e.getRawSlot()) {
                     case SLOT_BACK:
                         p.closeInventory();
-                        new PrivateMinesGUI(current.rm, p).openInventory(p);
+                        //back to the player's own mines, which is where this menu is reached from
+                        new PrivateMinesGUI(current.rm, p, PrivateMinesGUI.View.OWNED).openInventory(p);
                         return;
                     case SLOT_TELEPORT:
                         p.closeInventory();

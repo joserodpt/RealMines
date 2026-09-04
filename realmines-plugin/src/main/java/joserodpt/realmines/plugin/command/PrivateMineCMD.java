@@ -31,6 +31,9 @@ import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.PrivateMineData;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
+import joserodpt.realmines.plugin.gui.PrivateMineManageGUI;
+import joserodpt.realmines.plugin.gui.PrivateMineTemplateGUI;
+import joserodpt.realmines.plugin.gui.PrivateMineTemplatesGUI;
 import joserodpt.realmines.plugin.gui.PrivateMinesGUI;
 import joserodpt.realmines.plugin.managers.PrivateMinesManager;
 import org.bukkit.Bukkit;
@@ -172,6 +175,35 @@ public class PrivateMineCMD extends BaseCommandWA {
         }
 
         this.rm.getMineManager().teleport(p, mine, false, true);
+    }
+
+    /**
+     * The player's own mines. Templates are a different thing entirely and are edited with
+     * {@code /pmine template edit <id>}.
+     */
+    @SubCommand("manage")
+    @Permission("realmines.privatemines")
+    @WrongUsage("&c/pmine manage")
+    @SuppressWarnings("unused")
+    public void managecmd(final CommandSender commandSender) {
+        final Player p = requirePlayer(commandSender);
+        if (p == null) {
+            return;
+        }
+
+        final List<RMine> mines = this.rm.getPrivateMinesManager().getMinesOf(p.getUniqueId());
+        if (mines.isEmpty()) {
+            TranslatableLine.PRIVATE_MINE_NO_MINE.send(p);
+            return;
+        }
+
+        //one mine is nothing to pick from, so go straight in
+        if (mines.size() == 1) {
+            new PrivateMineManageGUI(this.rm, p, mines.get(0)).openInventory(p);
+            return;
+        }
+
+        new PrivateMinesGUI(this.rm, p, PrivateMinesGUI.View.OWNED).openInventory(p);
     }
 
     @SubCommand("info")
@@ -363,7 +395,7 @@ public class PrivateMineCMD extends BaseCommandWA {
      */
     @SubCommand("template")
     @Permission("realmines.privatemines.admin")
-    @WrongUsage("&c/pmine template <create|update|delete|list> [id] [mine]")
+    @WrongUsage("&c/pmine template <create|update|edit|delete|list> [id] [mine]")
     @SuppressWarnings("unused")
     public void templatecmd(final CommandSender commandSender, @Suggestion("#privatetemplateargs") @Join final String arguments) {
         final String[] args = arguments.trim().split("\\s+");
@@ -372,6 +404,26 @@ public class PrivateMineCMD extends BaseCommandWA {
         final String mineName = args.length > 2 ? args[2] : null;
 
         switch (action) {
+            case "edit": {
+                if (!(commandSender instanceof Player)) {
+                    TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+                    return;
+                }
+                if (id == null) {
+                    Text.send(commandSender, "&c/pmine template edit <id>");
+                    return;
+                }
+
+                final PrivateMineTemplate template = this.rm.getPrivateMinesManager().getTemplate(id);
+                if (template == null) {
+                    TranslatableLine.PRIVATE_MINE_TEMPLATE_NOT_FOUND.setV1(ReplacableVar.TEMPLATE.eq(id)).send(commandSender);
+                    return;
+                }
+
+                final Player editor = (Player) commandSender;
+                new PrivateMineTemplateGUI(this.rm, editor, template.getID()).openInventory(editor);
+                return;
+            }
             case "list": {
                 if (this.rm.getPrivateMinesManager().getTemplates().isEmpty()) {
                     TranslatableLine.PRIVATE_MINE_NO_TEMPLATES.send(commandSender);
@@ -437,8 +489,25 @@ public class PrivateMineCMD extends BaseCommandWA {
                 return;
             }
             default:
-                Text.send(commandSender, "&c/pmine template <create|update|delete|list> [id] [mine]");
+                Text.send(commandSender, "&c/pmine template <create|update|edit|delete|list> [id] [mine]");
         }
+    }
+
+    /**
+     * The template list, as a menu. Clicking one opens its editor, the same one
+     * {@code /pmine template edit <id>} opens.
+     */
+    @SubCommand("templates")
+    @Permission("realmines.privatemines.admin")
+    @WrongUsage("&c/pmine templates")
+    @SuppressWarnings("unused")
+    public void templatescmd(final CommandSender commandSender) {
+        final Player p = requirePlayer(commandSender);
+        if (p == null) {
+            return;
+        }
+
+        new PrivateMineTemplatesGUI(this.rm, p).openInventory(p);
     }
 
     @SubCommand("list")

@@ -45,6 +45,18 @@ public class PrivateMineTemplate {
      */
     public static final int MAX_TRUSTED = 7;
 
+    /**
+     * What a template falls back to for each setting the file doesn't carry. A setting is reset by
+     * dropping its key, so these are also what the editor's reset puts back.
+     */
+    public static final String DEFAULT_DISPLAY_NAME = "&b%player%'s Mine";
+    public static final Material DEFAULT_ICON = Material.DIAMOND_ORE;
+    public static final long DEFAULT_DURATION = 3600L;
+    public static final int DEFAULT_TRUSTED_LIMIT = 5;
+    public static final String DEFAULT_ORIGIN = "0;64;0";
+    public static final int DEFAULT_SPACING = 200;
+    public static final int DEFAULT_PER_ROW = 20;
+
     private final String id;
     private final File file;
     private final YamlConfiguration snapshot;
@@ -68,18 +80,18 @@ public class PrivateMineTemplate {
         final ConfigurationSection s = snapshot.getConfigurationSection(ROOT);
         final ConfigurationSection t = s == null ? snapshot.createSection(ROOT) : s;
 
-        this.displayName = t.getString("display-name", "&b%player%'s Mine");
-        this.icon = parseMaterial(t.getString("icon"), Material.DIAMOND_ORE);
+        this.displayName = t.getString("display-name", DEFAULT_DISPLAY_NAME);
+        this.icon = parseMaterial(t.getString("icon"), DEFAULT_ICON);
         this.description = t.getStringList("description");
         this.sourceMine = t.getString("source-mine", "");
         this.permission = t.getString("permission", "");
         this.cost = t.getDouble("cost", 0D);
         this.renewCost = t.getDouble("renew-cost", 0D);
         this.lifecycle = PrivateMineData.Lifecycle.fromString(t.getString("lifecycle"), PrivateMineData.Lifecycle.PERSISTENT);
-        this.duration = t.getLong("duration", 3600L);
+        this.duration = t.getLong("duration", DEFAULT_DURATION);
         //capped at what the manage GUI has room for: trusted players it can't show are ones the owner
         //could never remove again
-        this.trustedLimit = Math.max(0, Math.min(MAX_TRUSTED, t.getInt("trusted-limit", 5)));
+        this.trustedLimit = Math.max(0, Math.min(MAX_TRUSTED, t.getInt("trusted-limit", DEFAULT_TRUSTED_LIMIT)));
         this.placement = new Placement(t.getConfigurationSection("placement"));
     }
 
@@ -302,25 +314,27 @@ public class PrivateMineTemplate {
         private final int platformWidth;
 
         Placement(final ConfigurationSection section) {
+            final int[] fallback = parsePos(DEFAULT_ORIGIN);
+
             if (section == null) {
-                this.originX = 0;
-                this.originY = 64;
-                this.originZ = 0;
-                this.spacingX = 200;
-                this.spacingZ = 200;
-                this.perRow = 20;
+                this.originX = fallback[0];
+                this.originY = fallback[1];
+                this.originZ = fallback[2];
+                this.spacingX = DEFAULT_SPACING;
+                this.spacingZ = DEFAULT_SPACING;
+                this.perRow = DEFAULT_PER_ROW;
                 this.shellSchematic = "";
                 this.platformWidth = PrivateMinePlatform.DEFAULT_WIDTH;
                 return;
             }
 
-            final int[] origin = parsePos(section.getString("origin", "0;64;0"));
-            this.originX = origin == null ? 0 : origin[0];
-            this.originY = origin == null ? 64 : origin[1];
-            this.originZ = origin == null ? 0 : origin[2];
-            this.spacingX = section.getInt("spacing-x", 200);
-            this.spacingZ = section.getInt("spacing-z", 200);
-            this.perRow = section.getInt("per-row", 20);
+            final int[] origin = parsePos(section.getString("origin", DEFAULT_ORIGIN));
+            this.originX = origin == null ? fallback[0] : origin[0];
+            this.originY = origin == null ? fallback[1] : origin[1];
+            this.originZ = origin == null ? fallback[2] : origin[2];
+            this.spacingX = section.getInt("spacing-x", DEFAULT_SPACING);
+            this.spacingZ = section.getInt("spacing-z", DEFAULT_SPACING);
+            this.perRow = section.getInt("per-row", DEFAULT_PER_ROW);
             this.shellSchematic = section.getString("shell-schematic", "");
 
             //what the walkway is made of is a server wide setting; a template only says how wide it is,

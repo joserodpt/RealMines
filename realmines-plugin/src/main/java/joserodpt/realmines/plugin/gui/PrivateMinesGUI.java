@@ -51,9 +51,10 @@ import java.util.UUID;
 public class PrivateMinesGUI {
 
     /**
-     * What the grid is showing: the templates a player can claim, or every claimed mine (admins only).
+     * What the grid is showing: the templates a player can claim, the viewer's own mines, or every
+     * claimed mine on the server (admins only).
      */
-    public enum View {TEMPLATES, CLAIMED}
+    public enum View {TEMPLATES, OWNED, CLAIMED}
 
     private static final Map<UUID, PrivateMinesGUI> inventories = new HashMap<>();
 
@@ -81,8 +82,13 @@ public class PrivateMinesGUI {
     private View view = View.TEMPLATES;
 
     public PrivateMinesGUI(final RealMines rm, final Player as) {
+        this(rm, as, View.TEMPLATES);
+    }
+
+    public PrivateMinesGUI(final RealMines rm, final Player as, final View view) {
         this.rm = rm;
         this.uuid = as.getUniqueId();
+        this.view = view;
         this.inv = Bukkit.getServer().createInventory(null, 54, Text.color("&f&lPrivate &9&lMines"));
 
         this.load();
@@ -90,7 +96,10 @@ public class PrivateMinesGUI {
     }
 
     public void load() {
-        if (this.view == View.CLAIMED) {
+        if (this.view == View.OWNED) {
+            this.minePages = new Pagination<>(28, this.rm.getPrivateMinesManager().getMinesOf(this.uuid));
+            this.fillClaimed();
+        } else if (this.view == View.CLAIMED) {
             this.minePages = new Pagination<>(28, this.rm.getPrivateMinesManager().getPrivateMines());
             this.fillClaimed();
         } else {
@@ -112,7 +121,7 @@ public class PrivateMinesGUI {
         }
     }
 
-    private void frame(final boolean admin) {
+    private void frame(final boolean toggle) {
         this.inv.clear();
         this.templateSlots.clear();
         this.mineSlots.clear();
@@ -130,7 +139,7 @@ public class PrivateMinesGUI {
         this.inv.setItem(35, next);
         this.inv.setItem(49, close);
 
-        if (admin) {
+        if (toggle) {
             this.inv.setItem(4, Items.createItem(Material.COMPARATOR, 1,
                     "&fClick to view: &b" + (this.view == View.TEMPLATES ? "Claimed mines" : "Templates")));
         }
@@ -203,13 +212,19 @@ public class PrivateMinesGUI {
         }
     }
 
+    /**
+     * The mine grid, used by both the viewer's own mines and the server wide list. What a click does is
+     * the difference: an owner manages their mine, an admin looking at everybody's teleports to it.
+     */
     private void fillClaimed() {
+        final boolean own = this.view == View.OWNED;
         this.frame(true);
 
         this.clampPage(this.minePages);
 
         if (this.minePages.isEmpty()) {
-            this.inv.setItem(22, Items.createItem(Material.BARRIER, 1, "&cNo private mines claimed"));
+            this.inv.setItem(22, Items.createItem(Material.BARRIER, 1,
+                    own ? "&cYou have no private mines" : "&cNo private mines claimed"));
             return;
         }
 
@@ -223,16 +238,24 @@ public class PrivateMinesGUI {
 
                 final List<String> lore = new ArrayList<>();
                 lore.add("&7Template: &f" + data.getTemplate());
-                lore.add("&7Owner: &f" + data.getOwnerName());
-                lore.add("&7Slot: &f" + data.getSlot());
+                if (!own) {
+                    lore.add("&7Owner: &f" + data.getOwnerName());
+                }
+                lore.add("&7Blocks left: &f" + mine.getRemainingBlocks() + "&7/&f" + mine.getBlockCount());
                 lore.add("&7Trusted: &f" + data.getTrustedCount());
                 lore.add("&7Expires in: &f" + PrivateMineCMD.formatTime(data.getSecondsLeft()));
                 lore.add("");
-                lore.add("&fClick &7to teleport there.");
-                lore.add("&fDrop (Q) &7to delete it.");
+                if (own) {
+                    lore.add("&fClick &7to manage it.");
+                    lore.add("&fShift-click &7to teleport there.");
+                } else {
+                    lore.add("&7Slot: &f" + data.getSlot());
+                    lore.add("&fClick &7to teleport there.");
+                    lore.add("&fDrop (Q) &7to delete it.");
+                }
 
                 this.inv.setItem(slot, PlayerHeads.getHead(data.getOwner(),
-                        "&b" + data.getOwnerName() + "&7's " + data.getTemplate(), lore));
+                        own ? mine.getDisplayName() : "&b" + data.getOwnerName() + "&7's " + data.getTemplate(), lore));
                 this.mineSlots.put(slot, mine);
             }
             ++slot;
@@ -262,11 +285,18 @@ public class PrivateMinesGUI {
                         p.closeInventory();
                         return;
                     case 4:
-                        if (p.hasPermission(PrivateMinesManager.ADMIN_PERMISSION)) {
-                            current.view = current.view == View.TEMPLATES ? View.CLAIMED : View.TEMPLATES;
-                            current.pageNumber = 0;
-                            current.load();
+                        //only the server wide list is an admin's to see; going back to the catalogue is
+                        //something any owner looking at their own mines may do
+                        if (current.view == View.TEMPLATES) {
+                            if (!p.hasPermission(PrivateMinesManager.ADMIN_PERMISSION)) {
+                                return;
+                            }
+                            current.view = View.CLAIMED;
+                        } else {
+                            current.view = View.TEMPLATES;
                         }
+                        current.pageNumber = 0;
+                        current.load();
                         return;
                     case 26:
                     case 35:
@@ -282,11 +312,22 @@ public class PrivateMinesGUI {
                         break;
                 }
 
-                if (current.view == View.CLAIMED) {
+                if (current.view != View.TEMPLATES) {
                     final RMine mine = current.mineSlots.get(e.getRawSlot());
                     if (mine == null) {
                         return;
                     }
+
+                    if (current.view == View.OWNED) {
+                        p.closeInventory();
+                        if (e.isShiftClick()) {
+                            current.rm.getMineManager().teleport(p, mine, false, true);
+                        } else {
+                            new PrivateMineManageGUI(current.rm, p, mine).openInventory(p);
+                        }
+                        return;
+                    }
+
                     if (e.getClick() == ClickType.DROP) {
                         current.rm.getPrivateMinesManager().release(mine);
                         current.load();
@@ -319,7 +360,7 @@ public class PrivateMinesGUI {
             }
 
             private void turnPage(final PrivateMinesGUI gui, final int delta) {
-                final Pagination<?> pages = gui.view == View.CLAIMED ? gui.minePages : gui.templatePages;
+                final Pagination<?> pages = gui.view == View.TEMPLATES ? gui.templatePages : gui.minePages;
                 if (pages != null && pages.exists(gui.pageNumber + delta)) {
                     gui.pageNumber += delta;
                     gui.load();

@@ -309,6 +309,16 @@ once the mine and its platform come down.
    cost and lifetime you want. Then `/rm reload`.
 4. Players claim one with `/pmine` or `/pmine claim starter`.
 
+Step 3 has a menu if you'd rather not open the file. `/pmine templates` lists every template — what it costs to
+hand out, how many copies are out there, and whether anything is stopping the next claim — and clicking one
+opens its editor; `/pmine template edit <id>` goes straight there. The editor covers everything except the
+snapshot itself, writes each change to the file and reloads the template straight away — no `/rm reload` — and
+its top item spells out whatever is stopping the template being claimed. Mines already claimed are never
+affected by an edit.
+
+Templates and claimed mines are kept apart. `/pmine` and `/pmine manage` are what players see;
+`/pmine templates` is what their mines were stamped from.
+
 `/pmine template update starter mine_a` re-takes the snapshot from the mine while keeping the template's own
 settings. Mines already claimed are not affected — they keep the blocks they were created with.
 
@@ -486,14 +496,17 @@ when you only own one private mine.
 | `/pmine` | Open the private mines menu | `realmines.privatemines` |
 | `/pmine claim <template>` | Claim your own copy of a template | `realmines.privatemines` |
 | `/pmine tp [template]` | Teleport to your private mine | `realmines.privatemines` |
+| `/pmine manage` | Open your own mines: teleport, reset, extend, trusted players, release | `realmines.privatemines` |
 | `/pmine info` | Show your mines, their reset times and expiry | `realmines.privatemines` |
 | `/pmine extend [template]` | Extend a time-limited mine, paying its renew cost | `realmines.privatemines` |
 | `/pmine trust <player> [template]` | Let someone else mine there | `realmines.privatemines` |
 | `/pmine untrust <player> [template]` | Take that access away | `realmines.privatemines` |
 | `/pmine trusted [template]` | List who you've trusted | `realmines.privatemines` |
 | `/pmine release [template]` | Give the mine up, with any refund | `realmines.privatemines` |
+| `/pmine templates` | Open the template list, clicking one to edit it | `realmines.privatemines.admin` |
 | `/pmine template create <id> <mine>` | Snapshot a mine into a template | `realmines.privatemines.admin` |
 | `/pmine template update <id> <mine>` | Re-snapshot, keeping the template's settings | `realmines.privatemines.admin` |
+| `/pmine template edit <id>` | Open the template editor | `realmines.privatemines.admin` |
 | `/pmine template delete <id>` | Delete a template | `realmines.privatemines.admin` |
 | `/pmine template list` | List the templates | `realmines.privatemines.admin` |
 | `/pmine list [player]` | List every claimed private mine | `realmines.privatemines.admin` |

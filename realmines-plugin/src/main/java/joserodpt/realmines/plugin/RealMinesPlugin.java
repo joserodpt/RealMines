@@ -53,6 +53,8 @@ import joserodpt.realmines.plugin.gui.MineFacesGUI;
 import joserodpt.realmines.plugin.gui.MineItemsGUI;
 import joserodpt.realmines.plugin.gui.MineListGUI;
 import joserodpt.realmines.plugin.gui.PrivateMineManageGUI;
+import joserodpt.realmines.plugin.gui.PrivateMineTemplateGUI;
+import joserodpt.realmines.plugin.gui.PrivateMineTemplatesGUI;
 import joserodpt.realmines.plugin.gui.PrivateMinesGUI;
 import joserodpt.realmines.plugin.gui.MineResetGUI;
 import joserodpt.realmines.plugin.gui.RealMinesGUI;
@@ -135,6 +137,8 @@ public class RealMinesPlugin extends JavaPlugin {
                 MineListGUI.getListener(),
                 PrivateMinesGUI.getListener(),
                 PrivateMineManageGUI.getListener(),
+                PrivateMineTemplateGUI.getListener(),
+                PrivateMineTemplatesGUI.getListener(),
                 GUIBuilder.getListener(),
                 MineFacesGUI.getListener(),
                 MineDepthGUI.getListener(),
@@ -208,7 +212,7 @@ public class RealMinesPlugin extends JavaPlugin {
                     switch (context.getArgs().size()) {
                         case 0:
                         case 1:
-                            return Arrays.asList("create", "update", "delete", "list");
+                            return Arrays.asList("create", "update", "edit", "delete", "list");
                         case 2:
                             return realMines.getPrivateMinesManager().getTemplates().stream()
                                     .map(PrivateMineTemplate::getID)
@@ -322,7 +326,7 @@ public class RealMinesPlugin extends JavaPlugin {
                         new ExternalPluginPermission("realmines.tp.<name>", "Allow permission to teleport to a mine.", Collections.singletonList("rm tp <name>")),
                         new ExternalPluginPermission("realmines.silent", "Allow permission to silence a mine.", Arrays.asList("rm silent", "rm silentall")),
                         new ExternalPluginPermission("realmines.privatemines", "Allow a player to claim and manage their own private mines.", Arrays.asList("pmine", "pmine claim", "pmine tp", "pmine info", "pmine trust", "pmine release")),
-                        new ExternalPluginPermission("realmines.privatemines.admin", "Allow managing private mine templates and everyone's private mines.", Arrays.asList("pmine template", "pmine list", "pmine delete", "pmine addsharik")),
+                        new ExternalPluginPermission("realmines.privatemines.admin", "Allow managing private mine templates and everyone's private mines.", Arrays.asList("pmine templates", "pmine template", "pmine template edit", "pmine list", "pmine delete", "pmine addsharik")),
                         new ExternalPluginPermission("realmines.reset", "Allow permission to reset all mines."),
                         new ExternalPluginPermission("realmines.update.notify", "Notification of a plugin update to the player."),
                         new ExternalPluginPermission("realmines.achievements", "Allow the player to see their own mining stats and achievements.", Arrays.asList("rm achievements", "rm stats")),

@@ -246,6 +246,39 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
         return template;
     }
 
+    /**
+     * Changes one {@code template:} setting in a template's file and reloads it, so an edit is live
+     * without a {@code /rm reload}. Mines already claimed are untouched: they keep what they were built
+     * with, exactly like re-snapshotting a template leaves them alone.
+     *
+     * @param key   the setting's path under {@link PrivateMineTemplate#ROOT}, such as {@code cost} or
+     *              {@code placement.per-row}
+     * @param value the new value, or null to drop the setting and fall back to its default
+     * @return the reloaded template, or null when the file couldn't be written
+     */
+    public PrivateMineTemplate editTemplate(final PrivateMineTemplate template, final String key, final Object value) {
+        if (template == null || key == null) {
+            return null;
+        }
+
+        //read the file again instead of the copy in memory, so an edit doesn't undo one made by hand
+        final YamlConfiguration config = YamlConfiguration.loadConfiguration(template.getFile());
+        config.set(PrivateMineTemplate.ROOT + "." + key, value);
+
+        try {
+            config.save(template.getFile());
+        } catch (final IOException e) {
+            this.rm.getLogger().warning("Couldn't save private mine template '" + template.getID()
+                    + "': " + e.getMessage());
+            return null;
+        }
+
+        final PrivateMineTemplate reloaded = new PrivateMineTemplate(template.getID(), template.getFile(),
+                YamlConfiguration.loadConfiguration(template.getFile()));
+        this.templates.put(reloaded.getID(), reloaded);
+        return reloaded;
+    }
+
     @Override
     public boolean deleteTemplate(final String id) {
         final PrivateMineTemplate template = this.getTemplate(id);
