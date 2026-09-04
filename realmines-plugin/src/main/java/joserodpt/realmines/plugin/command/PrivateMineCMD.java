@@ -20,10 +20,13 @@ import dev.triumphteam.cmd.core.annotation.Join;
 import dev.triumphteam.cmd.core.annotation.Optional;
 import dev.triumphteam.cmd.core.annotation.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Suggestion;
+import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.config.TranslatableLine.ReplacableVar;
+import joserodpt.realmines.api.managers.PrivateMinePlatform;
 import joserodpt.realmines.api.managers.PrivateMineTemplate;
 import joserodpt.realmines.api.managers.PrivateMinesManagerAPI.ClaimResult;
+import joserodpt.realmines.api.managers.PrivateMinesWorld;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.PrivateMineData;
 import joserodpt.realmines.api.utils.Text;
@@ -32,9 +35,11 @@ import joserodpt.realmines.plugin.gui.PrivateMinesGUI;
 import joserodpt.realmines.plugin.managers.PrivateMinesManager;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -402,10 +407,15 @@ public class PrivateMineCMD extends BaseCommandWA {
                         Text.send(commandSender, " &e! &f" + problem);
                     }
 
-                    //placement decides where every claimed copy is built, so it must never be left at defaults
+                    //placement decides where every claimed copy is built, so it must never be left at defaults.
+                    //The world isn't one of those decisions: RealMines makes and owns it.
                     Text.send(commandSender, "&7Placement: world &f" + template.getPlacement().getWorldName()
-                            + " &7origin &f" + template.getPlacement().getOriginX() + ";"
+                            + " &7(created by RealMines)&7, origin &f" + template.getPlacement().getOriginX() + ";"
                             + template.getPlacement().getOriginY() + ";" + template.getPlacement().getOriginZ());
+                    Text.send(commandSender, template.getPlacement().hasPlatform()
+                            ? "&7Platform: &f" + template.getPlacement().getPlatformWidth() + " &7blocks of &f"
+                            + PrivateMinePlatform.walkwayMaterial().name() + " &7around each copy, fenced with barriers"
+                            : "&7Platform: &fnone&7, so copies are built with nothing around them");
                     Text.send(commandSender, "&7Edit &fprivate-mines/templates/" + template.getID()
                             + ".yml &7to set the cost, lifetime and where copies are built, then &f/rm reload&7.");
                 } catch (final IllegalArgumentException e) {
@@ -483,6 +493,63 @@ public class PrivateMineCMD extends BaseCommandWA {
         final String display = mine.getDisplayName();
         this.rm.getPrivateMinesManager().release(mine);
         TranslatableLine.PRIVATE_MINE_RELEASED.setV1(ReplacableVar.MINE.eq(display)).send(commandSender);
+    }
+
+    /**
+     * Debug: drops a throwaway private mine from a random template on the next free slot and drops you on
+     * it, so the platform, the fence and the grid spacing can be looked at without claiming anything.
+     * {@code /pmine addsharik clear} takes every one of them back down again.
+     */
+    @SubCommand("addsharik")
+    @Permission("realmines.privatemines.admin")
+    @WrongUsage("&c/pmine addsharik [clear]")
+    @SuppressWarnings("unused")
+    public void addsharikcmd(final CommandSender commandSender, @Optional final String action) {
+        final Player p = requirePlayer(commandSender);
+        if (p == null) {
+            return;
+        }
+
+        if (action != null && action.equalsIgnoreCase("clear")) {
+            final int removed = this.rm.getPrivateMinesManager().clearDebugMines();
+            Text.send(commandSender, removed == 0
+                    ? "&7There are no &f" + PrivateMinesManager.DEBUG_OWNER + " &7mines to remove."
+                    : "&aRemoved &f" + removed + " &a" + PrivateMinesManager.DEBUG_OWNER + " mine(s).");
+            return;
+        }
+
+        //there is nothing to look at anywhere else, and it would put mines in a world nobody expects
+        final World world = PrivateMinesWorld.peek();
+        if (world == null || !p.getWorld().getName().equals(world.getName())) {
+            Text.send(commandSender, "&cRun this from inside the &f" + PrivateMinesWorld.NAME + " &cworld.");
+            return;
+        }
+
+        final List<PrivateMineTemplate> templates = new ArrayList<>(this.rm.getPrivateMinesManager().getTemplates());
+        if (templates.isEmpty()) {
+            TranslatableLine.PRIVATE_MINE_NO_TEMPLATES.send(commandSender);
+            return;
+        }
+
+        final PrivateMineTemplate template = templates.get(RealMinesAPI.getRand().nextInt(templates.size()));
+        final RMine mine = this.rm.getPrivateMinesManager().spawnDebugMine(template,
+                PrivateMinesManager.DEBUG_OWNER + (RealMinesAPI.getRand().nextInt(999) + 1));
+        if (mine == null) {
+            Text.send(commandSender, "&cCouldn't place one from template &f" + template.getID()
+                    + "&c. The console says why.");
+            return;
+        }
+
+        final PrivateMineData data = mine.getPrivateData();
+        Text.send(commandSender, "&aSpawned &r" + mine.getDisplayName() + " &afrom template &f" + template.getID()
+                + " &aon slot &f" + data.getSlot() + "&a.");
+        Text.send(commandSender, data.getPlatformWidth() > 0
+                ? "&7Platform: &f" + data.getPlatformWidth() + " &7wide, fence &f"
+                + (mine.getMineCuboid() == null ? "?" : mine.getMineCuboid().getSizeY()) + " &7high"
+                : "&7Platform: &fnone&7.");
+        Text.send(commandSender, "&7Remove them all again with &f/pmine addsharik clear&7.");
+
+        this.rm.getMineManager().teleport(p, mine, true, false);
     }
 
     // ------------------------------------------------------------------ helpers

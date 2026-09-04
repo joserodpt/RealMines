@@ -1,5 +1,10 @@
 RealMines:
   Prefix: "&fReal&9Mines &7> "
+  # Where players are put when the ground goes out from under them, which today means releasing a
+  # private mine or having one expire while they are standing in it.
+  # Set it in game with /rm setdefaultlocation, or leave it empty for the main world's spawn.
+  # Format: world;x;y;z;yaw;pitch
+  Default-Location: ''
   teleportPlayers: true
   teleportMessage: true
   actionbarMessages: true
@@ -31,4 +36,4 @@ RealMines:
     Flush-Interval-Seconds: 60
     # How many entries the leaderboard GUI shows.
     Leaderboard-Size: 28
-Version: 12
+Version: 13

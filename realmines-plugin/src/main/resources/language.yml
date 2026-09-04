@@ -305,7 +305,7 @@ PrivateMines:
   Limit-Reached: "&cYou already have the maximum of &f%count% &cprivate mines."
   Insufficient-Funds: "&cYou need &f%value% &cto claim that private mine."
   No-Economy: "&cThat private mine costs money, but no economy plugin is available."
-  World-Missing: "&cThat private mine's world isn't loaded. Tell an administrator."
+  World-Missing: "&cThe private mines world couldn't be created. Check the console."
   No-Free-Slot: "&cThere is no free space for another private mine right now."
   Unsupported-Type: "&cSchematic mines can't be used as private mine templates."
   Claim-Failed: "&cCouldn't create your private mine. Check the console."

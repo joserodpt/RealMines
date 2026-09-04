@@ -36,6 +36,10 @@ public abstract class PrivateMinesManagerAPI {
         ALREADY_OWNED,
         NO_ECONOMY,
         INSUFFICIENT_FUNDS,
+        /**
+         * The server refused to create {@link PrivateMinesWorld#NAME}. RealMines makes that world itself,
+         * so this is a server problem rather than something to configure.
+         */
         WORLD_MISSING,
         NO_FREE_SLOT,
         UNSUPPORTED_TYPE,

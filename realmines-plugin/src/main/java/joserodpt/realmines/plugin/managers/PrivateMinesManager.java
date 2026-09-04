@@ -20,9 +20,12 @@ import com.sk89q.worldedit.regions.CuboidRegion;
 import joserodpt.realmines.api.config.RMPrivateMinesConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.event.RealMinesMineChangeEvent;
+import joserodpt.realmines.api.managers.PrivateMinePlatform;
 import joserodpt.realmines.api.managers.PrivateMineTemplate;
 import joserodpt.realmines.api.managers.PrivateMinesManagerAPI;
+import joserodpt.realmines.api.managers.PrivateMinesWorld;
 import joserodpt.realmines.api.mine.RMine;
+import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.mine.components.PrivateMineData;
 import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.components.RMineSettings;
@@ -53,6 +56,11 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class PrivateMinesManager extends PrivateMinesManagerAPI {
+
+    /**
+     * Owner name every {@link #spawnDebugMine} mine is given, and what {@link #clearDebugMines} looks for.
+     */
+    public static final String DEBUG_OWNER = "Sharik";
 
     public static final String ADMIN_PERMISSION = "realmines.privatemines.admin";
     public static final String USE_PERMISSION = "realmines.privatemines";
@@ -112,6 +120,12 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
 
             final String id = file.getName().substring(0, file.getName().length() - 4).toLowerCase();
             try {
+                //copies are only ever built in RealMines' own world, so bring it up before anything
+                //validates against it. Servers with no templates never get one created for them.
+                if (this.isEnabled()) {
+                    PrivateMinesWorld.get();
+                }
+
                 final PrivateMineTemplate template = new PrivateMineTemplate(id, file, YamlConfiguration.loadConfiguration(file));
                 for (final String problem : template.validate()) {
                     this.rm.getLogger().warning("Private mine template '" + id + "': " + problem);
@@ -193,13 +207,12 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
             snap.set(PrivateMineTemplate.ROOT + ".lifecycle", PrivateMineData.Lifecycle.PERSISTENT.name());
             snap.set(PrivateMineTemplate.ROOT + ".duration", 3600L);
             snap.set(PrivateMineTemplate.ROOT + ".trusted-limit", 5);
-            //deliberately points at a world that probably doesn't exist yet: better for the admin to hit a
-            //"world is not loaded" warning than for the first claim to silently build on top of the survival spawn
-            snap.set(PrivateMineTemplate.ROOT + ".placement.world", "private_mines");
+            //no world here: every copy is built in the world RealMines makes for private mines
             snap.set(PrivateMineTemplate.ROOT + ".placement.origin", "0;64;0");
             snap.set(PrivateMineTemplate.ROOT + ".placement.spacing-x", Math.max(50, source.getMineCuboid().getSizeX() * 2));
             snap.set(PrivateMineTemplate.ROOT + ".placement.spacing-z", Math.max(50, source.getMineCuboid().getSizeZ() * 2));
             snap.set(PrivateMineTemplate.ROOT + ".placement.per-row", 20);
+            snap.set(PrivateMineTemplate.ROOT + ".placement.platform-width", PrivateMinePlatform.DEFAULT_WIDTH);
             snap.set(PrivateMineTemplate.ROOT + ".placement.shell-schematic", "");
         } else {
             final YamlConfiguration old = existing.copySnapshot();
@@ -273,6 +286,10 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
                 continue;
             }
 
+            //somebody owns a mine, so the world holding it has to be loaded before it is constructed.
+            //Cheap to repeat: it is a lookup once the world is up.
+            PrivateMinesWorld.get();
+
             final File[] files = ownerFolder.listFiles();
             if (files == null) {
                 continue;
@@ -298,7 +315,7 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
                 if (deadSession || data.hasExpired()) {
                     //wipe the blocks straight from the stored coordinates: building the mine only to
                     //delete it would fill the region first, and the slot is about to be handed out again
-                    clearRegionOf(config);
+                    clearRegionOf(config, data);
                     if (file.delete()) {
                         purged++;
                     }
@@ -341,12 +358,20 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
      * Empties the region a stored mine config describes, without constructing the mine. Used when a mine
      * is deleted before it is ever built, so the next tenant of that slot doesn't inherit its blocks.
      */
-    private static void clearRegionOf(final YamlConfiguration config) {
+    private static void clearRegionOf(final YamlConfiguration config, final PrivateMineData data) {
         final World world = Bukkit.getWorld(String.valueOf(config.getString("world")));
         final int[] p1 = PrivateMineTemplate.parsePos(config.getString("pos1"));
         final int[] p2 = PrivateMineTemplate.parsePos(config.getString("pos2"));
         if (world == null || p1 == null || p2 == null) {
             return;
+        }
+
+        //the walkway and its fence sit outside the region, so they have to come down separately
+        if (data != null && data.getPlatformWidth() > 0) {
+            PrivateMinePlatform.remove(world, new int[]{
+                    Math.min(p1[0], p2[0]), Math.min(p1[1], p2[1]), Math.min(p1[2], p2[2]),
+                    Math.max(p1[0], p2[0]), Math.max(p1[1], p2[1]), Math.max(p1[2], p2[2])},
+                    data.getPlatformWidth());
         }
 
         try {
@@ -462,6 +487,12 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
         final int sizeY = bounds[4] - bounds[1];
         final int sizeZ = bounds[5] - bounds[2];
 
+        //a copy takes up its platform as well as its own region: a slot whose walkway would cut into an
+        //existing mine is not free, however far apart the mines themselves would be
+        final int margin = template.getPlacement().getPlatformMargin();
+        final int below = margin > 0 ? PrivateMinePlatform.REACH_BELOW : 0;
+        final int above = margin > 0 ? PrivateMinePlatform.reachAbove(sizeY + 1) : 0;
+
         final List<Object[]> occupied = occupiedRegions();
 
         for (int slot = 0; slot < SLOT_SEARCH_LIMIT; slot++) {
@@ -470,8 +501,10 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
                 return -1;
             }
 
-            final int minX = origin.getBlockX(), minY = origin.getBlockY(), minZ = origin.getBlockZ();
-            final int maxX = minX + sizeX, maxY = minY + sizeY, maxZ = minZ + sizeZ;
+            final int minX = origin.getBlockX() - margin, minY = origin.getBlockY() - below,
+                    minZ = origin.getBlockZ() - margin;
+            final int maxX = origin.getBlockX() + sizeX + margin, maxY = origin.getBlockY() + sizeY + above,
+                    maxZ = origin.getBlockZ() + sizeZ + margin;
 
             boolean free = true;
             for (final Object[] r : occupied) {
@@ -528,8 +561,58 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
             return ClaimResult.LIMIT_REACHED;
         }
 
+        return this.build(template, p.getUniqueId(), p.getName(), p);
+    }
+
+    /**
+     * Debug helper: drops a copy of a template on the next free slot, owned by a made-up player, so the
+     * layout - platform, fence, spacing, where the owner lands - can be walked around in game. Nothing is
+     * charged, no permission or limit applies, and the mine is a real one in every other way.
+     *
+     * @return the mine, or null when it couldn't be placed; the reason is logged
+     */
+    public RMine spawnDebugMine(final PrivateMineTemplate template, final String ownerName) {
+        if (template == null) {
+            return null;
+        }
+
+        final UUID owner = UUID.randomUUID();
+        final ClaimResult result = this.build(template, owner, ownerName, null);
+        if (result != ClaimResult.OK) {
+            this.rm.getLogger().warning("Couldn't spawn a debug private mine from template '"
+                    + template.getID() + "': " + result);
+            return null;
+        }
+        return this.getMineOf(owner, template.getID());
+    }
+
+    /**
+     * Removes every mine {@link #spawnDebugMine} left behind, so a session of looking at layouts doesn't
+     * silently keep slots taken.
+     *
+     * @return how many were removed
+     */
+    public int clearDebugMines() {
+        final List<RMine> debug = this.getPrivateMines().stream()
+                .filter(mine -> mine.getPrivateData().getOwnerName().startsWith(DEBUG_OWNER))
+                .collect(Collectors.toList());
+        debug.forEach(this::release);
+        return debug.size();
+    }
+
+    /**
+     * Builds a copy of a template on the next free slot and hands it to an owner.
+     *
+     * @param payer who is charged for it and whose permissions decide whether it is free, or null for the
+     *              debug path, which charges nothing and asks nobody
+     */
+    private ClaimResult build(final PrivateMineTemplate template, final UUID owner, final String ownerName,
+                              final Player payer) {
+        //RealMines creates this world itself, so a null here means the server refused to make it
         final World world = template.getPlacement().getWorld();
         if (world == null) {
+            this.rm.getLogger().severe("Refused a claim of private mine template '" + template.getID()
+                    + "': the '" + PrivateMinesWorld.NAME + "' world couldn't be created.");
             return ClaimResult.WORLD_MISSING;
         }
 
@@ -558,13 +641,13 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
         }
 
         //the mine's name is the map key and is global, so it has to be unique
-        final String name = "pm-" + template.getID() + "-" + p.getUniqueId();
+        final String name = "pm-" + template.getID() + "-" + owner;
         if (this.rm.getMineManager().getMine(name) != null) {
             return ClaimResult.ERROR;
         }
 
         //charge last, once everything else is known to be fine
-        final double cost = admin ? 0D : template.getCost();
+        final double cost = payer == null || payer.hasPermission(ADMIN_PERMISSION) ? 0D : template.getCost();
         if (cost > 0D) {
             final Economy econ = RealMinesAPI.getInstance().getEconomy();
             if (econ == null) {
@@ -572,44 +655,53 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
                         + " but Vault/an economy plugin isn't available, so the claim was refused.");
                 return ClaimResult.NO_ECONOMY;
             }
-            if (!econ.has(p, cost)) {
+            if (!econ.has(payer, cost)) {
                 return ClaimResult.INSUFFICIENT_FUNDS;
             }
-            final EconomyResponse response = econ.withdrawPlayer(p, cost);
+            final EconomyResponse response = econ.withdrawPlayer(payer, cost);
             if (!response.transactionSuccess()) {
                 return ClaimResult.ERROR;
             }
         }
 
-        final File folder = this.ownerFolder(p.getUniqueId());
+        final File folder = this.ownerFolder(owner);
         if (!folder.exists() && !folder.mkdirs()) {
-            refund(p, cost);
+            refund(payer, cost);
             return ClaimResult.ERROR;
         }
 
         final long now = System.currentTimeMillis() / 1000L;
-        final PrivateMineData data = new PrivateMineData(template.getID(), p.getUniqueId(), p.getName(), slot,
+        final PrivateMineData data = new PrivateMineData(template.getID(), owner, ownerName, slot,
                 template.getLifecycle(), now,
                 template.getLifecycle() == PrivateMineData.Lifecycle.TIME_LIMITED
                         ? now + template.getDuration() : PrivateMineData.NEVER,
                 cost);
+        //written into the mine's file so releasing it later takes down the platform it actually got,
+        //not whatever the template says by then
+        data.setPlatformWidth(template.getPlacement().hasPlatform() ? template.getPlacement().getPlatformWidth() : 0);
 
-        final YamlConfiguration cfg = buildInstanceConfig(template, data, name, p.getName(), origin, bounds);
+        final YamlConfiguration cfg = buildInstanceConfig(template, data, name, ownerName, origin, bounds);
 
         RMine mine;
         try {
             mine = construct(name, cfg, folder, data);
         } catch (final RMFailedToLoadException | RuntimeException e) {
-            this.rm.getLogger().severe("Failed to create a private mine for " + p.getName() + ": " + e.getMessage());
+            this.rm.getLogger().severe("Failed to create a private mine for " + ownerName + ": " + e.getMessage());
             //the constructor creates the file before it can fail, so don't leave a broken one behind
             new File(folder, template.getID() + ".yml").delete();
             deleteIfEmpty(folder);
-            refund(p, cost);
+            refund(payer, cost);
             return ClaimResult.ERROR;
         }
 
         mine.saveConfig();
         this.rm.getMineManager().addMine(mine);
+
+        //the world is empty, so without this the owner arrives beside a mine floating in the void.
+        //Before the shell, so an admin's own decoration wins wherever the two overlap
+        if (data.getPlatformWidth() > 0) {
+            PrivateMinePlatform.build(world, instanceRegion(origin, bounds), data.getPlatformWidth());
+        }
 
         //only paste the shell once the mine is definitely staying, so a failed claim can't leave
         //decoration behind on a slot that is reported free again
@@ -641,12 +733,20 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
         final int dy = origin.getBlockY() - bounds[1];
         final int dz = origin.getBlockZ() - bounds[2];
 
+        final int[] region = instanceRegion(origin, bounds);
+
         cfg.set("name", name);
         cfg.set("displayName", template.getDisplayNameFor(playerName));
         cfg.set("world", origin.getWorld().getName());
-        cfg.set("pos1", (bounds[0] + dx) + ";" + (bounds[1] + dy) + ";" + (bounds[2] + dz));
-        cfg.set("pos2", (bounds[3] + dx) + ";" + (bounds[4] + dy) + ";" + (bounds[5] + dz));
-        cfg.set("teleport", shiftTeleport(cfg.getString("teleport"), dx, dy, dz, origin));
+        cfg.set("pos1", region[0] + ";" + region[1] + ";" + region[2]);
+        cfg.set("pos2", region[3] + ";" + region[4] + ";" + region[5]);
+
+        //with a platform the owner lands on its corner, looking across their mine. Without one there is
+        //nothing to stand on, so the template's own teleport is moved onto the slot instead
+        final Location entrance = data.getPlatformWidth() > 0
+                ? PrivateMinePlatform.entrance(origin.getWorld(), region, data.getPlatformWidth()) : null;
+        cfg.set("teleport", entrance != null
+                ? serializeTeleport(entrance) : shiftTeleport(cfg.getString("teleport"), dx, dy, dz, origin));
 
         //a copy must never inherit the template's sign blocks or its console commands
         cfg.set("signs", new ArrayList<String>());
@@ -660,6 +760,24 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
 
         data.save(cfg);
         return cfg;
+    }
+
+    /**
+     * Where a copy of this template ends up when it is dropped on a slot, as
+     * {minX, minY, minZ, maxX, maxY, maxZ}. Instances are moved so their lowest corner sits on the origin.
+     */
+    private static int[] instanceRegion(final Location origin, final int[] bounds) {
+        return new int[]{
+                origin.getBlockX(), origin.getBlockY(), origin.getBlockZ(),
+                origin.getBlockX() + (bounds[3] - bounds[0]),
+                origin.getBlockY() + (bounds[4] - bounds[1]),
+                origin.getBlockZ() + (bounds[5] - bounds[2])};
+    }
+
+    private static String serializeTeleport(final Location loc) {
+        //block coordinates, because that is all a mine file keeps when it is saved again
+        return loc.getBlockX() + ";" + loc.getBlockY() + ";" + loc.getBlockZ() + ";"
+                + loc.getYaw() + ";" + loc.getPitch();
     }
 
     private static String shiftTeleport(final String teleport, final int dx, final int dy, final int dz, final Location origin) {
@@ -679,7 +797,7 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
     }
 
     private static void refund(final Player p, final double amount) {
-        if (amount <= 0D) {
+        if (p == null || amount <= 0D) {
             return;
         }
         final Economy econ = RealMinesAPI.getInstance().getEconomy();
@@ -733,6 +851,15 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
         try {
             if (instance.getMineCuboid() != null) {
                 instance.clear();
+
+                //the walkway and its fence are outside the region, so clearing the mine leaves them standing
+                if (data.getPlatformWidth() > 0) {
+                    final MineCuboid cuboid = instance.getMineCuboid();
+                    PrivateMinePlatform.remove(cuboid.getWorld(), new int[]{
+                            cuboid.getLowerX(), cuboid.getLowerY(), cuboid.getLowerZ(),
+                            cuboid.getUpperX(), cuboid.getUpperY(), cuboid.getUpperZ()},
+                            data.getPlatformWidth());
+                }
             }
         } catch (final Exception e) {
             this.rm.getLogger().warning("Couldn't clear the region of private mine " + instance.getName() + ": " + e.getMessage());

@@ -270,22 +270,38 @@ tl
 A private mine is a player's own copy of a **template**. A template is a frozen snapshot of a normal mine, so once
 it is taken you can change or even delete the original without touching the template or anybody's claimed mine.
 
-Copies are placed automatically on a grid in a world you set aside for them, one slot per mine, and only the owner
-and the players they trust can mine or teleport there.
+Copies are placed automatically on a grid, one slot per mine, in a world called `realminespm` that RealMines
+creates itself the first time a template exists — there is nothing to set up and no world manager needed. It is
+generated completely empty, so the only blocks in it are the mines and what RealMines builds around them. Only
+the owner and the players they trust can mine or teleport there.
+
+Every copy is handed out with a platform built around it, worked out from the mine's own size — no schematic to
+draw and nothing to keep in step when the mine changes:
+
+* a walkway three blocks wide on all four sides, level with the mine's bottom layer, so the mine stands in
+  front of whoever walks it
+* an invisible barrier fence around the outside of that walkway, as tall as the mine itself, so nobody walks
+  into the void and there is nothing to see over it but the mine
+* an invisible floor one layer under the mine, so a mine that has been dug all the way out isn't a hole either
+* the owner's teleport is the corner of the walkway, looking diagonally across their mine
+
+Its width and material are `placement.platform-width` and `placement.platform-material` in the template. The
+walkway is an ordinary block, so a player can break it: set `platform-material: BARRIER` or `BEDROCK` if that
+matters on your server, or clear `platform-material` to build no platform at all (say when a
+`shell-schematic` already brings one).
 
 ### Setting one up
 
 1. Create and configure a mine as usual — block sets, percentages, break actions, reset time, all of it.
-2. Create a world for the copies to live in (a void world works well) using Multiverse, RealRegions or similar.
-3. Snapshot the mine into a template:
+2. Snapshot the mine into a template:
 
 ```
 /pmine template create starter mine_a
 ```
 
-4. Open `plugins/RealMines/private-mines/templates/starter.yml` and set at least the `placement` section, plus the
+3. Open `plugins/RealMines/private-mines/templates/starter.yml` and set at least the `placement` section, plus the
    cost and lifetime you want. Then `/rm reload`.
-5. Players claim one with `/pmine` or `/pmine claim starter`.
+4. Players claim one with `/pmine` or `/pmine claim starter`.
 
 `/pmine template update starter mine_a` re-takes the snapshot from the mine while keeping the template's own
 settings. Mines already claimed are not affected — they keep the blocks they were created with.
@@ -313,17 +329,23 @@ template:
   lifecycle: PERSISTENT               # PERSISTENT, TIME_LIMITED or SESSION
   duration: 3600                      # how long a TIME_LIMITED mine lasts, in seconds
   trusted-limit: 5                    # how many other players the owner may let in, at most 7
-  placement:
-    world: private_mines              # the world the copies are built in
+  placement:                          # the world is always realminespm, so it isn't a setting here
     origin: 0;64;0                    # where the first copy's lowest corner goes
-    spacing-x: 200                    # distance between copies, must be bigger than the mine
+    spacing-x: 200                    # distance between copies, bigger than the mine plus its platform
     spacing-z: 200
     per-row: 20                       # copies per row before wrapping to the next one
+    platform-material: STONE_BRICKS   # what the walkway is made of, empty for no platform
+    platform-width: 3                 # how far the walkway reaches around the mine, at most 16
     shell-schematic: ''               # optional .schem pasted at each slot, for walls and decoration
 ```
 
 RealMines checks the placement settings when it loads a template and refuses to hand out copies from a broken one,
 logging exactly what is wrong — so if claiming stops working, check the console.
+
+The `realminespm` world is generated with nothing in it at all, and RealMines loads it again on every boot. If it
+is ever deleted, the next start makes it again empty and the claimed mines are rebuilt from their files, so give
+them their blocks back with `/rm reset` or wait for their own resets. To recreate the world by hand with a world
+manager, point it at `generator: RealMines`.
 
 | Lifecycle | The mine lasts |
 |---|---|
@@ -470,6 +492,7 @@ when you only own one private mine.
 | `/pmine template list` | List the templates | `realmines.privatemines.admin` |
 | `/pmine list [player]` | List every claimed private mine | `realmines.privatemines.admin` |
 | `/pmine delete <player> <template>` | Delete someone's private mine | `realmines.privatemines.admin` |
+| `/pmine addsharik [clear]` | Debug: drop a throwaway mine from a random template on the next free slot to look at the layout, or `clear` to remove them all. Only works while standing in `realminespm` | `realmines.privatemines.admin` |
 
 </details>
 

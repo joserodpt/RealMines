@@ -29,6 +29,7 @@ import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.converters.RMSupportedConverters;
 import joserodpt.realmines.api.event.RealMinesPluginLoadedEvent;
 import joserodpt.realmines.api.managers.PrivateMineTemplate;
+import joserodpt.realmines.api.managers.PrivateMinesWorld;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.GUIBuilder;
 import joserodpt.realmines.api.utils.PercentageInput;
@@ -64,6 +65,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -320,7 +322,7 @@ public class RealMinesPlugin extends JavaPlugin {
                         new ExternalPluginPermission("realmines.tp.<name>", "Allow permission to teleport to a mine.", Collections.singletonList("rm tp <name>")),
                         new ExternalPluginPermission("realmines.silent", "Allow permission to silence a mine.", Arrays.asList("rm silent", "rm silentall")),
                         new ExternalPluginPermission("realmines.privatemines", "Allow a player to claim and manage their own private mines.", Arrays.asList("pmine", "pmine claim", "pmine tp", "pmine info", "pmine trust", "pmine release")),
-                        new ExternalPluginPermission("realmines.privatemines.admin", "Allow managing private mine templates and everyone's private mines.", Arrays.asList("pmine template", "pmine list", "pmine delete")),
+                        new ExternalPluginPermission("realmines.privatemines.admin", "Allow managing private mine templates and everyone's private mines.", Arrays.asList("pmine template", "pmine list", "pmine delete", "pmine addsharik")),
                         new ExternalPluginPermission("realmines.reset", "Allow permission to reset all mines."),
                         new ExternalPluginPermission("realmines.update.notify", "Notification of a plugin update to the player."),
                         new ExternalPluginPermission("realmines.achievements", "Allow the player to see their own mining stats and achievements.", Arrays.asList("rm achievements", "rm stats")),
@@ -344,6 +346,15 @@ public class RealMinesPlugin extends JavaPlugin {
                 this.getLogger().warning("There is a new update available! Version: " + version + " https://www.spigotmc.org/resources/73707/");
             }
         });
+    }
+
+    /**
+     * The generator behind the private mines world, so a world manager can be pointed at
+     * {@code generator: RealMines} and rebuild it exactly as RealMines does: completely empty.
+     */
+    @Override
+    public ChunkGenerator getDefaultWorldGenerator(final String worldName, final String id) {
+        return PrivateMinesWorld.getGenerator();
     }
 
     private void registerCommand(String realmines, BaseCommandWA mineCMD, Map<String, BaseCommandWA> commands, BukkitCommandManager<CommandSender> commandManager) {

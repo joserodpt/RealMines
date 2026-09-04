@@ -68,6 +68,7 @@ public class PrivateMineData {
     private final long createdAt;
     private long expiresAt;
     private double paid;
+    private int platformWidth;
     private final Set<UUID> trusted = new LinkedHashSet<>();
 
     public PrivateMineData(final String template, final UUID owner, final String ownerName, final int slot,
@@ -111,6 +112,8 @@ public class PrivateMineData {
                 section.getLong("expires-at", NEVER),
                 section.getDouble("paid", 0D));
 
+        data.platformWidth = section.getInt("platform-width", 0);
+
         for (final String trusted : section.getStringList("trusted")) {
             try {
                 data.trusted.add(UUID.fromString(trusted));
@@ -135,6 +138,7 @@ public class PrivateMineData {
         config.set(ROOT + ".created-at", this.createdAt);
         config.set(ROOT + ".expires-at", this.expiresAt);
         config.set(ROOT + ".paid", this.paid);
+        config.set(ROOT + ".platform-width", this.platformWidth);
         config.set(ROOT + ".trusted", this.trusted.stream().map(UUID::toString).collect(Collectors.toList()));
     }
 
@@ -180,6 +184,20 @@ public class PrivateMineData {
 
     public void setPaid(final double paid) {
         this.paid = paid;
+    }
+
+    /**
+     * How wide the walkway built around this mine is, or 0 when it was given none.
+     * <p>
+     * Remembered per mine rather than read back off the template, because the platform has to be taken
+     * away exactly as it was put down - even if the template was widened or deleted since.
+     */
+    public int getPlatformWidth() {
+        return this.platformWidth;
+    }
+
+    public void setPlatformWidth(final int platformWidth) {
+        this.platformWidth = platformWidth;
     }
 
     public boolean hasExpired() {

@@ -6,6 +6,10 @@
 #
 # Everything about a template - its cost, reset time, lifecycle and where its instances are placed -
 # is configured in the template's own file, not here.
+#
+# Every private mine is built in the 'realminespm' world, which RealMines creates by itself the first
+# time a template is loaded. It is generated empty and there is nothing to set up: each copy gets its
+# own walkway, a barrier fence around it and a barrier floor under the pit, sized from the mine itself.
 Private-Mines:
   # Turn the whole feature off. Existing mines stay on disk and are simply not loaded.
   Enabled: true
@@ -24,4 +28,9 @@ Private-Mines:
   # 0.0 gives nothing back, 0.5 refunds half, 1.0 refunds everything.
   Refund-On-Release: 0.0
 
-Version: 1
+  # What the walkway around every private mine is paved with. Its fence and the floor under the pit are
+  # always barriers, so they stay invisible and nobody can break them.
+  # How wide the walkway is stays a per template setting, placement.platform-width.
+  Platform-Material: SMOOTH_STONE
+
+Version: 2

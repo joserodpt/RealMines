@@ -18,7 +18,6 @@ import com.sk89q.worldedit.math.BlockVector3;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.PrivateMineData;
 import joserodpt.realmines.api.utils.WorldEditUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -228,15 +227,19 @@ public class PrivateMineTemplate {
 
         final World world = this.placement.getWorld();
         if (world == null) {
-            problems.add("placement world '" + this.placement.getWorldName() + "' is not loaded");
+            problems.add("the private mines world '" + PrivateMinesWorld.NAME
+                    + "' couldn't be created - see the console");
         } else if (bounds != null) {
-            //instances are moved so their lowest corner sits on the placement origin
-            final int lowY = this.placement.getOriginY();
-            final int highY = lowY + (bounds[4] - bounds[1]);
+            //instances are moved so their lowest corner sits on the placement origin, and the platform
+            //takes the layer under the mine plus whatever its fence stands above the top
+            final int lowY = this.placement.getOriginY()
+                    - (this.placement.hasPlatform() ? PrivateMinePlatform.REACH_BELOW : 0);
+            final int highY = this.placement.getOriginY() + (bounds[4] - bounds[1])
+                    + (this.placement.hasPlatform() ? PrivateMinePlatform.reachAbove(bounds[4] - bounds[1] + 1) : 0);
             if (lowY < world.getMinHeight() || highY >= world.getMaxHeight()) {
-                problems.add("placed at origin Y " + lowY + " the mine would span Y " + lowY + " to " + highY
-                        + ", which doesn't fit in world '" + world.getName() + "' ("
-                        + world.getMinHeight() + " to " + (world.getMaxHeight() - 1) + ")");
+                problems.add("placed at origin Y " + this.placement.getOriginY() + " the mine and its platform"
+                        + " would span Y " + lowY + " to " + highY + ", which doesn't fit in world '"
+                        + world.getName() + "' (" + world.getMinHeight() + " to " + (world.getMaxHeight() - 1) + ")");
             }
         }
 
@@ -258,11 +261,15 @@ public class PrivateMineTemplate {
                 }
             }
 
-            if (this.placement.getSpacingX() <= sizeX) {
-                problems.add("placement.spacing-x (" + this.placement.getSpacingX() + ") has to be bigger than the mine's X size (" + sizeX + ")");
+            //the platform is built around every copy, so neighbouring slots have to clear it as well
+            final int margin = this.placement.getPlatformMargin() * 2;
+            if (this.placement.getSpacingX() <= sizeX + margin) {
+                problems.add("placement.spacing-x (" + this.placement.getSpacingX() + ") has to be bigger than the mine's"
+                        + " X size plus its platform (" + (sizeX + margin) + ")");
             }
-            if (this.placement.getSpacingZ() <= sizeZ) {
-                problems.add("placement.spacing-z (" + this.placement.getSpacingZ() + ") has to be bigger than the mine's Z size (" + sizeZ + ")");
+            if (this.placement.getSpacingZ() <= sizeZ + margin) {
+                problems.add("placement.spacing-z (" + this.placement.getSpacingZ() + ") has to be bigger than the mine's"
+                        + " Z size plus its platform (" + (sizeZ + margin) + ")");
             }
         }
 
@@ -289,14 +296,13 @@ public class PrivateMineTemplate {
      */
     public static class Placement {
 
-        private final String worldName;
         private final int originX, originY, originZ;
         private final int spacingX, spacingZ, perRow;
         private final String shellSchematic;
+        private final int platformWidth;
 
         Placement(final ConfigurationSection section) {
             if (section == null) {
-                this.worldName = "world";
                 this.originX = 0;
                 this.originY = 64;
                 this.originZ = 0;
@@ -304,10 +310,10 @@ public class PrivateMineTemplate {
                 this.spacingZ = 200;
                 this.perRow = 20;
                 this.shellSchematic = "";
+                this.platformWidth = PrivateMinePlatform.DEFAULT_WIDTH;
                 return;
             }
 
-            this.worldName = section.getString("world", "world");
             final int[] origin = parsePos(section.getString("origin", "0;64;0"));
             this.originX = origin == null ? 0 : origin[0];
             this.originY = origin == null ? 64 : origin[1];
@@ -316,14 +322,25 @@ public class PrivateMineTemplate {
             this.spacingZ = section.getInt("spacing-z", 200);
             this.perRow = section.getInt("per-row", 20);
             this.shellSchematic = section.getString("shell-schematic", "");
+
+            //what the walkway is made of is a server wide setting; a template only says how wide it is,
+            //and a width of 0 is how it asks for no platform at all
+            this.platformWidth = Math.max(0, Math.min(PrivateMinePlatform.MAX_WIDTH,
+                    section.getInt("platform-width", PrivateMinePlatform.DEFAULT_WIDTH)));
         }
 
+        /**
+         * Always {@link PrivateMinesWorld#NAME}: private mines are not placed in worlds the server owns.
+         */
         public String getWorldName() {
-            return this.worldName;
+            return PrivateMinesWorld.NAME;
         }
 
+        /**
+         * The private mines world, created on the spot if this is the first time it is needed.
+         */
         public World getWorld() {
-            return Bukkit.getWorld(this.worldName);
+            return PrivateMinesWorld.get();
         }
 
         public int getOriginX() {
@@ -356,6 +373,22 @@ public class PrivateMineTemplate {
 
         public boolean hasShellSchematic() {
             return this.shellSchematic != null && !this.shellSchematic.isEmpty();
+        }
+
+        public int getPlatformWidth() {
+            return this.platformWidth;
+        }
+
+        public boolean hasPlatform() {
+            return this.platformWidth > 0;
+        }
+
+        /**
+         * How far past the mine the platform reaches on every side, which is what the grid has to space
+         * copies out by on top of the mine's own size.
+         */
+        public int getPlatformMargin() {
+            return this.hasPlatform() ? PrivateMinePlatform.margin(this.platformWidth) : 0;
         }
     }
 }
