@@ -562,7 +562,18 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
             return ClaimResult.LIMIT_REACHED;
         }
 
-        return this.build(template, p.getUniqueId(), p.getName(), p);
+        final ClaimResult result = this.build(template, p.getUniqueId(), p.getName(), p);
+        if (result != ClaimResult.OK) {
+            return result;
+        }
+
+        //a fresh mine sits alone in an empty world, so put its owner on it rather than making them find
+        //it. Silent: the claim message the caller sends next says the same thing better
+        final RMine mine = this.getMineOf(p.getUniqueId(), template.getID());
+        if (mine != null) {
+            this.rm.getMineManager().teleport(p, mine, true, false);
+        }
+        return result;
     }
 
     /**
