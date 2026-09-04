@@ -327,6 +327,7 @@ public class RealMinesPlugin extends JavaPlugin {
                         new ExternalPluginPermission("realmines.silent", "Allow permission to silence a mine.", Arrays.asList("rm silent", "rm silentall")),
                         new ExternalPluginPermission("realmines.privatemines", "Allow a player to claim and manage their own private mines.", Arrays.asList("pmine", "pmine claim", "pmine tp", "pmine info", "pmine trust", "pmine release")),
                         new ExternalPluginPermission("realmines.privatemines.admin", "Allow managing private mine templates and everyone's private mines.", Arrays.asList("pmine templates", "pmine template", "pmine template edit", "pmine list", "pmine delete", "pmine addsharik")),
+                        new ExternalPluginPermission("realmines.privatemines.free", "Claim and renew private mines without being charged."),
                         new ExternalPluginPermission("realmines.reset", "Allow permission to reset all mines."),
                         new ExternalPluginPermission("realmines.update.notify", "Notification of a plugin update to the player."),
                         new ExternalPluginPermission("realmines.achievements", "Allow the player to see their own mining stats and achievements.", Arrays.asList("rm achievements", "rm stats")),

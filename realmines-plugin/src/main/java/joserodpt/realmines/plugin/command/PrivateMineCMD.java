@@ -83,7 +83,7 @@ public class PrivateMineCMD extends BaseCommandWA {
                 final RMine mine = rm.getPrivateMinesManager().getMineOf(p.getUniqueId(), template.getID());
                 TranslatableLine.PRIVATE_MINE_CLAIMED
                         .setV1(ReplacableVar.MINE.eq(mine == null ? template.getID() : mine.getDisplayName())).send(p);
-                if (template.getCost() > 0 && !p.hasPermission(PrivateMinesManager.ADMIN_PERMISSION)) {
+                if (template.getCost() > 0 && !p.hasPermission(PrivateMinesManager.FREE_PERMISSION)) {
                     TranslatableLine.PRIVATE_MINE_CLAIM_COST
                             .setV1(ReplacableVar.VALUE.eq(String.valueOf(template.getCost()))).send(p);
                 }

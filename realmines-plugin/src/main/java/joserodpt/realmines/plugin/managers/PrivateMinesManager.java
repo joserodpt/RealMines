@@ -66,6 +66,13 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
     public static final String ADMIN_PERMISSION = "realmines.privatemines.admin";
     public static final String USE_PERMISSION = "realmines.privatemines";
 
+    /**
+     * Claims and renewals are free for whoever holds this. Deliberately its own node rather than part of
+     * {@link #ADMIN_PERMISSION}: running the server is not the same thing as not paying for a mine, and
+     * an op holds every permission, so tying the two made every claim of theirs free by accident.
+     */
+    public static final String FREE_PERMISSION = "realmines.privatemines.free";
+
     private final RealMines rm;
     private final Map<String, PrivateMineTemplate> templates = new LinkedHashMap<>();
 
@@ -692,7 +699,7 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
         }
 
         //charge last, once everything else is known to be fine
-        final double cost = payer == null || payer.hasPermission(ADMIN_PERMISSION) ? 0D : template.getCost();
+        final double cost = payer == null || payer.hasPermission(FREE_PERMISSION) ? 0D : template.getCost();
         if (cost > 0D) {
             final Economy econ = RealMinesAPI.getInstance().getEconomy();
             if (econ == null) {
@@ -965,7 +972,7 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
             return ClaimResult.ERROR;
         }
 
-        final double cost = p.hasPermission(ADMIN_PERMISSION) ? 0D : template.getRenewCost();
+        final double cost = p.hasPermission(FREE_PERMISSION) ? 0D : template.getRenewCost();
         if (cost > 0D) {
             final Economy econ = RealMinesAPI.getInstance().getEconomy();
             if (econ == null) {

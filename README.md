@@ -340,7 +340,7 @@ template:
     - '&fYour own private copy of Mine A.'
   source-mine: mine_a                 # only a note of where it came from
   permission: ''                      # an extra permission needed to claim it, empty for none
-  cost: 5000.0                        # Vault money, 0 is free
+  cost: 5000.0                        # Vault money, 0 is free, needs Vault and an economy plugin
   renew-cost: 1000.0                  # charged by /pmine extend, time-limited templates only
   lifecycle: PERSISTENT               # PERSISTENT, TIME_LIMITED or SESSION
   duration: 3600                      # how long a TIME_LIMITED mine lasts, in seconds
@@ -547,7 +547,8 @@ Aliased to `/minesresettask` and `/rmrt`. A reset task is a shared timer that re
 | `realmines.top` | `/rm top` |
 | `realmines.<mine>.break` | Breaking blocks in that mine, when the mine's `Mine break permission` setting is on |
 | `realmines.privatemines` | Claiming and managing your own private mines |
-| `realmines.privatemines.admin` | Managing templates and everyone's private mines, and bypassing template permissions and costs |
+| `realmines.privatemines.admin` | Managing templates and everyone's private mines, and bypassing the permission a template asks for |
+| `realmines.privatemines.free` | Claiming and renewing private mines without being charged |
 
 Operators get every permission by default, as usual in Bukkit.
 
