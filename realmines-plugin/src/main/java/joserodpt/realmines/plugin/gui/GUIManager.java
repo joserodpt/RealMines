@@ -16,6 +16,7 @@ package joserodpt.realmines.plugin.gui;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
+import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.mine.components.actions.MineActionCommand;
 import joserodpt.realmines.api.mine.components.actions.MineActionDropItem;
@@ -30,13 +31,24 @@ import joserodpt.realmines.plugin.RealMines;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class GUIManager {
+
+    /**
+     * The key that duplicates the mine under the cursor. Compared by name because the plugin is built
+     * against an API older than this click type, which only exists from 1.16 onwards.
+     */
+    private static final String DUPLICATE_CLICK = "SWAP_OFFHAND";
+
+    //a mine's name is also its file name: these would either break the path or escape the mines folder
+    private static final Pattern ILLEGAL_NAME = Pattern.compile("[\\\\/:*?\"<>|]");
 
     private final RealMines rm;
 
@@ -55,7 +67,65 @@ public class GUIManager {
             config = config.subList(0, config.size() - 2);
         }
         config.forEach(s -> ret.add(Text.color(s.replaceAll("%remainingblocks%", String.valueOf(m.getRemainingBlocks())).replaceAll("%totalblocks%", String.valueOf(m.getBlockCount())).replaceAll("%bar%", m.getBar()))));
+
+        //a private mine belongs to a player: copying one would leave a mine nobody owns behind
+        if (!m.isPrivate()) {
+            ret.add(TranslatableLine.GUI_MINE_DUPLICATE.get());
+        }
         return ret;
+    }
+
+    public static boolean isDuplicateClick(final InventoryClickEvent e) {
+        return DUPLICATE_CLICK.equals(e.getClick().name());
+    }
+
+    /**
+     * Closes the GUI, asks in the chat for a name and registers a copy of the mine under it. The copy
+     * keeps the original's region, so it lands on top of it until its bounds are moved: the admin gets
+     * an identical mine to place, not a differently named view of the same blocks.
+     *
+     * @param onCancel what to reopen when the input is cancelled or the name can't be used
+     */
+    public void duplicateMine(final RMine m, final Player target, final Runnable onCancel) {
+        if (m.isPrivate()) {
+            TranslatableLine.PRIVATE_MINE_CANT_DUPLICATE.send(target);
+            onCancel.run();
+            return;
+        }
+
+        target.closeInventory();
+        TranslatableLine.SYSTEM_INPUT_MINE_NAME.send(target);
+
+        new PlayerInput(true, target, s -> {
+            final String newName = s.trim();
+            //a mine is stored in a file named after it, so a name that can't be one is refused here
+            if (newName.isEmpty() || ILLEGAL_NAME.matcher(newName).find()) {
+                TranslatableLine.SYSTEM_INVALID_MINE_NAME.send(target);
+                onCancel.run();
+                return;
+            }
+
+            if (this.rm.getMineManager().getMine(newName) != null) {
+                TranslatableLine.SYSTEM_MINE_EXISTS.send(target);
+                onCancel.run();
+                return;
+            }
+
+            final RMine copy;
+            try {
+                copy = this.rm.getMineManager().duplicateMine(m, newName);
+            } catch (final RMFailedToLoadException e) {
+                TranslatableLine.SYSTEM_ERROR_OCCURRED.send(target);
+                this.rm.getPlugin().getLogger().severe("Failed to duplicate mine " + m.getName() + ": " + e.getMessage());
+                onCancel.run();
+                return;
+            }
+
+            TranslatableLine.SYSTEM_MINE_DUPLICATED.setV1(TranslatableLine.ReplacableVar.NAME.eq(newName)).send(target);
+            //straight into the copy: its region still sits on the original's, and that is the first
+            //thing the admin has to change
+            this.openMine(copy, target);
+        }, s -> onCancel.run());
     }
 
     public void openBreakActionChooser(final Player target, final RMine r, final MineItem mi, final String currentBlockSet) {
@@ -262,6 +332,9 @@ public class GUIManager {
                 }, Items.createItem(Material.RED_BED, 1, TranslatableLine.GUI_GO_BACK_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.Back.Description")), 26);
 
                 inventory.addItem(event -> {
+                    if (isDuplicateClick(event)) {
+                        rm.getGUIManager().duplicateMine(m, target, () -> openMine(m, target));
+                    }
                 }, makeMineIcon(m), 13);
 
                 inventory.openInventory(target);

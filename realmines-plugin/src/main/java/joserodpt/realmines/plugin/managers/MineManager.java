@@ -28,6 +28,7 @@ import joserodpt.realmines.api.managers.MineManagerAPI;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineIcon;
 import joserodpt.realmines.api.mine.components.MineSign;
+import joserodpt.realmines.api.mine.components.PrivateMineData;
 import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.components.RMineSettings;
 import joserodpt.realmines.api.mine.components.items.MineBlockItem;
@@ -288,6 +289,48 @@ public class MineManager extends MineManagerAPI {
             }
         });
         dbg.openInventory(p);
+    }
+
+    @Override
+    public RMine duplicateMine(final RMine source, final String newName) throws RMFailedToLoadException {
+        if (source.isPrivate()) {
+            throw new RMFailedToLoadException(newName, "a private mine can't be duplicated");
+        }
+
+        //flush anything still only in memory, so the copy matches what the admin sees in game
+        source.saveConfig();
+
+        final File sourceFile = new File(source.getConfigFolder(), source.getFileName() + ".yml");
+        final YamlConfiguration snap = YamlConfiguration.loadConfiguration(sourceFile);
+
+        //the copy must never point at the original's sign blocks: those belong to the mine they were
+        //placed for, and two mines updating the same sign would fight over it
+        snap.set("signs", new ArrayList<String>());
+        //ownership never carries over, not even from a mine that used to be private
+        snap.set(PrivateMineData.ROOT, null);
+        snap.set("name", newName);
+        snap.set("displayName", newName);
+
+        final RMine copy;
+        switch (source.getType()) {
+            case FARM:
+                copy = new FarmMine(newName, snap);
+                break;
+            case SCHEMATIC:
+                copy = new SchematicMine(newName, snap);
+                break;
+            default:
+                copy = new BlockMine(newName, snap);
+                break;
+        }
+
+        this.addMine(copy);
+        //write the snapshot as it stands: saveData would only cover part of it
+        copy.saveConfig();
+
+        Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(copy, RealMinesMineChangeEvent.ChangeOperation.ADDED));
+
+        return copy;
     }
 
     @Override

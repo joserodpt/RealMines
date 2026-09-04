@@ -200,6 +200,7 @@ GUI:
         - "&f%bar%"
         - "&a&nClick&r&f to edit this mine."
         - "&c&nQ (Drop)&r&f to delete this mine"
+      Duplicate: "&b&nF (Swap)&r&f to duplicate this mine"
     No-Mines-Found:
       Name: "&9&lNo Mines Found"
       Description:
@@ -236,6 +237,7 @@ System:
   Mine-Task-Doesnt-Exist: "&cNo mine task exists with that name."
   Mine-Doesnt-Exist: "&cNo mine exists with that name."
   Mine-Renamed: "&fMined renamed to &b%name%"
+  Mine-Duplicated: "&fMine duplicated into &b%name%&f."
   Mine-Clear: "&fMine has been &acleared."
   Stopped-Mine-Tasks: "&cStopped &fall mine tasks."
   Started-Mine-Tasks: "&aStarted &fall mine tasks."
@@ -264,6 +266,8 @@ System:
   Input-Percentage-Error-Lower: "&cWrong input. Please input a percentage lower or equal than 100."
   Input-Limit-Error-Greater: "&cWrong input. Please input a new time greater than 1"
   Input-Seconds: "&cInput a new time in seconds."
+  Input-Mine-Name: "&fInput in the chat the name for the new mine."
+  Invalid-Mine-Name: "&cThat is not a valid mine name."
   Percentage-Modified: "&fPercentage modified to &b%value%"
   Time-Modified: "&fTime modified to &b%value% seconds."
   No-Converter-Available: "&cThere is no converter available for that plugin."
@@ -313,6 +317,7 @@ PrivateMines:
   No-Mine: "&cYou don't have a private mine yet."
   Not-Yours: "&cThis private mine isn't yours."
   Cant-Build: "&cYou can only mine and build inside your own private mine."
+  Cant-Duplicate: "&cA private mine can't be duplicated."
   Released: "&aYour private mine &r%mine% &awas released."
   Refunded: "&aYou were refunded &f%value%&a."
   Trusted-Added: "&f%player% &acan now use your private mine."

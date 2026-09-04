@@ -131,6 +131,11 @@ public class MineListGUI {
                                 current.rm.getMineManager().deleteMine(icon.getMine());
                                 TranslatableLine.SYSTEM_MINE_DELETED.send(p);
                                 current.load(current.so);
+                            } else if (GUIManager.isDuplicateClick(e)) {
+                                current.rm.getGUIManager().duplicateMine(icon.getMine(), p, () -> {
+                                    final MineListGUI back = new MineListGUI(current.rm, p, current.so);
+                                    back.openInventory(p);
+                                });
                             } else {
                                 p.closeInventory();
                                 current.rm.getGUIManager().openMine(current.display.get(e.getRawSlot()).getMine(), p);

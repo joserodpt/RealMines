@@ -1376,13 +1376,20 @@ public abstract class RMine {
     }
 
     public ItemStack getMineIcon() {
-        return Items.createItem(this.getIcon(), 1, this.getMineColor().getColorPrefix() + " &f&l" + this.getDisplayName() + " &7[&b&l" + this.getType().name() + "&r&7]", RMLanguageConfig.file().getStringList("GUI.Items.Mine.Description")
+        final List<String> description = RMLanguageConfig.file().getStringList("GUI.Items.Mine.Description")
                 .stream()
                 .map(s -> Text.color(s
                         .replaceAll("%remainingblocks%", String.valueOf(this.getRemainingBlocks()))
                         .replaceAll("%totalblocks%", String.valueOf(this.getBlockCount()))
                         .replaceAll("%bar%", this.getBar())))
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
+
+        //a private mine belongs to a player: copying one would leave a mine nobody owns behind
+        if (!this.isPrivate()) {
+            description.add(TranslatableLine.GUI_MINE_DUPLICATE.get());
+        }
+
+        return Items.createItem(this.getIcon(), 1, this.getMineColor().getColorPrefix() + " &f&l" + this.getDisplayName() + " &7[&b&l" + this.getType().name() + "&r&7]", description);
     }
 
     public void setIcon(final Material a) {

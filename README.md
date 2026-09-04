@@ -149,6 +149,16 @@ Supported crops: `WHEAT`, `CARROT`, `POTATO`, `BEETROOT`, `MELON_SEED`, `PUMPKIN
    outside the RealMines folder are copied into it.
 4. Every reset clears the region and pastes the schematic again.
 
+### Duplicating a mine
+
+Press **F** on a mine in the mines GUI (`/rm panel`) or on the icon in the middle of a mine's own GUI. RealMines closes
+the GUI and asks in the chat for a name for the copy, then registers a mine that carries everything the original has:
+its region, block sets, break actions, depth ranges, faces, reset settings, teleport point, icon and colour. Signs are
+left out, since those belong to the mine they were placed for.
+
+The copy is created on the original's region, so it sits on top of it until you move it: select the region it should
+occupy with WorldEdit and run `/rm setbounds <name>`. Type `cancel` at the name prompt to leave without duplicating.
+
 ----
 
 ## Mine Types

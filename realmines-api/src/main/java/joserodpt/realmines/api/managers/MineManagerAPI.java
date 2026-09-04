@@ -16,6 +16,7 @@ package joserodpt.realmines.api.managers;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.MineIcon;
 import joserodpt.realmines.api.mine.components.MineSign;
+import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -35,6 +36,12 @@ public abstract class MineManagerAPI {
     public abstract void createFarmMine(Player p, String name);
 
     public abstract void createSchematicMine(Player p, String name);
+
+    /**
+     * Registers a copy of a mine under a new name, keeping everything the original has: its region,
+     * block sets, faces, resets and settings.
+     */
+    public abstract RMine duplicateMine(RMine source, String newName) throws RMFailedToLoadException;
 
     public abstract List<MineIcon> getMineList();
 
