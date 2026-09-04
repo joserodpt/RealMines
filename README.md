@@ -39,6 +39,7 @@ file under `plugins/RealMines/mines/`, so mines are easy to back up, move betwee
 * [Block Sets, Percentages and Depth Ranges](#block-sets-percentages-and-depth-ranges)
 * [Break Actions](#break-actions)
 * [Mine Signs](#mine-signs)
+* [Private Mines](#private-mines)
 * [Stats, Achievements and Leaderboards](#stats-achievements-and-leaderboards)
 * [Commands](#commands)
 * [Permissions](#permissions)
@@ -60,6 +61,7 @@ file under `plugins/RealMines/mines/`, so mines are easy to back up, move betwee
 * **Block sets** — multiple sets of blocks per mine, cycled incrementally, randomly, or not at all
 * **Depth ranges** — materials only spawn at a chosen depth range of the mine, measured from any face
 * **Break actions** — give money, give/drop items or run commands when a specific block is broken, with chances
+* **Private mines** — players claim their own copy of a template mine, paid for with Vault money and shared with players they trust
 * **Player stats, achievements and leaderboards** — backed by SQLite, MySQL, MariaDB, PostgreSQL or SQL Server
 * **Mine signs** — live countdown, remaining blocks, progress bars
 * **Simple and performant GUI interface** for everything, including a material search
@@ -105,6 +107,7 @@ plugins/RealMines/
 ├── achievements.yml    # the achievement list
 ├── RealMines.db        # SQLite database (default driver)
 ├── mines/              # one .yml per mine
+├── private-mines/      # private mine templates and the mines players have claimed
 └── schematics/         # schematics available to schematic mines
 ```
 
@@ -262,6 +265,96 @@ tl
 
 ----
 
+## Private Mines
+
+A private mine is a player's own copy of a **template**. A template is a frozen snapshot of a normal mine, so once
+it is taken you can change or even delete the original without touching the template or anybody's claimed mine.
+
+Copies are placed automatically on a grid in a world you set aside for them, one slot per mine, and only the owner
+and the players they trust can mine or teleport there.
+
+### Setting one up
+
+1. Create and configure a mine as usual — block sets, percentages, break actions, reset time, all of it.
+2. Create a world for the copies to live in (a void world works well) using Multiverse, RealRegions or similar.
+3. Snapshot the mine into a template:
+
+```
+/pmine template create starter mine_a
+```
+
+4. Open `plugins/RealMines/private-mines/templates/starter.yml` and set at least the `placement` section, plus the
+   cost and lifetime you want. Then `/rm reload`.
+5. Players claim one with `/pmine` or `/pmine claim starter`.
+
+`/pmine template update starter mine_a` re-takes the snapshot from the mine while keeping the template's own
+settings. Mines already claimed are not affected — they keep the blocks they were created with.
+
+Schematic mines cannot be used as templates, because their size isn't known until the schematic is pasted, so the
+plugin can't work out how far apart to space the copies.
+
+### The template file
+
+The file is an ordinary [mine file](#mine-file-format) with one extra `template:` section on top. The mine part is
+what gets copied; the `template:` part is the rules for handing it out. **The reset time is just the mine's own
+`reset.time.value`** — there is no separate setting for it.
+
+```yaml
+template:
+  id: starter
+  display-name: "&b%player%'s Mine"   # %player% becomes the owner's name
+  icon: DIAMOND_ORE                   # shown in the /pmine menu
+  description:
+    - '&fYour own private copy of Mine A.'
+  source-mine: mine_a                 # only a note of where it came from
+  permission: ''                      # an extra permission needed to claim it, empty for none
+  cost: 5000.0                        # Vault money, 0 is free
+  renew-cost: 1000.0                  # charged by /pmine extend, time-limited templates only
+  lifecycle: PERSISTENT               # PERSISTENT, TIME_LIMITED or SESSION
+  duration: 3600                      # how long a TIME_LIMITED mine lasts, in seconds
+  trusted-limit: 5                    # how many other players the owner may let in, at most 7
+  placement:
+    world: private_mines              # the world the copies are built in
+    origin: 0;64;0                    # where the first copy's lowest corner goes
+    spacing-x: 200                    # distance between copies, must be bigger than the mine
+    spacing-z: 200
+    per-row: 20                       # copies per row before wrapping to the next one
+    shell-schematic: ''               # optional .schem pasted at each slot, for walls and decoration
+```
+
+RealMines checks the placement settings when it loads a template and refuses to hand out copies from a broken one,
+logging exactly what is wrong — so if claiming stops working, check the console.
+
+| Lifecycle | The mine lasts |
+|---|---|
+| `PERSISTENT` | Until the owner releases it or an admin deletes it |
+| `TIME_LIMITED` | `duration` seconds, survives restarts, extendable with `/pmine extend` |
+| `SESSION` | Until the owner logs out |
+
+### Files
+
+Everything the feature owns lives in one folder:
+
+```
+plugins/RealMines/private-mines/
+├── config.yml                  # global settings
+├── templates/
+│   └── starter.yml             # a template
+└── 0a1b2c3d-.../               # one folder per owner, named by their UUID
+    └── starter.yml             # a claimed mine, in the normal mine file format
+```
+
+`config.yml` holds how many mines a player may have (`Max-Mines-Per-Player`, three by default, at most one per
+template), how often expired mines are cleaned up, and how much of the price is refunded on release
+(`Refund-On-Release`).
+
+Claimed mines deliberately do not show up in `/rm list`, the mines GUI or mine name tab completion — they would
+swamp them once every player has one. `/pmine list` shows them instead, and `/rm mine <name>` still opens one.
+
+Reset announcements from a private mine go **only to its owner and the players they trust**, never to global chat,
+so the people using the mine are told it reset without everyone else hearing about it. Setting `reset.silent` to
+`true` in a template turns even that off.
+
 ## Stats, Achievements and Leaderboards
 
 RealMines tracks how many blocks each player mines inside mines, per material, and uses that to drive achievements and
@@ -354,6 +447,32 @@ Main command: `/realmines`, aliased to `/mine` and `/rm`.
 
 </details>
 
+<details open>
+<summary><b>Private mines — <code>/privatemine</code></b></summary>
+
+Aliased to `/pmine` and `/realminesprivate`. Where a command takes an optional `[template]`, you can leave it out
+when you only own one private mine.
+
+| Command | Description | Permission |
+|---|---|---|
+| `/pmine` | Open the private mines menu | `realmines.privatemines` |
+| `/pmine claim <template>` | Claim your own copy of a template | `realmines.privatemines` |
+| `/pmine tp [template]` | Teleport to your private mine | `realmines.privatemines` |
+| `/pmine info` | Show your mines, their reset times and expiry | `realmines.privatemines` |
+| `/pmine extend [template]` | Extend a time-limited mine, paying its renew cost | `realmines.privatemines` |
+| `/pmine trust <player> [template]` | Let someone else mine there | `realmines.privatemines` |
+| `/pmine untrust <player> [template]` | Take that access away | `realmines.privatemines` |
+| `/pmine trusted [template]` | List who you've trusted | `realmines.privatemines` |
+| `/pmine release [template]` | Give the mine up, with any refund | `realmines.privatemines` |
+| `/pmine template create <id> <mine>` | Snapshot a mine into a template | `realmines.privatemines.admin` |
+| `/pmine template update <id> <mine>` | Re-snapshot, keeping the template's settings | `realmines.privatemines.admin` |
+| `/pmine template delete <id>` | Delete a template | `realmines.privatemines.admin` |
+| `/pmine template list` | List the templates | `realmines.privatemines.admin` |
+| `/pmine list [player]` | List every claimed private mine | `realmines.privatemines.admin` |
+| `/pmine delete <player> <template>` | Delete someone's private mine | `realmines.privatemines.admin` |
+
+</details>
+
 <details>
 <summary><b>Reset tasks — <code>/realminesresettask</code></b></summary>
 
@@ -385,6 +504,8 @@ Aliased to `/minesresettask` and `/rmrt`. A reset task is a shared timer that re
 | `realmines.achievements.others` | `/rm viewachievements` and `/rm viewstats` |
 | `realmines.top` | `/rm top` |
 | `realmines.<mine>.break` | Breaking blocks in that mine, when the mine's `Mine break permission` setting is on |
+| `realmines.privatemines` | Claiming and managing your own private mines |
+| `realmines.privatemines.admin` | Managing templates and everyone's private mines, and bypassing template permissions and costs |
 
 Operators get every permission by default, as usual in Bukkit.
 
@@ -445,6 +566,9 @@ Every file RealMines generates is commented in place, so the file itself is the 
 | `sql.yml` | Database driver and credentials for stats and achievements. **Requires a restart to apply** |
 | `achievements.yml` | The achievement list, their goals and rewards |
 | `mines/<name>.yml` | One mine — see [Mine File Format](#mine-file-format) |
+| `private-mines/config.yml` | Global [private mine](#private-mines) settings |
+| `private-mines/templates/<id>.yml` | One private mine template |
+| `private-mines/<uuid>/<template>.yml` | One player's claimed private mine |
 
 Most of `config.yml` is also editable in-game through `/rm settings`, which is the safer route since it saves and applies
 immediately.

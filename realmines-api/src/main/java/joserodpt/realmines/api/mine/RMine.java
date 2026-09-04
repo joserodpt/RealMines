@@ -28,6 +28,7 @@ import joserodpt.realmines.api.event.RealMinesOnMineResetEvent;
 import joserodpt.realmines.api.mine.components.MineColor;
 import joserodpt.realmines.api.mine.components.MineCuboid;
 import joserodpt.realmines.api.mine.components.MineSign;
+import joserodpt.realmines.api.mine.components.PrivateMineData;
 import joserodpt.realmines.api.mine.components.RMBlockSet;
 import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
 import joserodpt.realmines.api.mine.components.RMineSettings;
@@ -149,6 +150,12 @@ public abstract class RMine {
     protected MineCuboid mineCuboid;
     protected Location _pos1, _pos2;
     private File file;
+
+    //null means the default mines/ folder. Private mines live in private-mines/<owner uuid>/ instead.
+    private File configFolder;
+
+    //null for a normal mine: only private mines carry an ownership record
+    protected PrivateMineData privateData;
 
     private FileConfiguration config;
 
@@ -343,8 +350,22 @@ public abstract class RMine {
     }
 
     public RMine(String name, YamlConfiguration mineConfig) throws RMFailedToLoadException {
+        this(name, mineConfig, null);
+    }
+
+    /**
+     * Loads a mine from a config that lives outside the usual mines/ folder. Used by private mines,
+     * which are stored per owner in private-mines/&lt;owner uuid&gt;/ so that they stay out of
+     * {@code MineManager#loadMines()} and their lifecycle can be managed separately.
+     *
+     * @param configFolder the folder holding this mine's file, or null for the default mines/ folder
+     */
+    public RMine(String name, YamlConfiguration mineConfig, File configFolder) throws RMFailedToLoadException {
         this.name = name;
         this.config = mineConfig;
+        this.configFolder = configFolder;
+        //has to be read before checkConfig, because it decides what this mine's file is called
+        this.privateData = PrivateMineData.load(mineConfig);
         checkConfig(false, true);
     }
 
@@ -566,8 +587,26 @@ public abstract class RMine {
         this.saveConfig();
     }
 
+    /**
+     * The folder this mine's file lives in: mines/ for a server mine, private-mines/&lt;owner uuid&gt;/ for a
+     * player's private one.
+     */
+    public File getConfigFolder() {
+        return this.configFolder != null ? this.configFolder
+                : new File(RealMinesAPI.getInstance().getPlugin().getDataFolder(), "mines");
+    }
+
+    /**
+     * The file name (without extension) this mine is stored under. A private mine is named after its
+     * template inside its owner's folder, since a player holds at most one mine per template; every other
+     * mine uses its own name.
+     */
+    public String getFileName() {
+        return this.privateData != null ? this.privateData.getTemplate() : this.getName();
+    }
+
     private void setConfigFile(boolean saveDefaultConfig) {
-        this.file = new File(RealMinesAPI.getInstance().getPlugin().getDataFolder() + "/mines/", this.getName() + ".yml");
+        this.file = new File(this.getConfigFolder(), this.getFileName() + ".yml");
         if (!this.file.exists()) {
             this.file.getParentFile().mkdirs();
             try {
@@ -640,7 +679,7 @@ public abstract class RMine {
     }
 
     public void deleteConfig() {
-        File fileToDelete = new File(RealMinesAPI.getInstance().getPlugin().getDataFolder() + "/mines/", this.getName() + ".yml");
+        File fileToDelete = new File(this.getConfigFolder(), this.getFileName() + ".yml");
 
         if (fileToDelete.exists()) {
             if (!fileToDelete.delete()) {
@@ -665,6 +704,57 @@ public abstract class RMine {
         } catch (IOException e) {
             RealMinesAPI.getInstance().getLogger().severe("RealMinesAPI threw an error while saving config for " + this.getName());
         }
+    }
+
+    /**
+     * The online players a private mine's messages should reach: its owner and whoever they trust.
+     * Empty for a mine that isn't private.
+     */
+    public List<Player> getPrivateAudience() {
+        if (this.privateData == null) {
+            return Collections.emptyList();
+        }
+
+        final List<Player> audience = new ArrayList<>();
+        final Player owner = Bukkit.getPlayer(this.privateData.getOwner());
+        if (owner != null) {
+            audience.add(owner);
+        }
+        for (final java.util.UUID trusted : this.privateData.getTrusted()) {
+            final Player player = Bukkit.getPlayer(trusted);
+            if (player != null) {
+                audience.add(player);
+            }
+        }
+        return audience;
+    }
+
+    /**
+     * The ownership record of a private mine, or null when this is a normal server mine.
+     */
+    public PrivateMineData getPrivateData() {
+        return this.privateData;
+    }
+
+    public void setPrivateData(final PrivateMineData privateData) {
+        this.privateData = privateData;
+    }
+
+    public boolean isPrivate() {
+        return this.privateData != null;
+    }
+
+    /**
+     * Persists the ownership record. Deliberately not routed through {@link #saveData(MineData)}, which
+     * restarts the reset countdown on every call - writing a trusted player would otherwise keep pushing
+     * the reset back indefinitely.
+     */
+    public void savePrivateData() {
+        if (this.privateData == null) {
+            return;
+        }
+        this.privateData.save(this.config);
+        this.saveConfig();
     }
 
     public MineColor getMineColor() {
@@ -1083,7 +1173,11 @@ public abstract class RMine {
             this.config.getStringList("reset.commands").forEach(s -> Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), s));
 
             if (!this.isSilent()) {
-                if (RMConfig.file().getBoolean("RealMines.broadcastResetMessageOnlyInWorld")) {
+                if (this.isPrivate()) {
+                    //a private mine's resets are nobody else's business, and announcing one per player
+                    //would drown the chat on a server where everyone owns one
+                    this.getPrivateAudience().forEach(player -> TranslatableLine.MINE_RESET_ANNOUNCEMENT.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.getDisplayName())).send(player));
+                } else if (RMConfig.file().getBoolean("RealMines.broadcastResetMessageOnlyInWorld")) {
                     this.getMineCuboid().getWorld().getPlayers().forEach(player -> TranslatableLine.MINE_RESET_ANNOUNCEMENT.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.getDisplayName())).send(player));
                 } else {
                     Bukkit.broadcastMessage(Text.getPrefix() + TranslatableLine.MINE_RESET_ANNOUNCEMENT.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.getDisplayName())).get());

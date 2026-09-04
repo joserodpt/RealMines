@@ -19,6 +19,7 @@ import joserodpt.realmines.api.utils.Text;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 
 public class PlayerEvents implements Listener {
 
@@ -33,5 +34,11 @@ public class PlayerEvents implements Listener {
         if ((e.getPlayer().isOp() || e.getPlayer().hasPermission("realmines.update.notify") || e.getPlayer().hasPermission("realmines.admin")) && rm.hasNewUpdate()) {
             Text.send(e.getPlayer(), TranslatableLine.SYSTEM_UPDATE_FOUND.get() + " https://www.spigotmc.org/resources/73707/");
         }
+    }
+
+    @EventHandler
+    public void onQuit(final PlayerQuitEvent e) {
+        //session private mines only last as long as their owner is online
+        rm.getPrivateMinesManager().purgeSessionMines(e.getPlayer().getUniqueId());
     }
 }

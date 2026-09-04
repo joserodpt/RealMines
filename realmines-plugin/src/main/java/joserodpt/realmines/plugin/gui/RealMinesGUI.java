@@ -27,6 +27,7 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -44,10 +45,13 @@ public class RealMinesGUI {
         this.uuid = as.getUniqueId();
         this.inv = Bukkit.getServer().createInventory(null, 27, Text.color("&f&lReal&9&lMines &8Version " + rm.getPlugin().getDescription().getVersion()));
 
-        this.inv.setItem(12, Items.createItem(Material.DIAMOND_PICKAXE, 1, "&9&lMines",
+        this.inv.setItem(11, Items.createItem(Material.DIAMOND_PICKAXE, 1, "&9&lMines",
                 Collections.singletonList("&fClick here to view the mines.")));
 
-        this.inv.setItem(14, Items.createItem(Material.COMMAND_BLOCK, 1, "&f&lSettings",
+        this.inv.setItem(13, Items.createItem(Material.PLAYER_HEAD, 1, "&b&lPrivate Mines",
+                Arrays.asList("&fClick here to view the private mine templates", "&fand every mine players have claimed.")));
+
+        this.inv.setItem(15, Items.createItem(Material.COMMAND_BLOCK, 1, "&f&lSettings",
                 Collections.singletonList("&fClick here to open the plugin settings.")));
 
         this.inv.setItem(26, Items.createItem(Material.OAK_DOOR, 1, "&cClose",
@@ -92,12 +96,17 @@ public class RealMinesGUI {
                             case 26:
                                 p.closeInventory();
                                 break;
-                            case 12:
+                            case 11:
                                 p.closeInventory();
                                 final MineListGUI v = new MineListGUI(current.rm, p, MineListGUI.MineListSort.DEFAULT);
                                 v.openInventory(p);
                                 break;
-                            case 14:
+                            case 13:
+                                p.closeInventory();
+                                final PrivateMinesGUI v3 = new PrivateMinesGUI(current.rm, p);
+                                v3.openInventory(p);
+                                break;
+                            case 15:
                                 p.closeInventory();
                                 final SettingsGUI v2 = new SettingsGUI(p, current.rm);
                                 v2.openInventory(p);

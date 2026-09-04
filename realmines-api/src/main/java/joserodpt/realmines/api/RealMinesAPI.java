@@ -18,6 +18,7 @@ import joserodpt.realmines.api.managers.AchievementsManagerAPI;
 import joserodpt.realmines.api.managers.DatabaseManagerAPI;
 import joserodpt.realmines.api.managers.MineManagerAPI;
 import joserodpt.realmines.api.managers.MineResetTasksManagerAPI;
+import joserodpt.realmines.api.managers.PrivateMinesManagerAPI;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -57,6 +58,8 @@ public abstract class RealMinesAPI {
     public abstract MineManagerAPI getMineManager();
 
     public abstract MineResetTasksManagerAPI getMineResetTasksManager();
+
+    public abstract PrivateMinesManagerAPI getPrivateMinesManager();
 
     /**
      * The player stats store, or null if the database couldn't be reached at startup.

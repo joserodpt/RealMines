@@ -32,6 +32,7 @@ import org.bukkit.block.data.Ageable;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.configuration.file.YamlConfiguration;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -57,7 +58,12 @@ public class FarmMine extends RMine {
 
     //after converting from old config to new config
     public FarmMine(String name, YamlConfiguration config) throws RMFailedToLoadException {
-        super(name, config);
+        this(name, config, null);
+    }
+
+    //loaded from a folder other than mines/ - used by private mines
+    public FarmMine(String name, YamlConfiguration config, File configFolder) throws RMFailedToLoadException {
+        super(name, config, configFolder);
 
         if (!RMConfig.file().getBoolean("RealMines.disableMineResetOnServerStart", false)) {
             this.fillContent();

@@ -105,7 +105,15 @@ public class MineCMD extends BaseCommandWA {
     @Permission("realmines.admin")
     @SuppressWarnings("unused")
     public void listcmd(final CommandSender commandSender) {
-        rm.getMineManager().getMines().values().forEach(mine -> Text.send(commandSender, "&f" + mine.getName() + " &r&7(&f" + mine.getDisplayName() + "&r&7)"));
+        rm.getMineManager().getMines().values().stream()
+                .filter(mine -> !mine.isPrivate())
+                .forEach(mine -> Text.send(commandSender, "&f" + mine.getName() + " &r&7(&f" + mine.getDisplayName() + "&r&7)"));
+
+        //listing one line per player's private mine would drown this out, so just point at /pmine list
+        final long privateMines = rm.getMineManager().getMines().values().stream().filter(RMine::isPrivate).count();
+        if (privateMines > 0) {
+            Text.send(commandSender, "&7" + privateMines + " private mine(s) &8- &7/pmine list");
+        }
     }
 
     @SubCommand("create")
@@ -424,6 +432,11 @@ public class MineCMD extends BaseCommandWA {
     @SuppressWarnings("unused")
     public void silentall(final CommandSender commandSender, final Boolean bol) {
         for (final RMine m : rm.getMineManager().getMines().values()) {
+            //private mines belong to players and already announce only to their owner, so a server wide
+            //toggle shouldn't touch them - it would also rewrite a file and restart a timer for each one
+            if (m.isPrivate()) {
+                continue;
+            }
             m.setSilent(bol);
 
             if (!m.isSilent()) {

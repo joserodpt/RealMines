@@ -74,6 +74,7 @@ public class MineManager extends MineManagerAPI {
     @Override
     public List<String> getRegisteredMines() {
         return this.getMines().values().stream()
+                .filter(mine -> !mine.isPrivate())
                 .map(RMine::getName)
                 .collect(Collectors.toCollection(ArrayList::new));
     }
@@ -291,9 +292,14 @@ public class MineManager extends MineManagerAPI {
 
     @Override
     public List<MineIcon> getMineList() {
-        return this.getMines().isEmpty() ? Collections.singletonList(new MineIcon()) : this.getMines().values().stream()
+        //private mines are managed through /pmine, and listing one per player would swamp this GUI
+        final List<MineIcon> icons = this.getMines().values().stream()
+                .filter(mine -> !mine.isPrivate())
                 .map(MineIcon::new)
                 .collect(Collectors.toCollection(ArrayList::new));
+
+        //the placeholder has to be based on the filtered list: Pagination#getPage throws on an empty one
+        return icons.isEmpty() ? Collections.singletonList(new MineIcon()) : icons;
     }
 
     //permission for teleport: realmines.tp.<name>
@@ -302,7 +308,12 @@ public class MineManager extends MineManagerAPI {
         if (!silent) {
             if (m.hasTP()) {
                 if (checkForPermission) {
-                    if (target.hasPermission("realmines.tp." + m.getName())) {
+                    //a private mine can't use realmines.tp.<name>: nobody holds a node for a generated name.
+                    //this only guards the permission checked path, so resets can still evacuate players.
+                    final boolean allowed = m.isPrivate()
+                            ? rm.getPrivateMinesManager().canUse(target, m)
+                            : target.hasPermission("realmines.tp." + m.getName());
+                    if (allowed) {
                         target.teleport(m.getTeleport());
 
                         if (RMConfig.file().getBoolean("RealMines.teleportMessage")) {
@@ -349,6 +360,16 @@ public class MineManager extends MineManagerAPI {
             }
 
             if (mine.getMineCuboid().contains(block)) {
+                if (mine.isPrivate() && !rm.getPrivateMinesManager().canUse(p, mine)) {
+                    //p is null for explosions, where e covers the whole blast: cancelling it would stop
+                    //the explosion everywhere, so BlockEvents drops these blocks from the list instead
+                    if (p != null) {
+                        e.setCancelled(true);
+                        TranslatableLine.PRIVATE_MINE_NOT_YOURS.send(p);
+                    }
+                    return null;
+                }
+
                 if ((mine.getSettingBool(RMineSettings.BREAK_PERMISSION) && !p.hasPermission(mine.getBreakPermission()))
                         || (mine.getSettingBool(RMineSettings.BLOCK_SETS_MODE) && !mine.getMineCuboid().getBlockTypes().contains(block.getType()))) {
                     e.setCancelled(true);

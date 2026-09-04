@@ -13,20 +13,10 @@ package joserodpt.realmines.api.mine.types;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.extent.clipboard.Clipboard;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormat;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardFormats;
-import com.sk89q.worldedit.extent.clipboard.io.ClipboardReader;
-import com.sk89q.worldedit.function.operation.Operation;
-import com.sk89q.worldedit.function.operation.Operations;
 import com.sk89q.worldedit.math.BlockVector3;
-import com.sk89q.worldedit.math.Vector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
-import com.sk89q.worldedit.regions.Region;
-import com.sk89q.worldedit.session.ClipboardHolder;
 import dev.dejvokep.boostedyaml.block.implementation.Section;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMConfig;
@@ -42,8 +32,6 @@ import org.bukkit.block.Block;
 import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
 import java.util.List;
 
 public class SchematicMine extends RMine {
@@ -136,51 +124,13 @@ public class SchematicMine extends RMine {
 
     //WORLD EDIT UTILS
     public Clipboard loadSchematic(final String name) {
-        final File folder = new File(RealMinesAPI.getInstance().getMineManager().getSchematicFolder(), "schematics");
-        final File file = new File(folder, name);
-
-        Clipboard clipboard = null;
-
-        final ClipboardFormat format = ClipboardFormats.findByFile(file);
-        try (final ClipboardReader reader = format.getReader(Files.newInputStream(file.toPath()))) {
-            clipboard = reader.read();
-        } catch (final IOException e) {
-            RealMinesAPI.getInstance().getPlugin().getLogger().severe("Failed to load schematic named " + name);
-            RealMinesAPI.getInstance().getPlugin().getLogger().severe(e.getMessage());
-        }
-
-        return clipboard;
+        return WorldEditUtils.loadSchematic(name);
     }
 
     public void placeSchematic(final Clipboard clipboard, final Location loc) {
-        if (clipboard != null) {
-            try {
-                final EditSession editSession = WorldEdit.getInstance().newEditSession(BukkitAdapter.adapt(loc.getWorld()));
-
-                ClipboardHolder holder = new ClipboardHolder(clipboard);
-                Region region = clipboard.getRegion();
-
-                BlockVector3 to = BlockVector3.at(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
-                Operation operation = holder
-                        .createPaste(editSession)
-                        .to(to)
-                        .ignoreAirBlocks(RMConfig.file().getBoolean("RealMines.ignoreAirBlocksSchematicPasting", true))
-                        .copyBiomes(false)
-                        .copyEntities(false)
-                        .build();
-
-                Operations.completeLegacy(operation);
-                editSession.flushSession();
-
-                BlockVector3 clipboardOffset = clipboard.getRegion().getMinimumPoint().subtract(clipboard.getOrigin());
-                Vector3 min = to.toVector3().add(holder.getTransform().apply(clipboardOffset.toVector3()));
-                Vector3 max = min.add(holder.getTransform().apply(region.getMaximumPoint().subtract(region.getMinimumPoint()).toVector3()));
-
-                this.setPOS(WorldEditUtils.toLocation(min, getWorld()), WorldEditUtils.toLocation(max, getWorld()));
-            } catch (final Exception e) {
-                RealMinesAPI.getInstance().getPlugin().getLogger().severe("Failed to paste schematic named: " + name + " is the schematic too big? Is WorldEdit/FAWE properly enabled and supported?");
-                RealMinesAPI.getInstance().getPlugin().getLogger().severe(e.getMessage());
-            }
+        final Location[] pasted = WorldEditUtils.pasteSchematic(clipboard, loc);
+        if (pasted != null) {
+            this.setPOS(pasted[0], pasted[1]);
         }
     }
 

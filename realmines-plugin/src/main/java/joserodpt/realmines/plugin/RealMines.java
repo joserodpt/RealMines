@@ -17,10 +17,12 @@ import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMAchievementsConfig;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
+import joserodpt.realmines.api.config.RMPrivateMinesConfig;
 import joserodpt.realmines.plugin.gui.GUIManager;
 import joserodpt.realmines.plugin.managers.AchievementsManager;
 import joserodpt.realmines.plugin.managers.DatabaseManager;
 import joserodpt.realmines.plugin.managers.MineManager;
+import joserodpt.realmines.plugin.managers.PrivateMinesManager;
 import joserodpt.realmines.plugin.managers.MineResetTasksManager;
 import net.milkbowl.vault.economy.Economy;
 
@@ -32,6 +34,7 @@ public class RealMines extends RealMinesAPI {
     private final Logger logger;
     private final RealMinesPlugin plugin;
     private final MineManager mineManager;
+    private final PrivateMinesManager privateMinesManager;
     private final MineResetTasksManager mineResetTasksManager;
     private final GUIManager guiManager;
     private final AchievementsManager achievementsManager;
@@ -42,6 +45,7 @@ public class RealMines extends RealMinesAPI {
         this.logger = plugin.getLogger();
 
         this.mineManager = new MineManager(this);
+        this.privateMinesManager = new PrivateMinesManager(this);
         this.mineResetTasksManager = new MineResetTasksManager(this);
         this.guiManager = new GUIManager(this);
         this.achievementsManager = new AchievementsManager(this);
@@ -102,6 +106,11 @@ public class RealMines extends RealMinesAPI {
     }
 
     @Override
+    public PrivateMinesManager getPrivateMinesManager() {
+        return this.privateMinesManager;
+    }
+
+    @Override
     public boolean hasNewUpdate() {
         return plugin.newUpdate;
     }
@@ -112,8 +121,12 @@ public class RealMines extends RealMinesAPI {
         RMLanguageConfig.reload();
         RMAchievementsConfig.reload();
         this.achievementsManager.loadAchievements();
+        RMPrivateMinesConfig.reload();
         this.mineManager.unloadMines();
         this.mineManager.loadMines();
+        //reload replaces every RMine, so the private mines have to be rebuilt from disk too
+        this.privateMinesManager.loadTemplates();
+        this.privateMinesManager.loadInstances();
         this.logger.info("[RealMines] Loaded " + this.mineManager.getMines().size() + " mines and " + this.mineManager.getSigns().size() + " mine signs.");
     }
 

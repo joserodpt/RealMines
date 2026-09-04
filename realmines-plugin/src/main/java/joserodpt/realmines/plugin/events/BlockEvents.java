@@ -98,6 +98,13 @@ public class BlockEvents implements Listener {
 
     @EventHandler //for creeper explosions
     public void onEntityExplode(final EntityExplodeEvent e) {
+        //one blast reports every block through the same event, so a block inside somebody's private mine
+        //has to be dropped from the list rather than cancelling the explosion for everyone
+        e.blockList().removeIf(block -> {
+            final RMine mine = rm.getMineManager().getMineWithBlock(block);
+            return mine != null && mine.isPrivate();
+        });
+
         e.blockList().forEach(block -> rm.getMineManager().findBlockUpdate(null, e, block, true));
     }
 

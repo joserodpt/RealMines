@@ -1,0 +1,27 @@
+# Private Mines
+#
+# A private mine is a player's own copy of a template. A template is a frozen snapshot of a normal
+# mine, created with /pmine template create <id> <mine> and stored in private-mines/templates/.
+# Each claimed mine is written to private-mines/<player uuid>/<template>.yml.
+#
+# Everything about a template - its cost, reset time, lifecycle and where its instances are placed -
+# is configured in the template's own file, not here.
+Private-Mines:
+  # Turn the whole feature off. Existing mines stay on disk and are simply not loaded.
+  Enabled: true
+
+  # How many private mines one player may hold at once, counting every template.
+  # A player can only hold one mine per template, so this is also the number of different
+  # templates they can have claimed at the same time.
+  Max-Mines-Per-Player: 3
+
+  # How often (in seconds) RealMines checks for expired time-limited mines and deletes them.
+  Purge-Interval-Seconds: 60
+
+  # Note: a template's trusted-limit is capped at 7, which is how many players the manage menu can show.
+
+  # Fraction of what the player paid that is given back when they release a mine.
+  # 0.0 gives nothing back, 0.5 refunds half, 1.0 refunds everything.
+  Refund-On-Release: 0.0
+
+Version: 1

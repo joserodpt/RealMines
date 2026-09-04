@@ -151,7 +151,45 @@ public enum TranslatableLine {
     STATS_ACHIEVEMENTS("Stats.Achievements", ReplacableVar.VALUE, ReplacableVar.PERCENTAGE),
     STATS_TOP_MATERIAL("Stats.Top-Material", ReplacableVar.MATERIAL, ReplacableVar.VALUE),
     STATS_NO_DATA("Stats.No-Data", ReplacableVar.NAME),
-    STATS_PLAYER_NOT_FOUND("Stats.Player-Not-Found", ReplacableVar.NAME);
+    STATS_PLAYER_NOT_FOUND("Stats.Player-Not-Found", ReplacableVar.NAME),
+    PRIVATE_MINE_DISABLED("PrivateMines.Disabled"),
+    PRIVATE_MINE_NO_TEMPLATES("PrivateMines.No-Templates"),
+    PRIVATE_MINE_TEMPLATE_NOT_FOUND("PrivateMines.Template-Not-Found", ReplacableVar.TEMPLATE),
+    PRIVATE_MINE_TEMPLATE_CREATED("PrivateMines.Template-Created", ReplacableVar.TEMPLATE, ReplacableVar.MINE),
+    PRIVATE_MINE_TEMPLATE_DELETED("PrivateMines.Template-Deleted", ReplacableVar.TEMPLATE),
+    PRIVATE_MINE_TEMPLATE_CREATE_FAILED("PrivateMines.Template-Create-Failed", ReplacableVar.VALUE),
+    PRIVATE_MINE_CLAIMED("PrivateMines.Claimed", ReplacableVar.MINE),
+    PRIVATE_MINE_CLAIM_COST("PrivateMines.Claim-Cost", ReplacableVar.VALUE),
+    PRIVATE_MINE_ALREADY_OWNED("PrivateMines.Already-Owned"),
+    PRIVATE_MINE_LIMIT_REACHED("PrivateMines.Limit-Reached", ReplacableVar.COUNT),
+    PRIVATE_MINE_INSUFFICIENT_FUNDS("PrivateMines.Insufficient-Funds", ReplacableVar.VALUE),
+    PRIVATE_MINE_NO_ECONOMY("PrivateMines.No-Economy"),
+    PRIVATE_MINE_WORLD_MISSING("PrivateMines.World-Missing"),
+    PRIVATE_MINE_NO_FREE_SLOT("PrivateMines.No-Free-Slot"),
+    PRIVATE_MINE_UNSUPPORTED_TYPE("PrivateMines.Unsupported-Type"),
+    PRIVATE_MINE_CLAIM_FAILED("PrivateMines.Claim-Failed"),
+    PRIVATE_MINE_NO_MINE("PrivateMines.No-Mine"),
+    PRIVATE_MINE_NOT_YOURS("PrivateMines.Not-Yours"),
+    PRIVATE_MINE_RELEASED("PrivateMines.Released", ReplacableVar.MINE),
+    PRIVATE_MINE_REFUNDED("PrivateMines.Refunded", ReplacableVar.VALUE),
+    PRIVATE_MINE_TRUSTED_ADDED("PrivateMines.Trusted-Added", ReplacableVar.PLAYER),
+    PRIVATE_MINE_TRUSTED_REMOVED("PrivateMines.Trusted-Removed", ReplacableVar.PLAYER),
+    PRIVATE_MINE_TRUSTED_ALREADY("PrivateMines.Trusted-Already", ReplacableVar.PLAYER),
+    PRIVATE_MINE_TRUSTED_NOT_FOUND("PrivateMines.Trusted-Not-Found", ReplacableVar.PLAYER),
+    PRIVATE_MINE_TRUSTED_LIMIT("PrivateMines.Trusted-Limit", ReplacableVar.COUNT),
+    PRIVATE_MINE_TRUSTED_EMPTY("PrivateMines.Trusted-Empty"),
+    PRIVATE_MINE_TRUSTED_HEADER("PrivateMines.Trusted-Header", ReplacableVar.MINE),
+    PRIVATE_MINE_EXTENDED("PrivateMines.Extended", ReplacableVar.TIME),
+    PRIVATE_MINE_NOT_TIME_LIMITED("PrivateMines.Not-Time-Limited"),
+    PRIVATE_MINE_EXPIRED("PrivateMines.Expired", ReplacableVar.MINE),
+    PRIVATE_MINE_INFO_HEADER("PrivateMines.Info-Header"),
+    PRIVATE_MINE_INFO_LINE("PrivateMines.Info-Line", ReplacableVar.MINE, ReplacableVar.TIME),
+    PRIVATE_MINE_INFO_EXPIRES("PrivateMines.Info-Expires", ReplacableVar.TIME),
+    PRIVATE_MINE_LIST_EMPTY("PrivateMines.List-Empty"),
+    PRIVATE_MINE_LIST_HEADER("PrivateMines.List-Header", ReplacableVar.COUNT),
+    PRIVATE_MINE_LIST_LINE("PrivateMines.List-Line", ReplacableVar.PLAYER, ReplacableVar.MINE),
+    PRIVATE_MINE_PLAYER_NOT_FOUND("PrivateMines.Player-Not-Found", ReplacableVar.PLAYER),
+    PRIVATE_MINE_NEVER_EXPIRES("PrivateMines.Never-Expires");
 
     private final String configPath;
     private ReplacableVar v1, v2 = null;
@@ -216,7 +254,9 @@ public enum TranslatableLine {
         TASK("%task%"),
         DELAY("%delay%"),
         OBJECT("%object%"),
-        COUNT("%count%");
+        COUNT("%count%"),
+        PLAYER("%player%"),
+        TEMPLATE("%template%");
 
         private final String key;
         private String val;

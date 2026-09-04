@@ -22,11 +22,13 @@ import joserodpt.realmines.api.config.RMAchievementsConfig;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.RMMinesOldConfig;
+import joserodpt.realmines.api.config.RMPrivateMinesConfig;
 import joserodpt.realmines.api.config.RMSQLConfig;
 import joserodpt.realmines.api.config.RPMineResetTasksConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.converters.RMSupportedConverters;
 import joserodpt.realmines.api.event.RealMinesPluginLoadedEvent;
+import joserodpt.realmines.api.managers.PrivateMineTemplate;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.GUIBuilder;
 import joserodpt.realmines.api.utils.PercentageInput;
@@ -35,6 +37,7 @@ import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.command.BaseCommandWA;
 import joserodpt.realmines.plugin.command.MineCMD;
 import joserodpt.realmines.plugin.command.MineResetTaskCMD;
+import joserodpt.realmines.plugin.command.PrivateMineCMD;
 import joserodpt.realmines.plugin.events.BlockEvents;
 import joserodpt.realmines.plugin.events.PlayerEvents;
 import joserodpt.realmines.plugin.events.StatsEvents;
@@ -48,6 +51,8 @@ import joserodpt.realmines.plugin.gui.MineDepthGUI;
 import joserodpt.realmines.plugin.gui.MineFacesGUI;
 import joserodpt.realmines.plugin.gui.MineItemsGUI;
 import joserodpt.realmines.plugin.gui.MineListGUI;
+import joserodpt.realmines.plugin.gui.PrivateMineManageGUI;
+import joserodpt.realmines.plugin.gui.PrivateMinesGUI;
 import joserodpt.realmines.plugin.gui.MineResetGUI;
 import joserodpt.realmines.plugin.gui.RealMinesGUI;
 import joserodpt.realmines.plugin.gui.SettingsGUI;
@@ -79,6 +84,7 @@ public class RealMinesPlugin extends JavaPlugin {
     private PluginManager pm = Bukkit.getPluginManager();
     private BukkitTask mineHighlight;
     private BukkitTask statsFlush;
+    private BukkitTask privateMinesPurge;
     private Economy econ;
 
     @Override
@@ -100,6 +106,7 @@ public class RealMinesPlugin extends JavaPlugin {
         RMLanguageConfig.setup(this);
         RMSQLConfig.setup(this);
         RMAchievementsConfig.setup(this);
+        RMPrivateMinesConfig.setup(this);
 
         //stats have to be up before the listeners that write to them
         realMines.setupDatabase();
@@ -114,6 +121,7 @@ public class RealMinesPlugin extends JavaPlugin {
         if (!folder2.exists()) {
             folder2.mkdir();
         }
+        RMPrivateMinesConfig.getTemplatesFolder(this);
 
         RMMinesOldConfig.setup(this);
 
@@ -123,6 +131,8 @@ public class RealMinesPlugin extends JavaPlugin {
                 AchievementBoardGUI.getListener(),
                 LeaderboardGUI.getListener(),
                 MineListGUI.getListener(),
+                PrivateMinesGUI.getListener(),
+                PrivateMineManageGUI.getListener(),
                 GUIBuilder.getListener(),
                 MineFacesGUI.getListener(),
                 MineDepthGUI.getListener(),
@@ -183,6 +193,40 @@ public class RealMinesPlugin extends JavaPlugin {
                         .collect(Collectors.toList())
         );
 
+        commandManager.registerSuggestion(SuggestionKey.of("#privatetemplates"),
+                (sender, context) -> realMines.getPrivateMinesManager().getTemplates().stream()
+                        .map(PrivateMineTemplate::getID)
+                        .collect(Collectors.toList())
+        );
+
+        //  /pmine template <action> [id] [mine]  arrives as one joined argument, so this suggests by
+        //  how many words have been typed so far
+        commandManager.registerSuggestion(SuggestionKey.of("#privatetemplateargs"),
+                (sender, context) -> {
+                    switch (context.getArgs().size()) {
+                        case 0:
+                        case 1:
+                            return Arrays.asList("create", "update", "delete", "list");
+                        case 2:
+                            return realMines.getPrivateMinesManager().getTemplates().stream()
+                                    .map(PrivateMineTemplate::getID)
+                                    .collect(Collectors.toList());
+                        case 3:
+                            return realMines.getMineManager().getRegisteredMines();
+                        default:
+                            return List.of();
+                    }
+                }
+        );
+
+        commandManager.registerSuggestion(SuggestionKey.of("#privateownedtemplates"),
+                (sender, context) -> sender instanceof Player
+                        ? realMines.getPrivateMinesManager().getMinesOf(((Player) sender).getUniqueId()).stream()
+                        .map(mine -> mine.getPrivateData().getTemplate())
+                        .collect(Collectors.toList())
+                        : List.of()
+        );
+
         commandManager.registerSuggestion(SuggestionKey.of("#minetasks"),
                 (sender, context) -> realMines.getMineResetTasksManager().getRegisteredTasks()
         );
@@ -203,6 +247,7 @@ public class RealMinesPlugin extends JavaPlugin {
         Map<String, BaseCommandWA> commands = new HashMap<>();
         registerCommand("realmines", new MineCMD(realMines), commands, commandManager);
         registerCommand("realminesresettask", new MineResetTaskCMD(realMines), commands, commandManager);
+        registerCommand("privatemine", new PrivateMineCMD(realMines), commands, commandManager);
 
         //command messages
         commandManager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> TranslatableLine.SYSTEM_ERROR_COMMAND.send(sender));
@@ -216,6 +261,22 @@ public class RealMinesPlugin extends JavaPlugin {
         realMines.getMineResetTasksManager().loadTasks();
         getLogger().info("Loaded " + realMines.getMineManager().getMines().size() + " mines and " + realMines.getMineManager().getSigns().size() + " mine signs.");
         getLogger().info("Loaded " + realMines.getMineResetTasksManager().getTasks().size() + " mine tasks.");
+
+        //after loadTasks, because reset tasks hold direct mine references and purging first would
+        //leave those links dangling
+        realMines.getPrivateMinesManager().loadTemplates();
+        realMines.getPrivateMinesManager().loadInstances();
+
+        //scheduled even when the feature is off, so turning it on with /rm reload doesn't leave
+        //time-limited mines running forever until the next restart. purgeExpired no-ops while disabled.
+        final long purgeTicks = Math.max(1L, RMPrivateMinesConfig.file() == null ? 60
+                : RMPrivateMinesConfig.file().getInt("Private-Mines.Purge-Interval-Seconds", 60)) * 20L;
+        this.privateMinesPurge = new BukkitRunnable() {
+            @Override
+            public void run() {
+                realMines.getPrivateMinesManager().purgeExpired();
+            }
+        }.runTaskTimer(this, purgeTicks, purgeTicks);
         this.mineHighlight = new BukkitRunnable() {
             @Override
             public void run() {
@@ -258,6 +319,8 @@ public class RealMinesPlugin extends JavaPlugin {
                         new ExternalPluginPermission("realmines.admin", "Allow access to the main operator commands of RealMines.", Arrays.asList("rm reload", "rm mines", "rm panel", "rm stoptasks", "rm starttasks", "rm list", "rm create", "rm settp", "rm tp", "rm clear", "rm reset")),
                         new ExternalPluginPermission("realmines.tp.<name>", "Allow permission to teleport to a mine.", Collections.singletonList("rm tp <name>")),
                         new ExternalPluginPermission("realmines.silent", "Allow permission to silence a mine.", Arrays.asList("rm silent", "rm silentall")),
+                        new ExternalPluginPermission("realmines.privatemines", "Allow a player to claim and manage their own private mines.", Arrays.asList("pmine", "pmine claim", "pmine tp", "pmine info", "pmine trust", "pmine release")),
+                        new ExternalPluginPermission("realmines.privatemines.admin", "Allow managing private mine templates and everyone's private mines.", Arrays.asList("pmine template", "pmine list", "pmine delete")),
                         new ExternalPluginPermission("realmines.reset", "Allow permission to reset all mines."),
                         new ExternalPluginPermission("realmines.update.notify", "Notification of a plugin update to the player."),
                         new ExternalPluginPermission("realmines.achievements", "Allow the player to see their own mining stats and achievements.", Arrays.asList("rm achievements", "rm stats")),
@@ -310,6 +373,13 @@ public class RealMinesPlugin extends JavaPlugin {
         if (this.statsFlush != null) {
             this.statsFlush.cancel();
         }
+        if (this.privateMinesPurge != null) {
+            this.privateMinesPurge.cancel();
+        }
+
+        //session mines are deliberately left alone here. The scheduler refuses tasks from a disabling
+        //plugin, so their regions can't be cleared now, and deleting the files would throw away the only
+        //record of where those blocks are. loadInstances() clears and removes them on the next boot.
 
         //the scheduler refuses async tasks from here on, so this last write has to be synchronous
         if (realMines.getDatabaseManager() != null) {
