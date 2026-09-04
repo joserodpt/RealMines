@@ -278,17 +278,23 @@ the owner and the players they trust can mine or teleport there.
 Every copy is handed out with a platform built around it, worked out from the mine's own size — no schematic to
 draw and nothing to keep in step when the mine changes:
 
-* a walkway three blocks wide on all four sides, level with the mine's bottom layer, so the mine stands in
-  front of whoever walks it
+* a walkway three blocks wide on all four sides, one block under the mine, so whoever arrives stands level
+  with the bottom of the mine and looks straight at it
 * an invisible barrier fence around the outside of that walkway, as tall as the mine itself, so nobody walks
   into the void and there is nothing to see over it but the mine
-* an invisible floor one layer under the mine, so a mine that has been dug all the way out isn't a hole either
+* an invisible floor under the mine, flush with the walkway, so a mine that has been dug all the way out is
+  still a floor and not a hole
 * the owner's teleport is the corner of the walkway, looking diagonally across their mine
 
-Its width and material are `placement.platform-width` and `placement.platform-material` in the template. The
-walkway is an ordinary block, so a player can break it: set `platform-material: BARRIER` or `BEDROCK` if that
-matters on your server, or clear `platform-material` to build no platform at all (say when a
-`shell-schematic` already brings one).
+The walkway block is `Private-Mines.Platform-Material` in `private-mines/config.yml`, `SMOOTH_STONE` by
+default; the fence and the floor under the pit are always barriers, so they stay invisible and unbreakable.
+How far the walkway reaches is per template, `placement.platform-width` — set it to `0` for no platform at
+all, say when a `shell-schematic` already brings one. The walkway itself is an ordinary block, so a player
+can break it: `BARRIER` or `BEDROCK` are the way out if that matters on your server.
+
+Releasing a private mine, or having a time-limited one expire, teleports whoever is standing on it to the
+main world's spawn — or wherever an admin put it with `/rm setdefaultlocation`. Nothing is left to stand on
+once the mine and its platform come down.
 
 ### Setting one up
 
@@ -334,8 +340,7 @@ template:
     spacing-x: 200                    # distance between copies, bigger than the mine plus its platform
     spacing-z: 200
     per-row: 20                       # copies per row before wrapping to the next one
-    platform-material: STONE_BRICKS   # what the walkway is made of, empty for no platform
-    platform-width: 3                 # how far the walkway reaches around the mine, at most 16
+    platform-width: 3                 # how far the walkway reaches around the mine, 0 for none, at most 16
     shell-schematic: ''               # optional .schem pasted at each slot, for walls and decoration
 ```
 
@@ -423,6 +428,7 @@ Main command: `/realmines`, aliased to `/mine` and `/rm`.
 | `/rm delete <name>` | `del` | Delete a mine | `realmines.admin` |
 | `/rm setbounds <name>` | | Replace the mine's region with your current WorldEdit selection | `realmines.admin` |
 | `/rm settp <name>` | | Set the mine's teleport point to where you're standing | `realmines.admin` |
+| `/rm setdefaultlocation` | | Set where players are sent when the ground goes out from under them, such as releasing a private mine | `realmines.admin` |
 | `/rm tp <name>` | | Teleport to a mine | `realmines.tp` + `realmines.tp.<name>` |
 
 </details>
@@ -584,7 +590,7 @@ Every file RealMines generates is commented in place, so the file itself is the 
 
 | File | Contents |
 |---|---|
-| `config.yml` | Global toggles: prefix, teleport and action bar messages, reset announcements, WorldEdit usage for block placement, stats tracking and leaderboard size |
+| `config.yml` | Global toggles: prefix, teleport and action bar messages, the default location players are sent to, reset announcements, WorldEdit usage for block placement, stats tracking and leaderboard size |
 | `language.yml` | Every message, title, action bar and sign label the plugin sends |
 | `sql.yml` | Database driver and credentials for stats and achievements. **Requires a restart to apply** |
 | `achievements.yml` | The achievement list, their goals and rewards |

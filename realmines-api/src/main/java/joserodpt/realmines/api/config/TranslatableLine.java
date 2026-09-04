@@ -105,6 +105,7 @@ public enum TranslatableLine {
     SYSTEM_STARTED_MINE_TASKS("System.Started-Mine-Tasks"),
     SYSTEM_REMOVE("System.Remove", ReplacableVar.OBJECT),
     SYSTEM_REGION_UPDATED("System.Region-Updated"),
+    SYSTEM_DEFAULT_LOCATION_SET("System.Default-Location-Set"),
     SYSTEM_ADD_BLOCKS("System.Add-Blocks"),
     SYSTEM_BLOCK_COUNT("System.Block-Count", ReplacableVar.COUNT),
     SYSTEM_BLOCKS_ADDED("System.Blocks-Added", ReplacableVar.COUNT),

@@ -241,6 +241,7 @@ System:
   Started-Mine-Tasks: "&aStarted &fall mine tasks."
   Remove: "&fYou removed &b%object%"
   Region-Updated: "&BBounds &aupdated."
+  Default-Location-Set: "&aThe default location was set to where you are standing."
   Add-Blocks: "&fDo you want to add the following blocks to the mine? (type yes or no)"
   Block-Count: "&fTotal Blocks: &3%count%"
   Blocks-Added: "&b%count% &fblock have been &aadded &fto the mine."

@@ -17,6 +17,7 @@ import joserodpt.realmines.api.RealMinesAPI;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
+import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMPrivateMinesConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.event.RealMinesMineChangeEvent;
@@ -846,6 +847,9 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
             notice.setV1(TranslatableLine.ReplacableVar.MINE.eq(instance.getDisplayName())).send(owner);
         }
 
+        //before anything is taken down: the mine and its walkway are the only ground there is
+        this.evacuate(instance, data.getPlatformWidth());
+
         //deleteMine only clears when a confusingly named option is on, so do it here: whoever gets this
         //slot next must not inherit the previous tenant's blocks
         try {
@@ -868,6 +872,37 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
         final File folder = instance.getConfigFolder();
         this.rm.getMineManager().deleteMine(instance);
         deleteIfEmpty(folder);
+    }
+
+    /**
+     * Moves anybody standing on a private mine or its platform to the server's default location. Both are
+     * about to be taken away, and there is nothing under them in the private mines world.
+     * <p>
+     * Height is deliberately ignored: somebody flying over a slot that is about to be cleared has just as
+     * little to land on as somebody walking it.
+     */
+    private void evacuate(final RMine instance, final int platformWidth) {
+        final MineCuboid cuboid = instance.getMineCuboid();
+        if (cuboid == null || cuboid.getWorld() == null) {
+            return;
+        }
+
+        final Location safe = RMConfig.getDefaultLocation();
+        if (safe == null) {
+            return;
+        }
+
+        final int margin = PrivateMinePlatform.margin(platformWidth);
+        for (final Player player : cuboid.getWorld().getPlayers()) {
+            final Location at = player.getLocation();
+            final boolean inside = at.getBlockX() >= cuboid.getLowerX() - margin
+                    && at.getBlockX() <= cuboid.getUpperX() + margin
+                    && at.getBlockZ() >= cuboid.getLowerZ() - margin
+                    && at.getBlockZ() <= cuboid.getUpperZ() + margin;
+            if (inside) {
+                player.teleport(safe);
+            }
+        }
     }
 
     @Override

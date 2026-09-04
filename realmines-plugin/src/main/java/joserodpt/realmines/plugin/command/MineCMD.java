@@ -18,6 +18,7 @@ import dev.triumphteam.cmd.core.annotation.Command;
 import dev.triumphteam.cmd.core.annotation.Default;
 import dev.triumphteam.cmd.core.annotation.SubCommand;
 import dev.triumphteam.cmd.core.annotation.Suggestion;
+import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.converters.RMSupportedConverters;
 import joserodpt.realmines.api.database.RMPlayerData;
@@ -190,6 +191,24 @@ public class MineCMD extends BaseCommandWA {
         } else {
             TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
         }
+    }
+
+    /**
+     * Where players are put when the ground goes out from under them, which today means a private mine
+     * being released or expiring while they stand in it. Stored in config.yml, so it survives a restart.
+     */
+    @SubCommand("setdefaultlocation")
+    @Permission("realmines.admin")
+    @WrongUsage("&c/mine setdefaultlocation")
+    @SuppressWarnings("unused")
+    public void setdefaultlocationcmd(final CommandSender commandSender) {
+        if (!(commandSender instanceof Player)) {
+            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+            return;
+        }
+
+        RMConfig.setDefaultLocation(((Player) commandSender).getLocation());
+        TranslatableLine.SYSTEM_DEFAULT_LOCATION_SET.send(commandSender);
     }
 
     @SubCommand("setcountdown")
