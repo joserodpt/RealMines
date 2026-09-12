@@ -13,11 +13,6 @@ package joserodpt.realmines.plugin.command;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import dev.triumphteam.cmd.bukkit.annotation.Permission;
-import dev.triumphteam.cmd.core.annotation.Command;
-import dev.triumphteam.cmd.core.annotation.Default;
-import dev.triumphteam.cmd.core.annotation.SubCommand;
-import dev.triumphteam.cmd.core.annotation.Suggestion;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.converters.RMSupportedConverters;
@@ -32,18 +27,23 @@ import joserodpt.realmines.plugin.gui.MineItemsGUI;
 import joserodpt.realmines.plugin.gui.MineListGUI;
 import joserodpt.realmines.plugin.gui.RealMinesGUI;
 import joserodpt.realmines.plugin.gui.SettingsGUI;
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import revxrsal.commands.annotation.Command;
+import revxrsal.commands.annotation.CommandPlaceholder;
+import revxrsal.commands.annotation.Single;
+import revxrsal.commands.annotation.Subcommand;
+import revxrsal.commands.annotation.Usage;
+import revxrsal.commands.bukkit.annotation.CommandPermission;
 
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
-@Command(value = "realmines", alias = {"mine", "rm"})
-public class MineCMD extends BaseCommandWA {
+@Command({"realmines", "mine", "rm"})
+public class MineCMD {
 
     private final RealMines rm;
 
@@ -51,7 +51,7 @@ public class MineCMD extends BaseCommandWA {
         this.rm = rm;
     }
 
-    @Default
+    @CommandPlaceholder
     @SuppressWarnings("unused")
     public void defaultCommand(final CommandSender commandSender) {
         Text.sendList(commandSender,
@@ -65,45 +65,40 @@ public class MineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand(value = "reload", alias = "rl")
-    @Permission("realmines.admin")
+    @Subcommand({"reload", "rl"})
+    @CommandPermission("realmines.admin")
     @SuppressWarnings("unused")
     public void reload(final CommandSender commandSender) {
         this.rm.reload();
         TranslatableLine.SYSTEM_RELOADED.send(commandSender);
     }
 
-    @SubCommand(value = "mines", alias = {"p", "panel"})
-    @Permission("realmines.admin")
+    @Subcommand({"mines", "p", "panel"})
+    @CommandPermission("realmines.admin")
     @SuppressWarnings("unused")
-    public void minescmd(final CommandSender commandSender) {
-        if (commandSender instanceof Player) {
-            final Player p = (Player) commandSender;
-            final MineListGUI v = new MineListGUI(this.rm, p, MineListGUI.MineListSort.DEFAULT);
-            v.openInventory(p);
-        } else {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
-        }
+    public void minescmd(final Player p) {
+        final MineListGUI v = new MineListGUI(this.rm, p, MineListGUI.MineListSort.DEFAULT);
+        v.openInventory(p);
     }
 
-    @SubCommand("stoptasks")
-    @Permission("realmines.admin")
+    @Subcommand("stoptasks")
+    @CommandPermission("realmines.admin")
     @SuppressWarnings("unused")
     public void stoptaskscmd(final CommandSender commandSender) {
         rm.getMineManager().stopTasks();
         TranslatableLine.SYSTEM_STOPPED_MINE_TASKS.send(commandSender);
     }
 
-    @SubCommand("starttasks")
-    @Permission("realmines.admin")
+    @Subcommand("starttasks")
+    @CommandPermission("realmines.admin")
     @SuppressWarnings("unused")
     public void starttaskcmd(final CommandSender commandSender) {
         rm.getMineManager().startTasks();
         TranslatableLine.SYSTEM_STARTED_MINE_TASKS.send(commandSender);
     }
 
-    @SubCommand(value = "list", alias = "l")
-    @Permission("realmines.admin")
+    @Subcommand({"list", "l"})
+    @CommandPermission("realmines.admin")
     @SuppressWarnings("unused")
     public void listcmd(final CommandSender commandSender) {
         rm.getMineManager().getMines().values().stream()
@@ -117,79 +112,67 @@ public class MineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand("create")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine create <name> <type>")
+    @Subcommand("create")
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine create <name> <type>")
     @SuppressWarnings("unused")
-    public void createcmd(final CommandSender commandSender, @Suggestion("#createsuggestions") final String name, @Suggestion("#types") final String type) {
-        if (name == null || name.isEmpty()) {
-            Text.send(commandSender, "&cInvalid mine name.");
+    public void createcmd(final Player p, @SuggestFrom(RMSuggestion.NEW_MINE_NAMES) @Single final String name,
+                          @SuggestFrom(RMSuggestion.MINE_TYPES) @Single final String type) {
+        if (name.isEmpty()) {
+            Text.send(p, "&cInvalid mine name.");
             return;
         }
-        if (type == null || type.isEmpty()) {
-            Text.send(commandSender, "&cInvalid mine type.");
+        if (type.isEmpty()) {
+            Text.send(p, "&cInvalid mine type.");
             return;
         }
 
-        if (commandSender instanceof Player p) {
-            final RMine m = rm.getMineManager().getMine(name);
-            if (m == null) {
-                switch (type) {
-                    case "b":
-                    case "blocks":
-                        rm.getMineManager().createMine(p, name);
-                        break;
-                    case "f":
-                    case "farm":
-                        rm.getMineManager().createFarmMine(p, name);
-                        break;
-                    case "s":
-                    case "schem":
-                    case "schematic":
-                        rm.getMineManager().createSchematicMine(p, name);
-                        break;
-                    default:
-                        Text.send(p, "&cInvalid mine type.");
-                        break;
-                }
-            } else {
-                TranslatableLine.SYSTEM_MINE_EXISTS.send(commandSender);
+        final RMine m = rm.getMineManager().getMine(name);
+        if (m == null) {
+            switch (type) {
+                case "b":
+                case "blocks":
+                    rm.getMineManager().createMine(p, name);
+                    break;
+                case "f":
+                case "farm":
+                    rm.getMineManager().createFarmMine(p, name);
+                    break;
+                case "s":
+                case "schem":
+                case "schematic":
+                    rm.getMineManager().createSchematicMine(p, name);
+                    break;
+                default:
+                    Text.send(p, "&cInvalid mine type.");
+                    break;
             }
         } else {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+            TranslatableLine.SYSTEM_MINE_EXISTS.send(p);
         }
     }
 
-    @SubCommand("settings")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine settings")
+    @Subcommand("settings")
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine settings")
     @SuppressWarnings("unused")
-    public void settingscmd(final CommandSender commandSender) {
-        if (commandSender instanceof Player) {
-            final Player p = (Player) commandSender;
-            final SettingsGUI v2 = new SettingsGUI(p, rm);
-            v2.openInventory(p);
-        } else {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
-        }
+    public void settingscmd(final Player p) {
+        final SettingsGUI v2 = new SettingsGUI(p, rm);
+        v2.openInventory(p);
     }
 
-    @SubCommand("settp")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine settp <name>")
+    @Subcommand("settp")
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine settp <name>")
     @SuppressWarnings("unused")
-    public void settpcmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
-        if (commandSender instanceof Player) {
-            final RMine m = rm.getMineManager().getMine(name);
-            if (m != null) {
-                m.setTeleport(((Player) commandSender).getLocation());
-                m.saveData(RMine.MineData.TELEPORT);
-                TranslatableLine.MINE_TELEPORT_SET.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).send(commandSender);
-            } else {
-                TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
-            }
+    public void settpcmd(final Player p, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
+        final RMine m = rm.getMineManager().getMine(name);
+        if (m != null) {
+            m.setTeleport(p.getLocation());
+            m.saveData(RMine.MineData.TELEPORT);
+            TranslatableLine.MINE_TELEPORT_SET.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).send(p);
         } else {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+            TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(p);
         }
     }
 
@@ -197,24 +180,20 @@ public class MineCMD extends BaseCommandWA {
      * Where players are put when the ground goes out from under them, which today means a private mine
      * being released or expiring while they stand in it. Stored in config.yml, so it survives a restart.
      */
-    @SubCommand("setdefaultlocation")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine setdefaultlocation")
+    @Subcommand("setdefaultlocation")
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine setdefaultlocation")
     @SuppressWarnings("unused")
-    public void setdefaultlocationcmd(final CommandSender commandSender) {
-        if (!(commandSender instanceof Player)) {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
-            return;
-        }
-
-        RMConfig.setDefaultLocation(((Player) commandSender).getLocation());
-        TranslatableLine.SYSTEM_DEFAULT_LOCATION_SET.send(commandSender);
+    public void setdefaultlocationcmd(final Player p) {
+        RMConfig.setDefaultLocation(p.getLocation());
+        TranslatableLine.SYSTEM_DEFAULT_LOCATION_SET.send(p);
     }
 
-    @SubCommand("setcountdown")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine setcountdown <name> <seconds>")
-    public void setcountdowncmd(final CommandSender commandSender, @Suggestion("#mines") final String name, @Suggestion("#minecountdowns") final Integer seconds) {
+    @Subcommand("setcountdown")
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine setcountdown <name> <seconds>")
+    public void setcountdowncmd(final CommandSender commandSender, @SuggestFrom(RMSuggestion.MINES) @Single final String name,
+                                @SuggestFrom(RMSuggestion.MINE_COUNTDOWN) final Integer seconds) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
             boolean success = m.setCountdown(seconds, true);
@@ -228,10 +207,10 @@ public class MineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand("resetcountdown")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine resetcountdown <name>")
-    public void resetcountdowncmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
+    @Subcommand("resetcountdown")
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine resetcountdown <name>")
+    public void resetcountdowncmd(final CommandSender commandSender, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
             boolean success = m.resetCountdown(true);
@@ -250,33 +229,23 @@ public class MineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand("tp")
-    @Permission("realmines.tp")
-    @WrongUsage("&c/mine tp <name>")
+    @Subcommand("tp")
+    @CommandPermission("realmines.tp")
+    @Usage("&c/mine tp <name>")
     @SuppressWarnings("unused")
-    public void tpmine(final CommandSender commandSender, @Suggestion("#mines") final String name) {
-        if (commandSender instanceof Player) {
-            final RMine m = rm.getMineManager().getMine(name);
-            if (m != null) {
-                rm.getMineManager().teleport(((Player) commandSender), m, m.isSilent(), true);
-            } else {
-                TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
-            }
+    public void tpmine(final Player p, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
+        final RMine m = rm.getMineManager().getMine(name);
+        if (m != null) {
+            rm.getMineManager().teleport(p, m, m.isSilent(), true);
         } else {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+            TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(p);
         }
     }
 
-    @SubCommand(value = "achievements", alias = "ach")
-    @Permission("realmines.achievements")
+    @Subcommand({"achievements", "ach"})
+    @CommandPermission("realmines.achievements")
     @SuppressWarnings("unused")
-    public void achievementscmd(final CommandSender commandSender) {
-        if (!(commandSender instanceof Player)) {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
-            return;
-        }
-
-        final Player p = (Player) commandSender;
+    public void achievementscmd(final Player p) {
         if (!canShowBoard(p)) {
             return;
         }
@@ -284,17 +253,11 @@ public class MineCMD extends BaseCommandWA {
         new AchievementBoardGUI(rm, p, p.getName(), rm.getDatabaseManager().getStats(p.getUniqueId())).openInventory(p);
     }
 
-    @SubCommand(value = "viewachievements", alias = "vach")
-    @Permission("realmines.achievements.others")
-    @WrongUsage("&c/mine viewachievements <player>")
+    @Subcommand({"viewachievements", "vach"})
+    @CommandPermission("realmines.achievements.others")
+    @Usage("&c/mine viewachievements <player>")
     @SuppressWarnings("unused")
-    public void viewachievementscmd(final CommandSender commandSender, @Suggestion("#players") final String name) {
-        if (!(commandSender instanceof Player)) {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
-            return;
-        }
-
-        final Player p = (Player) commandSender;
+    public void viewachievementscmd(final Player p, @SuggestFrom(RMSuggestion.PLAYERS) @Single final String name) {
         if (!canShowBoard(p)) {
             return;
         }
@@ -316,45 +279,36 @@ public class MineCMD extends BaseCommandWA {
         return true;
     }
 
-    @SubCommand(value = "top", alias = {"leaderboard", "lb"})
-    @Permission("realmines.top")
+    @Subcommand({"top", "leaderboard", "lb"})
+    @CommandPermission("realmines.top")
     @SuppressWarnings("unused")
-    public void topcmd(final CommandSender commandSender) {
-        if (!(commandSender instanceof Player)) {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
-            return;
-        }
+    public void topcmd(final Player p) {
         if (rm.getDatabaseManager() == null) {
-            TranslatableLine.ACHIEVEMENTS_DISABLED.send(commandSender);
+            TranslatableLine.ACHIEVEMENTS_DISABLED.send(p);
             return;
         }
 
-        final LeaderboardGUI lb = new LeaderboardGUI(rm, (Player) commandSender);
-        lb.openInventory((Player) commandSender);
+        final LeaderboardGUI lb = new LeaderboardGUI(rm, p);
+        lb.openInventory(p);
     }
 
-    @SubCommand("stats")
-    @Permission("realmines.achievements")
+    @Subcommand("stats")
+    @CommandPermission("realmines.achievements")
     @SuppressWarnings("unused")
-    public void statscmd(final CommandSender commandSender) {
-        if (!(commandSender instanceof Player)) {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
-            return;
-        }
+    public void statscmd(final Player p) {
         if (rm.getDatabaseManager() == null) {
-            TranslatableLine.ACHIEVEMENTS_DISABLED.send(commandSender);
+            TranslatableLine.ACHIEVEMENTS_DISABLED.send(p);
             return;
         }
 
-        final Player p = (Player) commandSender;
         sendStats(p, p.getName(), rm.getDatabaseManager().getStats(p.getUniqueId()));
     }
 
-    @SubCommand(value = "viewstats", alias = "vstats")
-    @Permission("realmines.achievements.others")
-    @WrongUsage("&c/mine viewstats <player>")
+    @Subcommand({"viewstats", "vstats"})
+    @CommandPermission("realmines.achievements.others")
+    @Usage("&c/mine viewstats <player>")
     @SuppressWarnings("unused")
-    public void viewstatscmd(final CommandSender commandSender, @Suggestion("#players") final String name) {
+    public void viewstatscmd(final CommandSender commandSender, @SuggestFrom(RMSuggestion.PLAYERS) @Single final String name) {
         if (rm.getDatabaseManager() == null) {
             TranslatableLine.ACHIEVEMENTS_DISABLED.send(commandSender);
             return;
@@ -413,11 +367,11 @@ public class MineCMD extends BaseCommandWA {
         });
     }
 
-    @SubCommand(value = "import", alias = {"imp", "conv", "convert"})
-    @Permission("realmines.import")
-    @WrongUsage("&c/mine import <converter>")
+    @Subcommand({"import", "imp", "conv", "convert"})
+    @CommandPermission("realmines.import")
+    @Usage("&c/mine import <converter>")
     @SuppressWarnings("unused")
-    public void importIntoRM(final CommandSender commandSender, @Suggestion("#converters") final String name) {
+    public void importIntoRM(final CommandSender commandSender, @SuggestFrom(RMSuggestion.CONVERTERS) @Single final String name) {
         try {
             RMSupportedConverters conv = Arrays.stream(RMSupportedConverters.values()).filter(c -> c.getSourceName().equalsIgnoreCase(name)).findFirst().orElseThrow(() -> new IllegalArgumentException("Converter not found"));
             Objects.requireNonNull(conv.getConverter(rm)).convert(commandSender);
@@ -426,11 +380,11 @@ public class MineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand(value = "silent", alias = "s")
-    @Permission("realmines.silent")
-    @WrongUsage("&c/mine silent <name>")
+    @Subcommand({"silent", "s"})
+    @CommandPermission("realmines.silent")
+    @Usage("&c/mine silent <name>")
     @SuppressWarnings("unused")
-    public void silent(final CommandSender commandSender, @Suggestion("#mines") final String name) {
+    public void silent(final CommandSender commandSender, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
             m.setSilent(!m.isSilent());
@@ -445,9 +399,9 @@ public class MineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand(value = "silentall", alias = "sa")
-    @Permission("realmines.silent")
-    @WrongUsage("&c/mine silentall <true/false>")
+    @Subcommand({"silentall", "sa"})
+    @CommandPermission("realmines.silent")
+    @Usage("&c/mine silentall <true/false>")
     @SuppressWarnings("unused")
     public void silentall(final CommandSender commandSender, final Boolean bol) {
         for (final RMine m : rm.getMineManager().getMines().values()) {
@@ -466,68 +420,56 @@ public class MineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand("highlight")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine highlight <name>")
+    @Subcommand("highlight")
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine highlight <name>")
     @SuppressWarnings("unused")
-    public void highlight(final CommandSender commandSender, @Suggestion("#mines") final String name) {
-        if (commandSender instanceof Player) {
-            final RMine m = rm.getMineManager().getMine(name);
-            if (m != null) {
-                m.setHighlight(!m.isHighlighted());
-                Text.send(commandSender, m.getDisplayName() + " &r&fhighlight: " + (m.isHighlighted() ? "&aON" : "&cOFF"));
-            } else {
-                TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
-            }
+    public void highlight(final Player p, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
+        final RMine m = rm.getMineManager().getMine(name);
+        if (m != null) {
+            m.setHighlight(!m.isHighlighted());
+            Text.send(p, m.getDisplayName() + " &r&fhighlight: " + (m.isHighlighted() ? "&aON" : "&cOFF"));
         } else {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+            TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(p);
         }
     }
 
-    @SubCommand("blocks")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine blocks <name>")
+    @Subcommand("blocks")
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine blocks <name>")
     @SuppressWarnings("unused")
-    public void blocks(final CommandSender commandSender, @Suggestion("#mines") final String name) {
-        if (commandSender instanceof Player) {
-            final RMine m = rm.getMineManager().getMine(name);
-            if (m != null) {
-                if (m.getBlockSets().isEmpty()) {
-                    return;
-                }
-
-                final MineItemsGUI v = new MineItemsGUI(rm, (Player) commandSender, m);
-                v.openInventory((Player) commandSender);
-            } else {
-                TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
+    public void blocks(final Player p, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
+        final RMine m = rm.getMineManager().getMine(name);
+        if (m != null) {
+            if (m.getBlockSets().isEmpty()) {
+                return;
             }
+
+            final MineItemsGUI v = new MineItemsGUI(rm, p, m);
+            v.openInventory(p);
         } else {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+            TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(p);
         }
     }
 
-    @SubCommand(value = "mine", alias = "m")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine m <name>")
+    @Subcommand({"mine", "m"})
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine m <name>")
     @SuppressWarnings("unused")
-    public void minecmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
-        if (commandSender instanceof Player) {
-            final RMine m = rm.getMineManager().getMine(name);
-            if (m != null) {
-                this.rm.getGUIManager().openMine(m, (Player) commandSender);
-            } else {
-                TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
-            }
+    public void minecmd(final Player p, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
+        final RMine m = rm.getMineManager().getMine(name);
+        if (m != null) {
+            this.rm.getGUIManager().openMine(m, p);
         } else {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+            TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(p);
         }
     }
 
-    @SubCommand(value = "reset", alias = "r")
-    @Permission("realmines.reset")
-    @WrongUsage("&c/mine reset <name>")
+    @Subcommand({"reset", "r"})
+    @CommandPermission("realmines.reset")
+    @Usage("&c/mine reset <name>")
     @SuppressWarnings("unused")
-    public void resetcmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
+    public void resetcmd(final CommandSender commandSender, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
             m.reset(RMine.ResetCause.COMMAND);
@@ -536,11 +478,11 @@ public class MineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand(value = "rename", alias = "rn")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine rename <name> <new_name>")
+    @Subcommand({"rename", "rn"})
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine rename <name> <new_name>")
     @SuppressWarnings("unused")
-    public void renamecmd(final CommandSender commandSender, @Suggestion("#mines") final String name, final String newName) {
+    public void renamecmd(final CommandSender commandSender, @SuggestFrom(RMSuggestion.MINES) @Single final String name, @Single final String newName) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
             rm.getMineManager().renameMine(m, newName);
@@ -550,11 +492,11 @@ public class MineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand(value = "delete", alias = "del")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine delete <name>")
+    @Subcommand({"delete", "del"})
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine delete <name>")
     @SuppressWarnings("unused")
-    public void deletecmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
+    public void deletecmd(final CommandSender commandSender, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
             rm.getMineManager().deleteMine(m);
@@ -564,11 +506,11 @@ public class MineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand(value = "clear", alias = "c")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine clear <name>")
+    @Subcommand({"clear", "c"})
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine clear <name>")
     @SuppressWarnings("unused")
-    public void clearcmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
+    public void clearcmd(final CommandSender commandSender, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
             m.clear();
@@ -578,28 +520,24 @@ public class MineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand("setbounds")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine setbounds <name>")
+    @Subcommand("setbounds")
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine setbounds <name>")
     @SuppressWarnings("unused")
-    public void setboundscmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
-        if (commandSender instanceof Player) {
-            final RMine m = rm.getMineManager().getMine(name);
-            if (m != null) {
-                rm.getMineManager().setBounds(m, (Player) commandSender);
-            } else {
-                TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
-            }
+    public void setboundscmd(final Player p, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
+        final RMine m = rm.getMineManager().getMine(name);
+        if (m != null) {
+            rm.getMineManager().setBounds(m, p);
         } else {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+            TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(p);
         }
     }
 
-    @SubCommand("freeze")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine freeze <name>")
+    @Subcommand("freeze")
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine freeze <name>")
     @SuppressWarnings("unused")
-    public void freezecmd(final CommandSender commandSender, @Suggestion("#mines") final String name) {
+    public void freezecmd(final CommandSender commandSender, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
             m.setFreezed(!m.isFreezed());
@@ -611,26 +549,26 @@ public class MineCMD extends BaseCommandWA {
     }
 
     /*
-    @SubCommand("item2config")
-    @Permission("realmines.admin")
+    @Subcommand("item2config")
+    @CommandPermission("realmines.admin")
     @SuppressWarnings("unused")
-    public void item2config(final CommandSender commandSender, @Suggestion("#mines") final String name) {
+    public void item2config(final CommandSender commandSender, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
         final Player p = (Player) commandSender;
         RMConfig.file().set("Items." + name, ItemStackSpringer.getItemSerializedJSON(p.getInventory().getItemInMainHand()));
         RMConfig.save();
     }
 
-    @SubCommand("config2item")
-    @Permission("realmines.admin")
+    @Subcommand("config2item")
+    @CommandPermission("realmines.admin")
     @SuppressWarnings("unused")
-    public void config2item(final CommandSender commandSender, @Suggestion("#mines") final String name) {
+    public void config2item(final CommandSender commandSender, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
         final Player p = (Player) commandSender;
         p.getInventory().addItem(ItemStackSpringer.getItemDeSerializedJSON(RMConfig.file().getString("Items." + name)));
     }
 
-    @SubCommand("give")
-    @Permission("realmines.admin")
-    @WrongUsage("&c/mine ri <item name>")
+    @Subcommand("give")
+    @CommandPermission("realmines.admin")
+    @Usage("&c/mine ri <item name>")
     @SuppressWarnings("unused")
     public void giveItems(final CommandSender commandSender) {
         final Player p = (Player) commandSender;

@@ -13,10 +13,6 @@ package joserodpt.realmines.plugin;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import dev.triumphteam.cmd.bukkit.BukkitCommandManager;
-import dev.triumphteam.cmd.bukkit.message.BukkitMessageKey;
-import dev.triumphteam.cmd.core.message.MessageKey;
-import dev.triumphteam.cmd.core.suggestion.SuggestionKey;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMAchievementsConfig;
 import joserodpt.realmines.api.config.RMConfig;
@@ -25,20 +21,14 @@ import joserodpt.realmines.api.config.RMMinesOldConfig;
 import joserodpt.realmines.api.config.RMPrivateMinesConfig;
 import joserodpt.realmines.api.config.RMSQLConfig;
 import joserodpt.realmines.api.config.RPMineResetTasksConfig;
-import joserodpt.realmines.api.config.TranslatableLine;
-import joserodpt.realmines.api.converters.RMSupportedConverters;
 import joserodpt.realmines.api.event.RealMinesPluginLoadedEvent;
-import joserodpt.realmines.api.managers.PrivateMineTemplate;
 import joserodpt.realmines.api.managers.PrivateMinesWorld;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.GUIBuilder;
 import joserodpt.realmines.api.utils.PercentageInput;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
-import joserodpt.realmines.plugin.command.BaseCommandWA;
-import joserodpt.realmines.plugin.command.MineCMD;
-import joserodpt.realmines.plugin.command.MineResetTaskCMD;
-import joserodpt.realmines.plugin.command.PrivateMineCMD;
+import joserodpt.realmines.plugin.command.RMCommandManager;
 import joserodpt.realmines.plugin.events.BlockEvents;
 import joserodpt.realmines.plugin.events.PlayerEvents;
 import joserodpt.realmines.plugin.events.StatsEvents;
@@ -65,8 +55,6 @@ import joserodpt.realpermissions.api.pluginhook.ExternalPluginPermission;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
 import org.bukkit.generator.ChunkGenerator;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -76,8 +64,6 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class RealMinesPlugin extends JavaPlugin {
 
@@ -164,103 +150,8 @@ public class RealMinesPlugin extends JavaPlugin {
                 }
             }
         }
-        BukkitCommandManager<CommandSender> commandManager = BukkitCommandManager.create(this);
-
-        //command suggestions
-        commandManager.registerSuggestion(SuggestionKey.of("#createsuggestions"),
-                (sender, context) -> IntStream.range(0, 100)
-                        .mapToObj(i -> "Mine" + i)
-                        .collect(Collectors.toList())
-        );
-
-        commandManager.registerSuggestion(SuggestionKey.of("#minetasksuggestions"),
-                (sender, context) -> IntStream.range(0, 50)
-                        .mapToObj(i -> "MineResetTask" + i)
-                        .collect(Collectors.toList())
-        );
-
-        commandManager.registerSuggestion(SuggestionKey.of("#types"),
-                (sender, context) -> Arrays.asList("b", "s", "f", "blocks", "farm", "schem", "schematic")
-        );
-
-        commandManager.registerSuggestion(SuggestionKey.of("#converters"),
-                (sender, context) -> Arrays.stream(RMSupportedConverters.values())
-                        .map(RMSupportedConverters::getSourceName)
-                        .collect(Collectors.toList())
-        );
-
-        commandManager.registerSuggestion(SuggestionKey.of("#mines"),
-                (sender, context) -> realMines.getMineManager().getRegisteredMines()
-        );
-
-        commandManager.registerSuggestion(SuggestionKey.of("#players"),
-                (sender, context) -> Bukkit.getOnlinePlayers().stream()
-                        .map(Player::getName)
-                        .collect(Collectors.toList())
-        );
-
-        commandManager.registerSuggestion(SuggestionKey.of("#privatetemplates"),
-                (sender, context) -> realMines.getPrivateMinesManager().getTemplates().stream()
-                        .map(PrivateMineTemplate::getID)
-                        .collect(Collectors.toList())
-        );
-
-        //  /pmine template <action> [id] [mine]  arrives as one joined argument, so this suggests by
-        //  how many words have been typed so far
-        commandManager.registerSuggestion(SuggestionKey.of("#privatetemplateargs"),
-                (sender, context) -> {
-                    switch (context.getArgs().size()) {
-                        case 0:
-                        case 1:
-                            return Arrays.asList("create", "update", "edit", "delete", "list");
-                        case 2:
-                            return realMines.getPrivateMinesManager().getTemplates().stream()
-                                    .map(PrivateMineTemplate::getID)
-                                    .collect(Collectors.toList());
-                        case 3:
-                            return realMines.getMineManager().getRegisteredMines();
-                        default:
-                            return List.of();
-                    }
-                }
-        );
-
-        commandManager.registerSuggestion(SuggestionKey.of("#privateownedtemplates"),
-                (sender, context) -> sender instanceof Player
-                        ? realMines.getPrivateMinesManager().getMinesOf(((Player) sender).getUniqueId()).stream()
-                        .map(mine -> mine.getPrivateData().getTemplate())
-                        .collect(Collectors.toList())
-                        : List.of()
-        );
-
-        commandManager.registerSuggestion(SuggestionKey.of("#minetasks"),
-                (sender, context) -> realMines.getMineResetTasksManager().getRegisteredTasks()
-        );
-
-        commandManager.registerSuggestion(SuggestionKey.of("#minecountdowns"),
-                (sender, context) -> {
-                    RMine mine = realMines.getMineManager().getMine(context.getArgs().get(0));
-                    if (mine != null && mine.getMineTimer() != null && mine.getMineTimer().getCountdown() != null) {
-                        Integer countdown = mine.getCountdown();
-                        if (countdown == null) return List.of();
-                        return List.of(countdown.toString());
-                    }
-                    return List.of();
-                }
-        );
-
-        //registo de comandos #portugal
-        Map<String, BaseCommandWA> commands = new HashMap<>();
-        registerCommand("realmines", new MineCMD(realMines), commands, commandManager);
-        registerCommand("realminesresettask", new MineResetTaskCMD(realMines), commands, commandManager);
-        registerCommand("privatemine", new PrivateMineCMD(realMines), commands, commandManager);
-
-        //command messages
-        commandManager.registerMessage(MessageKey.UNKNOWN_COMMAND, (sender, context) -> TranslatableLine.SYSTEM_ERROR_COMMAND.send(sender));
-        commandManager.registerMessage(MessageKey.NOT_ENOUGH_ARGUMENTS, (sender, context) -> {
-            Text.send(sender, commands.get(context.getCommand()).getWrongUsage(context.getSubCommand()));
-        });
-        commandManager.registerMessage(BukkitMessageKey.NO_PERMISSION, (sender, context) -> TranslatableLine.SYSTEM_ERROR_PERMISSION.send(sender));
+        //Lamp owns the command tree: the suggestions, the permissions and the language-file errors
+        new RMCommandManager(realMines);
 
         getLogger().info("Loading Mines.");
         realMines.getMineManager().loadMines();
@@ -326,7 +217,7 @@ public class RealMinesPlugin extends JavaPlugin {
                         new ExternalPluginPermission("realmines.tp.<name>", "Allow permission to teleport to a mine.", Collections.singletonList("rm tp <name>")),
                         new ExternalPluginPermission("realmines.silent", "Allow permission to silence a mine.", Arrays.asList("rm silent", "rm silentall")),
                         new ExternalPluginPermission("realmines.privatemines", "Allow a player to claim and manage their own private mines.", Arrays.asList("pmine", "pmine claim", "pmine tp", "pmine info", "pmine trust", "pmine release")),
-                        new ExternalPluginPermission("realmines.privatemines.admin", "Allow managing private mine templates and everyone's private mines.", Arrays.asList("pmine templates", "pmine template", "pmine template edit", "pmine list", "pmine delete", "pmine addsharik")),
+                        new ExternalPluginPermission("realmines.privatemines.admin", "Allow managing private mine templates and everyone's private mines.", Arrays.asList("pmine templates", "pmine template list", "pmine template create", "pmine template update", "pmine template edit", "pmine template delete", "pmine list", "pmine delete", "pmine addsharik")),
                         new ExternalPluginPermission("realmines.privatemines.free", "Claim and renew private mines without being charged."),
                         new ExternalPluginPermission("realmines.reset", "Allow permission to reset all mines."),
                         new ExternalPluginPermission("realmines.update.notify", "Notification of a plugin update to the player."),
@@ -360,11 +251,6 @@ public class RealMinesPlugin extends JavaPlugin {
     @Override
     public ChunkGenerator getDefaultWorldGenerator(final String worldName, final String id) {
         return PrivateMinesWorld.getGenerator();
-    }
-
-    private void registerCommand(String realmines, BaseCommandWA mineCMD, Map<String, BaseCommandWA> commands, BukkitCommandManager<CommandSender> commandManager) {
-        commands.put(realmines, mineCMD);
-        commandManager.registerCommand(mineCMD);
     }
 
     private void printASCII() {

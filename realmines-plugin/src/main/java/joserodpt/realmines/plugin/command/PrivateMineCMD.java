@@ -13,13 +13,6 @@ package joserodpt.realmines.plugin.command;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import dev.triumphteam.cmd.bukkit.annotation.Permission;
-import dev.triumphteam.cmd.core.annotation.Command;
-import dev.triumphteam.cmd.core.annotation.Default;
-import dev.triumphteam.cmd.core.annotation.Join;
-import dev.triumphteam.cmd.core.annotation.Optional;
-import dev.triumphteam.cmd.core.annotation.SubCommand;
-import dev.triumphteam.cmd.core.annotation.Suggestion;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.config.TranslatableLine.ReplacableVar;
@@ -41,13 +34,20 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import revxrsal.commands.annotation.Command;
+import revxrsal.commands.annotation.CommandPlaceholder;
+import revxrsal.commands.annotation.Optional;
+import revxrsal.commands.annotation.Single;
+import revxrsal.commands.annotation.Subcommand;
+import revxrsal.commands.annotation.Usage;
+import revxrsal.commands.bukkit.annotation.CommandPermission;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-@Command(value = "privatemine", alias = {"realminesprivate", "pmine"})
-public class PrivateMineCMD extends BaseCommandWA {
+@Command({"privatemine", "realminesprivate", "pmine"})
+public class PrivateMineCMD {
 
     private final RealMines rm;
 
@@ -123,33 +123,24 @@ public class PrivateMineCMD extends BaseCommandWA {
         }
     }
 
-    @Default
-    @Permission("realmines.privatemines")
-    public void defaultCommand(final CommandSender commandSender) {
-        if (!(commandSender instanceof Player)) {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
+    @CommandPlaceholder
+    @CommandPermission("realmines.privatemines")
+    public void defaultCommand(final Player p) {
+        if (!checkEnabled(p)) {
             return;
         }
-        if (!checkEnabled(commandSender)) {
-            return;
-        }
-        new PrivateMinesGUI(this.rm, (Player) commandSender).openInventory((Player) commandSender);
+        new PrivateMinesGUI(this.rm, p).openInventory(p);
     }
 
-    @SubCommand("claim")
-    @Permission("realmines.privatemines")
-    @WrongUsage("&c/pmine claim <template>")
+    @Subcommand("claim")
+    @CommandPermission("realmines.privatemines")
+    @Usage("&c/pmine claim <template>")
     @SuppressWarnings("unused")
-    public void claimcmd(final CommandSender commandSender, @Suggestion("#privatetemplates") final String templateID) {
-        if (!(commandSender instanceof Player)) {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
-            return;
-        }
-        if (!checkEnabled(commandSender)) {
+    public void claimcmd(final Player p, @SuggestFrom(RMSuggestion.PRIVATE_TEMPLATES) @Single final String templateID) {
+        if (!checkEnabled(p)) {
             return;
         }
 
-        final Player p = (Player) commandSender;
         final PrivateMineTemplate template = this.rm.getPrivateMinesManager().getTemplate(templateID);
         if (template == null) {
             TranslatableLine.PRIVATE_MINE_TEMPLATE_NOT_FOUND.setV1(ReplacableVar.TEMPLATE.eq(templateID)).send(p);
@@ -159,13 +150,12 @@ public class PrivateMineCMD extends BaseCommandWA {
         tellClaimResult(p, this.rm, template, this.rm.getPrivateMinesManager().claim(p, template));
     }
 
-    @SubCommand("tp")
-    @Permission("realmines.privatemines")
-    @WrongUsage("&c/pmine tp [template]")
+    @Subcommand("tp")
+    @CommandPermission("realmines.privatemines")
+    @Usage("&c/pmine tp [template]")
     @SuppressWarnings("unused")
-    public void tpcmd(final CommandSender commandSender, @Optional @Suggestion("#privateownedtemplates") final String templateID) {
-        final Player p = requirePlayer(commandSender);
-        if (p == null) {
+    public void tpcmd(final Player p, @Optional @SuggestFrom(RMSuggestion.OWNED_TEMPLATES) @Single final String templateID) {
+        if (!checkEnabled(p)) {
             return;
         }
 
@@ -181,13 +171,12 @@ public class PrivateMineCMD extends BaseCommandWA {
      * The player's own mines. Templates are a different thing entirely and are edited with
      * {@code /pmine template edit <id>}.
      */
-    @SubCommand("manage")
-    @Permission("realmines.privatemines")
-    @WrongUsage("&c/pmine manage")
+    @Subcommand("manage")
+    @CommandPermission("realmines.privatemines")
+    @Usage("&c/pmine manage")
     @SuppressWarnings("unused")
-    public void managecmd(final CommandSender commandSender) {
-        final Player p = requirePlayer(commandSender);
-        if (p == null) {
+    public void managecmd(final Player p) {
+        if (!checkEnabled(p)) {
             return;
         }
 
@@ -206,12 +195,11 @@ public class PrivateMineCMD extends BaseCommandWA {
         new PrivateMinesGUI(this.rm, p, PrivateMinesGUI.View.OWNED).openInventory(p);
     }
 
-    @SubCommand("info")
-    @Permission("realmines.privatemines")
+    @Subcommand("info")
+    @CommandPermission("realmines.privatemines")
     @SuppressWarnings("unused")
-    public void infocmd(final CommandSender commandSender) {
-        final Player p = requirePlayer(commandSender);
-        if (p == null) {
+    public void infocmd(final Player p) {
+        if (!checkEnabled(p)) {
             return;
         }
 
@@ -236,13 +224,12 @@ public class PrivateMineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand("extend")
-    @Permission("realmines.privatemines")
-    @WrongUsage("&c/pmine extend [template]")
+    @Subcommand("extend")
+    @CommandPermission("realmines.privatemines")
+    @Usage("&c/pmine extend [template]")
     @SuppressWarnings("unused")
-    public void extendcmd(final CommandSender commandSender, @Optional @Suggestion("#privateownedtemplates") final String templateID) {
-        final Player p = requirePlayer(commandSender);
-        if (p == null) {
+    public void extendcmd(final Player p, @Optional @SuggestFrom(RMSuggestion.OWNED_TEMPLATES) @Single final String templateID) {
+        if (!checkEnabled(p)) {
             return;
         }
 
@@ -271,14 +258,13 @@ public class PrivateMineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand("trust")
-    @Permission("realmines.privatemines")
-    @WrongUsage("&c/pmine trust <player> [template]")
+    @Subcommand("trust")
+    @CommandPermission("realmines.privatemines")
+    @Usage("&c/pmine trust <player> [template]")
     @SuppressWarnings("unused")
-    public void trustcmd(final CommandSender commandSender, @Suggestion("#players") final String playerName,
-                         @Optional @Suggestion("#privateownedtemplates") final String templateID) {
-        final Player p = requirePlayer(commandSender);
-        if (p == null) {
+    public void trustcmd(final Player p, @SuggestFrom(RMSuggestion.PLAYERS) @Single final String playerName,
+                         @Optional @SuggestFrom(RMSuggestion.OWNED_TEMPLATES) @Single final String templateID) {
+        if (!checkEnabled(p)) {
             return;
         }
 
@@ -310,14 +296,13 @@ public class PrivateMineCMD extends BaseCommandWA {
         TranslatableLine.PRIVATE_MINE_TRUSTED_ADDED.setV1(ReplacableVar.PLAYER.eq(playerName)).send(p);
     }
 
-    @SubCommand("untrust")
-    @Permission("realmines.privatemines")
-    @WrongUsage("&c/pmine untrust <player> [template]")
+    @Subcommand("untrust")
+    @CommandPermission("realmines.privatemines")
+    @Usage("&c/pmine untrust <player> [template]")
     @SuppressWarnings("unused")
-    public void untrustcmd(final CommandSender commandSender, @Suggestion("#players") final String playerName,
-                           @Optional @Suggestion("#privateownedtemplates") final String templateID) {
-        final Player p = requirePlayer(commandSender);
-        if (p == null) {
+    public void untrustcmd(final Player p, @SuggestFrom(RMSuggestion.PLAYERS) @Single final String playerName,
+                           @Optional @SuggestFrom(RMSuggestion.OWNED_TEMPLATES) @Single final String templateID) {
+        if (!checkEnabled(p)) {
             return;
         }
 
@@ -336,13 +321,12 @@ public class PrivateMineCMD extends BaseCommandWA {
         TranslatableLine.PRIVATE_MINE_TRUSTED_REMOVED.setV1(ReplacableVar.PLAYER.eq(playerName)).send(p);
     }
 
-    @SubCommand("trusted")
-    @Permission("realmines.privatemines")
-    @WrongUsage("&c/pmine trusted [template]")
+    @Subcommand("trusted")
+    @CommandPermission("realmines.privatemines")
+    @Usage("&c/pmine trusted [template]")
     @SuppressWarnings("unused")
-    public void trustedcmd(final CommandSender commandSender, @Optional @Suggestion("#privateownedtemplates") final String templateID) {
-        final Player p = requirePlayer(commandSender);
-        if (p == null) {
+    public void trustedcmd(final Player p, @Optional @SuggestFrom(RMSuggestion.OWNED_TEMPLATES) @Single final String templateID) {
+        if (!checkEnabled(p)) {
             return;
         }
 
@@ -364,13 +348,12 @@ public class PrivateMineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand("release")
-    @Permission("realmines.privatemines")
-    @WrongUsage("&c/pmine release [template]")
+    @Subcommand("release")
+    @CommandPermission("realmines.privatemines")
+    @Usage("&c/pmine release [template]")
     @SuppressWarnings("unused")
-    public void releasecmd(final CommandSender commandSender, @Optional @Suggestion("#privateownedtemplates") final String templateID) {
-        final Player p = requirePlayer(commandSender);
-        if (p == null) {
+    public void releasecmd(final Player p, @Optional @SuggestFrom(RMSuggestion.OWNED_TEMPLATES) @Single final String templateID) {
+        if (!checkEnabled(p)) {
             return;
         }
 
@@ -387,134 +370,110 @@ public class PrivateMineCMD extends BaseCommandWA {
     // ------------------------------------------------------------------ admin
 
     /**
-     * Template administration: {@code /pmine template <create|update|delete|list> [id] [mine]}.
-     * <p>
-     * Taken as one joined argument and split here rather than as separate parameters, because
-     * triumph-cmd only allows a single optional argument and only in last position - and these actions
-     * take different numbers of arguments each.
-     */
-    @SubCommand("template")
-    @Permission("realmines.privatemines.admin")
-    @WrongUsage("&c/pmine template <create|update|edit|delete|list> [id] [mine]")
-    @SuppressWarnings("unused")
-    public void templatecmd(final CommandSender commandSender, @Suggestion("#privatetemplateargs") @Join final String arguments) {
-        final String[] args = arguments.trim().split("\\s+");
-        final String action = args[0].toLowerCase();
-        final String id = args.length > 1 ? args[1] : null;
-        final String mineName = args.length > 2 ? args[2] : null;
-
-        switch (action) {
-            case "edit": {
-                if (!(commandSender instanceof Player)) {
-                    TranslatableLine.SYSTEM_PLAYER_ONLY.send(commandSender);
-                    return;
-                }
-                if (id == null) {
-                    Text.send(commandSender, "&c/pmine template edit <id>");
-                    return;
-                }
-
-                final PrivateMineTemplate template = this.rm.getPrivateMinesManager().getTemplate(id);
-                if (template == null) {
-                    TranslatableLine.PRIVATE_MINE_TEMPLATE_NOT_FOUND.setV1(ReplacableVar.TEMPLATE.eq(id)).send(commandSender);
-                    return;
-                }
-
-                final Player editor = (Player) commandSender;
-                new PrivateMineTemplateGUI(this.rm, editor, template.getID()).openInventory(editor);
-                return;
-            }
-            case "list": {
-                if (this.rm.getPrivateMinesManager().getTemplates().isEmpty()) {
-                    TranslatableLine.PRIVATE_MINE_NO_TEMPLATES.send(commandSender);
-                    return;
-                }
-                for (final PrivateMineTemplate template : this.rm.getPrivateMinesManager().getTemplates()) {
-                    Text.send(commandSender, "&f" + template.getID() + " &7- from &f" + template.getSourceMine()
-                            + " &7- cost &f" + template.getCost() + " &7- &f" + template.getLifecycle().name().toLowerCase()
-                            + " &7- resets every &f" + formatTime(template.getResetTime()));
-                }
-                return;
-            }
-            case "create":
-            case "update": {
-                if (id == null || mineName == null) {
-                    Text.send(commandSender, "&c/pmine template " + action + " <id> <mine>");
-                    return;
-                }
-
-                final RMine source = this.rm.getMineManager().getMine(mineName);
-                if (source == null) {
-                    TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
-                    return;
-                }
-
-                try {
-                    final PrivateMineTemplate template = this.rm.getPrivateMinesManager().snapshot(source, id);
-                    TranslatableLine.PRIVATE_MINE_TEMPLATE_CREATED
-                            .setV1(ReplacableVar.TEMPLATE.eq(template.getID()))
-                            .setV2(ReplacableVar.MINE.eq(source.getName())).send(commandSender);
-
-                    for (final String problem : template.validate()) {
-                        Text.send(commandSender, " &e! &f" + problem);
-                    }
-
-                    //placement decides where every claimed copy is built, so it must never be left at defaults.
-                    //The world isn't one of those decisions: RealMines makes and owns it.
-                    Text.send(commandSender, "&7Placement: world &f" + template.getPlacement().getWorldName()
-                            + " &7(created by RealMines)&7, origin &f" + template.getPlacement().getOriginX() + ";"
-                            + template.getPlacement().getOriginY() + ";" + template.getPlacement().getOriginZ());
-                    Text.send(commandSender, template.getPlacement().hasPlatform()
-                            ? "&7Platform: &f" + template.getPlacement().getPlatformWidth() + " &7blocks of &f"
-                            + PrivateMinePlatform.walkwayMaterial().name() + " &7around each copy, fenced with barriers"
-                            : "&7Platform: &fnone&7, so copies are built with nothing around them");
-                    Text.send(commandSender, "&7Edit &fprivate-mines/templates/" + template.getID()
-                            + ".yml &7to set the cost, lifetime and where copies are built, then &f/rm reload&7.");
-                } catch (final IllegalArgumentException e) {
-                    TranslatableLine.PRIVATE_MINE_TEMPLATE_CREATE_FAILED
-                            .setV1(ReplacableVar.VALUE.eq(String.valueOf(e.getMessage()))).send(commandSender);
-                }
-                return;
-            }
-            case "delete": {
-                if (id == null) {
-                    Text.send(commandSender, "&c/pmine template delete <id>");
-                    return;
-                }
-                if (this.rm.getPrivateMinesManager().deleteTemplate(id)) {
-                    TranslatableLine.PRIVATE_MINE_TEMPLATE_DELETED.setV1(ReplacableVar.TEMPLATE.eq(id)).send(commandSender);
-                } else {
-                    TranslatableLine.PRIVATE_MINE_TEMPLATE_NOT_FOUND.setV1(ReplacableVar.TEMPLATE.eq(id)).send(commandSender);
-                }
-                return;
-            }
-            default:
-                Text.send(commandSender, "&c/pmine template <create|update|edit|delete|list> [id] [mine]");
-        }
-    }
-
-    /**
      * The template list, as a menu. Clicking one opens its editor, the same one
      * {@code /pmine template edit <id>} opens.
      */
-    @SubCommand("templates")
-    @Permission("realmines.privatemines.admin")
-    @WrongUsage("&c/pmine templates")
+    @Subcommand("templates")
+    @CommandPermission("realmines.privatemines.admin")
+    @Usage("&c/pmine templates")
     @SuppressWarnings("unused")
-    public void templatescmd(final CommandSender commandSender) {
-        final Player p = requirePlayer(commandSender);
-        if (p == null) {
+    public void templatescmd(final Player p) {
+        if (!checkEnabled(p)) {
             return;
         }
 
         new PrivateMineTemplatesGUI(this.rm, p).openInventory(p);
     }
 
-    @SubCommand("list")
-    @Permission("realmines.privatemines.admin")
-    @WrongUsage("&c/pmine list [player]")
+    @Subcommand("template list")
+    @CommandPermission("realmines.privatemines.admin")
     @SuppressWarnings("unused")
-    public void listcmd(final CommandSender commandSender, @Optional @Suggestion("#players") final String playerName) {
+    public void templatelistcmd(final CommandSender commandSender) {
+        if (this.rm.getPrivateMinesManager().getTemplates().isEmpty()) {
+            TranslatableLine.PRIVATE_MINE_NO_TEMPLATES.send(commandSender);
+            return;
+        }
+        for (final PrivateMineTemplate template : this.rm.getPrivateMinesManager().getTemplates()) {
+            Text.send(commandSender, "&f" + template.getID() + " &7- from &f" + template.getSourceMine()
+                    + " &7- cost &f" + template.getCost() + " &7- &f" + template.getLifecycle().name().toLowerCase()
+                    + " &7- resets every &f" + formatTime(template.getResetTime()));
+        }
+    }
+
+    @Subcommand("template edit")
+    @CommandPermission("realmines.privatemines.admin")
+    @Usage("&c/pmine template edit <id>")
+    @SuppressWarnings("unused")
+    public void templateeditcmd(final Player editor, @SuggestFrom(RMSuggestion.PRIVATE_TEMPLATES) @Single final String id) {
+        final PrivateMineTemplate template = this.rm.getPrivateMinesManager().getTemplate(id);
+        if (template == null) {
+            TranslatableLine.PRIVATE_MINE_TEMPLATE_NOT_FOUND.setV1(ReplacableVar.TEMPLATE.eq(id)).send(editor);
+            return;
+        }
+
+        new PrivateMineTemplateGUI(this.rm, editor, template.getID()).openInventory(editor);
+    }
+
+    /**
+     * Takes a snapshot of an existing mine and saves it as a template. {@code update} is the same
+     * operation over a template that already exists.
+     */
+    @Subcommand({"template create", "template update"})
+    @CommandPermission("realmines.privatemines.admin")
+    @Usage("&c/pmine template <create|update> <id> <mine>")
+    @SuppressWarnings("unused")
+    public void templatecreatecmd(final CommandSender commandSender, @SuggestFrom(RMSuggestion.PRIVATE_TEMPLATES) @Single final String id,
+                                 @SuggestFrom(RMSuggestion.MINES) @Single final String mine) {
+        final RMine source = this.rm.getMineManager().getMine(mine);
+        if (source == null) {
+            TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
+            return;
+        }
+
+        try {
+            final PrivateMineTemplate template = this.rm.getPrivateMinesManager().snapshot(source, id);
+            TranslatableLine.PRIVATE_MINE_TEMPLATE_CREATED
+                    .setV1(ReplacableVar.TEMPLATE.eq(template.getID()))
+                    .setV2(ReplacableVar.MINE.eq(source.getName())).send(commandSender);
+
+            for (final String problem : template.validate()) {
+                Text.send(commandSender, " &e! &f" + problem);
+            }
+
+            //placement decides where every claimed copy is built, so it must never be left at defaults.
+            //The world isn't one of those decisions: RealMines makes and owns it.
+            Text.send(commandSender, "&7Placement: world &f" + template.getPlacement().getWorldName()
+                    + " &7(created by RealMines)&7, origin &f" + template.getPlacement().getOriginX() + ";"
+                    + template.getPlacement().getOriginY() + ";" + template.getPlacement().getOriginZ());
+            Text.send(commandSender, template.getPlacement().hasPlatform()
+                    ? "&7Platform: &f" + template.getPlacement().getPlatformWidth() + " &7blocks of &f"
+                    + PrivateMinePlatform.walkwayMaterial().name() + " &7around each copy, fenced with barriers"
+                    : "&7Platform: &fnone&7, so copies are built with nothing around them");
+            Text.send(commandSender, "&7Edit &fprivate-mines/templates/" + template.getID()
+                    + ".yml &7to set the cost, lifetime and where copies are built, then &f/rm reload&7.");
+        } catch (final IllegalArgumentException e) {
+            TranslatableLine.PRIVATE_MINE_TEMPLATE_CREATE_FAILED
+                    .setV1(ReplacableVar.VALUE.eq(String.valueOf(e.getMessage()))).send(commandSender);
+        }
+    }
+
+    @Subcommand("template delete")
+    @CommandPermission("realmines.privatemines.admin")
+    @Usage("&c/pmine template delete <id>")
+    @SuppressWarnings("unused")
+    public void templatedeletecmd(final CommandSender commandSender, @SuggestFrom(RMSuggestion.PRIVATE_TEMPLATES) @Single final String id) {
+        if (this.rm.getPrivateMinesManager().deleteTemplate(id)) {
+            TranslatableLine.PRIVATE_MINE_TEMPLATE_DELETED.setV1(ReplacableVar.TEMPLATE.eq(id)).send(commandSender);
+        } else {
+            TranslatableLine.PRIVATE_MINE_TEMPLATE_NOT_FOUND.setV1(ReplacableVar.TEMPLATE.eq(id)).send(commandSender);
+        }
+    }
+
+    @Subcommand("list")
+    @CommandPermission("realmines.privatemines.admin")
+    @Usage("&c/pmine list [player]")
+    @SuppressWarnings("unused")
+    public void listcmd(final CommandSender commandSender, @Optional @SuggestFrom(RMSuggestion.PLAYERS) @Single final String playerName) {
         List<RMine> mines = this.rm.getPrivateMinesManager().getPrivateMines();
 
         if (playerName != null) {
@@ -541,12 +500,12 @@ public class PrivateMineCMD extends BaseCommandWA {
         }
     }
 
-    @SubCommand("delete")
-    @Permission("realmines.privatemines.admin")
-    @WrongUsage("&c/pmine delete <player> <template>")
+    @Subcommand("delete")
+    @CommandPermission("realmines.privatemines.admin")
+    @Usage("&c/pmine delete <player> <template>")
     @SuppressWarnings("unused")
-    public void deletecmd(final CommandSender commandSender, @Suggestion("#players") final String playerName,
-                          @Suggestion("#privatetemplates") final String templateID) {
+    public void deletecmd(final CommandSender commandSender, @SuggestFrom(RMSuggestion.PLAYERS) @Single final String playerName,
+                          @SuggestFrom(RMSuggestion.PRIVATE_TEMPLATES) @Single final String templateID) {
         final OfflinePlayer target = findPlayer(playerName);
         if (target == null) {
             TranslatableLine.PRIVATE_MINE_PLAYER_NOT_FOUND.setV1(ReplacableVar.PLAYER.eq(playerName)).send(commandSender);
@@ -569,19 +528,18 @@ public class PrivateMineCMD extends BaseCommandWA {
      * it, so the platform, the fence and the grid spacing can be looked at without claiming anything.
      * {@code /pmine addsharik clear} takes every one of them back down again.
      */
-    @SubCommand("addsharik")
-    @Permission("realmines.privatemines.admin")
-    @WrongUsage("&c/pmine addsharik [clear]")
+    @Subcommand("addsharik")
+    @CommandPermission("realmines.privatemines.admin")
+    @Usage("&c/pmine addsharik [clear]")
     @SuppressWarnings("unused")
-    public void addsharikcmd(final CommandSender commandSender, @Optional final String action) {
-        final Player p = requirePlayer(commandSender);
-        if (p == null) {
+    public void addsharikcmd(final Player p, @Optional @Single final String action) {
+        if (!checkEnabled(p)) {
             return;
         }
 
         if (action != null && action.equalsIgnoreCase("clear")) {
             final int removed = this.rm.getPrivateMinesManager().clearDebugMines();
-            Text.send(commandSender, removed == 0
+            Text.send(p, removed == 0
                     ? "&7There are no &f" + PrivateMinesManager.DEBUG_OWNER + " &7mines to remove."
                     : "&aRemoved &f" + removed + " &a" + PrivateMinesManager.DEBUG_OWNER + " mine(s).");
             return;
@@ -590,13 +548,13 @@ public class PrivateMineCMD extends BaseCommandWA {
         //there is nothing to look at anywhere else, and it would put mines in a world nobody expects
         final World world = PrivateMinesWorld.peek();
         if (world == null || !p.getWorld().getName().equals(world.getName())) {
-            Text.send(commandSender, "&cRun this from inside the &f" + PrivateMinesWorld.NAME + " &cworld.");
+            Text.send(p, "&cRun this from inside the &f" + PrivateMinesWorld.NAME + " &cworld.");
             return;
         }
 
         final List<PrivateMineTemplate> templates = new ArrayList<>(this.rm.getPrivateMinesManager().getTemplates());
         if (templates.isEmpty()) {
-            TranslatableLine.PRIVATE_MINE_NO_TEMPLATES.send(commandSender);
+            TranslatableLine.PRIVATE_MINE_NO_TEMPLATES.send(p);
             return;
         }
 
@@ -604,19 +562,19 @@ public class PrivateMineCMD extends BaseCommandWA {
         final RMine mine = this.rm.getPrivateMinesManager().spawnDebugMine(template,
                 PrivateMinesManager.DEBUG_OWNER + (RealMinesAPI.getRand().nextInt(999) + 1));
         if (mine == null) {
-            Text.send(commandSender, "&cCouldn't place one from template &f" + template.getID()
+            Text.send(p, "&cCouldn't place one from template &f" + template.getID()
                     + "&c. The console says why.");
             return;
         }
 
         final PrivateMineData data = mine.getPrivateData();
-        Text.send(commandSender, "&aSpawned &r" + mine.getDisplayName() + " &afrom template &f" + template.getID()
+        Text.send(p, "&aSpawned &r" + mine.getDisplayName() + " &afrom template &f" + template.getID()
                 + " &aon slot &f" + data.getSlot() + "&a.");
-        Text.send(commandSender, data.getPlatformWidth() > 0
+        Text.send(p, data.getPlatformWidth() > 0
                 ? "&7Platform: &f" + data.getPlatformWidth() + " &7wide, fence &f"
                 + (mine.getMineCuboid() == null ? "?" : mine.getMineCuboid().getSizeY()) + " &7high"
                 : "&7Platform: &fnone&7.");
-        Text.send(commandSender, "&7Remove them all again with &f/pmine addsharik clear&7.");
+        Text.send(p, "&7Remove them all again with &f/pmine addsharik clear&7.");
 
         this.rm.getMineManager().teleport(p, mine, true, false);
     }
@@ -629,14 +587,6 @@ public class PrivateMineCMD extends BaseCommandWA {
             return false;
         }
         return true;
-    }
-
-    private Player requirePlayer(final CommandSender sender) {
-        if (!(sender instanceof Player)) {
-            TranslatableLine.SYSTEM_PLAYER_ONLY.send(sender);
-            return null;
-        }
-        return checkEnabled(sender) ? (Player) sender : null;
     }
 
     /**

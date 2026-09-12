@@ -25,6 +25,7 @@
         <!-- JitPack coordinate for joserodpt/RealPermissions. Swap for a tag (e.g.
              v0.4.4) once the upstream repo has one; commit hashes are stable too. -->
         <realpermissions.version>1e7015a05e</realpermissions.version>
+        <lamp.version>4.0.0-rc.18</lamp.version>
     </properties>
 
     <build>
@@ -37,6 +38,11 @@
                 <configuration>
                     <source>16</source>
                     <target>16</target>
+                    <compilerArgs>
+                        <!-- Lamp names command arguments after the method parameters, so the
+                             usage strings and <name> placeholders depend on these surviving. -->
+                        <arg>-parameters</arg>
+                    </compilerArgs>
                 </configuration>
             </plugin>
             <plugin>
@@ -61,8 +67,9 @@
                             <artifactSet>
                                 <includes>
                                     <include>dev.dejvokep:boosted-yaml</include>
-                                    <include>dev.triumphteam:triumph-cmd-core</include>
-                                    <include>dev.triumphteam:triumph-cmd-bukkit</include>
+                                    <include>io.github.revxrsal:lamp.common</include>
+                                    <include>io.github.revxrsal:lamp.bukkit</include>
+                                    <include>io.github.revxrsal:lamp.brigadier</include>
                                     <include>joserodpt:RealMinesAPI</include>
                                     <include>com.j256.ormlite:ormlite-core</include>
                                     <include>com.j256.ormlite:ormlite-jdbc</include>
@@ -71,9 +78,11 @@
 
                             <!-- Relocations -->
                             <relocations>
+                                <!-- com.mojang.brigadier is deliberately not relocated: those classes
+                                     come from the server, we only talk to them. -->
                                 <relocation>
-                                    <pattern>dev.triumphteam.cmd</pattern>
-                                    <shadedPattern>joserodpt.realmines.shaded.triumph</shadedPattern>
+                                    <pattern>revxrsal.commands</pattern>
+                                    <shadedPattern>joserodpt.realmines.shaded.lamp</shadedPattern>
                                 </relocation>
 
                                 <relocation>
@@ -95,6 +104,14 @@
                                      would strip classes that are only ever reached at runtime. Keep them all. -->
                                 <filter>
                                     <artifact>com.j256.ormlite:*</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
+                                <!-- Lamp reaches its Bukkit/Brigadier hooks and parameter types through
+                                     reflection and version probing, so minimizeJar can't see they are used. -->
+                                <filter>
+                                    <artifact>io.github.revxrsal:*</artifact>
                                     <includes>
                                         <include>**</include>
                                     </includes>
@@ -160,10 +177,6 @@
             <id>codemc-snapshots</id>
             <url>https://repo.codemc.io/repository/maven-snapshots/</url>
         </repository>
-        <repository>
-            <id>repo</id>
-            <url>https://repo.triumphteam.dev/snapshots/</url>
-        </repository>
     </repositories>
 
     <dependencyManagement>
@@ -185,10 +198,18 @@
             <version>1.14-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+        <!-- lamp.bukkit declares lamp.common and lamp.brigadier at runtime scope, which is enough
+             for shading but leaves them off the compile classpath, so lamp.common is repeated here.
+             lamp.brigadier is only ever reached at runtime, so it does not need the same. -->
         <dependency>
-            <groupId>dev.triumphteam</groupId>
-            <artifactId>triumph-cmd-bukkit</artifactId>
-            <version>2.0.0-SNAPSHOT</version>
+            <groupId>io.github.revxrsal</groupId>
+            <artifactId>lamp.common</artifactId>
+            <version>${lamp.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.revxrsal</groupId>
+            <artifactId>lamp.bukkit</artifactId>
+            <version>${lamp.version}</version>
         </dependency>
         <dependency>
             <groupId>me.clip</groupId>
