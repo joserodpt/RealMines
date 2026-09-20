@@ -11,7 +11,7 @@
 
     <properties>
         <revision>1.7</revision>
-        <java.version>16</java.version>
+        <maven.compiler.release>16</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <modules>

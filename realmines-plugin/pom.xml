@@ -20,7 +20,7 @@
     <description>Simple, Easy to Use and Configurable Mines plugin.</description>
 
     <properties>
-        <java.version>16</java.version>
+        <maven.compiler.release>16</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <!-- JitPack coordinate for joserodpt/RealPermissions. Swap for a tag (e.g.
              v0.4.4) once the upstream repo has one; commit hashes are stable too. -->
@@ -36,8 +36,7 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.13.0</version>
                 <configuration>
-                    <source>16</source>
-                    <target>16</target>
+                    <release>${maven.compiler.release}</release>
                     <compilerArgs>
                         <!-- Lamp names command arguments after the method parameters, so the
                              usage strings and <name> placeholders depend on these surviving. -->
