@@ -122,16 +122,17 @@ public class MaterialPickerGUI {
             public void onClick(final InventoryClickEvent e) {
                 final HumanEntity clicker = e.getWhoClicked();
                 if (clicker instanceof Player) {
-                    if (e.getCurrentItem() == null) {
-                        return;
-                    }
                     final UUID uuid = clicker.getUniqueId();
                     if (inventories.containsKey(uuid)) {
                         final MaterialPickerGUI current = inventories.get(uuid);
-                        if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
+                        if (!current.getInventory().equals(e.getInventory())) {
                             return;
                         }
 
+                        e.setCancelled(true);
+                        if (e.getCurrentItem() == null) {
+                            return;
+                        }
                         final Player p = (Player) clicker;
 
                         switch (e.getRawSlot()) {
@@ -167,26 +168,24 @@ public class MaterialPickerGUI {
                             p.closeInventory();
                             Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.materialRunnable.selectedMaterial(current.display.get(e.getRawSlot())), 3);
                         }
-
-                        e.setCancelled(true);
                     }
                 }
             }
 
             private void backPage(final MaterialPickerGUI asd) {
+                //an empty search result has no pages at all
                 if (asd.p.exists(asd.pageNumber - 1)) {
                     --asd.pageNumber;
+                    asd.fillChest(asd.p.getPage(asd.pageNumber));
                 }
-
-                asd.fillChest(asd.p.getPage(asd.pageNumber));
             }
 
             private void nextPage(final MaterialPickerGUI asd) {
+                //an empty search result has no pages at all
                 if (asd.p.exists(asd.pageNumber + 1)) {
                     ++asd.pageNumber;
+                    asd.fillChest(asd.p.getPage(asd.pageNumber));
                 }
-
-                asd.fillChest(asd.p.getPage(asd.pageNumber));
             }
 
             @EventHandler
@@ -197,8 +196,9 @@ public class MaterialPickerGUI {
                     }
                     final Player p = (Player) e.getPlayer();
                     final UUID uuid = p.getUniqueId();
-                    if (inventories.containsKey(uuid)) {
-                        inventories.get(uuid).unregister();
+                    final MaterialPickerGUI current = inventories.get(uuid);
+                    if (current != null && e.getInventory().equals(current.getInventory())) {
+                        current.unregister();
                     }
                 }
             }
@@ -244,9 +244,7 @@ public class MaterialPickerGUI {
         final InventoryView openInv = target.getOpenInventory();
         if (openInv != null) {
             final Inventory openTop = target.getOpenInventory().getTopInventory();
-            if (openTop != null && openTop.getType().name().equalsIgnoreCase(inv.getType().name())) {
-                openTop.setContents(inv.getContents());
-            } else {
+            if (!inv.equals(openTop)) {
                 target.openInventory(inv);
             }
         }

@@ -151,21 +151,20 @@ public class MineDepthGUI {
                     return;
                 }
 
-                if (e.getCurrentItem() == null) {
-                    return;
-                }
-
                 final UUID uuid = clicker.getUniqueId();
                 if (!inventories.containsKey(uuid)) {
                     return;
                 }
 
                 final MineDepthGUI current = inventories.get(uuid);
-                if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
+                if (!current.getInventory().equals(e.getInventory())) {
                     return;
                 }
 
                 e.setCancelled(true);
+                if (e.getCurrentItem() == null) {
+                    return;
+                }
                 final Player p = (Player) clicker;
 
                 switch (e.getRawSlot()) {
@@ -220,8 +219,9 @@ public class MineDepthGUI {
             public void onClose(final InventoryCloseEvent e) {
                 if (e.getPlayer() instanceof Player) {
                     final UUID uuid = e.getPlayer().getUniqueId();
-                    if (inventories.containsKey(uuid)) {
-                        inventories.get(uuid).unregister();
+                    final MineDepthGUI current = inventories.get(uuid);
+                    if (current != null && e.getInventory().equals(current.getInventory())) {
+                        current.unregister();
                     }
                 }
             }
@@ -291,9 +291,7 @@ public class MineDepthGUI {
         final InventoryView openInv = target.getOpenInventory();
         if (openInv != null) {
             final Inventory openTop = target.getOpenInventory().getTopInventory();
-            if (openTop != null && openTop.getType().name().equalsIgnoreCase(inv.getType().name())) {
-                openTop.setContents(inv.getContents());
-            } else {
+            if (!inv.equals(openTop)) {
                 target.openInventory(inv);
             }
         }

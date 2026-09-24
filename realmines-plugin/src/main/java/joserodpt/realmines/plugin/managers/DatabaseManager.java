@@ -16,11 +16,13 @@ package joserodpt.realmines.plugin.managers;
 import com.j256.ormlite.dao.Dao;
 import com.j256.ormlite.dao.DaoManager;
 import com.j256.ormlite.jdbc.JdbcConnectionSource;
+import com.j256.ormlite.jdbc.JdbcPooledConnectionSource;
 import com.j256.ormlite.jdbc.db.DatabaseTypeUtils;
 import com.j256.ormlite.logger.LoggerFactory;
 import com.j256.ormlite.logger.NullLogBackend;
 import com.j256.ormlite.stmt.QueryBuilder;
 import com.j256.ormlite.support.ConnectionSource;
+import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.table.TableUtils;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMSQLConfig;
@@ -37,6 +39,7 @@ import org.bukkit.entity.Player;
 
 import java.io.File;
 import java.sql.DatabaseMetaData;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,6 +49,10 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class DatabaseManager extends DatabaseManagerAPI {
@@ -88,6 +95,30 @@ public class DatabaseManager extends DatabaseManagerAPI {
      */
     private final Set<String> requestedMaterials = ConcurrentHashMap.newKeySet();
 
+    /**
+     * Players who quit but whose cached rows are still waiting on a write that worked. They are only
+     * dropped from the cache once one does, so a failed write on quit is retried by the next flush
+     * instead of throwing the whole session away.
+     */
+    private final Set<UUID> unloaded = ConcurrentHashMap.newKeySet();
+
+    /**
+     * Owned by the plugin rather than Bukkit's async pool, so shutdown can wait for whatever is queued
+     * or running instead of the scheduler silently dropping it.
+     */
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(r -> {
+        final Thread t = new Thread(r, "RealMines-Database");
+        t.setDaemon(true);
+        return t;
+    });
+
+    /**
+     * Held for every write and for the final flush, so close() can't pull the connection out from under
+     * a write that the flush timer is still in the middle of.
+     */
+    private final Object writeLock = new Object();
+    private volatile boolean closed = false;
+
     public DatabaseManager(final RealMines rm) throws SQLException {
         this.rm = rm;
 
@@ -95,10 +126,20 @@ public class DatabaseManager extends DatabaseManagerAPI {
         LoggerFactory.setLogBackendFactory(new NullLogBackend.NullLogBackendFactory());
 
         final String url = getDatabaseURL();
-        this.connectionSource = new JdbcConnectionSource(url,
-                RMSQLConfig.file().getString("username"),
-                RMSQLConfig.file().getString("password"),
-                DatabaseTypeUtils.createDatabaseType(url));
+        final String username = RMSQLConfig.file().getString("username");
+        final String password = RMSQLConfig.file().getString("password");
+        if (url.startsWith("jdbc:sqlite:")) {
+            //a local file that never times out, and more than one connection to it only buys "database is locked"
+            this.connectionSource = new JdbcConnectionSource(url, username, password, DatabaseTypeUtils.createDatabaseType(url));
+        } else {
+            //a single JdbcConnectionSource connection is never reopened, so once the server drops it (MySQL's
+            //wait_timeout, a restart, a network blip) every read and write fails until the next restart
+            final JdbcPooledConnectionSource pooled = new JdbcPooledConnectionSource(url, username, password,
+                    DatabaseTypeUtils.createDatabaseType(url));
+            pooled.setTestBeforeGet(true);
+            pooled.setMaxConnectionAgeMillis(TimeUnit.MINUTES.toMillis(30));
+            this.connectionSource = pooled;
+        }
 
         TableUtils.createTableIfNotExists(this.connectionSource, RMPlayerData.class);
         TableUtils.createTableIfNotExists(this.connectionSource, RMPlayerBlockStat.class);
@@ -109,7 +150,7 @@ public class DatabaseManager extends DatabaseManagerAPI {
         this.achievementsDao = DaoManager.createDao(this.connectionSource, RMPlayerAchievement.class);
 
         //for anyone who ran a build from before the leaderboards stopped needing a player lookup per row
-        createColumnIfNotExists(BLOCK_STATS_TABLE, "player_name", "VARCHAR");
+        createColumnIfNotExists(BLOCK_STATS_TABLE, "player_name", "VARCHAR(255)");
     }
 
     private String getDatabaseURL() {
@@ -136,9 +177,18 @@ public class DatabaseManager extends DatabaseManagerAPI {
      */
     public void createColumnIfNotExists(final String tableName, final String columnName, final String columnType) {
         try {
-            final DatabaseMetaData metaData = this.connectionSource.getReadOnlyConnection(tableName)
-                    .getUnderlyingConnection().getMetaData();
-            if (!metaData.getColumns(null, null, tableName, columnName).next()) {
+            final boolean exists;
+            //handed back afterwards, or a pooled source would lose that connection for good
+            final DatabaseConnection connection = this.connectionSource.getReadOnlyConnection(tableName);
+            try {
+                final DatabaseMetaData metaData = connection.getUnderlyingConnection().getMetaData();
+                try (final ResultSet columns = metaData.getColumns(null, null, tableName, columnName)) {
+                    exists = columns.next();
+                }
+            } finally {
+                this.connectionSource.releaseConnection(connection);
+            }
+            if (!exists) {
                 this.playerDataDao.executeRaw("ALTER TABLE " + tableName + " ADD COLUMN " + columnName + " " + columnType);
             }
         } catch (final SQLException e) {
@@ -176,6 +226,8 @@ public class DatabaseManager extends DatabaseManagerAPI {
 
     @Override
     public void loadIntoCache(final UUID uuid, final String name) {
+        //logging back in before their quit write finished: keep using that entry instead of evicting it
+        this.unloaded.remove(uuid);
         if (this.cache.containsKey(uuid)) {
             return;
         }
@@ -225,6 +277,7 @@ public class DatabaseManager extends DatabaseManagerAPI {
     public RMPlayerStats registerPlayer(final OfflinePlayer player) {
         final UUID uuid = player.getUniqueId();
 
+        this.unloaded.remove(uuid);
         RMPlayerStats stats = this.cache.get(uuid);
         if (stats == null) {
             //the async pre login preload didn't happen or didn't finish, so pay for it here
@@ -250,19 +303,30 @@ public class DatabaseManager extends DatabaseManagerAPI {
             return;
         }
 
-        //dropped only once the write is done, so the writer still has the rows it needs
+        this.unloaded.add(uuid);
+        //dropped only once the write is done, so the writer still has the rows it needs. If it fails,
+        //write() marks them dirty again and the entry stays until a later flush gets it on disk
         runAsync(() -> {
-            if (hadChanges) {
-                write(uuid, stats, materials);
+            if (!hadChanges || write(uuid, stats, materials)) {
+                evictIfGone(uuid);
             }
-            //back on the main thread to drop it, and only if they haven't reconnected in the
-            //meantime - a fast rejoin reuses this entry, and removing it would leave an online
-            //player with nothing to count into
-            runSync(() -> {
-                if (Bukkit.getPlayer(uuid) == null) {
-                    this.cache.remove(uuid);
-                }
-            });
+        });
+    }
+
+    /**
+     * Drops a player who quit from the cache, back on the main thread and only if they haven't
+     * reconnected in the meantime - a fast rejoin reuses this entry, and removing it would leave an
+     * online player with nothing to count into.
+     */
+    private void evictIfGone(final UUID uuid) {
+        if (!this.unloaded.contains(uuid)) {
+            return;
+        }
+        runSync(() -> {
+            if (this.unloaded.contains(uuid) && !this.dirty.contains(uuid) && Bukkit.getPlayer(uuid) == null) {
+                this.unloaded.remove(uuid);
+                this.cache.remove(uuid);
+            }
         });
     }
 
@@ -295,7 +359,12 @@ public class DatabaseManager extends DatabaseManagerAPI {
         final RMPlayerAchievement row = new RMPlayerAchievement(uuid, achievementID);
         runAsync(() -> {
             try {
-                this.achievementsDao.create(row);
+                synchronized (this.writeLock) {
+                    if (this.closed) {
+                        throw new SQLException("the database connection is closed");
+                    }
+                    this.achievementsDao.create(row);
+                }
             } catch (final SQLException e) {
                 this.rm.getLogger().warning("Couldn't save achievement " + achievementID + " for " + uuid + ": " + e.getMessage());
             }
@@ -371,8 +440,9 @@ public class DatabaseManager extends DatabaseManagerAPI {
 
         final Runnable write = () -> pending.forEach((uuid, materials) -> {
             final RMPlayerStats stats = this.cache.get(uuid);
-            if (stats != null) {
-                write(uuid, stats, materials);
+            //a player whose write on quit failed is still cached, and can go once this one works
+            if (stats != null && write(uuid, stats, materials)) {
+                evictIfGone(uuid);
             }
         });
 
@@ -383,8 +453,20 @@ public class DatabaseManager extends DatabaseManagerAPI {
         }
     }
 
-    private void write(final UUID uuid, final RMPlayerStats stats, final Set<String> materials) {
+    /**
+     * @return whether the rows made it to disk. When they didn't, the player is dirty again.
+     */
+    private boolean write(final UUID uuid, final RMPlayerStats stats, final Set<String> materials) {
+        synchronized (this.writeLock) {
+            return writeLocked(uuid, stats, materials);
+        }
+    }
+
+    private boolean writeLocked(final UUID uuid, final RMPlayerStats stats, final Set<String> materials) {
         try {
+            if (this.closed) {
+                throw new SQLException("the database connection is closed");
+            }
             this.playerDataDao.createOrUpdate(stats.getData());
 
             if (materials != null) {
@@ -397,6 +479,7 @@ public class DatabaseManager extends DatabaseManagerAPI {
                     }
                 }
             }
+            return true;
         } catch (final SQLException e) {
             this.rm.getLogger().warning("Couldn't save stats for " + uuid + ": " + e.getMessage());
             //put it back so the next flush retries instead of silently dropping the progress
@@ -404,6 +487,7 @@ public class DatabaseManager extends DatabaseManagerAPI {
                 this.dirtyMaterials.computeIfAbsent(uuid, k -> ConcurrentHashMap.newKeySet()).addAll(materials);
             }
             this.dirty.add(uuid);
+            return false;
         }
     }
 
@@ -433,6 +517,14 @@ public class DatabaseManager extends DatabaseManagerAPI {
 
     @Override
     public void refreshLeaderboards() {
+        synchronized (this.writeLock) {
+            if (!this.closed) {
+                refreshLeaderboardsLocked();
+            }
+        }
+    }
+
+    private void refreshLeaderboardsLocked() {
         final int limit = Math.max(1, RMConfig.file().getInt("RealMines.Stats.Leaderboard-Size", 28));
 
         try {
@@ -475,10 +567,10 @@ public class DatabaseManager extends DatabaseManagerAPI {
     // ---------------------------------------------------------------- plumbing
 
     private void runAsync(final Runnable runnable) {
-        //async tasks are refused once the server starts shutting down
-        if (this.rm.getPlugin().isEnabled()) {
-            Bukkit.getScheduler().runTaskAsynchronously(this.rm.getPlugin(), runnable);
-        } else {
+        try {
+            this.executor.execute(runnable);
+        } catch (final RejectedExecutionException e) {
+            //already shutting down, so there is nowhere left to hand it to
             runnable.run();
         }
     }
@@ -493,10 +585,26 @@ public class DatabaseManager extends DatabaseManagerAPI {
 
     @Override
     public void close() {
+        //let whatever was already handed off (quit writes, achievement rows, lookups) finish first
+        this.executor.shutdown();
         try {
-            this.connectionSource.close();
-        } catch (final Exception e) {
-            this.rm.getLogger().warning("Couldn't close the database connection: " + e.getMessage());
+            if (!this.executor.awaitTermination(10, TimeUnit.SECONDS)) {
+                this.rm.getLogger().warning("Gave up waiting on pending database writes.");
+            }
+        } catch (final InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+
+        synchronized (this.writeLock) {
+            //taking the lock waits out a flush the timer may still be running, and writing again here
+            //picks up anything that was queued or failed while it did
+            flushAll(false);
+            this.closed = true;
+            try {
+                this.connectionSource.close();
+            } catch (final Exception e) {
+                this.rm.getLogger().warning("Couldn't close the database connection: " + e.getMessage());
+            }
         }
     }
 }

@@ -267,17 +267,20 @@ public class PrivateMinesGUI {
             @EventHandler
             public void onClick(final InventoryClickEvent e) {
                 final HumanEntity clicker = e.getWhoClicked();
-                if (!(clicker instanceof Player) || e.getCurrentItem() == null) {
+                if (!(clicker instanceof Player)) {
                     return;
                 }
 
                 final UUID uuid = clicker.getUniqueId();
                 final PrivateMinesGUI current = inventories.get(uuid);
-                if (current == null || e.getInventory().getHolder() != current.getInventory().getHolder()) {
+                if (current == null || !current.getInventory().equals(e.getInventory())) {
                     return;
                 }
 
                 e.setCancelled(true);
+                if (e.getCurrentItem() == null) {
+                    return;
+                }
                 final Player p = (Player) clicker;
 
                 switch (e.getRawSlot()) {
@@ -371,7 +374,7 @@ public class PrivateMinesGUI {
             public void onClose(final InventoryCloseEvent e) {
                 if (e.getPlayer() instanceof Player) {
                     final PrivateMinesGUI gui = inventories.get(e.getPlayer().getUniqueId());
-                    if (gui != null) {
+                    if (gui != null && e.getInventory().equals(gui.getInventory())) {
                         gui.unregister();
                     }
                 }
@@ -384,9 +387,7 @@ public class PrivateMinesGUI {
         final InventoryView openInv = target.getOpenInventory();
         if (openInv != null) {
             final Inventory openTop = openInv.getTopInventory();
-            if (openTop != null && openTop.getType().name().equalsIgnoreCase(inv.getType().name())) {
-                openTop.setContents(inv.getContents());
-            } else {
+            if (!inv.equals(openTop)) {
                 target.openInventory(inv);
             }
         }

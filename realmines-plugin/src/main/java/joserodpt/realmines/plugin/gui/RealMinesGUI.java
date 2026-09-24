@@ -65,9 +65,7 @@ public class RealMinesGUI {
         InventoryView openInv = target.getOpenInventory();
         if (openInv != null) {
             Inventory openTop = target.getOpenInventory().getTopInventory();
-            if (openTop != null && openTop.getType().name().equalsIgnoreCase(inv.getType().name())) {
-                openTop.setContents(inv.getContents());
-            } else {
+            if (!inv.equals(openTop)) {
                 target.openInventory(inv);
             }
         }
@@ -80,17 +78,17 @@ public class RealMinesGUI {
                 HumanEntity clicker = e.getWhoClicked();
                 if (clicker instanceof Player) {
                     Player p = (Player) clicker;
-                    if (e.getCurrentItem() == null) {
-                        return;
-                    }
                     UUID uuid = clicker.getUniqueId();
                     if (inventories.containsKey(uuid)) {
                         RealMinesGUI current = inventories.get(uuid);
-                        if (e.getInventory().getHolder() != current.getInventory().getHolder()) {
+                        if (!current.getInventory().equals(e.getInventory())) {
                             return;
                         }
 
                         e.setCancelled(true);
+                        if (e.getCurrentItem() == null) {
+                            return;
+                        }
 
                         switch (e.getRawSlot()) {
                             case 26:
@@ -124,8 +122,9 @@ public class RealMinesGUI {
                     }
                     Player p = (Player) e.getPlayer();
                     UUID uuid = p.getUniqueId();
-                    if (inventories.containsKey(uuid)) {
-                        inventories.get(uuid).unregister();
+                    final RealMinesGUI current = inventories.get(uuid);
+                    if (current != null && e.getInventory().equals(current.getInventory())) {
+                        current.unregister();
                     }
                 }
             }

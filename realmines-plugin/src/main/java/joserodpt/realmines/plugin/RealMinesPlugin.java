@@ -283,9 +283,8 @@ public class RealMinesPlugin extends JavaPlugin {
         //plugin, so their regions can't be cleared now, and deleting the files would throw away the only
         //record of where those blocks are. loadInstances() clears and removes them on the next boot.
 
-        //the scheduler refuses async tasks from here on, so this last write has to be synchronous
+        //waits out pending writes, then does the last one synchronously before closing the connection
         if (realMines.getDatabaseManager() != null) {
-            realMines.getDatabaseManager().flushAll(false);
             realMines.getDatabaseManager().close();
         }
 

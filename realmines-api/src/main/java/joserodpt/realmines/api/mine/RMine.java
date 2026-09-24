@@ -66,9 +66,11 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MINE;
@@ -143,6 +145,9 @@ public abstract class RMine {
 
     protected int resetByTimeValue = 120, resetByPercentageValue = 20;
     protected int minedBlocks, blockSetIndex;
+    //blocks players placed since the last reset. Breaking one of these again pays out no break actions,
+    //or placing and re-breaking the same block would be an endless source of rewards
+    private final Set<Location> placedBlocks = new HashSet<>();
 
     protected boolean highlight = false;
     protected Map<MineCuboid.CuboidDirection, Material> faces = new HashMap<>();
@@ -1002,7 +1007,16 @@ public abstract class RMine {
         //add or remove to mined blocks
         this.minedBlocks = Math.max(0, this.minedBlocks + (event.isBroken() ? 1 : -1));
 
-        if (event.getPlayer() != null) {
+        final Location loc = event.getBlock().getLocation();
+        final boolean placedByPlayer;
+        if (event.isBroken()) {
+            placedByPlayer = this.placedBlocks.remove(loc);
+        } else {
+            this.placedBlocks.add(loc);
+            placedByPlayer = false;
+        }
+
+        if (event.getPlayer() != null && !placedByPlayer) {
             processBlockBreakAction(event, RealMinesAPI.getRand().nextDouble() * 100);
         }
 
@@ -1169,6 +1183,7 @@ public abstract class RMine {
 
             //reset mined blocks
             this.minedBlocks = 0;
+            this.placedBlocks.clear();
             processBlockBreakEvent(false);
 
             //execute reset commands
@@ -1256,6 +1271,7 @@ public abstract class RMine {
 
     public void clear() {
         this.minedBlocks = 0;
+        this.placedBlocks.clear();
         processBlockBreakEvent(false);
 
         this.clearContents();
@@ -1355,8 +1371,10 @@ public abstract class RMine {
         switch (e) {
             case PERCENTAGE:
                 this.resetByPercentage = b;
+                break;
             case TIME:
                 this.resetByTime = b;
+                break;
         }
         saveData(MineData.RESET);
     }

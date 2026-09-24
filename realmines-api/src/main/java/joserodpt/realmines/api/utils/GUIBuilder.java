@@ -71,20 +71,20 @@ public class GUIBuilder {
             public void onClick(final InventoryClickEvent e) {
                 final HumanEntity clicker = e.getWhoClicked();
                 if (clicker instanceof Player) {
-                    if (e.getCurrentItem() == null) {
-                        return;
-                    }
                     final Player p = (Player) clicker;
                     if (p != null) {
                         final UUID uuid = p.getUniqueId();
                         if (inventories.containsKey(uuid)) {
                             final GUIBuilder current = inventories.get(uuid);
-                            if (!e.getInventory().getType().name()
-                                    .equalsIgnoreCase(current.getInventory().getType().name())) {
+                            if (!current.getInventory().equals(e.getInventory())) {
                                 return;
                             }
                             e.setCancelled(true);
-                            final int slot = e.getSlot();
+                            if (e.getCurrentItem() == null) {
+                                return;
+                            }
+                            //raw slot, so a click in the player's own inventory doesn't run the GUI slot with the same index
+                            final int slot = e.getRawSlot();
                             if (current.runnables.get(slot) != null) {
                                 current.runnables.get(slot).run(e);
                             }
@@ -101,8 +101,9 @@ public class GUIBuilder {
                     }
                     final Player p = (Player) e.getPlayer();
                     final UUID uuid = p.getUniqueId();
-                    if (inventories.containsKey(uuid)) {
-                        inventories.get(uuid).unRegister();
+                    final GUIBuilder current = inventories.get(uuid);
+                    if (current != null && e.getInventory().equals(current.getInventory())) {
+                        current.unRegister();
                     }
                 }
             }
@@ -151,9 +152,7 @@ public class GUIBuilder {
         final InventoryView openInv = player.getOpenInventory();
         if (openInv != null) {
             final Inventory openTop = player.getOpenInventory().getTopInventory();
-            if (openTop != null && openTop.getType().name().equalsIgnoreCase(inv.getType().name())) {
-                openTop.setContents(inv.getContents());
-            } else {
+            if (!inv.equals(openTop)) {
                 player.openInventory(inv);
             }
             this.register();

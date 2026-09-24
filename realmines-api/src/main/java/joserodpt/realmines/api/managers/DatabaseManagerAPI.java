@@ -126,5 +126,9 @@ public abstract class DatabaseManagerAPI {
      */
     public abstract void refreshLeaderboards();
 
+    /**
+     * Waits for pending database work, writes whatever is still dirty and closes the connection.
+     * Blocking, and meant for shutdown.
+     */
     public abstract void close();
 }
