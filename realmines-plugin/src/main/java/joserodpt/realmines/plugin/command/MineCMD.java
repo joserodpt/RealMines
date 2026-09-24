@@ -20,6 +20,7 @@ import joserodpt.realmines.api.database.RMPlayerData;
 import joserodpt.realmines.api.database.RMPlayerStats;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.plugin.managers.MineManager;
 import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realmines.plugin.gui.AchievementBoardGUI;
 import joserodpt.realmines.plugin.gui.LeaderboardGUI;
@@ -125,8 +126,9 @@ public class MineCMD {
     @SuppressWarnings("unused")
     public void createcmd(final Player p, @SuggestFrom(RMSuggestion.NEW_MINE_NAMES) @Single final String name,
                           @SuggestFrom(RMSuggestion.MINE_TYPES) @Single final String type) {
-        if (name.isEmpty()) {
-            Text.send(p, "&cInvalid mine name.");
+        //a mine is stored in a file named after it, so a name that can't be one is refused here
+        if (!MineManager.isValidMineName(name)) {
+            TranslatableLine.SYSTEM_INVALID_MINE_NAME.send(p);
             return;
         }
         if (type.isEmpty()) {
@@ -243,7 +245,8 @@ public class MineCMD {
     public void tpmine(final Player p, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
-            rm.getMineManager().teleport(p, m, m.isSilent(), true);
+            //never silent here: the silent path skips the realmines.tp.<name> and private mine checks
+            rm.getMineManager().teleport(p, m, false, true);
         } else {
             TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(p);
         }
@@ -492,6 +495,19 @@ public class MineCMD {
     public void renamecmd(final CommandSender commandSender, @SuggestFrom(RMSuggestion.MINES) @Single final String name, @Single final String newName) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
+            if (m.isPrivate()) {
+                Text.send(commandSender, "&cPrivate mines are managed through /pmine.");
+                return;
+            }
+            if (!MineManager.isValidMineName(newName)) {
+                TranslatableLine.SYSTEM_INVALID_MINE_NAME.send(commandSender);
+                return;
+            }
+            //renaming onto another mine's name would overwrite its file and drop it from the registry
+            if (rm.getMineManager().getMine(newName) != null) {
+                TranslatableLine.SYSTEM_MINE_EXISTS.send(commandSender);
+                return;
+            }
             rm.getMineManager().renameMine(m, newName);
             TranslatableLine.SYSTEM_MINE_RENAMED.with(NAME, newName).send(commandSender);
         } else {
@@ -506,7 +522,12 @@ public class MineCMD {
     public void deletecmd(final CommandSender commandSender, @SuggestFrom(RMSuggestion.MINES) @Single final String name) {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
-            rm.getMineManager().deleteMine(m);
+            if (m.isPrivate()) {
+                //release clears the region and the platform too, so the slot can be handed out clean
+                rm.getPrivateMinesManager().release(m);
+            } else {
+                rm.getMineManager().deleteMine(m);
+            }
             TranslatableLine.SYSTEM_MINE_DELETED.send(commandSender);
         } else {
             TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);

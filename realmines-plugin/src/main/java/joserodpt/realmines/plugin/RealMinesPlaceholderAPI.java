@@ -117,6 +117,10 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
 
         if (identifier.startsWith("totalblocks")) {
             final String[] split = identifier.split("_");
+            //no mine name given, e.g. %realmines_totalblocks%
+            if (split.length <= mineIndex) {
+                return null;
+            }
             final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
@@ -128,6 +132,10 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
 
         if (identifier.startsWith("minedblocks")) {
             final String[] split = identifier.split("_");
+            //no mine name given, e.g. %realmines_totalblocks%
+            if (split.length <= mineIndex) {
+                return null;
+            }
             final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
@@ -139,6 +147,10 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
 
         if (identifier.startsWith("remainingblocks")) {
             final String[] split = identifier.split("_");
+            //no mine name given, e.g. %realmines_totalblocks%
+            if (split.length <= mineIndex) {
+                return null;
+            }
             final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
@@ -150,6 +162,10 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
 
         if (identifier.startsWith("perremainingblocks")) {
             final String[] split = identifier.split("_");
+            //no mine name given, e.g. %realmines_totalblocks%
+            if (split.length <= mineIndex) {
+                return null;
+            }
             final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
@@ -161,6 +177,10 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
 
         if (identifier.startsWith("perminedblocks")) {
             final String[] split = identifier.split("_");
+            //no mine name given, e.g. %realmines_totalblocks%
+            if (split.length <= mineIndex) {
+                return null;
+            }
             final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
@@ -172,6 +192,10 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
 
         if (identifier.startsWith("secondsleft")) {
             final String[] split = identifier.split("_");
+            //no mine name given, e.g. %realmines_totalblocks%
+            if (split.length <= mineIndex) {
+                return null;
+            }
             final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
@@ -187,6 +211,10 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
 
         if (identifier.startsWith("timeleft")) {
             final String[] split = identifier.split("_");
+            //no mine name given, e.g. %realmines_totalblocks%
+            if (split.length <= mineIndex) {
+                return null;
+            }
             final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
@@ -202,6 +230,10 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
 
         if (identifier.startsWith("bar")) {
             final String[] split = identifier.split("_");
+            //no mine name given, e.g. %realmines_totalblocks%
+            if (split.length <= mineIndex) {
+                return null;
+            }
             final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
@@ -213,6 +245,10 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
 
         if (identifier.startsWith("percentage_bar")) {
             final String[] split = identifier.split("_");
+            //no mine name given, e.g. %realmines_totalblocks%
+            if (split.length <= mineIndex) {
+                return null;
+            }
             final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {

@@ -509,6 +509,7 @@ public class MineItemsGUI {
                 } catch (final Exception ex) {
                     TranslatableLine.SYSTEM_INPUT_PERCENTAGE_ERROR.send(p);
                     this.editPercentage(p, a, current);
+                    return;
                 }
 
                 if (d < 0D) {

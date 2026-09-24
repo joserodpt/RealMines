@@ -182,7 +182,7 @@ public class PrivateMineManageGUI {
                 final Player p = (Player) clicker;
 
                 //the mine can be released or expire while this menu sits open
-                if (current.rm.getMineManager().getMine(current.mine.getName()) == null) {
+                if (current.rm.getMineManager().getMine(current.mine.getName()) != current.mine) {
                     p.closeInventory();
                     TranslatableLine.PRIVATE_MINE_NO_MINE.send(p);
                     return;
@@ -273,7 +273,7 @@ public class PrivateMineManageGUI {
 
                 new PlayerInput(true, p, input -> {
                     //the mine can be released or expire while the owner is typing the name
-                    if (current.rm.getMineManager().getMine(current.mine.getName()) == null) {
+                    if (current.rm.getMineManager().getMine(current.mine.getName()) != current.mine) {
                         TranslatableLine.PRIVATE_MINE_NO_MINE.send(p);
                         return;
                     }

@@ -121,8 +121,11 @@ public class JetsPrisonMinesConverter implements RMConverterBase {
 
                 if (rUsePercentage) {
                     m.setResetState(RMine.Reset.PERCENTAGE, true);
-                    m.setResetValue(RMine.Reset.PERCENTAGE, (int) (rPercentage / 100.0));
-                    Text.send(cmd, " &f> Importing reset percentage of: &b" + (rPercentage / 100.0) + "%");
+                    //RealMines wants a whole 0-100 percentage. Dividing by 100 and truncating made every
+                    //import 0; a value up to 1 is read as a fraction, anything above as a percentage already
+                    final int percentage = (int) Math.round(rPercentage <= 1D ? rPercentage * 100D : rPercentage);
+                    m.setResetValue(RMine.Reset.PERCENTAGE, Math.max(0, Math.min(100, percentage)));
+                    Text.send(cmd, " &f> Importing reset percentage of: &b" + percentage + "%");
                 }
 
                 boolean rUseMessages = mineFile.getBoolean("reset.use_messages");

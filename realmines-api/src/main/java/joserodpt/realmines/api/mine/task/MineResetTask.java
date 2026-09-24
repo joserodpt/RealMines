@@ -21,6 +21,7 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class MineResetTask {
@@ -28,7 +29,9 @@ public class MineResetTask {
     private final RealMinesAPI rm;
     private final String name;
     private final int delay;
-    private final List<RMine> mines = new ArrayList<>();
+    //names, looked up on every run: /rm reload replaces every RMine, and holding the objects kept resetting
+    //the discarded ones (and, after a delete, the deleted mine's region) until a restart
+    private final List<String> mines = new ArrayList<>();
     private BukkitTask task;
 
     public MineResetTask(final RealMinesAPI rm, final String name, final int delay, final Boolean nova) {
@@ -43,7 +46,7 @@ public class MineResetTask {
 
     private void save() {
         RPMineResetTasksConfig.file().set(this.name + ".Delay", this.delay);
-        RPMineResetTasksConfig.file().set(this.name + ".LinkedMines", this.mines.stream().map(RMine::getName).collect(Collectors.toList()));
+        RPMineResetTasksConfig.file().set(this.name + ".LinkedMines", new ArrayList<>(this.mines));
 
         RPMineResetTasksConfig.save();
     }
@@ -58,19 +61,25 @@ public class MineResetTask {
         this.task = new BukkitRunnable() {
             @Override
             public void run() {
-                MineResetTask.this.mines.forEach(RMine::reset);
+                MineResetTask.this.mines.stream()
+                        .map(mineName -> rm.getMineManager().getMine(mineName))
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toList())
+                        .forEach(RMine::reset);
             }
-        }.runTaskTimer(rm.getPlugin(), 0L, this.delay * 20L);
+        }.runTaskTimer(rm.getPlugin(), 0L, Math.max(1, this.delay) * 20L);
 
     }
 
     public void addMine(final RMine m) {
-        this.mines.add(m);
+        if (!this.mines.contains(m.getName())) {
+            this.mines.add(m.getName());
+        }
         this.save();
     }
 
     public void removeMine(final RMine m) {
-        this.mines.remove(m);
+        this.mines.remove(m.getName());
         this.save();
     }
 
@@ -83,6 +92,6 @@ public class MineResetTask {
     }
 
     public boolean hasMine(final RMine mine) {
-        return this.mines.contains(mine);
+        return this.mines.contains(mine.getName());
     }
 }

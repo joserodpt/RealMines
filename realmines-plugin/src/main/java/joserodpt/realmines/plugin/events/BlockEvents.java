@@ -141,19 +141,21 @@ public class BlockEvents implements Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    //ignoreCancelled on these three: a place, trample or blast another plugin (WorldGuard, say) cancelled
+    //never changed the mine, so it must not move the mined count or run break actions either
+    @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockPlace(final BlockPlaceEvent e) {
         rm.getMineManager().findBlockUpdate(e.getPlayer(), e, e.getBlock(), false);
     }
 
-    @EventHandler
+    @EventHandler(ignoreCancelled = true)
     public void onFarmStep(PlayerInteractEvent e) {
         if (e.getAction() == Action.PHYSICAL && e.getClickedBlock().getType() == Material.FARMLAND) {
             rm.getMineManager().findBlockUpdate(e.getPlayer(), e, e.getClickedBlock().getRelative(BlockFace.UP), true);
         }
     }
 
-    @EventHandler //for creeper and TNT explosions
+    @EventHandler(ignoreCancelled = true) //for creeper and TNT explosions
     public void onEntityExplode(final EntityExplodeEvent e) {
         //one blast reports every block through the same event, so blocks that have to survive it are
         //dropped from the list rather than cancelling the explosion for everyone

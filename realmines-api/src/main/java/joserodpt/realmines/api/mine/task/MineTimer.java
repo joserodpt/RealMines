@@ -34,6 +34,9 @@ public class MineTimer {
     }
 
     public void start() {
+        //a countdown already running would otherwise be orphaned: nothing could stop it any more, and it
+        //would keep resetting the mine alongside the new one
+        this.kill();
         this.startTask(this.m.getResetValue(RMine.Reset.TIME));
     }
 
@@ -63,7 +66,6 @@ public class MineTimer {
     }
 
     public void restart() {
-        this.kill();
         this.start();
     }
 

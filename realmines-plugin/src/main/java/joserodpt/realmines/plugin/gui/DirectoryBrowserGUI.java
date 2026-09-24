@@ -81,6 +81,8 @@ public class DirectoryBrowserGUI {
         }
 
         this.currentDir = dir;
+        //a new directory starts on its first page, whatever page the last one was left on
+        this.pageNumber = 0;
         try {
             this.upDir = dir.getParentFile();
         } catch (Exception e) {
@@ -103,6 +105,7 @@ public class DirectoryBrowserGUI {
         }).toList();
 
         if (files.isEmpty()) {
+            this.p = null;
             this.fillChest(Collections.emptyList());
         } else {
             this.p = new Pagination<>(28, files);
@@ -171,19 +174,19 @@ public class DirectoryBrowserGUI {
             }
 
             private void backPage(final DirectoryBrowserGUI asd) {
-                if (asd.p.exists(asd.pageNumber - 1)) {
+                //p is null while the directory is empty
+                if (asd.p != null && asd.p.exists(asd.pageNumber - 1)) {
                     --asd.pageNumber;
+                    asd.fillChest(asd.p.getPage(asd.pageNumber));
                 }
-
-                asd.fillChest(asd.p.getPage(asd.pageNumber));
             }
 
             private void nextPage(final DirectoryBrowserGUI asd) {
-                if (asd.p.exists(asd.pageNumber + 1)) {
+                //p is null while the directory is empty
+                if (asd.p != null && asd.p.exists(asd.pageNumber + 1)) {
                     ++asd.pageNumber;
+                    asd.fillChest(asd.p.getPage(asd.pageNumber));
                 }
-
-                asd.fillChest(asd.p.getPage(asd.pageNumber));
             }
 
             @EventHandler

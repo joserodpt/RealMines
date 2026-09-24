@@ -503,9 +503,14 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
                 if (p1 == null || p2 == null || world == null) {
                     continue;
                 }
+                //the walkway and fence around it are just as taken as the mine itself: leaving them out
+                //let a neighbour's slot be built over them, and releasing either mine then blanked both
+                final int margin = Math.max(0, config.getInt(PrivateMineData.ROOT + ".platform-width", 0));
+                final int below = margin > 0 ? PrivateMinePlatform.REACH_BELOW : 0;
+                final int above = margin > 0 ? PrivateMinePlatform.reachAbove(Math.abs(p2[1] - p1[1]) + 1) : 0;
                 regions.add(new Object[]{world,
-                        Math.min(p1[0], p2[0]), Math.min(p1[1], p2[1]), Math.min(p1[2], p2[2]),
-                        Math.max(p1[0], p2[0]), Math.max(p1[1], p2[1]), Math.max(p1[2], p2[2])});
+                        Math.min(p1[0], p2[0]) - margin, Math.min(p1[1], p2[1]) - below, Math.min(p1[2], p2[2]) - margin,
+                        Math.max(p1[0], p2[0]) + margin, Math.max(p1[1], p2[1]) + above, Math.max(p1[2], p2[2]) + margin});
             }
         }
         return regions;
@@ -649,7 +654,11 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
      */
     public int clearDebugMines() {
         final List<RMine> debug = this.getPrivateMines().stream()
-                .filter(mine -> mine.getPrivateData().getOwnerName().startsWith(DEBUG_OWNER))
+                //the name alone would also catch a real player called Sharik-something. Debug owners are
+                //random UUIDs, so they are the ones that have never been on the server
+                .filter(mine -> mine.getPrivateData().getOwnerName().startsWith(DEBUG_OWNER)
+                        && Bukkit.getPlayer(mine.getPrivateData().getOwner()) == null
+                        && !Bukkit.getOfflinePlayer(mine.getPrivateData().getOwner()).hasPlayedBefore())
                 .collect(Collectors.toList());
         debug.forEach(this::release);
         return debug.size();
@@ -669,6 +678,14 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
             this.rm.getLogger().severe("Refused a claim of private mine template '" + template.getID()
                     + "': the '" + PrivateMinesWorld.NAME + "' world couldn't be created.");
             return ClaimResult.WORLD_MISSING;
+        }
+
+        final double cost = payer == null || payer.hasPermission(FREE_PERMISSION) ? 0D : template.getCost();
+        final Economy econ = RealMinesAPI.getInstance().getEconomy();
+        //checked before validating and searching for a slot, which read every mine file off disk: spamming
+        //a claim you can't afford must not cost the server that each time
+        if (cost > 0D && econ != null && !econ.has(payer, cost)) {
+            return ClaimResult.INSUFFICIENT_FUNDS;
         }
 
         //a misconfigured template would build copies on top of each other, so refuse rather than
@@ -702,9 +719,7 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
         }
 
         //charge last, once everything else is known to be fine
-        final double cost = payer == null || payer.hasPermission(FREE_PERMISSION) ? 0D : template.getCost();
         if (cost > 0D) {
-            final Economy econ = RealMinesAPI.getInstance().getEconomy();
             if (econ == null) {
                 this.rm.getLogger().warning("Private mine template '" + template.getID() + "' costs " + cost
                         + " but Vault/an economy plugin isn't available, so the claim was refused.");
@@ -879,6 +894,11 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
         if (instance == null || !instance.isPrivate()) {
             return;
         }
+        //a stale reference (a GUI left open across a release and re-claim) shares its name and file with
+        //the owner's new mine, so tearing it down would refund twice and delete the new one
+        if (this.rm.getMineManager().getMine(instance.getName()) != instance) {
+            return;
+        }
 
         final PrivateMineData data = instance.getPrivateData();
         final Player owner = Bukkit.getPlayer(data.getOwner());
@@ -904,8 +924,8 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
         //before anything is taken down: the mine and its walkway are the only ground there is
         this.evacuate(instance, data.getPlatformWidth());
 
-        //deleteMine only clears when a confusingly named option is on, so do it here: whoever gets this
-        //slot next must not inherit the previous tenant's blocks
+        //cleared here rather than by deleteMine, together with the platform: whoever gets this slot next
+        //must not inherit the previous tenant's blocks
         try {
             if (instance.getMineCuboid() != null) {
                 instance.clear();

@@ -53,6 +53,11 @@ public class MineResetTaskCMD {
     @CommandPermission("realmines.admin")
     @Usage("&c/rmrt create <name> <delay>")
     public void createcmd(final Player p, @SuggestFrom(RMSuggestion.NEW_TASK_NAMES) @Single final String name, final Integer delay) {
+        //a delay of 0 would become a 1 tick period, resetting every linked mine 20 times a second
+        if (delay == null || delay < 1) {
+            Text.send(p, "&cThe delay must be at least 1 second.");
+            return;
+        }
         final MineResetTask mrt = this.rm.getMineResetTasksManager().getTask(ChatColor.stripColor(Text.color(name)));
         if (mrt == null) {
             this.rm.getMineResetTasksManager().addTask(ChatColor.stripColor(Text.color(name)), delay);

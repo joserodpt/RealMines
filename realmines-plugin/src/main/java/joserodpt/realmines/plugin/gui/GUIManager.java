@@ -28,6 +28,7 @@ import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
+import joserodpt.realmines.plugin.managers.MineManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -37,7 +38,6 @@ import org.bukkit.scheduler.BukkitRunnable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MINE;
 import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.NAME;
@@ -51,7 +51,6 @@ public class GUIManager {
     private static final String DUPLICATE_CLICK = "SWAP_OFFHAND";
 
     //a mine's name is also its file name: these would either break the path or escape the mines folder
-    private static final Pattern ILLEGAL_NAME = Pattern.compile("[\\\\/:*?\"<>|]");
 
     private final RealMines rm;
 
@@ -102,7 +101,7 @@ public class GUIManager {
         new PlayerInput(true, target, s -> {
             final String newName = s.trim();
             //a mine is stored in a file named after it, so a name that can't be one is refused here
-            if (newName.isEmpty() || ILLEGAL_NAME.matcher(newName).find()) {
+            if (!MineManager.isValidMineName(newName)) {
                 TranslatableLine.SYSTEM_INVALID_MINE_NAME.send(target);
                 onCancel.run();
                 return;
@@ -248,8 +247,15 @@ public class GUIManager {
                 inventory.addItem(e -> {
                     target.closeInventory();
                     new PlayerInput(true, target, s -> {
-                        rm.getMineManager().renameMine(m, s);
-                        TranslatableLine.SYSTEM_MINE_RENAMED.with(NAME, s).send(target);
+                        if (!MineManager.isValidMineName(s)) {
+                            TranslatableLine.SYSTEM_INVALID_MINE_NAME.send(target);
+                        } else if (rm.getMineManager().getMine(s) != null) {
+                            //renaming onto another mine's name would overwrite its file and drop it from the registry
+                            TranslatableLine.SYSTEM_MINE_EXISTS.send(target);
+                        } else {
+                            rm.getMineManager().renameMine(m, s);
+                            TranslatableLine.SYSTEM_MINE_RENAMED.with(NAME, s).send(target);
+                        }
                         openMine(m, target);
                     }, s -> rm.getGUIManager().openMine(m, target));
                 }, Items.createItem(Material.FILLED_MAP, 1, TranslatableLine.GUI_NAME_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.Name.Description")), 0);

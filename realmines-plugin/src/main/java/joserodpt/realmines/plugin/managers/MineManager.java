@@ -61,12 +61,15 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.COUNT;
 import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MINE;
 
 public class MineManager extends MineManagerAPI {
+
+    private static final Pattern ILLEGAL_NAME = Pattern.compile("[\\\\/:*?\"<>|]");
 
     private final RealMinesAPI rm;
     private final Map<String, RMine> mines = new HashMap<>();
@@ -160,9 +163,11 @@ public class MineManager extends MineManagerAPI {
                             default:
                                 throw new IllegalStateException("Unexpected value: " + type);
                         }
-                    } catch (RMFailedToLoadException e) {
+                    } catch (Exception e) {
+                        //anything, not just RMFailedToLoadException: one malformed file (a bad number, a
+                        //missing key) must not stop every mine after it from loading
                         rm.getLogger().severe("Failed to load mine " + file.getName() + "!");
-                        rm.getLogger().severe("Error: " + e.getMessage());
+                        rm.getLogger().severe("Error: " + e);
                     }
                 }
             }
@@ -514,7 +519,8 @@ public class MineManager extends MineManagerAPI {
         if (mine != null) {
             Bukkit.getPluginManager().callEvent(new RealMinesMineChangeEvent(mine, RealMinesMineChangeEvent.ChangeOperation.REMOVED));
 
-            if (RMConfig.file().getBoolean("RealMines.disableMineClearingWhenDeleting", false)) {
+            //private mines are cleared, platform and all, by PrivateMinesManager before they get here
+            if (!mine.isPrivate() && !RMConfig.file().getBoolean("RealMines.disableMineClearingWhenDeleting", false)) {
                 mine.clear();
             }
 
@@ -553,11 +559,27 @@ public class MineManager extends MineManagerAPI {
         return rm.getPlugin().getDataFolder();
     }
 
+    /**
+     * A mine is stored in a file named after it, so its name must be usable as one and must not be able
+     * to point outside the mines folder.
+     */
+    public static boolean isValidMineName(final String name) {
+        return name != null && !name.trim().isEmpty() && !ILLEGAL_NAME.matcher(name).find() && !name.contains("..");
+    }
+
     @Override
     public void renameMine(RMine m, String newName) {
+        //reset tasks link mines by name, so they have to follow the rename
+        final List<MineResetTask> linked = rm.getMineResetTasksManager().getTasks().stream()
+                .filter(task -> task.hasMine(m))
+                .collect(Collectors.toList());
+        linked.forEach(task -> task.removeMine(m));
+
         this.unregisterMine(m);
         m.rename(ChatColor.stripColor(Text.color(newName)));
         this.registerMine(m);
+
+        linked.forEach(task -> task.addMine(m));
     }
 
     @Override

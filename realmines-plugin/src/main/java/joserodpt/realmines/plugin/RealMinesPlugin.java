@@ -180,7 +180,8 @@ public class RealMinesPlugin extends JavaPlugin {
                 realMines.getMineManager().getMines().values().forEach(RMine::highlight);
             }
 
-        }.runTaskTimerAsynchronously(this, 0, 10);
+        //on the main thread: the mine map is a plain HashMap that claims, releases and reloads change there
+        }.runTaskTimer(this, 0, 10);
 
         //blocks are counted in memory, this is what actually puts them on disk
         if (realMines.getDatabaseManager() != null) {

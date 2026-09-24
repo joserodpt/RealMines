@@ -79,6 +79,8 @@ public class MineListGUI {
         } else {
             this.p = new Pagination<>(28, this.rm.getMineManager().getMineList());
         }
+        //deleting the last mine on the last page leaves pageNumber past the end
+        this.pageNumber = Math.max(0, Math.min(this.pageNumber, this.p.totalPages() - 1));
         this.fillChest(this.p.getPage(this.pageNumber));
     }
 

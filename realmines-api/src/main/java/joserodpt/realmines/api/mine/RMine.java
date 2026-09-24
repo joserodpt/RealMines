@@ -148,6 +148,9 @@ public abstract class RMine {
     //blocks players placed since the last reset. Breaking one of these again pays out no break actions,
     //or placing and re-breaking the same block would be an endless source of rewards
     private final Set<Location> placedBlocks = new HashSet<>();
+    //set while a percentage reset is scheduled, so a blast or several players breaking blocks below the
+    //threshold don't each queue another full refill
+    private boolean resetPending = false;
 
     protected boolean highlight = false;
     protected Map<MineCuboid.CuboidDirection, Material> faces = new HashMap<>();
@@ -479,7 +482,12 @@ public abstract class RMine {
         this.resetByTimeValue = this.config.getInt("reset.time.value");
         this.silent = this.config.getBoolean("reset.silent");
 
-        this.blockSetsMode = BlockSetsMode.valueOf(getSettingString(RMineSettings.BLOCK_SETS_MODE));
+        //a missing or mistyped mode would otherwise fail the whole mine
+        try {
+            this.blockSetsMode = BlockSetsMode.valueOf(getSettingString(RMineSettings.BLOCK_SETS_MODE));
+        } catch (Exception ignored) {
+            this.blockSetsMode = BlockSetsMode.INCREMENTAL;
+        }
 
         //mines created before this setting existed default to the top face
         try {
@@ -1027,8 +1035,14 @@ public abstract class RMine {
         if (reset) {
             //if mine reset percentage is lower, reset it
             if (this.isResetBy(Reset.PERCENTAGE) & ((double) this.getRemainingBlocksPer() < this.getResetValue(Reset.PERCENTAGE))) {
-                this.kickPlayers(TranslatableLine.MINE_RESET_PERCENTAGE.get());
-                Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), this::reset, 10);
+                if (!this.resetPending) {
+                    this.resetPending = true;
+                    this.kickPlayers(TranslatableLine.MINE_RESET_PERCENTAGE.get());
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> {
+                        this.resetPending = false;
+                        this.reset();
+                    }, 10);
+                }
             }
         }
 
@@ -1172,7 +1186,8 @@ public abstract class RMine {
                     }
                     break;
                 case RANDOM:
-                    this.blockSetIndex = RealMinesAPI.getRand().nextInt(this.blockSets.size());
+                    //nextInt(0) throws, and every block set can be removed in the GUI
+                    this.blockSetIndex = this.blockSets.isEmpty() ? 0 : RealMinesAPI.getRand().nextInt(this.blockSets.size());
                     break;
                 case NONE:
                     break;
@@ -1318,16 +1333,24 @@ public abstract class RMine {
         final double maxY = Math.max(this.getMineCuboid().getPOS1().getY() + 1, this.getMineCuboid().getPOS2().getY() + 1);
         final double maxZ = Math.max(this.getMineCuboid().getPOS1().getZ() + 1, this.getMineCuboid().getPOS2().getZ() + 1);
         final double dist = 0.5D;
-        for (double x = minX; x <= maxX; x += dist) {
-            for (double y = minY; y <= maxY; y += dist) {
-                for (double z = minZ; z <= maxZ; z += dist) {
-                    int components = 0;
-                    if (x == minX || x == maxX) ++components;
-                    if (y == minY || y == maxY) ++components;
-                    if (z == minZ || z == maxZ) ++components;
-                    if (components >= 2) {
-                        result.add(new Location(world, x, y, z));
-                    }
+        //walks the 12 edges only, rather than every point of the volume: this runs on the main thread
+        //every half second for each highlighted mine. The X edges own the corners, so none repeats
+        for (final double y : new double[]{minY, maxY}) {
+            for (final double z : new double[]{minZ, maxZ}) {
+                for (double x = minX; x <= maxX; x += dist) {
+                    result.add(new Location(world, x, y, z));
+                }
+            }
+        }
+        for (final double x : new double[]{minX, maxX}) {
+            for (final double z : new double[]{minZ, maxZ}) {
+                for (double y = minY + dist; y < maxY; y += dist) {
+                    result.add(new Location(world, x, y, z));
+                }
+            }
+            for (final double y : new double[]{minY, maxY}) {
+                for (double z = minZ + dist; z < maxZ; z += dist) {
+                    result.add(new Location(world, x, y, z));
                 }
             }
         }

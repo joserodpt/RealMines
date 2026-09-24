@@ -17,6 +17,7 @@ import joserodpt.realmines.api.event.RealMinesBlockBreakEvent;
 import joserodpt.realmines.api.managers.DatabaseManagerAPI;
 import joserodpt.realmines.api.utils.PlayerHeads;
 import joserodpt.realmines.plugin.RealMines;
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -24,6 +25,7 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 /**
@@ -58,6 +60,25 @@ public class StatsEvents implements Listener {
         } catch (final Exception ex) {
             //never keep somebody out of the server over their stats
             this.rm.getLogger().warning("Couldn't preload stats for " + e.getName() + ": " + ex.getMessage());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR)
+    public void onLogin(final PlayerLoginEvent e) {
+        if (e.getResult() == PlayerLoginEvent.Result.ALLOWED) {
+            return;
+        }
+
+        final DatabaseManagerAPI db = this.rm.getDatabaseManager();
+        if (db == null) {
+            return;
+        }
+
+        //refused after the preload above already cached them (a ban, the whitelist, a full server): they
+        //never join, so they never quit either, and the entry would stay cached for good. Not when the
+        //same player is already online, which is a refused duplicate login using that very entry
+        if (Bukkit.getPlayer(e.getPlayer().getUniqueId()) == null) {
+            db.unloadPlayer(e.getPlayer().getUniqueId());
         }
     }
 
