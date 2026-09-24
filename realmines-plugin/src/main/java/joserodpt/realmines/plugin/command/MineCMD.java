@@ -42,6 +42,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MATERIAL;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MINE;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.NAME;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.PERCENTAGE;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.TIME;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.VALUE;
+
 @Command({"realmines", "mine", "rm"})
 public class MineCMD {
 
@@ -170,7 +177,7 @@ public class MineCMD {
         if (m != null) {
             m.setTeleport(p.getLocation());
             m.saveData(RMine.MineData.TELEPORT);
-            TranslatableLine.MINE_TELEPORT_SET.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).send(p);
+            TranslatableLine.MINE_TELEPORT_SET.with(MINE, m.getDisplayName()).send(p);
         } else {
             TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(p);
         }
@@ -198,9 +205,9 @@ public class MineCMD {
         if (m != null) {
             boolean success = m.setCountdown(seconds, true);
             if (success) {
-                TranslatableLine.MINE_COUNTDOWN_SET.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).setV2(TranslatableLine.ReplacableVar.TIME.eq(String.valueOf(seconds))).send(commandSender);
+                TranslatableLine.MINE_COUNTDOWN_SET.with(MINE, m.getDisplayName()).with(TIME, String.valueOf(seconds)).send(commandSender);
             } else {
-                TranslatableLine.MINE_COUNTDOWN_SET_UNSUCCESSFUL.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).send(commandSender);
+                TranslatableLine.MINE_COUNTDOWN_SET_UNSUCCESSFUL.with(MINE, m.getDisplayName()).send(commandSender);
             }
         } else {
             TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
@@ -215,14 +222,14 @@ public class MineCMD {
         if (m != null) {
             boolean success = m.resetCountdown(true);
             if (success) {
-                TranslatableLine line = TranslatableLine.MINE_COUNTDOWN_SET.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName()));
+                final TranslatableLine.Message line = TranslatableLine.MINE_COUNTDOWN_SET.with(MINE, m.getDisplayName());
                 Integer countdown = m.getCountdown();
                 if (countdown != null) {
-                    line.setV2(TranslatableLine.ReplacableVar.TIME.eq(String.valueOf(countdown)));
+                    line.with(TIME, String.valueOf(countdown));
                 }
                 line.send(commandSender);
             } else {
-                TranslatableLine.MINE_COUNTDOWN_SET_UNSUCCESSFUL.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).send(commandSender);
+                TranslatableLine.MINE_COUNTDOWN_SET_UNSUCCESSFUL.with(MINE, m.getDisplayName()).send(commandSender);
             }
         } else {
             TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
@@ -321,21 +328,21 @@ public class MineCMD {
     private void sendStats(final CommandSender to, final String targetName, final RMPlayerStats stats) {
         if (stats == null || stats.getTotalBlocksMined() <= 0) {
             Text.send(to, TranslatableLine.STATS_NO_DATA
-                    .setV1(TranslatableLine.ReplacableVar.NAME.eq(targetName)).get());
+                    .with(NAME, targetName).get());
             return;
         }
 
         Text.send(to, TranslatableLine.STATS_HEADER
-                .setV1(TranslatableLine.ReplacableVar.NAME.eq(targetName)).get());
+                .with(NAME, targetName).get());
         Text.send(to, TranslatableLine.STATS_TOTAL_MINED
-                .setV1(TranslatableLine.ReplacableVar.VALUE.eq(Text.formatNumber(stats.getTotalBlocksMined()))).get());
+                .with(VALUE, Text.formatNumber(stats.getTotalBlocksMined())).get());
 
         final int total = rm.getAchievementsManager().getAchievements().size();
         final int unlocked = rm.getAchievementsManager().getUnlockedCount(stats);
         Text.send(to, TranslatableLine.STATS_ACHIEVEMENTS
-                .setV1(TranslatableLine.ReplacableVar.VALUE.eq(unlocked + "/" + total))
-                .setV2(TranslatableLine.ReplacableVar.PERCENTAGE.eq(
-                        total == 0 ? "0" : String.valueOf(Math.round(unlocked * 100D / total)))).get());
+                .with(VALUE, unlocked + "/" + total)
+                .with(PERCENTAGE, 
+                        total == 0 ? "0" : String.valueOf(Math.round(unlocked * 100D / total))).get());
 
         Material best = null;
         long bestAmount = 0;
@@ -347,8 +354,8 @@ public class MineCMD {
         }
         if (best != null) {
             Text.send(to, TranslatableLine.STATS_TOP_MATERIAL
-                    .setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(best)))
-                    .setV2(TranslatableLine.ReplacableVar.VALUE.eq(Text.formatNumber(bestAmount))).get());
+                    .with(MATERIAL, Text.beautifyMaterialName(best))
+                    .with(VALUE, Text.formatNumber(bestAmount)).get());
         }
     }
 
@@ -360,7 +367,7 @@ public class MineCMD {
         rm.getDatabaseManager().findPlayer(name, data -> {
             if (data == null) {
                 Text.send(to, TranslatableLine.STATS_PLAYER_NOT_FOUND
-                        .setV1(TranslatableLine.ReplacableVar.NAME.eq(name)).get());
+                        .with(NAME, name).get());
                 return;
             }
             callback.accept(data);
@@ -390,9 +397,9 @@ public class MineCMD {
             m.setSilent(!m.isSilent());
 
             if (!m.isSilent()) {
-                TranslatableLine.SYSTEM_SILENT_OFF.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(commandSender);
+                TranslatableLine.SYSTEM_SILENT_OFF.with(MINE, name).send(commandSender);
             } else {
-                TranslatableLine.SYSTEM_SILENT_ON.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(commandSender);
+                TranslatableLine.SYSTEM_SILENT_ON.with(MINE, name).send(commandSender);
             }
         } else {
             TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
@@ -413,9 +420,9 @@ public class MineCMD {
             m.setSilent(bol);
 
             if (!m.isSilent()) {
-                TranslatableLine.SYSTEM_SILENT_OFF.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).send(commandSender);
+                TranslatableLine.SYSTEM_SILENT_OFF.with(MINE, m.getDisplayName()).send(commandSender);
             } else {
-                TranslatableLine.SYSTEM_SILENT_ON.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).send(commandSender);
+                TranslatableLine.SYSTEM_SILENT_ON.with(MINE, m.getDisplayName()).send(commandSender);
             }
         }
     }
@@ -486,7 +493,7 @@ public class MineCMD {
         final RMine m = rm.getMineManager().getMine(name);
         if (m != null) {
             rm.getMineManager().renameMine(m, newName);
-            TranslatableLine.SYSTEM_MINE_RENAMED.setV1(TranslatableLine.ReplacableVar.NAME.eq(newName)).send(commandSender);
+            TranslatableLine.SYSTEM_MINE_RENAMED.with(NAME, newName).send(commandSender);
         } else {
             TranslatableLine.SYSTEM_MINE_DOESNT_EXIST.send(commandSender);
         }

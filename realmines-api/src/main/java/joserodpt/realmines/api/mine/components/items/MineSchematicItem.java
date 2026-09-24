@@ -24,6 +24,8 @@ import org.bukkit.inventory.ItemStack;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MATERIAL;
+
 public class MineSchematicItem extends MineItem {
 
     public MineSchematicItem(final Material m) {
@@ -36,7 +38,7 @@ public class MineSchematicItem extends MineItem {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItem(super.getMaterial(), 1, TranslatableLine.GUI_SCHEMATIC_BLOCK_NAME.setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(super.getMaterial()))).get() + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Mine-Block.Schematic-Block.Description")
+        return Items.createItem(super.getMaterial(), 1, TranslatableLine.GUI_SCHEMATIC_BLOCK_NAME.with(MATERIAL, Text.beautifyMaterialName(super.getMaterial())).get() + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Mine-Block.Schematic-Block.Description")
                 .stream()
                 .map(Text::color)
                 .collect(Collectors.toList()));

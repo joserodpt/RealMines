@@ -31,6 +31,9 @@ import org.bukkit.inventory.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.NAME;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.OBJECT;
+
 /**
  * One goal a player can work towards by mining, and whatever they get for reaching it.
  */
@@ -148,7 +151,7 @@ public class RMAchievement {
         db.grantAchievement(player.getUniqueId(), this.id);
 
         Text.send(player, TranslatableLine.ACHIEVEMENT_UNLOCKED
-                .setV1(TranslatableLine.ReplacableVar.NAME.eq(this.displayName)).get());
+                .with(NAME, this.displayName).get());
 
         for (final MineAction reward : this.rewards) {
             try {
@@ -161,8 +164,8 @@ public class RMAchievement {
 
         if (this.announce) {
             Bukkit.broadcastMessage(TranslatableLine.ACHIEVEMENT_BROADCAST
-                    .setV1(TranslatableLine.ReplacableVar.NAME.eq(this.displayName))
-                    .setV2(TranslatableLine.ReplacableVar.OBJECT.eq(player.getName())).get());
+                    .with(NAME, this.displayName)
+                    .with(OBJECT, player.getName()).get());
         }
     }
 

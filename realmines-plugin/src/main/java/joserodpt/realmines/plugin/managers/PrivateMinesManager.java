@@ -56,6 +56,9 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MINE;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.VALUE;
+
 public class PrivateMinesManager extends PrivateMinesManagerAPI {
 
     /**
@@ -888,14 +891,14 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
                     econ.depositPlayer(Bukkit.getOfflinePlayer(data.getOwner()), amount);
                     if (owner != null) {
                         TranslatableLine.PRIVATE_MINE_REFUNDED
-                                .setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(amount))).send(owner);
+                                .with(VALUE, String.valueOf(amount)).send(owner);
                     }
                 }
             }
         }
 
         if (notice != null && owner != null) {
-            notice.setV1(TranslatableLine.ReplacableVar.MINE.eq(instance.getDisplayName())).send(owner);
+            notice.with(MINE, instance.getDisplayName()).send(owner);
         }
 
         //before anything is taken down: the mine and its walkway are the only ground there is

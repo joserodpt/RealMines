@@ -63,6 +63,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.COUNT;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MINE;
+
 public class MineManager extends MineManagerAPI {
 
     private final RealMinesAPI rm;
@@ -190,15 +193,15 @@ public class MineManager extends MineManagerAPI {
                 if (!mat.isEmpty()) {
                     TranslatableLine.SYSTEM_ADD_BLOCKS.send(p);
                     mat.forEach(material -> Text.send(p, " &7> &f" + material.name()));
-                    TranslatableLine.SYSTEM_BLOCK_COUNT.setV1(TranslatableLine.ReplacableVar.COUNT.eq(String.valueOf(mat.size()))).send(p);
+                    TranslatableLine.SYSTEM_BLOCK_COUNT.with(COUNT, String.valueOf(mat.size())).send(p);
 
                     new PlayerInput(true, p, input -> {
                         if (input.equalsIgnoreCase("yes")) {
                             mat.forEach(material -> m.addItem("default", new MineBlockItem(material, 0.1D)));
-                            TranslatableLine.SYSTEM_BLOCKS_ADDED.setV1(TranslatableLine.ReplacableVar.COUNT.eq(String.valueOf(mat.size()))).send(p);
+                            TranslatableLine.SYSTEM_BLOCKS_ADDED.with(COUNT, String.valueOf(mat.size())).send(p);
                         }
-                        TranslatableLine.SYSTEM_MINE_CREATED.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(p);
-                    }, input -> TranslatableLine.SYSTEM_MINE_CREATED.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(p));
+                        TranslatableLine.SYSTEM_MINE_CREATED.with(MINE, name).send(p);
+                    }, input -> TranslatableLine.SYSTEM_MINE_CREATED.with(MINE, name).send(p));
                 }
 
             }
@@ -235,15 +238,15 @@ public class MineManager extends MineManagerAPI {
                 if (!mat.isEmpty()) {
                     TranslatableLine.SYSTEM_ADD_BLOCKS.send(p);
                     mat.forEach(material -> Text.send(p, " &7> &f" + material.name()));
-                    TranslatableLine.SYSTEM_BLOCK_COUNT.setV1(TranslatableLine.ReplacableVar.COUNT.eq(String.valueOf(mat.size()))).send(p);
+                    TranslatableLine.SYSTEM_BLOCK_COUNT.with(COUNT, String.valueOf(mat.size())).send(p);
 
                     new PlayerInput(true, p, input -> {
                         if (input.equalsIgnoreCase("yes")) {
                             mat.forEach(material -> m.addFarmItem("default", new MineFarmItem(FarmItem.valueOf(Material.WHEAT))));
-                            TranslatableLine.SYSTEM_BLOCKS_ADDED.setV1(TranslatableLine.ReplacableVar.COUNT.eq(String.valueOf(mat.size()))).send(p);
+                            TranslatableLine.SYSTEM_BLOCKS_ADDED.with(COUNT, String.valueOf(mat.size())).send(p);
                         }
-                        TranslatableLine.SYSTEM_MINE_CREATED.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(p);
-                    }, input -> TranslatableLine.SYSTEM_MINE_CREATED.setV1(TranslatableLine.ReplacableVar.MINE.eq(name)).send(p));
+                        TranslatableLine.SYSTEM_MINE_CREATED.with(MINE, name).send(p);
+                    }, input -> TranslatableLine.SYSTEM_MINE_CREATED.with(MINE, name).send(p));
                 }
             }
         } catch (final Exception e) {
@@ -360,7 +363,7 @@ public class MineManager extends MineManagerAPI {
                         target.teleport(m.getTeleport());
 
                         if (RMConfig.file().getBoolean("RealMines.teleportMessage")) {
-                            TranslatableLine.MINE_TELEPORT.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).send(target);
+                            TranslatableLine.MINE_TELEPORT.with(MINE, m.getDisplayName()).send(target);
                         }
                     } else {
                         if (RMConfig.file().getBoolean("RealMines.teleportMessage")) {

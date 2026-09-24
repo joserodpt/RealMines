@@ -71,6 +71,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MINE;
+
 public abstract class RMine {
 
     public void setBlockSetMode(BlockSetsMode next) {
@@ -1162,7 +1164,7 @@ public abstract class RMine {
                     break;
             }
 
-            this.kickPlayers(TranslatableLine.MINE_RESET_STARTING.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.getDisplayName())).get());
+            this.kickPlayers(TranslatableLine.MINE_RESET_STARTING.with(MINE, this.getDisplayName()).get());
             this.fillContent();
 
             //reset mined blocks
@@ -1176,11 +1178,11 @@ public abstract class RMine {
                 if (this.isPrivate()) {
                     //a private mine's resets are nobody else's business, and announcing one per player
                     //would drown the chat on a server where everyone owns one
-                    this.getPrivateAudience().forEach(player -> TranslatableLine.MINE_RESET_ANNOUNCEMENT.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.getDisplayName())).send(player));
+                    this.getPrivateAudience().forEach(player -> TranslatableLine.MINE_RESET_ANNOUNCEMENT.with(MINE, this.getDisplayName()).send(player));
                 } else if (RMConfig.file().getBoolean("RealMines.broadcastResetMessageOnlyInWorld")) {
-                    this.getMineCuboid().getWorld().getPlayers().forEach(player -> TranslatableLine.MINE_RESET_ANNOUNCEMENT.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.getDisplayName())).send(player));
+                    this.getMineCuboid().getWorld().getPlayers().forEach(player -> TranslatableLine.MINE_RESET_ANNOUNCEMENT.with(MINE, this.getDisplayName()).send(player));
                 } else {
-                    Bukkit.broadcastMessage(Text.getPrefix() + TranslatableLine.MINE_RESET_ANNOUNCEMENT.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.getDisplayName())).get());
+                    Bukkit.broadcastMessage(Text.getPrefix() + TranslatableLine.MINE_RESET_ANNOUNCEMENT.with(MINE, this.getDisplayName()).get());
                 }
             }
 

@@ -43,6 +43,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MATERIAL;
+
 public class MaterialPickerGUI {
 
     public enum MaterialLists {ALL_MATERIALS, ONLY_ITEMS, ONLY_BLOCKS, ONLY_FARM_ICONS}
@@ -227,7 +229,7 @@ public class MaterialPickerGUI {
             if (i == null && !items.isEmpty()) {
                 final Material s = items.get(0);
                 this.inv.setItem(slot,
-                        Items.createItem(s, 1, TranslatableLine.GUI_PICK_NAME.setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(s))).get(), RMLanguageConfig.file().getStringList("GUI.Items.Pick.Description")));
+                        Items.createItem(s, 1, TranslatableLine.GUI_PICK_NAME.with(MATERIAL, Text.beautifyMaterialName(s)).get(), RMLanguageConfig.file().getStringList("GUI.Items.Pick.Description")));
                 this.display.put(slot, s);
                 items.remove(0);
             }

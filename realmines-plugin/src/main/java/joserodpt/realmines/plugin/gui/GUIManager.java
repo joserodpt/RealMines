@@ -39,6 +39,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MINE;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.NAME;
+
 public class GUIManager {
 
     /**
@@ -121,7 +124,7 @@ public class GUIManager {
                 return;
             }
 
-            TranslatableLine.SYSTEM_MINE_DUPLICATED.setV1(TranslatableLine.ReplacableVar.NAME.eq(newName)).send(target);
+            TranslatableLine.SYSTEM_MINE_DUPLICATED.with(NAME, newName).send(target);
             //straight into the copy: its region still sits on the original's, and that is the first
             //thing the admin has to change
             this.openMine(copy, target);
@@ -246,7 +249,7 @@ public class GUIManager {
                     target.closeInventory();
                     new PlayerInput(true, target, s -> {
                         rm.getMineManager().renameMine(m, s);
-                        TranslatableLine.SYSTEM_MINE_RENAMED.setV1(TranslatableLine.ReplacableVar.NAME.eq(s)).send(target);
+                        TranslatableLine.SYSTEM_MINE_RENAMED.with(NAME, s).send(target);
                         openMine(m, target);
                     }, s -> rm.getGUIManager().openMine(m, target));
                 }, Items.createItem(Material.FILLED_MAP, 1, TranslatableLine.GUI_NAME_NAME.get(), RMLanguageConfig.file().getStringList("GUI.Items.Name.Description")), 0);
@@ -261,7 +264,7 @@ public class GUIManager {
                                 final MineItemsGUI v = new MineItemsGUI(rm, target, m);
                                 v.openInventory(target);
                             }, 2);
-                        }, Items.createItem(Material.CHEST, 1, TranslatableLine.GUI_MINE_BLOCKS_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).get(), RMLanguageConfig.file().getStringList("GUI.Items.Blocks.Description")),
+                        }, Items.createItem(Material.CHEST, 1, TranslatableLine.GUI_MINE_BLOCKS_NAME.with(MINE, m.getDisplayName()).get(), RMLanguageConfig.file().getStringList("GUI.Items.Blocks.Description")),
                         10);
 
                 inventory.addItem(e -> {
@@ -280,7 +283,7 @@ public class GUIManager {
                 inventory.addItem(e -> {
                     target.closeInventory();
                     Bukkit.getScheduler().scheduleSyncDelayedTask(rm.getPlugin(), () -> {
-                        final MaterialPickerGUI mpg = new MaterialPickerGUI(target, TranslatableLine.GUI_SELECT_ICON_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).get(), MaterialPickerGUI.MaterialLists.ALL_MATERIALS, mat -> {
+                        final MaterialPickerGUI mpg = new MaterialPickerGUI(target, TranslatableLine.GUI_SELECT_ICON_NAME.with(MINE, m.getDisplayName()).get(), MaterialPickerGUI.MaterialLists.ALL_MATERIALS, mat -> {
                             if (mat != null) {
                                 m.setIcon(mat);
                             }

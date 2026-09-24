@@ -14,7 +14,6 @@ package joserodpt.realmines.plugin.gui;
  */
 
 import joserodpt.realmines.api.config.TranslatableLine;
-import joserodpt.realmines.api.config.TranslatableLine.ReplacableVar;
 import joserodpt.realmines.api.managers.PrivateMinePlatform;
 import joserodpt.realmines.api.managers.PrivateMineTemplate;
 import joserodpt.realmines.api.mine.components.PrivateMineData;
@@ -43,6 +42,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.TEMPLATE;
 
 /**
  * Editor for one private mine template: everything the file holds except the snapshot itself, which only
@@ -331,7 +332,7 @@ public class PrivateMineTemplateGUI {
                 if (template == null) {
                     p.closeInventory();
                     TranslatableLine.PRIVATE_MINE_TEMPLATE_NOT_FOUND
-                            .setV1(ReplacableVar.TEMPLATE.eq(current.templateID)).send(p);
+                            .with(TEMPLATE, current.templateID).send(p);
                     return;
                 }
 
@@ -362,10 +363,10 @@ public class PrivateMineTemplateGUI {
                         p.closeInventory();
                         if (current.rm.getPrivateMinesManager().deleteTemplate(current.templateID)) {
                             TranslatableLine.PRIVATE_MINE_TEMPLATE_DELETED
-                                    .setV1(ReplacableVar.TEMPLATE.eq(current.templateID)).send(p);
+                                    .with(TEMPLATE, current.templateID).send(p);
                         } else {
                             TranslatableLine.PRIVATE_MINE_TEMPLATE_NOT_FOUND
-                                    .setV1(ReplacableVar.TEMPLATE.eq(current.templateID)).send(p);
+                                    .with(TEMPLATE, current.templateID).send(p);
                         }
                         return;
 

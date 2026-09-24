@@ -51,6 +51,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MINE;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.OBJECT;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.VALUE;
+
 public class MineItemsGUI {
 
     private static final Map<UUID, MineItemsGUI> inventories = new HashMap<>();
@@ -85,7 +89,7 @@ public class MineItemsGUI {
         this.selectedBlockSet = selectedBlockSet;
         this.uuid = target.getUniqueId();
         this.mine = mine;
-        this.inv = Bukkit.getServer().createInventory(null, mine.getType() == RMine.Type.SCHEMATIC ? 45 : 54, TranslatableLine.GUI_MINE_BLOCKS_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(this.mine.getDisplayName())).get());
+        this.inv = Bukkit.getServer().createInventory(null, mine.getType() == RMine.Type.SCHEMATIC ? 45 : 54, TranslatableLine.GUI_MINE_BLOCKS_NAME.with(MINE, this.mine.getDisplayName()).get());
 
         this.load();
 
@@ -313,7 +317,7 @@ public class MineItemsGUI {
                                                 break;
                                         }
 
-                                        TranslatableLine.SYSTEM_REMOVE.setV1(TranslatableLine.ReplacableVar.OBJECT.eq(Text.beautifyMaterialName(minItem.getMaterial()))).send(p);
+                                        TranslatableLine.SYSTEM_REMOVE.with(OBJECT, Text.beautifyMaterialName(minItem.getMaterial())).send(p);
                                         current.load();
                                         break;
                                     case SHIFT_RIGHT:
@@ -380,7 +384,7 @@ public class MineItemsGUI {
                                     case SHIFT_LEFT:
                                         p.closeInventory();
                                         Bukkit.getScheduler().scheduleSyncDelayedTask(current.rm.getPlugin(), () -> {
-                                            final MaterialPickerGUI mpg = new MaterialPickerGUI(p, TranslatableLine.GUI_SELECT_ICON_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(blockSet.getKey())).get(), MaterialPickerGUI.MaterialLists.ALL_MATERIALS, mat -> {
+                                            final MaterialPickerGUI mpg = new MaterialPickerGUI(p, TranslatableLine.GUI_SELECT_ICON_NAME.with(MINE, blockSet.getKey()).get(), MaterialPickerGUI.MaterialLists.ALL_MATERIALS, mat -> {
                                                 if (mat != null) {
                                                     blockSet.setIcon(mat);
                                                     current.mine.saveData(RMine.MineData.BLOCKS);
@@ -493,7 +497,7 @@ public class MineItemsGUI {
                 a.setPercentage((double) percentage / 100);
                 current.mine.saveData(RMine.MineData.BLOCKS);
 
-                TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(percentage == 0 ? "0%" : Text.formatPercentages((double) percentage / 100) + "%")).send(p);
+                TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.with(VALUE, percentage == 0 ? "0%" : Text.formatPercentages((double) percentage / 100) + "%").send(p);
 
                 final MineItemsGUI v = new MineItemsGUI(current.rm, p, current.mine, current.selectedBlockSet);
                 v.openInventory(p);
@@ -526,7 +530,7 @@ public class MineItemsGUI {
                 a.setPercentage(d);
                 current.mine.saveData(RMine.MineData.BLOCKS);
 
-                TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(Text.formatPercentages((d)) + "%")).send(p);
+                TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.with(VALUE, Text.formatPercentages((d)) + "%").send(p);
                 final MineItemsGUI v = new MineItemsGUI(current.rm, p, current.mine, current.selectedBlockSet);
                 v.openInventory(p);
             }, s -> {

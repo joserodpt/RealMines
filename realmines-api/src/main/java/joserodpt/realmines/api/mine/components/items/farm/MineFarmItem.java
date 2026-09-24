@@ -27,6 +27,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.AGE;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MATERIAL;
+
 public class MineFarmItem extends MineItem {
 
     private final FarmItem fi;
@@ -65,7 +68,7 @@ public class MineFarmItem extends MineItem {
 
     @Override
     public ItemStack getItem() {
-        return Items.createItem(super.getMaterial(), 1, TranslatableLine.GUI_FARM_ITEM_NAME.setV1(TranslatableLine.ReplacableVar.MATERIAL.eq(Text.beautifyMaterialName(this.fi.getIcon()))).setV2(TranslatableLine.ReplacableVar.AGE.eq(String.valueOf(this.getAge()))).get() + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Farm-Item.Description")
+        return Items.createItem(super.getMaterial(), 1, TranslatableLine.GUI_FARM_ITEM_NAME.with(MATERIAL, Text.beautifyMaterialName(this.fi.getIcon())).with(AGE, String.valueOf(this.getAge())).get() + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Farm-Item.Description")
                 .stream()
                 .map(s -> Text.color(s.replaceAll("%percentage%", Text.formatPercentages(super.getPercentage()))))
                 .collect(Collectors.toList()));

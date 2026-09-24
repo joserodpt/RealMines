@@ -30,6 +30,10 @@ import revxrsal.commands.bukkit.annotation.CommandPermission;
 
 import java.util.Arrays;
 
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.DELAY;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.OBJECT;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.TASK;
+
 @Command({"realminesresettask", "minesresettask", "rmrt"})
 public class MineResetTaskCMD {
 
@@ -52,7 +56,7 @@ public class MineResetTaskCMD {
         final MineResetTask mrt = this.rm.getMineResetTasksManager().getTask(ChatColor.stripColor(Text.color(name)));
         if (mrt == null) {
             this.rm.getMineResetTasksManager().addTask(ChatColor.stripColor(Text.color(name)), delay);
-            TranslatableLine.SYSTEM_MINE_TASK_CREATED.setV1(TranslatableLine.ReplacableVar.TASK.eq(name)).setV2(TranslatableLine.ReplacableVar.DELAY.eq(String.valueOf(delay))).send(p);
+            TranslatableLine.SYSTEM_MINE_TASK_CREATED.with(TASK, name).with(DELAY, String.valueOf(delay)).send(p);
         } else {
             TranslatableLine.SYSTEM_MINE_TASK_EXISTS.send(p);
         }
@@ -65,7 +69,7 @@ public class MineResetTaskCMD {
         final MineResetTask mrt = this.rm.getMineResetTasksManager().getTask(name);
         if (mrt != null) {
             this.rm.getMineResetTasksManager().removeTask(mrt);
-            TranslatableLine.SYSTEM_REMOVE.setV1(TranslatableLine.ReplacableVar.OBJECT.eq(name)).send(p);
+            TranslatableLine.SYSTEM_REMOVE.with(OBJECT, name).send(p);
         } else {
             TranslatableLine.SYSTEM_MINE_TASK_DOESNT_EXIST.send(p);
         }

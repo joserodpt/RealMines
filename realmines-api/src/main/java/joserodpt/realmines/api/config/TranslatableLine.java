@@ -16,19 +16,36 @@ package joserodpt.realmines.api.config;
 import joserodpt.realmines.api.utils.Text;
 import org.bukkit.command.CommandSender;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+/**
+ * Every line the plugin says to a player, as a constant pointing at its route in language.yml.
+ *
+ * <p>Placeholders are filled with {@link #with(TranslatableLinePlaceholder, Object)}, which hands
+ * back a new {@link Message} rather than changing the constant:</p>
+ *
+ * <pre>{@code
+ * TranslatableLine.MINE_COUNTDOWN_SET.with(MINE, mine.getDisplayName()).with(TIME, seconds).send(p);
+ * }</pre>
+ *
+ * <p>The values used to be stored on the constants themselves, which are shared by every caller -
+ * so a value set for one message stayed behind for the next, a line could hold at most two, and
+ * the same placeholder could not appear twice with different values.</p>
+ */
 public enum TranslatableLine {
     // Mines related messages
-    MINE_RESET_STARTING("Mines.Reset.Starting", ReplacableVar.MINE),
+    MINE_RESET_STARTING("Mines.Reset.Starting"),
     MINE_RESET_PERCENTAGE("Mines.Reset.Percentage"),
-    MINE_RESET_ANNOUNCEMENT("Mines.Reset.Announcement", ReplacableVar.MINE),
-    MINE_RESET_WARNING("Mines.Reset.Warning", ReplacableVar.MINE),
-    MINE_TELEPORT("Mines.Teleport", ReplacableVar.MINE),
-    MINE_TELEPORT_SET("Mines.Teleport-Set", ReplacableVar.MINE),
-    MINE_COUNTDOWN_SET("Mines.Countdown-Set", ReplacableVar.MINE, ReplacableVar.TIME),
-    MINE_COUNTDOWN_SET_UNSUCCESSFUL("Mines.Countdown-Set-Unsuccessful", ReplacableVar.MINE),
+    MINE_RESET_ANNOUNCEMENT("Mines.Reset.Announcement"),
+    MINE_RESET_WARNING("Mines.Reset.Warning"),
+    MINE_TELEPORT("Mines.Teleport"),
+    MINE_TELEPORT_SET("Mines.Teleport-Set"),
+    MINE_COUNTDOWN_SET("Mines.Countdown-Set"),
+    MINE_COUNTDOWN_SET_UNSUCCESSFUL("Mines.Countdown-Set-Unsuccessful"),
     MINE_NO_TELEPORT_LOCATION("Mines.No-Teleport-Location"),
     // break actions
-    MINE_BREAK_ACTION_GIVE_MONEY("Mines.Break-Actions.Give-Money", ReplacableVar.MONEY),
+    MINE_BREAK_ACTION_GIVE_MONEY("Mines.Break-Actions.Give-Money"),
     MINE_BREAK_ACTION_DROP_ITEM("Mines.Break-Actions.Drop-Item"),
     MINE_BREAK_ACTION_GIVE_ITEM("Mines.Break-Actions.Give-Item"),
     MINE_BREAK_ACTION_INPUT_COMMAND("Mines.Break-Actions.Input.Command"),
@@ -37,13 +54,13 @@ public enum TranslatableLine {
     MINE_BREAK_ACTION_INPUT_CHANCE("Mines.Break-Actions.Input.Chance"),
 
     // GUI related messages
-    GUI_RESET_NAME("GUI.Reset-Name", ReplacableVar.MINE),
+    GUI_RESET_NAME("GUI.Reset-Name"),
     GUI_FACES_NAME("GUI.Faces-Name"),
     GUI_FACES_ITEM_NAME("GUI.Faces.Name"),
-    GUI_CHOOSE_NAME("GUI.Choose-Name", ReplacableVar.MINE),
-    GUI_SELECT_ICON_NAME("GUI.Select-Icon-Name", ReplacableVar.MINE),
+    GUI_CHOOSE_NAME("GUI.Choose-Name"),
+    GUI_SELECT_ICON_NAME("GUI.Select-Icon-Name"),
     GUI_PICK_NEW_BLOCK_NAME("GUI.Pick-New-Block-Name"),
-    GUI_MINE_BLOCKS_NAME("GUI.Mine-Blocks-Name", ReplacableVar.MINE),
+    GUI_MINE_BLOCKS_NAME("GUI.Mine-Blocks-Name"),
     GUI_COLOR_PICKER_NAME("GUI.Color-Picker-Name"),
 
     //faltam as faces
@@ -90,9 +107,9 @@ public enum TranslatableLine {
     SYSTEM_PLAYER_ONLY("System.Player-Only"),
     SYSTEM_BOUNDARIES_NOT_SET("System.Boundaries-Not-Set"),
     SYSTEM_CANT_ADD_ITEM("System.Cant-Add-Item"),
-    SYSTEM_MINE_CREATED("System.Mine-Created", ReplacableVar.MINE),
+    SYSTEM_MINE_CREATED("System.Mine-Created"),
     SYSTEM_RELOADED("System.Reloaded"),
-    SYSTEM_MINE_TASK_CREATED("System.Mine-Task-Created", ReplacableVar.TASK, ReplacableVar.DELAY),
+    SYSTEM_MINE_TASK_CREATED("System.Mine-Task-Created"),
     SYSTEM_MINE_TASK_EXISTS("System.Mine-Task-Exists"),
     SYSTEM_MINE_EXISTS("System.Mine-Exists"),
     SYSTEM_MINE_LINKED("System.Mine-Linked"),
@@ -100,19 +117,19 @@ public enum TranslatableLine {
     SYSTEM_MINE_DELETED("System.Mine-Deleted"),
     SYSTEM_MINE_TASK_DOESNT_EXIST("System.Mine-Task-Doesnt-Exist"),
     SYSTEM_MINE_DOESNT_EXIST("System.Mine-Doesnt-Exist"),
-    SYSTEM_MINE_RENAMED("System.Mine-Renamed", ReplacableVar.NAME),
-    SYSTEM_MINE_DUPLICATED("System.Mine-Duplicated", ReplacableVar.NAME),
+    SYSTEM_MINE_RENAMED("System.Mine-Renamed"),
+    SYSTEM_MINE_DUPLICATED("System.Mine-Duplicated"),
     SYSTEM_MINE_CLEAR("System.Mine-Clear"),
     SYSTEM_STOPPED_MINE_TASKS("System.Stopped-Mine-Tasks"),
     SYSTEM_STARTED_MINE_TASKS("System.Started-Mine-Tasks"),
-    SYSTEM_REMOVE("System.Remove", ReplacableVar.OBJECT),
+    SYSTEM_REMOVE("System.Remove"),
     SYSTEM_REGION_UPDATED("System.Region-Updated"),
     SYSTEM_DEFAULT_LOCATION_SET("System.Default-Location-Set"),
     SYSTEM_ADD_BLOCKS("System.Add-Blocks"),
-    SYSTEM_BLOCK_COUNT("System.Block-Count", ReplacableVar.COUNT),
-    SYSTEM_BLOCKS_ADDED("System.Blocks-Added", ReplacableVar.COUNT),
-    SYSTEM_SILENT_OFF("System.Silent-Off", ReplacableVar.MINE),
-    SYSTEM_SILENT_ON("System.Silent-On", ReplacableVar.MINE),
+    SYSTEM_BLOCK_COUNT("System.Block-Count"),
+    SYSTEM_BLOCKS_ADDED("System.Blocks-Added"),
+    SYSTEM_SILENT_OFF("System.Silent-Off"),
+    SYSTEM_SILENT_ON("System.Silent-On"),
     SYSTEM_UPDATE_FOUND("System.Update-Found"),
     SYSTEM_INPUT_CANCELLED("System.Input-Cancelled"),
     SYSTEM_ERROR_OCCURRED("System.Error-Occurred"),
@@ -132,8 +149,8 @@ public enum TranslatableLine {
     SYSTEM_INPUT_SECONDS("System.Input-Seconds"),
     SYSTEM_INPUT_MINE_NAME("System.Input-Mine-Name"),
     SYSTEM_INVALID_MINE_NAME("System.Invalid-Mine-Name"),
-    SYSTEM_PERCENTAGE_MODIFIED("System.Percentage-Modified", ReplacableVar.VALUE),
-    SYSTEM_TIME_MODIFIED("System.Time-Modified", ReplacableVar.VALUE),
+    SYSTEM_PERCENTAGE_MODIFIED("System.Percentage-Modified"),
+    SYSTEM_TIME_MODIFIED("System.Time-Modified"),
     SYSTEM_NO_CONVERTER_AVAILABLE("System.No-Converter-Available"),
     SYSTEM_MINE_FREEZE("System.Mine-Freeze"),
     // Signs related messages
@@ -146,28 +163,28 @@ public enum TranslatableLine {
     SIGNS_LEFT_ON("Signs.Left-On"),
 
     // Achievements and stats
-    ACHIEVEMENT_UNLOCKED("Achievements.Unlocked", ReplacableVar.NAME),
-    ACHIEVEMENT_BROADCAST("Achievements.Broadcast", ReplacableVar.NAME, ReplacableVar.OBJECT),
-    ACHIEVEMENT_REWARD("Achievements.Reward", ReplacableVar.VALUE),
+    ACHIEVEMENT_UNLOCKED("Achievements.Unlocked"),
+    ACHIEVEMENT_BROADCAST("Achievements.Broadcast"),
+    ACHIEVEMENT_REWARD("Achievements.Reward"),
     ACHIEVEMENTS_DISABLED("Achievements.Disabled"),
     ACHIEVEMENTS_NONE_CONFIGURED("Achievements.None-Configured"),
-    STATS_HEADER("Stats.Header", ReplacableVar.NAME),
-    STATS_TOTAL_MINED("Stats.Total-Mined", ReplacableVar.VALUE),
-    STATS_ACHIEVEMENTS("Stats.Achievements", ReplacableVar.VALUE, ReplacableVar.PERCENTAGE),
-    STATS_TOP_MATERIAL("Stats.Top-Material", ReplacableVar.MATERIAL, ReplacableVar.VALUE),
-    STATS_NO_DATA("Stats.No-Data", ReplacableVar.NAME),
-    STATS_PLAYER_NOT_FOUND("Stats.Player-Not-Found", ReplacableVar.NAME),
+    STATS_HEADER("Stats.Header"),
+    STATS_TOTAL_MINED("Stats.Total-Mined"),
+    STATS_ACHIEVEMENTS("Stats.Achievements"),
+    STATS_TOP_MATERIAL("Stats.Top-Material"),
+    STATS_NO_DATA("Stats.No-Data"),
+    STATS_PLAYER_NOT_FOUND("Stats.Player-Not-Found"),
     PRIVATE_MINE_DISABLED("PrivateMines.Disabled"),
     PRIVATE_MINE_NO_TEMPLATES("PrivateMines.No-Templates"),
-    PRIVATE_MINE_TEMPLATE_NOT_FOUND("PrivateMines.Template-Not-Found", ReplacableVar.TEMPLATE),
-    PRIVATE_MINE_TEMPLATE_CREATED("PrivateMines.Template-Created", ReplacableVar.TEMPLATE, ReplacableVar.MINE),
-    PRIVATE_MINE_TEMPLATE_DELETED("PrivateMines.Template-Deleted", ReplacableVar.TEMPLATE),
-    PRIVATE_MINE_TEMPLATE_CREATE_FAILED("PrivateMines.Template-Create-Failed", ReplacableVar.VALUE),
-    PRIVATE_MINE_CLAIMED("PrivateMines.Claimed", ReplacableVar.MINE),
-    PRIVATE_MINE_CLAIM_COST("PrivateMines.Claim-Cost", ReplacableVar.VALUE),
+    PRIVATE_MINE_TEMPLATE_NOT_FOUND("PrivateMines.Template-Not-Found"),
+    PRIVATE_MINE_TEMPLATE_CREATED("PrivateMines.Template-Created"),
+    PRIVATE_MINE_TEMPLATE_DELETED("PrivateMines.Template-Deleted"),
+    PRIVATE_MINE_TEMPLATE_CREATE_FAILED("PrivateMines.Template-Create-Failed"),
+    PRIVATE_MINE_CLAIMED("PrivateMines.Claimed"),
+    PRIVATE_MINE_CLAIM_COST("PrivateMines.Claim-Cost"),
     PRIVATE_MINE_ALREADY_OWNED("PrivateMines.Already-Owned"),
-    PRIVATE_MINE_LIMIT_REACHED("PrivateMines.Limit-Reached", ReplacableVar.COUNT),
-    PRIVATE_MINE_INSUFFICIENT_FUNDS("PrivateMines.Insufficient-Funds", ReplacableVar.VALUE),
+    PRIVATE_MINE_LIMIT_REACHED("PrivateMines.Limit-Reached"),
+    PRIVATE_MINE_INSUFFICIENT_FUNDS("PrivateMines.Insufficient-Funds"),
     PRIVATE_MINE_NO_ECONOMY("PrivateMines.No-Economy"),
     PRIVATE_MINE_WORLD_MISSING("PrivateMines.World-Missing"),
     PRIVATE_MINE_NO_FREE_SLOT("PrivateMines.No-Free-Slot"),
@@ -177,113 +194,87 @@ public enum TranslatableLine {
     PRIVATE_MINE_NOT_YOURS("PrivateMines.Not-Yours"),
     PRIVATE_MINE_CANT_BUILD("PrivateMines.Cant-Build"),
     PRIVATE_MINE_CANT_DUPLICATE("PrivateMines.Cant-Duplicate"),
-    PRIVATE_MINE_RELEASED("PrivateMines.Released", ReplacableVar.MINE),
-    PRIVATE_MINE_REFUNDED("PrivateMines.Refunded", ReplacableVar.VALUE),
-    PRIVATE_MINE_TRUSTED_ADDED("PrivateMines.Trusted-Added", ReplacableVar.PLAYER),
-    PRIVATE_MINE_TRUSTED_REMOVED("PrivateMines.Trusted-Removed", ReplacableVar.PLAYER),
-    PRIVATE_MINE_TRUSTED_ALREADY("PrivateMines.Trusted-Already", ReplacableVar.PLAYER),
-    PRIVATE_MINE_TRUSTED_NOT_FOUND("PrivateMines.Trusted-Not-Found", ReplacableVar.PLAYER),
-    PRIVATE_MINE_TRUSTED_LIMIT("PrivateMines.Trusted-Limit", ReplacableVar.COUNT),
+    PRIVATE_MINE_RELEASED("PrivateMines.Released"),
+    PRIVATE_MINE_REFUNDED("PrivateMines.Refunded"),
+    PRIVATE_MINE_TRUSTED_ADDED("PrivateMines.Trusted-Added"),
+    PRIVATE_MINE_TRUSTED_REMOVED("PrivateMines.Trusted-Removed"),
+    PRIVATE_MINE_TRUSTED_ALREADY("PrivateMines.Trusted-Already"),
+    PRIVATE_MINE_TRUSTED_NOT_FOUND("PrivateMines.Trusted-Not-Found"),
+    PRIVATE_MINE_TRUSTED_LIMIT("PrivateMines.Trusted-Limit"),
     PRIVATE_MINE_TRUSTED_EMPTY("PrivateMines.Trusted-Empty"),
-    PRIVATE_MINE_TRUSTED_HEADER("PrivateMines.Trusted-Header", ReplacableVar.MINE),
-    PRIVATE_MINE_EXTENDED("PrivateMines.Extended", ReplacableVar.TIME),
+    PRIVATE_MINE_TRUSTED_HEADER("PrivateMines.Trusted-Header"),
+    PRIVATE_MINE_EXTENDED("PrivateMines.Extended"),
     PRIVATE_MINE_NOT_TIME_LIMITED("PrivateMines.Not-Time-Limited"),
-    PRIVATE_MINE_EXPIRED("PrivateMines.Expired", ReplacableVar.MINE),
+    PRIVATE_MINE_EXPIRED("PrivateMines.Expired"),
     PRIVATE_MINE_INFO_HEADER("PrivateMines.Info-Header"),
-    PRIVATE_MINE_INFO_LINE("PrivateMines.Info-Line", ReplacableVar.MINE, ReplacableVar.TIME),
-    PRIVATE_MINE_INFO_EXPIRES("PrivateMines.Info-Expires", ReplacableVar.TIME),
+    PRIVATE_MINE_INFO_LINE("PrivateMines.Info-Line"),
+    PRIVATE_MINE_INFO_EXPIRES("PrivateMines.Info-Expires"),
     PRIVATE_MINE_LIST_EMPTY("PrivateMines.List-Empty"),
-    PRIVATE_MINE_LIST_HEADER("PrivateMines.List-Header", ReplacableVar.COUNT),
-    PRIVATE_MINE_LIST_LINE("PrivateMines.List-Line", ReplacableVar.PLAYER, ReplacableVar.MINE),
-    PRIVATE_MINE_PLAYER_NOT_FOUND("PrivateMines.Player-Not-Found", ReplacableVar.PLAYER),
+    PRIVATE_MINE_LIST_HEADER("PrivateMines.List-Header"),
+    PRIVATE_MINE_LIST_LINE("PrivateMines.List-Line"),
+    PRIVATE_MINE_PLAYER_NOT_FOUND("PrivateMines.Player-Not-Found"),
     PRIVATE_MINE_NEVER_EXPIRES("PrivateMines.Never-Expires");
 
     private final String configPath;
-    private ReplacableVar v1, v2 = null;
 
     TranslatableLine(String configPath) {
         this.configPath = configPath;
     }
 
-    TranslatableLine(String configPath, ReplacableVar v1) {
-        this.configPath = configPath;
-        this.v1 = v1;
+    /** Starts a message from this line with one placeholder filled; chain more with {@link Message#with}. */
+    public Message with(TranslatableLinePlaceholder placeholder, Object value) {
+        return new Message(this.configPath).with(placeholder, value);
     }
 
-    TranslatableLine(String configPath, ReplacableVar v1, ReplacableVar v2) {
-        this.configPath = configPath;
-        this.v1 = v1;
-        this.v2 = v2;
-    }
-
-    public TranslatableLine setV1(ReplacableVar v1) {
-        this.v1 = v1;
-        return this;
-    }
-
-    public TranslatableLine setV2(ReplacableVar v2) {
-        this.v2 = v2;
-        return this;
-    }
-
+    /** The line with no placeholders filled, coloured. */
     public String get() {
-        String s = RMLanguageConfig.file().getString(this.configPath);
-        if (v1 != null) {
-            s = s.replace(v1.getKey(), v1.getVal());
-        }
-        if (v2 != null) {
-            s = s.replace(v2.getKey(), v2.getVal());
-        }
-
-        return Text.color(s);
+        return new Message(this.configPath).get();
     }
 
     public void send(CommandSender p) {
-        Text.send(p, this.get());
+        new Message(this.configPath).send(p);
     }
 
-    public enum ReplacableVar {
+    /** The tokens a line in language.yml may contain. {@code NAME} is written {@code %name%}. */
+    public enum TranslatableLinePlaceholder {
+        NAME, WORLD, INPUT, MINE, TIME, MONEY, FACE, MATERIAL, VALUE, PERCENTAGE, AGE,
+        REMAININGBLOCKS, TOTALBLOCKS, BAR, TASK, DELAY, OBJECT, COUNT, PLAYER, TEMPLATE;
 
-        NAME("%name%"),
-        WORLD("%world%"),
-        INPUT("%input%"),
-        MINE("%mine%"),
-        TIME("%time%"),
-        MONEY("%money%"),
-        FACE("%face%"),
-        MATERIAL("%material%"),
-        VALUE("%value%"),
-        PERCENTAGE("%percentage%"),
-        AGE("%age%"),
-        REMAININGBLOCKS("%remainingblocks%"),
-        TOTALBLOCKS("%totalblocks%"),
-        BAR("%bar%"),
-        TASK("%task%"),
-        DELAY("%delay%"),
-        OBJECT("%object%"),
-        COUNT("%count%"),
-        PLAYER("%player%"),
-        TEMPLATE("%template%");
+        private final String token = "%" + this.name().toLowerCase() + "%";
 
-        private final String key;
-        private String val;
+        public String getToken() {
+            return this.token;
+        }
+    }
 
-        ReplacableVar(String key) {
-            this.key = key;
+    /**
+     * One line with its placeholders filled in. A new one per message and never shared, so nothing
+     * set here can leak into the next.
+     */
+    public static final class Message {
+        private final String configPath;
+        private final Map<TranslatableLinePlaceholder, String> values = new LinkedHashMap<>();
+
+        private Message(String configPath) {
+            this.configPath = configPath;
         }
 
-        public ReplacableVar eq(String val) {
-            this.val = val;
+        /** Fills a placeholder. Setting the same one again replaces its value. */
+        public Message with(TranslatableLinePlaceholder placeholder, Object value) {
+            this.values.put(placeholder, String.valueOf(value));
             return this;
         }
 
-        public String getKey() {
-            return key;
+        public String get() {
+            String s = RMLanguageConfig.file().getString(this.configPath);
+            for (final Map.Entry<TranslatableLinePlaceholder, String> entry : this.values.entrySet()) {
+                s = s.replace(entry.getKey().getToken(), entry.getValue());
+            }
+            return Text.color(s);
         }
 
-        public String getVal() {
-            return val;
+        public void send(CommandSender p) {
+            Text.send(p, this.get());
         }
     }
-
 }

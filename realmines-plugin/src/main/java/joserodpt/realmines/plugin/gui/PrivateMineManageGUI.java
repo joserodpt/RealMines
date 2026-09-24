@@ -14,7 +14,6 @@ package joserodpt.realmines.plugin.gui;
  */
 
 import joserodpt.realmines.api.config.TranslatableLine;
-import joserodpt.realmines.api.config.TranslatableLine.ReplacableVar;
 import joserodpt.realmines.api.managers.PrivateMineTemplate;
 import joserodpt.realmines.api.managers.PrivateMinesManagerAPI.ClaimResult;
 import joserodpt.realmines.api.mine.RMine;
@@ -46,6 +45,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.COUNT;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MINE;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.PLAYER;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.TIME;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.VALUE;
 
 /**
  * Everything the owner of one private mine can do with it: go there, reset it, extend it, manage who
@@ -214,11 +219,11 @@ public class PrivateMineManageGUI {
                         final ClaimResult result = current.rm.getPrivateMinesManager().extend(p, current.mine);
                         if (result == ClaimResult.OK) {
                             TranslatableLine.PRIVATE_MINE_EXTENDED
-                                    .setV1(ReplacableVar.TIME.eq(PrivateMineCMD.formatTime(data.getSecondsLeft()))).send(p);
+                                    .with(TIME, PrivateMineCMD.formatTime(data.getSecondsLeft())).send(p);
                         } else if (result == ClaimResult.INSUFFICIENT_FUNDS) {
                             final PrivateMineTemplate template = current.rm.getPrivateMinesManager().getTemplate(data.getTemplate());
                             TranslatableLine.PRIVATE_MINE_INSUFFICIENT_FUNDS
-                                    .setV1(ReplacableVar.VALUE.eq(String.valueOf(template == null ? 0D : template.getRenewCost()))).send(p);
+                                    .with(VALUE, String.valueOf(template == null ? 0D : template.getRenewCost())).send(p);
                         } else if (result == ClaimResult.NO_ECONOMY) {
                             TranslatableLine.PRIVATE_MINE_NO_ECONOMY.send(p);
                         }
@@ -236,7 +241,7 @@ public class PrivateMineManageGUI {
                         p.closeInventory();
                         final String display = current.mine.getDisplayName();
                         current.rm.getPrivateMinesManager().release(current.mine);
-                        TranslatableLine.PRIVATE_MINE_RELEASED.setV1(ReplacableVar.MINE.eq(display)).send(p);
+                        TranslatableLine.PRIVATE_MINE_RELEASED.with(MINE, display).send(p);
                         return;
                     default:
                         break;
@@ -248,7 +253,7 @@ public class PrivateMineManageGUI {
                     data.removeTrusted(trusted);
                     current.mine.savePrivateData();
                     TranslatableLine.PRIVATE_MINE_TRUSTED_REMOVED
-                            .setV1(ReplacableVar.PLAYER.eq(name == null ? trusted.toString() : name)).send(p);
+                            .with(PLAYER, name == null ? trusted.toString() : name).send(p);
                     current.load();
                 }
             }
@@ -259,7 +264,7 @@ public class PrivateMineManageGUI {
                 final int limit = template == null ? 5 : template.getTrustedLimit();
 
                 if (data.getTrustedCount() >= limit) {
-                    TranslatableLine.PRIVATE_MINE_TRUSTED_LIMIT.setV1(ReplacableVar.COUNT.eq(String.valueOf(limit))).send(p);
+                    TranslatableLine.PRIVATE_MINE_TRUSTED_LIMIT.with(COUNT, String.valueOf(limit)).send(p);
                     return;
                 }
 
@@ -273,12 +278,12 @@ public class PrivateMineManageGUI {
                     final OfflinePlayer target = PrivateMineCMD.findPlayer(input);
 
                     if (target == null) {
-                        TranslatableLine.PRIVATE_MINE_PLAYER_NOT_FOUND.setV1(ReplacableVar.PLAYER.eq(input)).send(p);
+                        TranslatableLine.PRIVATE_MINE_PLAYER_NOT_FOUND.with(PLAYER, input).send(p);
                     } else if (!data.addTrusted(target.getUniqueId())) {
-                        TranslatableLine.PRIVATE_MINE_TRUSTED_ALREADY.setV1(ReplacableVar.PLAYER.eq(input)).send(p);
+                        TranslatableLine.PRIVATE_MINE_TRUSTED_ALREADY.with(PLAYER, input).send(p);
                     } else {
                         current.mine.savePrivateData();
-                        TranslatableLine.PRIVATE_MINE_TRUSTED_ADDED.setV1(ReplacableVar.PLAYER.eq(input)).send(p);
+                        TranslatableLine.PRIVATE_MINE_TRUSTED_ADDED.with(PLAYER, input).send(p);
                     }
 
                     reopen(current, p);

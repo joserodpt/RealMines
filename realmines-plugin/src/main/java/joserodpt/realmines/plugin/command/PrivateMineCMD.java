@@ -15,7 +15,6 @@ package joserodpt.realmines.plugin.command;
 
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.TranslatableLine;
-import joserodpt.realmines.api.config.TranslatableLine.ReplacableVar;
 import joserodpt.realmines.api.managers.PrivateMinePlatform;
 import joserodpt.realmines.api.managers.PrivateMineTemplate;
 import joserodpt.realmines.api.managers.PrivateMinesManagerAPI.ClaimResult;
@@ -45,6 +44,13 @@ import revxrsal.commands.bukkit.annotation.CommandPermission;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.COUNT;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MINE;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.PLAYER;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.TEMPLATE;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.TIME;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.VALUE;
 
 @Command({"privatemine", "realminesprivate", "pmine"})
 public class PrivateMineCMD {
@@ -82,10 +88,10 @@ public class PrivateMineCMD {
             case OK:
                 final RMine mine = rm.getPrivateMinesManager().getMineOf(p.getUniqueId(), template.getID());
                 TranslatableLine.PRIVATE_MINE_CLAIMED
-                        .setV1(ReplacableVar.MINE.eq(mine == null ? template.getID() : mine.getDisplayName())).send(p);
+                        .with(MINE, mine == null ? template.getID() : mine.getDisplayName()).send(p);
                 if (template.getCost() > 0 && !p.hasPermission(PrivateMinesManager.FREE_PERMISSION)) {
                     TranslatableLine.PRIVATE_MINE_CLAIM_COST
-                            .setV1(ReplacableVar.VALUE.eq(String.valueOf(template.getCost()))).send(p);
+                            .with(VALUE, String.valueOf(template.getCost())).send(p);
                 }
                 return true;
             case DISABLED:
@@ -99,14 +105,14 @@ public class PrivateMineCMD {
                 return false;
             case LIMIT_REACHED:
                 TranslatableLine.PRIVATE_MINE_LIMIT_REACHED
-                        .setV1(ReplacableVar.COUNT.eq(String.valueOf(rm.getPrivateMinesManager().getMaxMinesPerPlayer()))).send(p);
+                        .with(COUNT, String.valueOf(rm.getPrivateMinesManager().getMaxMinesPerPlayer())).send(p);
                 return false;
             case NO_ECONOMY:
                 TranslatableLine.PRIVATE_MINE_NO_ECONOMY.send(p);
                 return false;
             case INSUFFICIENT_FUNDS:
                 TranslatableLine.PRIVATE_MINE_INSUFFICIENT_FUNDS
-                        .setV1(ReplacableVar.VALUE.eq(String.valueOf(template.getCost()))).send(p);
+                        .with(VALUE, String.valueOf(template.getCost())).send(p);
                 return false;
             case WORLD_MISSING:
                 TranslatableLine.PRIVATE_MINE_WORLD_MISSING.send(p);
@@ -143,7 +149,7 @@ public class PrivateMineCMD {
 
         final PrivateMineTemplate template = this.rm.getPrivateMinesManager().getTemplate(templateID);
         if (template == null) {
-            TranslatableLine.PRIVATE_MINE_TEMPLATE_NOT_FOUND.setV1(ReplacableVar.TEMPLATE.eq(templateID)).send(p);
+            TranslatableLine.PRIVATE_MINE_TEMPLATE_NOT_FOUND.with(TEMPLATE, templateID).send(p);
             return;
         }
 
@@ -213,13 +219,13 @@ public class PrivateMineCMD {
         for (final RMine mine : mines) {
             final PrivateMineData data = mine.getPrivateData();
             Text.send(p, TranslatableLine.PRIVATE_MINE_INFO_LINE
-                    .setV1(ReplacableVar.MINE.eq(mine.getDisplayName()))
-                    .setV2(ReplacableVar.TIME.eq(formatTime(mine.getResetValue(RMine.Reset.TIME))))
+                    .with(MINE, mine.getDisplayName())
+                    .with(TIME, formatTime(mine.getResetValue(RMine.Reset.TIME)))
                     .get().replace("%template%", data.getTemplate()));
 
             if (data.getExpiresAt() != PrivateMineData.NEVER) {
                 TranslatableLine.PRIVATE_MINE_INFO_EXPIRES
-                        .setV1(ReplacableVar.TIME.eq(formatTime(data.getSecondsLeft()))).send(p);
+                        .with(TIME, formatTime(data.getSecondsLeft())).send(p);
             }
         }
     }
@@ -246,11 +252,11 @@ public class PrivateMineCMD {
         final ClaimResult result = this.rm.getPrivateMinesManager().extend(p, mine);
         if (result == ClaimResult.OK) {
             TranslatableLine.PRIVATE_MINE_EXTENDED
-                    .setV1(ReplacableVar.TIME.eq(formatTime(mine.getPrivateData().getSecondsLeft()))).send(p);
+                    .with(TIME, formatTime(mine.getPrivateData().getSecondsLeft())).send(p);
         } else if (result == ClaimResult.INSUFFICIENT_FUNDS) {
             final PrivateMineTemplate template = this.rm.getPrivateMinesManager().getTemplate(mine.getPrivateData().getTemplate());
             TranslatableLine.PRIVATE_MINE_INSUFFICIENT_FUNDS
-                    .setV1(ReplacableVar.VALUE.eq(String.valueOf(template == null ? 0D : template.getRenewCost()))).send(p);
+                    .with(VALUE, String.valueOf(template == null ? 0D : template.getRenewCost())).send(p);
         } else if (result == ClaimResult.NO_ECONOMY) {
             TranslatableLine.PRIVATE_MINE_NO_ECONOMY.send(p);
         } else {
@@ -275,7 +281,7 @@ public class PrivateMineCMD {
 
         final OfflinePlayer target = findPlayer(playerName);
         if (target == null) {
-            TranslatableLine.PRIVATE_MINE_PLAYER_NOT_FOUND.setV1(ReplacableVar.PLAYER.eq(playerName)).send(p);
+            TranslatableLine.PRIVATE_MINE_PLAYER_NOT_FOUND.with(PLAYER, playerName).send(p);
             return;
         }
 
@@ -283,17 +289,17 @@ public class PrivateMineCMD {
         final PrivateMineTemplate template = this.rm.getPrivateMinesManager().getTemplate(data.getTemplate());
         final int limit = template == null ? 5 : template.getTrustedLimit();
         if (data.getTrustedCount() >= limit) {
-            TranslatableLine.PRIVATE_MINE_TRUSTED_LIMIT.setV1(ReplacableVar.COUNT.eq(String.valueOf(limit))).send(p);
+            TranslatableLine.PRIVATE_MINE_TRUSTED_LIMIT.with(COUNT, String.valueOf(limit)).send(p);
             return;
         }
 
         if (!data.addTrusted(target.getUniqueId())) {
-            TranslatableLine.PRIVATE_MINE_TRUSTED_ALREADY.setV1(ReplacableVar.PLAYER.eq(playerName)).send(p);
+            TranslatableLine.PRIVATE_MINE_TRUSTED_ALREADY.with(PLAYER, playerName).send(p);
             return;
         }
 
         mine.savePrivateData();
-        TranslatableLine.PRIVATE_MINE_TRUSTED_ADDED.setV1(ReplacableVar.PLAYER.eq(playerName)).send(p);
+        TranslatableLine.PRIVATE_MINE_TRUSTED_ADDED.with(PLAYER, playerName).send(p);
     }
 
     @Subcommand("untrust")
@@ -313,12 +319,12 @@ public class PrivateMineCMD {
 
         final OfflinePlayer target = findPlayer(playerName);
         if (target == null || !mine.getPrivateData().removeTrusted(target.getUniqueId())) {
-            TranslatableLine.PRIVATE_MINE_TRUSTED_NOT_FOUND.setV1(ReplacableVar.PLAYER.eq(playerName)).send(p);
+            TranslatableLine.PRIVATE_MINE_TRUSTED_NOT_FOUND.with(PLAYER, playerName).send(p);
             return;
         }
 
         mine.savePrivateData();
-        TranslatableLine.PRIVATE_MINE_TRUSTED_REMOVED.setV1(ReplacableVar.PLAYER.eq(playerName)).send(p);
+        TranslatableLine.PRIVATE_MINE_TRUSTED_REMOVED.with(PLAYER, playerName).send(p);
     }
 
     @Subcommand("trusted")
@@ -341,7 +347,7 @@ public class PrivateMineCMD {
             return;
         }
 
-        TranslatableLine.PRIVATE_MINE_TRUSTED_HEADER.setV1(ReplacableVar.MINE.eq(mine.getDisplayName())).send(p);
+        TranslatableLine.PRIVATE_MINE_TRUSTED_HEADER.with(MINE, mine.getDisplayName()).send(p);
         for (final UUID uuid : trusted) {
             final String name = Bukkit.getOfflinePlayer(uuid).getName();
             Text.send(p, " &7> &f" + (name == null ? uuid.toString() : name));
@@ -364,7 +370,7 @@ public class PrivateMineCMD {
 
         final String display = mine.getDisplayName();
         this.rm.getPrivateMinesManager().release(mine);
-        TranslatableLine.PRIVATE_MINE_RELEASED.setV1(ReplacableVar.MINE.eq(display)).send(p);
+        TranslatableLine.PRIVATE_MINE_RELEASED.with(MINE, display).send(p);
     }
 
     // ------------------------------------------------------------------ admin
@@ -407,7 +413,7 @@ public class PrivateMineCMD {
     public void templateeditcmd(final Player editor, @SuggestFrom(RMSuggestion.PRIVATE_TEMPLATES) @Single final String id) {
         final PrivateMineTemplate template = this.rm.getPrivateMinesManager().getTemplate(id);
         if (template == null) {
-            TranslatableLine.PRIVATE_MINE_TEMPLATE_NOT_FOUND.setV1(ReplacableVar.TEMPLATE.eq(id)).send(editor);
+            TranslatableLine.PRIVATE_MINE_TEMPLATE_NOT_FOUND.with(TEMPLATE, id).send(editor);
             return;
         }
 
@@ -433,8 +439,8 @@ public class PrivateMineCMD {
         try {
             final PrivateMineTemplate template = this.rm.getPrivateMinesManager().snapshot(source, id);
             TranslatableLine.PRIVATE_MINE_TEMPLATE_CREATED
-                    .setV1(ReplacableVar.TEMPLATE.eq(template.getID()))
-                    .setV2(ReplacableVar.MINE.eq(source.getName())).send(commandSender);
+                    .with(TEMPLATE, template.getID())
+                    .with(MINE, source.getName()).send(commandSender);
 
             for (final String problem : template.validate()) {
                 Text.send(commandSender, " &e! &f" + problem);
@@ -453,7 +459,7 @@ public class PrivateMineCMD {
                     + ".yml &7to set the cost, lifetime and where copies are built, then &f/rm reload&7.");
         } catch (final IllegalArgumentException e) {
             TranslatableLine.PRIVATE_MINE_TEMPLATE_CREATE_FAILED
-                    .setV1(ReplacableVar.VALUE.eq(String.valueOf(e.getMessage()))).send(commandSender);
+                    .with(VALUE, String.valueOf(e.getMessage())).send(commandSender);
         }
     }
 
@@ -463,9 +469,9 @@ public class PrivateMineCMD {
     @SuppressWarnings("unused")
     public void templatedeletecmd(final CommandSender commandSender, @SuggestFrom(RMSuggestion.PRIVATE_TEMPLATES) @Single final String id) {
         if (this.rm.getPrivateMinesManager().deleteTemplate(id)) {
-            TranslatableLine.PRIVATE_MINE_TEMPLATE_DELETED.setV1(ReplacableVar.TEMPLATE.eq(id)).send(commandSender);
+            TranslatableLine.PRIVATE_MINE_TEMPLATE_DELETED.with(TEMPLATE, id).send(commandSender);
         } else {
-            TranslatableLine.PRIVATE_MINE_TEMPLATE_NOT_FOUND.setV1(ReplacableVar.TEMPLATE.eq(id)).send(commandSender);
+            TranslatableLine.PRIVATE_MINE_TEMPLATE_NOT_FOUND.with(TEMPLATE, id).send(commandSender);
         }
     }
 
@@ -479,7 +485,7 @@ public class PrivateMineCMD {
         if (playerName != null) {
             final OfflinePlayer target = findPlayer(playerName);
             if (target == null) {
-                TranslatableLine.PRIVATE_MINE_PLAYER_NOT_FOUND.setV1(ReplacableVar.PLAYER.eq(playerName)).send(commandSender);
+                TranslatableLine.PRIVATE_MINE_PLAYER_NOT_FOUND.with(PLAYER, playerName).send(commandSender);
                 return;
             }
             mines = this.rm.getPrivateMinesManager().getMinesOf(target.getUniqueId());
@@ -490,12 +496,12 @@ public class PrivateMineCMD {
             return;
         }
 
-        TranslatableLine.PRIVATE_MINE_LIST_HEADER.setV1(ReplacableVar.COUNT.eq(String.valueOf(mines.size()))).send(commandSender);
+        TranslatableLine.PRIVATE_MINE_LIST_HEADER.with(COUNT, String.valueOf(mines.size())).send(commandSender);
         for (final RMine mine : mines) {
             final PrivateMineData data = mine.getPrivateData();
             Text.send(commandSender, TranslatableLine.PRIVATE_MINE_LIST_LINE
-                    .setV1(ReplacableVar.PLAYER.eq(data.getOwnerName()))
-                    .setV2(ReplacableVar.MINE.eq(mine.getDisplayName()))
+                    .with(PLAYER, data.getOwnerName())
+                    .with(MINE, mine.getDisplayName())
                     .get().replace("%template%", data.getTemplate()));
         }
     }
@@ -508,7 +514,7 @@ public class PrivateMineCMD {
                           @SuggestFrom(RMSuggestion.PRIVATE_TEMPLATES) @Single final String templateID) {
         final OfflinePlayer target = findPlayer(playerName);
         if (target == null) {
-            TranslatableLine.PRIVATE_MINE_PLAYER_NOT_FOUND.setV1(ReplacableVar.PLAYER.eq(playerName)).send(commandSender);
+            TranslatableLine.PRIVATE_MINE_PLAYER_NOT_FOUND.with(PLAYER, playerName).send(commandSender);
             return;
         }
 
@@ -520,7 +526,7 @@ public class PrivateMineCMD {
 
         final String display = mine.getDisplayName();
         this.rm.getPrivateMinesManager().release(mine);
-        TranslatableLine.PRIVATE_MINE_RELEASED.setV1(ReplacableVar.MINE.eq(display)).send(commandSender);
+        TranslatableLine.PRIVATE_MINE_RELEASED.with(MINE, display).send(commandSender);
     }
 
     /**

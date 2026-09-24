@@ -25,6 +25,8 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.Arrays;
 
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MONEY;
+
 public class MineActionMoney extends MineAction {
 
     private Double money;
@@ -49,7 +51,7 @@ public class MineActionMoney extends MineAction {
         if (RealMinesAPI.getInstance().getEconomy() != null) {
             RealMinesAPI.getInstance().getEconomy().depositPlayer(p, money);
             if (super.getMine() == null || !super.getMine().getSettingBool(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES))
-                Text.send(p, TranslatableLine.MINE_BREAK_ACTION_GIVE_MONEY.setV1(TranslatableLine.ReplacableVar.MONEY.eq(Text.formatNumber(money))).get());
+                Text.send(p, TranslatableLine.MINE_BREAK_ACTION_GIVE_MONEY.with(MONEY, Text.formatNumber(money)).get());
         } else {
             RealMinesAPI.getInstance().getLogger().warning("Economy not found or Vault not installed. Please install a compatible economy plugin. Skipping break action ID " + getID());
         }

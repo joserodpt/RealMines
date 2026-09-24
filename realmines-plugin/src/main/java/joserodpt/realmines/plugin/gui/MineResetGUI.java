@@ -38,6 +38,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MINE;
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.VALUE;
+
 public class MineResetGUI {
 
     private static final Map<UUID, MineResetGUI> inventories = new HashMap<>();
@@ -50,7 +53,7 @@ public class MineResetGUI {
     public MineResetGUI(final RealMines rm, final Player as, final RMine m) {
         this.rm = rm;
         this.uuid = as.getUniqueId();
-        this.inv = Bukkit.getServer().createInventory(null, InventoryType.HOPPER, TranslatableLine.GUI_RESET_NAME.setV1(TranslatableLine.ReplacableVar.MINE.eq(m.getDisplayName())).get());
+        this.inv = Bukkit.getServer().createInventory(null, InventoryType.HOPPER, TranslatableLine.GUI_RESET_NAME.with(MINE, m.getDisplayName()).get());
         this.min = m;
 
         this.load(m);
@@ -192,7 +195,7 @@ public class MineResetGUI {
                     }
 
                     m.setResetValue(RMine.Reset.PERCENTAGE, d);
-                    TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(Text.formatPercentages(d) + "%")).send(p);
+                    TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.with(VALUE, Text.formatPercentages(d) + "%").send(p);
 
                     final MineResetGUI v = new MineResetGUI(rm, p, m);
                     v.openInventory(p);
@@ -219,7 +222,7 @@ public class MineResetGUI {
                     }
 
                     m.setResetValue(RMine.Reset.TIME, d);
-                    TranslatableLine.SYSTEM_TIME_MODIFIED.setV1(TranslatableLine.ReplacableVar.VALUE.eq(String.valueOf(d))).send(p);
+                    TranslatableLine.SYSTEM_TIME_MODIFIED.with(VALUE, String.valueOf(d)).send(p);
 
                     final MineResetGUI v = new MineResetGUI(rm, p, m);
                     v.openInventory(p);
