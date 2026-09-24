@@ -29,11 +29,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -63,6 +65,8 @@ public class DirectoryBrowserGUI {
     Pagination<File> p;
     private File upDir;
     private File currentDir;
+    //nothing above the server's own folder can be browsed: this hands out whatever file is picked
+    private final File root = canonical(Bukkit.getWorldContainer());
 
     public DirectoryBrowserGUI(final Player p, final File startDir, String title, Collection<String> allowedExtensions, FileRunnable onFileChoosen) {
         this.onFileChoosen = onFileChoosen;
@@ -75,8 +79,22 @@ public class DirectoryBrowserGUI {
         this.register();
     }
 
+    private static File canonical(final File file) {
+        try {
+            return file.getCanonicalFile();
+        } catch (final IOException e) {
+            return file.getAbsoluteFile();
+        }
+    }
+
+    //canonical, so neither ".." nor a symlink can lead out of the root
+    private boolean insideRoot(final File dir) {
+        final File resolved = canonical(dir);
+        return resolved.equals(this.root) || resolved.toPath().startsWith(this.root.toPath());
+    }
+
     private void loadDirectory(final File dir) {
-        if (!dir.exists() || !dir.isDirectory() || !dir.canRead()) {
+        if (dir == null || !dir.exists() || !dir.isDirectory() || !dir.canRead() || !this.insideRoot(dir)) {
             return;
         }
 
@@ -97,7 +115,8 @@ public class DirectoryBrowserGUI {
                 return true;
             }
             for (String ext : this.allowedExtensions) {
-                if (f.getName().endsWith(ext)) {
+                //with the dot, so "schem" doesn't also match a file called "fooschem"
+                if (f.getName().toLowerCase().endsWith("." + ext.toLowerCase())) {
                     return true;
                 }
             }
@@ -186,6 +205,15 @@ public class DirectoryBrowserGUI {
                 if (asd.p != null && asd.p.exists(asd.pageNumber + 1)) {
                     ++asd.pageNumber;
                     asd.fillChest(asd.p.getPage(asd.pageNumber));
+                }
+            }
+
+            @EventHandler
+            public void onDrag(final InventoryDragEvent e) {
+                final DirectoryBrowserGUI current = inventories.get(e.getWhoClicked().getUniqueId());
+                //dragging over this GUI's slots would drop the dragged items into it
+                if (current != null && current.getInventory().equals(e.getInventory())) {
+                    e.setCancelled(true);
                 }
             }
 

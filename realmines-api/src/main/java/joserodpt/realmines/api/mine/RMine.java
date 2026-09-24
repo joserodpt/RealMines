@@ -1031,6 +1031,21 @@ public abstract class RMine {
         processBlockBreakEvent(reset);
     }
 
+    /**
+     * Stops treating a block as player placed, returning whether it was: a piston moved it somewhere
+     * else, or a replanted crop grew to full age on its own and has earned its break actions.
+     */
+    public boolean forgetPlacedBlock(final Location location) {
+        return this.placedBlocks.remove(location);
+    }
+
+    /**
+     * Treats a block as player placed, for one a piston moved in while it still was.
+     */
+    public void rememberPlacedBlock(final Location location) {
+        this.placedBlocks.add(location);
+    }
+
     private void processBlockBreakEvent(boolean reset) {
         if (reset) {
             //if mine reset percentage is lower, reset it

@@ -30,10 +30,12 @@ public class RMPlayerBlockStat {
     @DatabaseField(columnName = "id", generatedId = true, allowGeneratedIdInsert = true)
     private UUID id;
 
-    @DatabaseField(columnName = "player_uuid", canBeNull = false, index = true)
+    //one row per player and material. Only applied when the table is created, so older databases rely on
+    //DatabaseManager serialising its writes
+    @DatabaseField(columnName = "player_uuid", canBeNull = false, index = true, uniqueCombo = true)
     private UUID playerUUID;
 
-    @DatabaseField(columnName = "material", canBeNull = false, index = true)
+    @DatabaseField(columnName = "material", canBeNull = false, index = true, uniqueCombo = true)
     private String material;
 
     /**

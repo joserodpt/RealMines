@@ -21,6 +21,7 @@ import com.j256.ormlite.jdbc.db.DatabaseTypeUtils;
 import com.j256.ormlite.logger.LoggerFactory;
 import com.j256.ormlite.logger.NullLogBackend;
 import com.j256.ormlite.stmt.QueryBuilder;
+import com.j256.ormlite.stmt.SelectArg;
 import com.j256.ormlite.support.ConnectionSource;
 import com.j256.ormlite.support.DatabaseConnection;
 import com.j256.ormlite.table.TableUtils;
@@ -101,6 +102,11 @@ public class DatabaseManager extends DatabaseManagerAPI {
      * instead of throwing the whole session away.
      */
     private final Set<UUID> unloaded = ConcurrentHashMap.newKeySet();
+
+    /**
+     * Unlocks not yet on disk. Each row leaves this only once it has been written.
+     */
+    private final Map<UUID, Set<RMPlayerAchievement>> pendingAchievements = new ConcurrentHashMap<>();
 
     /**
      * Owned by the plugin rather than Bukkit's async pool, so shutdown can wait for whatever is queued
@@ -356,19 +362,12 @@ public class DatabaseManager extends DatabaseManagerAPI {
             return; //not loaded, or they already had it
         }
 
-        final RMPlayerAchievement row = new RMPlayerAchievement(uuid, achievementID);
-        runAsync(() -> {
-            try {
-                synchronized (this.writeLock) {
-                    if (this.closed) {
-                        throw new SQLException("the database connection is closed");
-                    }
-                    this.achievementsDao.create(row);
-                }
-            } catch (final SQLException e) {
-                this.rm.getLogger().warning("Couldn't save achievement " + achievementID + " for " + uuid + ": " + e.getMessage());
-            }
-        });
+        //queued with the player's other changes rather than written on its own, so a failed write is
+        //retried by the next flush. Losing the row would grant the achievement, rewards and all, again
+        //on their next login
+        this.pendingAchievements.computeIfAbsent(uuid, k -> ConcurrentHashMap.newKeySet())
+                .add(new RMPlayerAchievement(uuid, achievementID));
+        this.dirty.add(uuid);
 
         //the stats that earned it should hit the disk together with the unlock
         flush(uuid, true);
@@ -390,7 +389,8 @@ public class DatabaseManager extends DatabaseManagerAPI {
         runAsync(() -> {
             RMPlayerData found = null;
             try {
-                found = this.playerDataDao.queryBuilder().where().eq("name", name).queryForFirst();
+                //a plain String is pasted into the SQL unescaped, a SelectArg is sent as a bound parameter
+                found = this.playerDataDao.queryBuilder().where().eq("name", new SelectArg(name)).queryForFirst();
             } catch (final SQLException e) {
                 this.rm.getLogger().warning("Couldn't look up the player named " + name + ": " + e.getMessage());
             }
@@ -479,6 +479,16 @@ public class DatabaseManager extends DatabaseManagerAPI {
                     }
                 }
             }
+
+            final Set<RMPlayerAchievement> achievements = this.pendingAchievements.get(uuid);
+            if (achievements != null) {
+                for (final RMPlayerAchievement row : new ArrayList<>(achievements)) {
+                    this.achievementsDao.create(row);
+                    //one at a time, so a retry after a failure part way doesn't insert the rest twice
+                    achievements.remove(row);
+                }
+                this.pendingAchievements.computeIfPresent(uuid, (k, rows) -> rows.isEmpty() ? null : rows);
+            }
             return true;
         } catch (final SQLException e) {
             this.rm.getLogger().warning("Couldn't save stats for " + uuid + ": " + e.getMessage());
@@ -556,7 +566,7 @@ public class DatabaseManager extends DatabaseManagerAPI {
                 this.topByMaterial.put(name, this.blockStatsDao.queryBuilder()
                         .orderBy("amount", false)
                         .limit((long) limit)
-                        .where().eq("material", name).and().gt("amount", 0)
+                        .where().eq("material", new SelectArg(name)).and().gt("amount", 0)
                         .query());
             }
         } catch (final SQLException e) {

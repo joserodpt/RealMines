@@ -82,13 +82,17 @@ public class FarmMine extends RMine {
         if (!this.oneBlockHeight()) {
             this.mineGroundBlocks.clear();
             List<Block> underBlocks = new ArrayList<>(this.getMineCuboid().getFace(MineCuboid.CuboidDirection.Down).getBlocks());
+            //the ground is searched for inside the mine only: climbing past its top could run all the way up
+            //a solid column, and would pick "ground" outside the mine that crops then get planted on
+            final int topY = this.getMineCuboid().getUpperY();
             while (!underBlocks.isEmpty()) {
                 Block block = underBlocks.get(0);
                 Material upMat = block.getRelative(BlockFace.UP).getType();
-                if (block.getType() != Material.WATER && (upMat == Material.AIR || upMat == Material.GRASS || upMat == Material.TALL_GRASS || FarmItem.getCrops().contains(upMat))) {
+                //isAir, so cave and void air count too
+                if (block.getType() != Material.WATER && (upMat.isAir() || upMat == Material.GRASS || upMat == Material.TALL_GRASS || FarmItem.getCrops().contains(upMat))) {
                     this.mineGroundBlocks.add(block);
                 } else {
-                    if (block.getType() != Material.WATER) {
+                    if (block.getType() != Material.WATER && block.getY() < topY) {
                         underBlocks.add(block.getRelative(BlockFace.UP));
                     }
                 }

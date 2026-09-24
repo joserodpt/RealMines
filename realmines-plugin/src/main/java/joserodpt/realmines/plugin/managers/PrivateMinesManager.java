@@ -15,6 +15,7 @@ package joserodpt.realmines.plugin.managers;
 
 import joserodpt.realmines.api.RealMinesAPI;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.extent.clipboard.Clipboard;
 import com.sk89q.worldedit.math.BlockVector3;
 import com.sk89q.worldedit.regions.CuboidRegion;
 import joserodpt.realmines.api.config.RMConfig;
@@ -40,6 +41,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 
@@ -83,6 +85,11 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
      * How many grid slots to try before giving up, so a full or badly configured grid can't spin forever.
      */
     private static final int SLOT_SEARCH_LIMIT = 10000;
+
+    /**
+     * {@link #occupiedRegions()} as last read off disk, or null when it has to be read again.
+     */
+    private List<Object[]> occupiedCache;
 
     public PrivateMinesManager(final RealMines rm) {
         this.rm = rm;
@@ -307,6 +314,8 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
 
     @Override
     public void loadInstances() {
+        //files may have been changed or removed by hand, and dead ones are purged below
+        this.occupiedCache = null;
         if (!this.isEnabled()) {
             return;
         }
@@ -360,6 +369,7 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
                     //wipe the blocks straight from the stored coordinates: building the mine only to
                     //delete it would fill the region first, and the slot is about to be handed out again
                     clearRegionOf(config, data);
+                    this.clearShellOf(Bukkit.getWorld(String.valueOf(config.getString("world"))), config);
                     if (file.delete()) {
                         purged++;
                     }
@@ -396,6 +406,48 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
                 : new BlockMine(name, config, folder);
         mine.setPrivateData(data);
         return mine;
+    }
+
+    /**
+     * Where a mine's shell schematic landed, as {minX, minY, minZ, maxX, maxY, maxZ}, or null for a mine
+     * without one (or built before this was recorded).
+     */
+    private static int[] shellBounds(final FileConfiguration config) {
+        final String raw = config.getString(PrivateMineData.ROOT + ".shell-bounds");
+        if (raw == null || raw.isEmpty()) {
+            return null;
+        }
+        final String[] parts = raw.split(";");
+        if (parts.length != 6) {
+            return null;
+        }
+        try {
+            final int[] b = new int[6];
+            for (int i = 0; i < 6; i++) {
+                b[i] = Integer.parseInt(parts[i].trim());
+            }
+            return b;
+        } catch (final NumberFormatException e) {
+            return null;
+        }
+    }
+
+    /**
+     * Takes down a mine's shell, which is decoration outside the mine's region: clearing the mine alone
+     * left it standing for whoever got the slot next.
+     */
+    private void clearShellOf(final World world, final FileConfiguration config) {
+        final int[] b = shellBounds(config);
+        if (world == null || b == null) {
+            return;
+        }
+        try {
+            WorldEditUtils.setBlocks(new CuboidRegion(BukkitAdapter.adapt(world),
+                            BlockVector3.at(b[0], b[1], b[2]), BlockVector3.at(b[3], b[4], b[5])),
+                    BukkitAdapter.adapt(Material.AIR.createBlockData()));
+        } catch (final Exception e) {
+            this.rm.getLogger().warning("Couldn't clear a private mine's shell: " + e.getMessage());
+        }
     }
 
     /**
@@ -476,6 +528,15 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
      * map, but its blocks are still very much there.
      */
     private List<Object[]> occupiedRegions() {
+        //read off disk once and then kept up to date by build, teardown and loadInstances, instead of
+        //parsing every private mine file on every claim
+        if (this.occupiedCache == null) {
+            this.occupiedCache = this.readOccupiedRegions();
+        }
+        return this.occupiedCache;
+    }
+
+    private List<Object[]> readOccupiedRegions() {
         final List<Object[]> regions = new ArrayList<>();
 
         final File root = RMPrivateMinesConfig.getFolder(this.rm.getPlugin());
@@ -508,9 +569,18 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
                 final int margin = Math.max(0, config.getInt(PrivateMineData.ROOT + ".platform-width", 0));
                 final int below = margin > 0 ? PrivateMinePlatform.REACH_BELOW : 0;
                 final int above = margin > 0 ? PrivateMinePlatform.reachAbove(Math.abs(p2[1] - p1[1]) + 1) : 0;
-                regions.add(new Object[]{world,
+                final int[] box = {
                         Math.min(p1[0], p2[0]) - margin, Math.min(p1[1], p2[1]) - below, Math.min(p1[2], p2[2]) - margin,
-                        Math.max(p1[0], p2[0]) + margin, Math.max(p1[1], p2[1]) + above, Math.max(p1[2], p2[2]) + margin});
+                        Math.max(p1[0], p2[0]) + margin, Math.max(p1[1], p2[1]) + above, Math.max(p1[2], p2[2]) + margin};
+                //and the shell, which can reach past both
+                final int[] shell = shellBounds(config);
+                if (shell != null) {
+                    for (int i = 0; i < 3; i++) {
+                        box[i] = Math.min(box[i], shell[i]);
+                        box[i + 3] = Math.max(box[i + 3], shell[i + 3]);
+                    }
+                }
+                regions.add(new Object[]{world, box[0], box[1], box[2], box[3], box[4], box[5]});
             }
         }
         return regions;
@@ -544,16 +614,36 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
 
         final List<Object[]> occupied = occupiedRegions();
 
+        //the shell is pasted at the slot origin too, so its footprint relative to that origin counts as well
+        int[] shellOffset = null;
+        if (template.getPlacement().hasShellSchematic()) {
+            final Clipboard shell = WorldEditUtils.loadSchematic(template.getPlacement().getShellSchematic());
+            if (shell != null) {
+                final BlockVector3 min = shell.getRegion().getMinimumPoint().subtract(shell.getOrigin());
+                final BlockVector3 max = shell.getRegion().getMaximumPoint().subtract(shell.getOrigin());
+                shellOffset = new int[]{min.getBlockX(), min.getBlockY(), min.getBlockZ(),
+                        max.getBlockX(), max.getBlockY(), max.getBlockZ()};
+            }
+        }
+
         for (int slot = 0; slot < SLOT_SEARCH_LIMIT; slot++) {
             final Location origin = template.getSlotOrigin(slot);
             if (origin == null) {
                 return -1;
             }
 
-            final int minX = origin.getBlockX() - margin, minY = origin.getBlockY() - below,
+            int minX = origin.getBlockX() - margin, minY = origin.getBlockY() - below,
                     minZ = origin.getBlockZ() - margin;
-            final int maxX = origin.getBlockX() + sizeX + margin, maxY = origin.getBlockY() + sizeY + above,
+            int maxX = origin.getBlockX() + sizeX + margin, maxY = origin.getBlockY() + sizeY + above,
                     maxZ = origin.getBlockZ() + sizeZ + margin;
+            if (shellOffset != null) {
+                minX = Math.min(minX, origin.getBlockX() + shellOffset[0]);
+                minY = Math.min(minY, origin.getBlockY() + shellOffset[1]);
+                minZ = Math.min(minZ, origin.getBlockZ() + shellOffset[2]);
+                maxX = Math.max(maxX, origin.getBlockX() + shellOffset[3]);
+                maxY = Math.max(maxY, origin.getBlockY() + shellOffset[4]);
+                maxZ = Math.max(maxZ, origin.getBlockZ() + shellOffset[5]);
+            }
 
             boolean free = true;
             for (final Object[] r : occupied) {
@@ -776,8 +866,19 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
         //only paste the shell once the mine is definitely staying, so a failed claim can't leave
         //decoration behind on a slot that is reported free again
         if (template.getPlacement().hasShellSchematic()) {
-            WorldEditUtils.pasteSchematic(template.getPlacement().getShellSchematic(), origin);
+            final Location[] shell = WorldEditUtils.pasteSchematic(
+                    WorldEditUtils.loadSchematic(template.getPlacement().getShellSchematic()), origin);
+            if (shell != null) {
+                //recorded so the slot search keeps neighbours off it and a release takes it down again
+                mine.getMineConfig().set(PrivateMineData.ROOT + ".shell-bounds",
+                        Math.min(shell[0].getBlockX(), shell[1].getBlockX()) + ";" + Math.min(shell[0].getBlockY(), shell[1].getBlockY())
+                                + ";" + Math.min(shell[0].getBlockZ(), shell[1].getBlockZ()) + ";" + Math.max(shell[0].getBlockX(), shell[1].getBlockX())
+                                + ";" + Math.max(shell[0].getBlockY(), shell[1].getBlockY()) + ";" + Math.max(shell[0].getBlockZ(), shell[1].getBlockZ()));
+                mine.saveConfig();
+            }
         }
+        //the new mine is on disk now, with its shell
+        this.occupiedCache = null;
 
         //fill last, so the mine's own blocks win wherever the shell overlaps them. Never reset(): that
         //would advance the block set, run the template's reset commands and announce the reset.
@@ -943,9 +1044,14 @@ public class PrivateMinesManager extends PrivateMinesManagerAPI {
             this.rm.getLogger().warning("Couldn't clear the region of private mine " + instance.getName() + ": " + e.getMessage());
         }
 
+        if (instance.getMineCuboid() != null) {
+            this.clearShellOf(instance.getMineCuboid().getWorld(), instance.getMineConfig());
+        }
+
         final File folder = instance.getConfigFolder();
         this.rm.getMineManager().deleteMine(instance);
         deleteIfEmpty(folder);
+        this.occupiedCache = null;
     }
 
     /**

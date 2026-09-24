@@ -105,9 +105,14 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         return this.plugin.getPlugin().getDescription().getVersion();
     }
 
+    private static String mineName(final String identifier, final String prefix) {
+        final String start = prefix + "_";
+        return identifier.startsWith(start) && identifier.length() > start.length()
+                ? identifier.substring(start.length()) : null;
+    }
+
     @Override
     public String onRequest(final OfflinePlayer player, final String identifier) {
-        final int mineIndex = 1;
 
         //player scoped placeholders are matched first, so they can never be shadowed by the
         //startsWith chain of the mine scoped ones below
@@ -116,12 +121,11 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         }
 
         if (identifier.startsWith("totalblocks")) {
-            final String[] split = identifier.split("_");
-            //no mine name given, e.g. %realmines_totalblocks%
-            if (split.length <= mineIndex) {
-                return null;
+            //everything after the prefix, so a mine named my_mine isn't looked up as "my"
+            final String mine = mineName(identifier, "totalblocks");
+            if (mine == null) {
+                return null; //no mine name given, e.g. %realmines_totalblocks%
             }
-            final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
                 return String.valueOf(m.getBlockCount());
@@ -131,12 +135,11 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         }
 
         if (identifier.startsWith("minedblocks")) {
-            final String[] split = identifier.split("_");
-            //no mine name given, e.g. %realmines_totalblocks%
-            if (split.length <= mineIndex) {
-                return null;
+            //everything after the prefix, so a mine named my_mine isn't looked up as "my"
+            final String mine = mineName(identifier, "minedblocks");
+            if (mine == null) {
+                return null; //no mine name given, e.g. %realmines_totalblocks%
             }
-            final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
                 return String.valueOf(m.getMinedBlocks());
@@ -146,12 +149,11 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         }
 
         if (identifier.startsWith("remainingblocks")) {
-            final String[] split = identifier.split("_");
-            //no mine name given, e.g. %realmines_totalblocks%
-            if (split.length <= mineIndex) {
-                return null;
+            //everything after the prefix, so a mine named my_mine isn't looked up as "my"
+            final String mine = mineName(identifier, "remainingblocks");
+            if (mine == null) {
+                return null; //no mine name given, e.g. %realmines_totalblocks%
             }
-            final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
                 return String.valueOf(m.getRemainingBlocks());
@@ -161,12 +163,11 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         }
 
         if (identifier.startsWith("perremainingblocks")) {
-            final String[] split = identifier.split("_");
-            //no mine name given, e.g. %realmines_totalblocks%
-            if (split.length <= mineIndex) {
-                return null;
+            //everything after the prefix, so a mine named my_mine isn't looked up as "my"
+            final String mine = mineName(identifier, "perremainingblocks");
+            if (mine == null) {
+                return null; //no mine name given, e.g. %realmines_totalblocks%
             }
-            final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
                 return String.valueOf(m.getRemainingBlocksPer());
@@ -176,12 +177,11 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         }
 
         if (identifier.startsWith("perminedblocks")) {
-            final String[] split = identifier.split("_");
-            //no mine name given, e.g. %realmines_totalblocks%
-            if (split.length <= mineIndex) {
-                return null;
+            //everything after the prefix, so a mine named my_mine isn't looked up as "my"
+            final String mine = mineName(identifier, "perminedblocks");
+            if (mine == null) {
+                return null; //no mine name given, e.g. %realmines_totalblocks%
             }
-            final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
                 return String.valueOf(m.getMinedBlocksPer());
@@ -191,12 +191,11 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         }
 
         if (identifier.startsWith("secondsleft")) {
-            final String[] split = identifier.split("_");
-            //no mine name given, e.g. %realmines_totalblocks%
-            if (split.length <= mineIndex) {
-                return null;
+            //everything after the prefix, so a mine named my_mine isn't looked up as "my"
+            final String mine = mineName(identifier, "secondsleft");
+            if (mine == null) {
+                return null; //no mine name given, e.g. %realmines_totalblocks%
             }
-            final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
                 final Integer secondsLeft = m.getCountdown();
@@ -210,12 +209,11 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         }
 
         if (identifier.startsWith("timeleft")) {
-            final String[] split = identifier.split("_");
-            //no mine name given, e.g. %realmines_totalblocks%
-            if (split.length <= mineIndex) {
-                return null;
+            //everything after the prefix, so a mine named my_mine isn't looked up as "my"
+            final String mine = mineName(identifier, "timeleft");
+            if (mine == null) {
+                return null; //no mine name given, e.g. %realmines_totalblocks%
             }
-            final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
                 final Integer secondsLeft = m.getCountdown();
@@ -229,12 +227,11 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         }
 
         if (identifier.startsWith("bar")) {
-            final String[] split = identifier.split("_");
-            //no mine name given, e.g. %realmines_totalblocks%
-            if (split.length <= mineIndex) {
-                return null;
+            //everything after the prefix, so a mine named my_mine isn't looked up as "my"
+            final String mine = mineName(identifier, "bar");
+            if (mine == null) {
+                return null; //no mine name given, e.g. %realmines_totalblocks%
             }
-            final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
                 return m.getBar();
@@ -244,12 +241,11 @@ public class RealMinesPlaceholderAPI extends PlaceholderExpansion {
         }
 
         if (identifier.startsWith("percentage_bar")) {
-            final String[] split = identifier.split("_");
-            //no mine name given, e.g. %realmines_totalblocks%
-            if (split.length <= mineIndex) {
-                return null;
+            //everything after the prefix, so a mine named my_mine isn't looked up as "my"
+            final String mine = mineName(identifier, "percentage_bar");
+            if (mine == null) {
+                return null; //no mine name given, e.g. %realmines_totalblocks%
             }
-            final String mine = split[mineIndex];
             final RMine m = this.plugin.getMineManager().getMine(mine);
             if (m != null) {
                 return m.getPercentageBar();

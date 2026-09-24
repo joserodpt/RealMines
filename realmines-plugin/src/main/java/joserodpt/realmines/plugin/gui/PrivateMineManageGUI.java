@@ -34,6 +34,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.ClickType;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -296,6 +297,15 @@ public class PrivateMineManageGUI {
             private void reopen(final PrivateMineManageGUI current, final Player p) {
                 final PrivateMineManageGUI gui = new PrivateMineManageGUI(current.rm, p, current.mine);
                 Bukkit.getScheduler().runTask(current.rm.getPlugin(), () -> gui.openInventory(p));
+            }
+
+            @EventHandler
+            public void onDrag(final InventoryDragEvent e) {
+                final PrivateMineManageGUI current = inventories.get(e.getWhoClicked().getUniqueId());
+                //dragging over this GUI's slots would drop the dragged items into it
+                if (current != null && current.getInventory().equals(e.getInventory())) {
+                    e.setCancelled(true);
+                }
             }
 
             @EventHandler

@@ -28,20 +28,31 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Ageable;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.Cancellable;
 import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockExplodeEvent;
+import org.bukkit.event.block.BlockFromToEvent;
+import org.bukkit.event.block.BlockGrowEvent;
+import org.bukkit.event.block.BlockPistonExtendEvent;
+import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.block.SignChangeEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
+import org.bukkit.event.player.PlayerBucketEmptyEvent;
+import org.bukkit.event.player.PlayerBucketFillEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -70,11 +81,16 @@ public class BlockEvents implements Listener {
      * the floor under the pit and the empty space between slots.
      */
     private boolean outsideAnyMine(final Player p, final Block block) {
-        if (!block.getWorld().getName().equals(PrivateMinesWorld.NAME)
-                || p.hasPermission(PrivateMinesManager.ADMIN_PERMISSION)) {
-            return false;
-        }
-        return rm.getMineManager().getMineWithBlock(block) == null;
+        return !p.hasPermission(PrivateMinesManager.ADMIN_PERMISSION) && this.outsidePrivateMines(block);
+    }
+
+    /**
+     * Whether a block is in the private mines world but not inside any mine, whoever or whatever is
+     * acting on it.
+     */
+    private boolean outsidePrivateMines(final Block block) {
+        return block.getWorld().getName().equals(PrivateMinesWorld.NAME)
+                && rm.getMineManager().getMineWithBlock(block) == null;
     }
 
     private void refuse(final Player p) {
@@ -106,15 +122,108 @@ public class BlockEvents implements Listener {
         }
     }
 
+    //the rest of the ways to change the private world without placing or breaking a block. Each is limited
+    //to the player's own slot anyway, but the walkway and fence around it are plugin built and must stay
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPrivateWorldBucketEmpty(final PlayerBucketEmptyEvent e) {
+        if (this.outsideAnyMine(e.getPlayer(), e.getBlockClicked().getRelative(e.getBlockFace()))) {
+            e.setCancelled(true);
+            this.refuse(e.getPlayer());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPrivateWorldBucketFill(final PlayerBucketFillEvent e) {
+        if (this.outsideAnyMine(e.getPlayer(), e.getBlockClicked())) {
+            e.setCancelled(true);
+            this.refuse(e.getPlayer());
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPrivateWorldPistonExtend(final BlockPistonExtendEvent e) {
+        for (final Block block : e.getBlocks()) {
+            //pushing a walkway block, or pushing a mine block out onto the walkway
+            if (this.outsidePrivateMines(block) || this.outsidePrivateMines(block.getRelative(e.getDirection()))) {
+                e.setCancelled(true);
+                return;
+            }
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPrivateWorldPistonRetract(final BlockPistonRetractEvent e) {
+        //a sticky piston in the mine pulling a walkway block in, where it could then be mined
+        if (e.getBlocks().stream().anyMatch(this::outsidePrivateMines)) {
+            e.setCancelled(true);
+        }
+    }
+
+    @EventHandler(priority = EventPriority.LOW, ignoreCancelled = true)
+    public void onPrivateWorldFlow(final BlockFromToEvent e) {
+        //water or lava poured in a mine spreading out over the walkway
+        if (this.outsidePrivateMines(e.getToBlock())) {
+            e.setCancelled(true);
+        }
+    }
+
+    //a player placed block keeps that status when a piston moves it, or pushing it one block over would
+    //be enough to get its break actions paid out
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPistonExtend(final BlockPistonExtendEvent e) {
+        this.movePlacedBlocks(e.getBlocks(), e.getDirection());
+    }
+
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onPistonRetract(final BlockPistonRetractEvent e) {
+        this.movePlacedBlocks(e.getBlocks(), e.getDirection());
+    }
+
+    private void movePlacedBlocks(final List<Block> blocks, final BlockFace direction) {
+        //every source is forgotten before any destination is remembered, since in a row of pushed blocks
+        //one block's destination is the next one's source
+        final List<Location> destinations = new ArrayList<>();
+        for (final Block block : blocks) {
+            final RMine mine = rm.getMineManager().getMineWithBlock(block);
+            if (mine != null && mine.forgetPlacedBlock(block.getLocation())) {
+                destinations.add(block.getRelative(direction).getLocation());
+            }
+        }
+        for (final Location destination : destinations) {
+            final RMine mine = rm.getMineManager().getMineWithBlock(destination.getBlock());
+            if (mine != null) {
+                mine.rememberPlacedBlock(destination);
+            }
+        }
+    }
+
+    //a crop replanted in a farm mine pays nothing when broken straight away, but it has earned its break
+    //actions once it has grown all the way by itself
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onCropGrow(final BlockGrowEvent e) {
+        if (e.getNewState().getBlockData() instanceof final Ageable crop && crop.getAge() >= crop.getMaximumAge()) {
+            final RMine mine = rm.getMineManager().getMineWithBlock(e.getBlock());
+            if (mine != null && mine.getType() == RMine.Type.FARM) {
+                mine.forgetPlacedBlock(e.getBlock().getLocation());
+            }
+        }
+    }
+
     @EventHandler(priority = EventPriority.HIGHEST, ignoreCancelled = true)
     public void onBlockBreak(final BlockBreakEvent e) {
         final MineItem mi = rm.getMineManager().findBlockUpdate(e.getPlayer(), e, e.getBlock(), true);
         if (mi != null && mi.areVanillaDropsDisabled()) {
             e.setDropItems(false);
-            return;
         }
+    }
 
-        if (!e.isCancelled() && RMConfig.file().getBoolean("RealMines.sendMinedItemsToInventory")
+    //MONITOR, once nothing can cancel the break any more: handing the drops over earlier let a plugin that
+    //cancelled it afterwards leave the player with both the drops and the block
+    @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
+    public void onBlockBroken(final BlockBreakEvent e) {
+        //isDropItems is already false when the mine item disabled vanilla drops
+        if (e.isDropItems() && RMConfig.file().getBoolean("RealMines.sendMinedItemsToInventory")
                 && rm.getMineManager().getMineWithBlock(e.getBlock()) != null) {
             sendDropsToInventory(e.getPlayer(), e);
         }
@@ -157,9 +266,18 @@ public class BlockEvents implements Listener {
 
     @EventHandler(ignoreCancelled = true) //for creeper and TNT explosions
     public void onEntityExplode(final EntityExplodeEvent e) {
+        this.handleExplosion(e.blockList(), e);
+    }
+
+    @EventHandler(ignoreCancelled = true) //for beds and respawn anchors, which explode as blocks
+    public void onBlockExplode(final BlockExplodeEvent e) {
+        this.handleExplosion(e.blockList(), e);
+    }
+
+    private void handleExplosion(final List<Block> blocks, final Cancellable e) {
         //one blast reports every block through the same event, so blocks that have to survive it are
         //dropped from the list rather than cancelling the explosion for everyone
-        e.blockList().removeIf(block -> {
+        blocks.removeIf(block -> {
             final RMine mine = rm.getMineManager().getMineWithBlock(block);
 
             //in RealMines' own world a blast may take a mine's blocks and nothing else. The fence and the
@@ -172,7 +290,7 @@ public class BlockEvents implements Listener {
             return mine != null && mine.isPrivate();
         });
 
-        e.blockList().forEach(block -> rm.getMineManager().findBlockUpdate(null, e, block, true));
+        blocks.forEach(block -> rm.getMineManager().findBlockUpdate(null, e, block, true));
     }
 
     @EventHandler

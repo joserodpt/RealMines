@@ -30,6 +30,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
+import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
@@ -165,8 +166,11 @@ public class MaterialPickerGUI {
                         }
 
                         if (current.display.containsKey(e.getRawSlot())) {
-                            p.closeInventory();
-                            Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.materialRunnable.selectedMaterial(current.display.get(e.getRawSlot())), 3);
+                            //read now, not from the event three ticks later
+                            final Material picked = current.display.get(e.getRawSlot());
+                            //closed a tick later: Bukkit doesn't support closing the inventory from inside its own click event
+                            Bukkit.getScheduler().runTask(RealMinesAPI.getInstance().getPlugin(), () -> p.closeInventory());
+                            Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> current.materialRunnable.selectedMaterial(picked), 3);
                         }
                     }
                 }
@@ -185,6 +189,15 @@ public class MaterialPickerGUI {
                 if (asd.p.exists(asd.pageNumber + 1)) {
                     ++asd.pageNumber;
                     asd.fillChest(asd.p.getPage(asd.pageNumber));
+                }
+            }
+
+            @EventHandler
+            public void onDrag(final InventoryDragEvent e) {
+                final MaterialPickerGUI current = inventories.get(e.getWhoClicked().getUniqueId());
+                //dragging over this GUI's slots would drop the dragged items into it
+                if (current != null && current.getInventory().equals(e.getInventory())) {
+                    e.setCancelled(true);
                 }
             }
 
@@ -251,7 +264,8 @@ public class MaterialPickerGUI {
     }
 
     protected void exit(final Player p) {
-        p.closeInventory();
+        //a tick later, since this is called from the click event
+        Bukkit.getScheduler().runTask(RealMinesAPI.getInstance().getPlugin(), () -> p.closeInventory());
         Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> materialRunnable.selectedMaterial(null), 3);
     }
 

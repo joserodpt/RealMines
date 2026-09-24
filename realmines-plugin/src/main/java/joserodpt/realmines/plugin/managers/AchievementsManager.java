@@ -38,11 +38,13 @@ public class AchievementsManager extends AchievementsManagerAPI {
 
     private final RealMines rm;
 
-    private final Map<String, RMAchievement> achievements = new LinkedHashMap<>();
+    //rebuilt and swapped in whole on reload, never changed in place: placeholders read these from
+    //whatever thread PlaceholderAPI asks on, so a reload clearing them mid-read would throw
+    private volatile Map<String, RMAchievement> achievements = Collections.emptyMap();
 
     //so a mined block only ever evaluates the achievements it could possibly have advanced
-    private final List<RMAchievement> totalBlockAchievements = new ArrayList<>();
-    private final Map<Material, List<RMAchievement>> materialAchievements = new HashMap<>();
+    private volatile List<RMAchievement> totalBlockAchievements = Collections.emptyList();
+    private volatile Map<Material, List<RMAchievement>> materialAchievements = Collections.emptyMap();
 
     public AchievementsManager(final RealMines rm) {
         this.rm = rm;
@@ -50,11 +52,12 @@ public class AchievementsManager extends AchievementsManagerAPI {
 
     @Override
     public void loadAchievements() {
-        this.achievements.clear();
-        this.totalBlockAchievements.clear();
-        this.materialAchievements.clear();
+        final Map<String, RMAchievement> achievements = new LinkedHashMap<>();
+        final List<RMAchievement> totalBlockAchievements = new ArrayList<>();
+        final Map<Material, List<RMAchievement>> materialAchievements = new HashMap<>();
 
         if (RMAchievementsConfig.file() == null || !RMAchievementsConfig.file().isSection(ROOT)) {
+            this.publish(achievements, totalBlockAchievements, materialAchievements);
             return;
         }
 
@@ -66,16 +69,24 @@ public class AchievementsManager extends AchievementsManagerAPI {
                     continue;
                 }
 
-                this.achievements.put(id, achievement);
+                achievements.put(id, achievement);
                 if (achievement.getType() == RMAchievementType.MATERIAL) {
-                    this.materialAchievements.computeIfAbsent(achievement.getMaterial(), m -> new ArrayList<>()).add(achievement);
+                    materialAchievements.computeIfAbsent(achievement.getMaterial(), m -> new ArrayList<>()).add(achievement);
                 } else {
-                    this.totalBlockAchievements.add(achievement);
+                    totalBlockAchievements.add(achievement);
                 }
             } catch (final Exception e) {
                 this.rm.getLogger().warning("Achievement " + id + " is invalid and was skipped: " + e.getMessage());
             }
         }
+        this.publish(achievements, totalBlockAchievements, materialAchievements);
+    }
+
+    private void publish(final Map<String, RMAchievement> achievements, final List<RMAchievement> totalBlockAchievements,
+                         final Map<Material, List<RMAchievement>> materialAchievements) {
+        this.achievements = Collections.unmodifiableMap(achievements);
+        this.totalBlockAchievements = Collections.unmodifiableList(totalBlockAchievements);
+        this.materialAchievements = Collections.unmodifiableMap(materialAchievements);
     }
 
     private RMAchievement load(final String id, final String route) {
