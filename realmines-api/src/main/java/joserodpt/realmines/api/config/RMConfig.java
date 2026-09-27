@@ -14,23 +14,15 @@ package joserodpt.realmines.api.config;
  */
 
 import dev.dejvokep.boostedyaml.YamlDocument;
-import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;
-import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
-import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
-import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
-import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
+import joserodpt.realutils.config.YamlConfig;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.List;
-import java.util.logging.Level;
 
-public class RMConfig implements Listener {
+public class RMConfig {
 
     private static final String name = "config.yml";
 
@@ -40,22 +32,14 @@ public class RMConfig implements Listener {
      */
     public static final String DEFAULT_LOCATION = "RealMines.Default-Location";
 
-    private static YamlDocument configFile;
+    private static YamlConfig config;
 
     public static void setup(final JavaPlugin rm) {
-        try {
-            configFile = YamlDocument.create(new File(rm.getDataFolder(), name), rm.getResource(name),
-                    GeneralSettings.DEFAULT,
-                    LoaderSettings.builder().setAutoUpdate(true).build(),
-                    DumperSettings.DEFAULT,
-                    UpdaterSettings.builder().setVersioning(new BasicVersioning("Version")).build());
-        } catch (final IOException e) {
-            Bukkit.getLogger().log(Level.SEVERE, "Couldn't setup " + name + "!");
-        }
+        config = YamlConfig.of(rm, name).versioned("Version").load();
     }
 
     public static YamlDocument file() {
-        return configFile;
+        return config == null ? null : config.file();
     }
 
     /**
@@ -65,6 +49,7 @@ public class RMConfig implements Listener {
      * @return the location, or null on a server with no worlds at all
      */
     public static Location getDefaultLocation() {
+        final YamlDocument configFile = file();
         final String raw = configFile == null ? null : configFile.getString(DEFAULT_LOCATION, "");
         if (raw != null && !raw.isEmpty()) {
             final String[] parts = raw.split(";");
@@ -85,6 +70,7 @@ public class RMConfig implements Listener {
     }
 
     public static void setDefaultLocation(final Location loc) {
+        final YamlDocument configFile = file();
         if (configFile == null || loc == null || loc.getWorld() == null) {
             return;
         }
@@ -94,18 +80,10 @@ public class RMConfig implements Listener {
     }
 
     public static void save() {
-        try {
-            configFile.save();
-        } catch (final IOException e) {
-            Bukkit.getLogger().log(Level.SEVERE, "Couldn't save " + name + "!");
-        }
+        config.save();
     }
 
     public static void reload() {
-        try {
-            configFile.reload();
-        } catch (final IOException e) {
-            Bukkit.getLogger().log(Level.SEVERE, "Couldn't reload " + name + "!");
-        }
+        config.reload();
     }
 }

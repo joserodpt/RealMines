@@ -23,11 +23,11 @@ import joserodpt.realmines.api.mine.components.actions.MineActionDummy;
 import joserodpt.realmines.api.mine.components.actions.MineActionGiveItem;
 import joserodpt.realmines.api.mine.components.actions.MineActionMoney;
 import joserodpt.realmines.api.mine.components.items.MineItem;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.Pagination;
-import joserodpt.realmines.api.utils.PlayerInput;
-import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
+import joserodpt.realutils.gui.Pagination;
+import joserodpt.realutils.input.PlayerInput;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -203,7 +203,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                                 p.closeInventory();
 
                                                 TranslatableLine.MINE_BREAK_ACTION_INPUT_COMMAND.send(p);
-                                                new PlayerInput(false, p, s -> {
+                                                new PlayerInput(p, false, s -> {
                                                     ((MineActionCommand) a).setCommand(s);
                                                     current.mine.saveData(RMine.MineData.BLOCKS);
 
@@ -218,7 +218,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                                 p.closeInventory();
 
                                                 TranslatableLine.MINE_BREAK_ACTION_INPUT_AMOUNT.send(p);
-                                                new PlayerInput(true, p, s -> {
+                                                new PlayerInput(p, true, s -> {
                                                     final double d;
                                                     try {
                                                         d = Double.parseDouble(s);
@@ -244,7 +244,7 @@ public class MineBreakActionsGUI { //TODO TRANSLATE
                                     default:
                                         //chance chance
                                         TranslatableLine.MINE_BREAK_ACTION_INPUT_CHANCE.send(p);
-                                        new PlayerInput(true, p, s -> {
+                                        new PlayerInput(p, true, s -> {
                                             final double d;
                                             try {
                                                 d = Double.parseDouble(s);

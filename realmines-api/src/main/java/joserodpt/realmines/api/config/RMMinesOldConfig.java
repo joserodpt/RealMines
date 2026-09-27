@@ -14,49 +14,41 @@ package joserodpt.realmines.api.config;
  */
 
 import dev.dejvokep.boostedyaml.YamlDocument;
-import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;
-import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
-import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
-import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
-import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
+import joserodpt.realutils.config.YamlConfig;
 import org.bukkit.Bukkit;
-import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 
-public class RMMinesOldConfig implements Listener {
+public class RMMinesOldConfig {
 
     private static final String name = "mines.yml";
-    private static YamlDocument configFile;
+    private static YamlConfig config;
     private static boolean fileExists;
 
     public static void setup(final JavaPlugin rm) {
-        try {
-            File file = new File(rm.getDataFolder(), name);
-            fileExists = file.exists();
-            if (fileExists) {
-                configFile = YamlDocument.create(file,
-                        GeneralSettings.DEFAULT,
-                        LoaderSettings.builder().setMaxCollectionAliases(200).setAutoUpdate(true).build(),
-                        DumperSettings.DEFAULT,
-                        UpdaterSettings.builder().setVersioning(new BasicVersioning("Version")).build());
+        final File file = new File(rm.getDataFolder(), name);
+        fileExists = file.exists();
+        if (fileExists) {
+            //no bundled defaults: this is the pre-1.7 file, only ever read to be converted
+            config = YamlConfig.of(rm, file, null).versioned("Version").maxCollectionAliases(200).load();
 
-                //if it doesn't exist, create a minesBACKUP.yml file that is a copy of the mines.yml file
-                File backupFile = new File(rm.getDataFolder(), "minesBACKUP.yml");
-                if (!backupFile.exists()) {
-                    configFile.save(backupFile);
+            //if it doesn't exist, create a minesBACKUP.yml file that is a copy of the mines.yml file
+            final File backupFile = new File(rm.getDataFolder(), "minesBACKUP.yml");
+            if (config.file() != null && !backupFile.exists()) {
+                try {
+                    config.file().save(backupFile);
+                } catch (final IOException e) {
+                    Bukkit.getLogger().log(Level.SEVERE, "Couldn't back up " + name + "!");
                 }
             }
-        } catch (final IOException e) {
-            Bukkit.getLogger().log(Level.SEVERE, "Couldn't setup " + name + "!");
         }
     }
 
     public static YamlDocument file() {
-        return configFile;
+        return config == null ? null : config.file();
     }
 
     public static boolean fileExists() {
@@ -64,17 +56,13 @@ public class RMMinesOldConfig implements Listener {
     }
 
     public static void save() {
-        try {
-            configFile.save();
-        } catch (final IOException e) {
-            Bukkit.getLogger().log(Level.SEVERE, "Couldn't save " + name + "!");
-        }
+        config.save();
     }
 
     public static void delete() {
-        if (configFile.getFile().delete()) {
+        if (config.file().getFile().delete()) {
             fileExists = false;
         }
-        configFile = null;
+        config = null;
     }
 }

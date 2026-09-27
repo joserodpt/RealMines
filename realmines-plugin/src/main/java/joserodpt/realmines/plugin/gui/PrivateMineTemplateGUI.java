@@ -17,11 +17,12 @@ import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.managers.PrivateMinePlatform;
 import joserodpt.realmines.api.managers.PrivateMineTemplate;
 import joserodpt.realmines.api.mine.components.PrivateMineData;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.PlayerInput;
-import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realmines.plugin.command.PrivateMineCMD;
+import joserodpt.realutils.gui.MaterialPickerGUI;
+import joserodpt.realutils.input.PlayerInput;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -492,7 +493,7 @@ public class PrivateMineTemplateGUI {
              */
             private void ask(final PrivateMineTemplateGUI current, final Player p, final String key,
                              final Editor value) {
-                new PlayerInput(true, p, input -> {
+                new PlayerInput(p, true, input -> {
                     final Object written = value.of(input);
                     if (written != null) {
                         current.rm.getPrivateMinesManager().editTemplate(current.template(), key, written);

@@ -18,8 +18,8 @@ import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.api.mine.types.farm.FarmItem;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.utils.Format;
+import joserodpt.realutils.item.Items;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
@@ -119,7 +119,7 @@ public class MineItem {
     }
 
     protected @NotNull List<String> getBreakActionsTextList() {
-        return this.getBreakActions().stream().map(action -> "&7- " + action.getType().getShortName() + "&r&f: " + action.getValueString() + " &f(&e" + Text.formatPercentages(action.getChance() / 100) + "%&f)").collect(Collectors.toList());
+        return this.getBreakActions().stream().map(action -> "&7- " + action.getType().getShortName() + "&r&f: " + action.getValueString() + " &f(&e" + Format.formatPercentages(action.getChance() / 100) + "%&f)").collect(Collectors.toList());
     }
 
     public boolean hasBreakActions() {

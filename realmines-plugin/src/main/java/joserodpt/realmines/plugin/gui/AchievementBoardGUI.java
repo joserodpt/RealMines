@@ -17,11 +17,12 @@ import joserodpt.realmines.api.achievements.RMAchievement;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.database.RMPlayerStats;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.Pagination;
+import joserodpt.realmines.api.utils.Format;
 import joserodpt.realmines.api.utils.PlayerHeads;
-import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
+import joserodpt.realutils.gui.Pagination;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -152,7 +153,7 @@ public class AchievementBoardGUI {
         lore.add(Text.color("&fBlocks mined: &b" + Text.formatNumber(mined)));
         lore.add(Text.color("&fAchievements: &b" + unlocked + "&7/&b" + total));
         if (this.stats != null && this.stats.getFirstJoin() > 0) {
-            lore.add(Text.color("&8First seen: " + Text.formatEpoch(this.stats.getFirstJoin())));
+            lore.add(Text.color("&8First seen: " + Format.formatEpoch(this.stats.getFirstJoin())));
         }
 
         if (this.stats == null) {

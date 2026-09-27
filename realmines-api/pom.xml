@@ -129,7 +129,7 @@
             <version>7.3.17</version>
             <scope>provided</scope>
         </dependency>
-        <!-- Dialogs and the chat prompt, from the library the Real* plugins share. Optional, so the
+        <!-- GUIs, text, items, configs, dialogs and the chat prompt, from the library the Real* plugins share. Optional, so the
              API's own users are not handed it; realmines-plugin shades and relocates it. -->
         <dependency>
             <groupId>com.github.joserodpt</groupId>

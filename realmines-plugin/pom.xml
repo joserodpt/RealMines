@@ -26,6 +26,7 @@
              v0.4.4) once the upstream repo has one; commit hashes are stable too. -->
         <realpermissions.version>1e7015a05e</realpermissions.version>
         <lamp.version>4.0.0-rc.18</lamp.version>
+        <bstats.version>3.2.1</bstats.version>
     </properties>
 
     <build>
@@ -74,6 +75,7 @@
                                     <include>com.j256.ormlite:ormlite-jdbc</include>
                                     <include>com.github.joserodpt:RealUtils</include>
                                     <include>io.github.projectunified:*</include>
+                                    <include>org.bstats:*</include>
                                 </includes>
                             </artifactSet>
 
@@ -99,6 +101,11 @@
                                 <relocation>
                                     <pattern>io.github.projectunified.unidialog</pattern>
                                     <shadedPattern>joserodpt.realmines.shaded.unidialog</shadedPattern>
+                                </relocation>
+                                <!-- bStats asks for its package to be relocated, so plugins don't share one copy. -->
+                                <relocation>
+                                    <pattern>org.bstats</pattern>
+                                    <shadedPattern>joserodpt.realmines.shaded.bstats</shadedPattern>
                                 </relocation>
                             </relocations>
 
@@ -264,12 +271,17 @@
             <artifactId>RealMinesAPI</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Dialogs and the chat prompt, shaded and relocated below. It brings UniDialog's Spigot and
+        <!-- GUIs, text, items, configs, dialogs and the chat prompt, shaded and relocated below. It brings UniDialog's Spigot and
              Paper backends with it, picked between at runtime. -->
         <dependency>
             <groupId>com.github.joserodpt</groupId>
             <artifactId>RealUtils</artifactId>
             <version>${realutils.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-bukkit</artifactId>
+            <version>${bstats.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.MilkBowl</groupId>

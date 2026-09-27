@@ -13,8 +13,8 @@ package joserodpt.realmines.api.mine.components.actions;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.utils.Format;
+import joserodpt.realutils.item.Items;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -47,7 +47,7 @@ public class MineActionCommand extends MineAction {
             return;
         }
 
-        String cmd2Exec = this.command.replace("%player%", p.getName()).replace("%blockloc%", Text.location2Command(l));
+        String cmd2Exec = this.command.replace("%player%", p.getName()).replace("%blockloc%", Format.location2Command(l));
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             cmd2Exec = PlaceholderAPI.setPlaceholders(p, cmd2Exec);
         }
@@ -71,7 +71,7 @@ public class MineActionCommand extends MineAction {
 
     @Override
     public ItemStack getIcon() {
-        return Items.createItem(Material.COMMAND_BLOCK, 1, getType().getDisplayName() + " &r&f- " + Text.formatPercentages(super.getChance() / 100) + "%", Arrays.asList("&fCommand: &b/" + this.command, "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the command.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
+        return Items.createItem(Material.COMMAND_BLOCK, 1, getType().getDisplayName() + " &r&f- " + Format.formatPercentages(super.getChance() / 100) + "%", Arrays.asList("&fCommand: &b/" + this.command, "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the command.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 
     public void setCommand(String s) {

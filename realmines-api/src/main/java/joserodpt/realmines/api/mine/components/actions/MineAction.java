@@ -15,7 +15,7 @@ package joserodpt.realmines.api.mine.components.actions;
 
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.utils.ItemStackSpringer;
+import joserodpt.realutils.item.ItemStackSpringer;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;

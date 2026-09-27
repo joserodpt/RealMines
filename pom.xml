@@ -12,8 +12,8 @@
     <properties>
         <revision>1.7</revision>
         <maven.compiler.release>16</maven.compiler.release>
-        <!-- Shared with the other Real* plugins: dialogs (1.21.6+) and the chat prompt. -->
-        <realutils.version>1.0.0</realutils.version>
+        <!-- Shared with the other Real* plugins: GUIs, text, items, configs, dialogs (1.21.6+) and the chat prompt. -->
+        <realutils.version>1.1.0</realutils.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <modules>

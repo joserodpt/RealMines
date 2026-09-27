@@ -25,10 +25,8 @@ import joserodpt.realmines.api.config.RPMineResetTasksConfig;
 import joserodpt.realmines.api.event.RealMinesPluginLoadedEvent;
 import joserodpt.realmines.api.managers.PrivateMinesWorld;
 import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.utils.GUIBuilder;
+import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.utils.PercentageInput;
-import joserodpt.realmines.api.utils.PlayerInput;
-import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.command.RMCommandManager;
 import joserodpt.realmines.plugin.events.BlockEvents;
 import joserodpt.realmines.plugin.events.PlayerEvents;
@@ -36,7 +34,6 @@ import joserodpt.realmines.plugin.events.StatsEvents;
 import joserodpt.realmines.plugin.gui.AchievementBoardGUI;
 import joserodpt.realmines.plugin.gui.DirectoryBrowserGUI;
 import joserodpt.realmines.plugin.gui.LeaderboardGUI;
-import joserodpt.realmines.plugin.gui.MaterialPickerGUI;
 import joserodpt.realmines.plugin.gui.MineBreakActionsGUI;
 import joserodpt.realmines.plugin.gui.MineColorPickerGUI;
 import joserodpt.realmines.plugin.gui.MineDepthGUI;
@@ -54,7 +51,14 @@ import joserodpt.realutils.dialog.Dialogs;
 import joserodpt.realpermissions.api.RealPermissionsAPI;
 import joserodpt.realpermissions.api.pluginhook.ExternalPlugin;
 import joserodpt.realpermissions.api.pluginhook.ExternalPluginPermission;
+import joserodpt.realutils.RealUtils;
+import joserodpt.realutils.gui.MaterialPickerGUI;
+import joserodpt.realutils.input.PlayerInput;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
+import joserodpt.realutils.update.UpdateChecker;
 import net.milkbowl.vault.economy.Economy;
+import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.generator.ChunkGenerator;
@@ -66,6 +70,8 @@ import org.bukkit.scheduler.BukkitTask;
 
 import java.io.File;
 import java.util.*;
+
+import static joserodpt.realmines.api.config.TranslatableLine.TranslatableLinePlaceholder.MATERIAL;
 
 public class RealMinesPlugin extends JavaPlugin {
 
@@ -100,6 +106,32 @@ public class RealMinesPlugin extends JavaPlugin {
         RMAchievementsConfig.setup(this);
         RMPrivateMinesConfig.setup(this);
 
+        //before any GUI opens: this registers the GUIBuilder and MaterialPickerGUI listeners
+        RealUtils.setup(this);
+        //the old send was the coloured prefix followed by "&f" + the message
+        Text.prefix(() -> RMConfig.file().getString("RealMines.Prefix") + "&f");
+        //crop blocks aren't items, so show the item they grow from instead of RealUtils' stone
+        Items.materialMapper(m -> {
+            final Material icon = m.isItem() ? null : FarmItem.findIconForCrop(m);
+            return icon != null && icon.isItem() ? icon : m;
+        });
+        //read each time a picker opens, so a reloaded language.yml applies
+        MaterialPickerGUI.labels(() -> {
+            final MaterialPickerGUI.Labels labels = new MaterialPickerGUI.Labels();
+            labels.nextName = TranslatableLine.GUI_NEXT_PAGE_NAME.get();
+            labels.nextLore = RMLanguageConfig.file().getStringList("GUI.Items.Next.Description");
+            labels.previousName = TranslatableLine.GUI_PREVIOUS_PAGE_NAME.get();
+            labels.previousLore = RMLanguageConfig.file().getStringList("GUI.Items.Back.Description");
+            labels.closeName = TranslatableLine.GUI_CLOSE_NAME.get();
+            labels.closeLore = RMLanguageConfig.file().getStringList("GUI.Items.Close.Description");
+            labels.searchName = TranslatableLine.GUI_SEARCH_ITEM_NAME.get();
+            //the search button has always shared the close button's description
+            labels.searchLore = RMLanguageConfig.file().getStringList("GUI.Items.Close.Description");
+            labels.pickName = m -> TranslatableLine.GUI_PICK_NAME.with(MATERIAL, Text.beautifyMaterialName(m)).get();
+            labels.pickLore = RMLanguageConfig.file().getStringList("GUI.Items.Pick.Description");
+            return labels;
+        });
+
         //stats have to be up before the listeners that write to them
         realMines.setupDatabase();
         realMines.getAchievementsManager().loadAchievements();
@@ -127,10 +159,8 @@ public class RealMinesPlugin extends JavaPlugin {
                 PrivateMineManageGUI.getListener(),
                 PrivateMineTemplateGUI.getListener(),
                 PrivateMineTemplatesGUI.getListener(),
-                GUIBuilder.getListener(),
                 MineFacesGUI.getListener(),
                 MineDepthGUI.getListener(),
-                MaterialPickerGUI.getListener(),
                 MineItemsGUI.getListener(),
                 MineResetGUI.getListener(),
                 MineColorPickerGUI.getListener(),
@@ -144,7 +174,11 @@ public class RealMinesPlugin extends JavaPlugin {
         //typed input and the settings are asked for in dialogs on servers that have them
         Dialogs.setup(this, () -> RMConfig.file().getBoolean("RealMines.useDialogs", true));
         Dialogs.labels(TranslatableLine.SYSTEM_DIALOG_CONFIRM.get(), TranslatableLine.SYSTEM_DIALOG_CANCEL.get(), null, null, null);
-        PlayerInput.setup(this);
+        PlayerInput.setup(this,
+                p -> RMLanguageConfig.file().getStringList("System.Type-Input"),
+                p -> RMLanguageConfig.file().getStringList("System.Type-Input-Dialog"),
+                TranslatableLine.SYSTEM_INPUT_CANCELLED::send,
+                TranslatableLine.SYSTEM_ERROR_OCCURRED::send);
 
         //vault hook
         if (getServer().getPluginManager().getPlugin("Vault") != null) {

@@ -23,14 +23,17 @@ import joserodpt.realmines.api.mine.components.items.MineBlockItem;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.api.mine.types.BlockMine;
+import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.mine.types.farm.FarmMine;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.Pagination;
+import joserodpt.realmines.api.utils.Format;
 import joserodpt.realmines.api.utils.PercentageInput;
-import joserodpt.realmines.api.utils.PlayerInput;
-import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realutils.dialog.DialogForm;
+import joserodpt.realutils.gui.MaterialPickerGUI;
+import joserodpt.realutils.gui.Pagination;
+import joserodpt.realutils.input.PlayerInput;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -238,7 +241,7 @@ public class MineItemsGUI {
 
                                 p.closeInventory();
 
-                                final MaterialPickerGUI mpg = new MaterialPickerGUI(p, TranslatableLine.GUI_PICK_NEW_BLOCK_NAME.get(), current.mine.getType() == RMine.Type.FARM ? MaterialPickerGUI.MaterialLists.ONLY_FARM_ICONS : MaterialPickerGUI.MaterialLists.ONLY_BLOCKS, mat -> {
+                                final MaterialPickerGUI mpg = new MaterialPickerGUI(p, TranslatableLine.GUI_PICK_NEW_BLOCK_NAME.get(), current.mine.getType() == RMine.Type.FARM ? FarmItem.getIcons() : MaterialPickerGUI.MaterialLists.ONLY_BLOCKS.materials(), mat -> {
                                     if (mat != null) {
                                         switch (current.mine.getType()) {
                                             case BLOCKS ->
@@ -398,7 +401,7 @@ public class MineItemsGUI {
                                         break;
                                     case RIGHT:
                                         p.closeInventory();
-                                        new PlayerInput(true, p, s -> {
+                                        new PlayerInput(p, true, s -> {
                                             String oldKey = blockSet.getKey();
                                             current.mine.renameBlockSet(oldKey, s);
                                             MineItemsGUI v = new MineItemsGUI(current.rm, p, current.mine, s);
@@ -410,7 +413,7 @@ public class MineItemsGUI {
                                         break;
                                     case SHIFT_RIGHT:
                                         p.closeInventory();
-                                        new PlayerInput(false, p, s -> {
+                                        new PlayerInput(p, false, s -> {
                                             blockSet.setDescription(s);
                                             current.mine.saveData(RMine.MineData.BLOCKS);
                                             MineItemsGUI v = new MineItemsGUI(current.rm, p, current.mine, current.selectedBlockSet);
@@ -523,11 +526,11 @@ public class MineItemsGUI {
 
         final double total = blocks.stream().mapToDouble(MineItem::getPercentage).sum();
         final DialogForm form = new DialogForm("&9" + current.mine.getDisplayName() + " &8| &fBlock percentages",
-                "&7Currently adds up to &b" + Text.formatPercentages(total) + "%&7.");
+                "&7Currently adds up to &b" + Format.formatPercentages(total) + "%&7.");
         //the icons first, as a key to the sliders under them: a dialog always draws its fields last
         for (final MineItem block : blocks) {
             form.icon(block.getMaterial(), "&f" + Text.beautifyMaterialName(block.getMaterial())
-                    + " &7- &b" + Text.formatPercentages(block.getPercentage()) + "%");
+                    + " &7- &b" + Format.formatPercentages(block.getPercentage()) + "%");
         }
         for (final MineItem block : blocks) {
             form.slider(block.getMaterial().name(), "&f" + Text.beautifyMaterialName(block.getMaterial()) + " &7(%)",
@@ -544,7 +547,7 @@ public class MineItemsGUI {
                     block.setPercentage(value / 100);
                     changed++;
                     Text.send(p, "&fPercentage of &b" + Text.beautifyMaterialName(block.getMaterial()) + " &fset to &b"
-                            + Text.formatPercentages(value / 100) + "%&f.");
+                            + Format.formatPercentages(value / 100) + "%&f.");
                 }
             }
             if (changed > 0) {
@@ -563,14 +566,14 @@ public class MineItemsGUI {
                 a.setPercentage((double) percentage / 100);
                 current.mine.saveData(RMine.MineData.BLOCKS);
 
-                TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.with(VALUE, percentage == 0 ? "0%" : Text.formatPercentages((double) percentage / 100) + "%").send(p);
+                TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.with(VALUE, percentage == 0 ? "0%" : Format.formatPercentages((double) percentage / 100) + "%").send(p);
 
                 final MineItemsGUI v = new MineItemsGUI(current.rm, p, current.mine, current.selectedBlockSet);
                 v.openInventory(p);
             });
             pi.openInventory(p);
         } else {
-            new PlayerInput(true, p, s -> {
+            new PlayerInput(p, true, s -> {
                 double d = 0D;
                 try {
                     d = Double.parseDouble(s.replace("%", ""));
@@ -597,7 +600,7 @@ public class MineItemsGUI {
                 a.setPercentage(d);
                 current.mine.saveData(RMine.MineData.BLOCKS);
 
-                TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.with(VALUE, Text.formatPercentages((d)) + "%").send(p);
+                TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.with(VALUE, Format.formatPercentages((d)) + "%").send(p);
                 final MineItemsGUI v = new MineItemsGUI(current.rm, p, current.mine, current.selectedBlockSet);
                 v.openInventory(p);
             }, s -> {

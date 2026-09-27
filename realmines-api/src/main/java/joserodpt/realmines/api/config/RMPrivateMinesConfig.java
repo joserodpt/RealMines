@@ -14,41 +14,25 @@ package joserodpt.realmines.api.config;
  */
 
 import dev.dejvokep.boostedyaml.YamlDocument;
-import dev.dejvokep.boostedyaml.dvs.versioning.BasicVersioning;
-import dev.dejvokep.boostedyaml.settings.dumper.DumperSettings;
-import dev.dejvokep.boostedyaml.settings.general.GeneralSettings;
-import dev.dejvokep.boostedyaml.settings.loader.LoaderSettings;
-import dev.dejvokep.boostedyaml.settings.updater.UpdaterSettings;
-import org.bukkit.Bukkit;
-import org.bukkit.event.Listener;
+import joserodpt.realutils.config.YamlConfig;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
 
 /**
  * Global settings for private mines. Lives in private-mines/config.yml, next to the templates and the
  * per-owner folders, so everything the feature owns sits under one folder.
  */
-public class RMPrivateMinesConfig implements Listener {
+public class RMPrivateMinesConfig {
 
     public static final String FOLDER = "private-mines";
     public static final String TEMPLATES_FOLDER = "templates";
 
     private static final String resource = FOLDER + "/config.yml";
-    private static YamlDocument configFile;
+    private static YamlConfig config;
 
     public static void setup(final JavaPlugin rm) {
-        try {
-            configFile = YamlDocument.create(new File(getFolder(rm), "config.yml"), rm.getResource(resource),
-                    GeneralSettings.DEFAULT,
-                    LoaderSettings.builder().setAutoUpdate(true).build(),
-                    DumperSettings.DEFAULT,
-                    UpdaterSettings.builder().setVersioning(new BasicVersioning("Version")).build());
-        } catch (final IOException e) {
-            Bukkit.getLogger().log(Level.SEVERE, "Couldn't setup " + resource + "!");
-        }
+        config = YamlConfig.of(rm, new File(getFolder(rm), "config.yml"), resource).versioned("Version").load();
     }
 
     /**
@@ -81,22 +65,14 @@ public class RMPrivateMinesConfig implements Listener {
     }
 
     public static YamlDocument file() {
-        return configFile;
+        return config == null ? null : config.file();
     }
 
     public static void save() {
-        try {
-            configFile.save();
-        } catch (final IOException e) {
-            Bukkit.getLogger().log(Level.SEVERE, "Couldn't save " + resource + "!");
-        }
+        config.save();
     }
 
     public static void reload() {
-        try {
-            configFile.reload();
-        } catch (final IOException e) {
-            Bukkit.getLogger().log(Level.SEVERE, "Couldn't reload " + resource + "!");
-        }
+        config.reload();
     }
 }

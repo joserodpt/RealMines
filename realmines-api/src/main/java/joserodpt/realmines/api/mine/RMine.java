@@ -40,9 +40,10 @@ import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.api.mine.task.MineTimer;
 import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.utils.Countdown;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.utils.Format;
 import joserodpt.realmines.api.utils.WorldEditUtils;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.Bukkit;
@@ -852,7 +853,7 @@ public abstract class RMine {
     }
 
     public String getBar() {
-        return Text.getProgressBar(this.getRemainingBlocks(), this.getBlockCount(), 10, '■', ChatColor.GREEN, ChatColor.RED);
+        return Format.getProgressBar(this.getRemainingBlocks(), this.getBlockCount(), 10, '■', ChatColor.GREEN, ChatColor.RED);
     }
 
     public String getPercentageBar() {

@@ -16,10 +16,10 @@ package joserodpt.realmines.plugin.gui;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.PlayerInput;
-import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.utils.Format;
 import joserodpt.realmines.plugin.RealMines;
+import joserodpt.realutils.input.PlayerInput;
+import joserodpt.realutils.item.Items;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
@@ -187,7 +187,7 @@ public class MineResetGUI {
     protected void editSetting(final RealMines rm, final int i, final Player p, final RMine m) {
         switch (i) {
             case 0:
-                new PlayerInput(true, p, s -> {
+                new PlayerInput(p, true, s -> {
                     final int d;
                     try {
                         d = Integer.parseInt(s.replace("%", ""));
@@ -204,7 +204,7 @@ public class MineResetGUI {
                     }
 
                     m.setResetValue(RMine.Reset.PERCENTAGE, d);
-                    TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.with(VALUE, Text.formatPercentages(d) + "%").send(p);
+                    TranslatableLine.SYSTEM_PERCENTAGE_MODIFIED.with(VALUE, Format.formatPercentages(d) + "%").send(p);
 
                     final MineResetGUI v = new MineResetGUI(rm, p, m);
                     v.openInventory(p);
@@ -214,7 +214,7 @@ public class MineResetGUI {
                 });
                 break;
             case 1:
-                new PlayerInput(true, p, s -> {
+                new PlayerInput(p, true, s -> {
                     final int d;
                     try {
                         d = Integer.parseInt(s.replace("%", ""));

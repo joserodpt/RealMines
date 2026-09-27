@@ -13,8 +13,8 @@ package joserodpt.realmines.api.mine.components;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.skulls.SkullCreator;
+import joserodpt.realutils.item.Items;
 import org.bukkit.Color;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;

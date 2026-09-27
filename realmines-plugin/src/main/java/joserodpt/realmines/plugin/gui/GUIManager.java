@@ -23,12 +23,13 @@ import joserodpt.realmines.api.mine.components.actions.MineActionDropItem;
 import joserodpt.realmines.api.mine.components.actions.MineActionGiveItem;
 import joserodpt.realmines.api.mine.components.actions.MineActionMoney;
 import joserodpt.realmines.api.mine.components.items.MineItem;
-import joserodpt.realmines.api.utils.GUIBuilder;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.PlayerInput;
-import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realmines.plugin.managers.MineManager;
+import joserodpt.realutils.gui.GUIBuilder;
+import joserodpt.realutils.gui.MaterialPickerGUI;
+import joserodpt.realutils.input.PlayerInput;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -98,7 +99,7 @@ public class GUIManager {
         target.closeInventory();
         TranslatableLine.SYSTEM_INPUT_MINE_NAME.send(target);
 
-        new PlayerInput(true, target, s -> {
+        new PlayerInput(target, true, s -> {
             final String newName = s.trim();
             //a mine is stored in a file named after it, so a name that can't be one is refused here
             if (!MineManager.isValidMineName(newName)) {
@@ -138,7 +139,7 @@ public class GUIManager {
 
                 inventory.addItem(e -> {
                             Text.send(target, "Input in the chat the amount to give:");
-                            new PlayerInput(true, target, s -> {
+                            new PlayerInput(target, true, s -> {
                                 final double d;
                                 try {
                                     d = Double.parseDouble(s);
@@ -163,7 +164,7 @@ public class GUIManager {
                 inventory.addItem(e -> {
 
                             Text.send(target, "Input in the chat the chance for the break action (0-100%):");
-                            new PlayerInput(true, target, s -> {
+                            new PlayerInput(target, true, s -> {
                                 final double d;
                                 try {
                                     d = Double.parseDouble(s);
@@ -193,7 +194,7 @@ public class GUIManager {
                 inventory.addItem(e -> {
 
                             Text.send(target, "Input in the chat the chance for the break action (0-100%):");
-                            new PlayerInput(true, target, s -> {
+                            new PlayerInput(target, true, s -> {
                                 final double d;
                                 try {
                                     d = Double.parseDouble(s);
@@ -218,7 +219,7 @@ public class GUIManager {
                 inventory.addItem(e -> {
 
                             Text.send(target, "Input in the chat the command for the break action to execute:");
-                            new PlayerInput(true, target, s -> {
+                            new PlayerInput(target, true, s -> {
                                 mi.getBreakActions().add(new MineActionCommand(r.getName(), 50D, s));
                                 r.saveData(RMine.MineData.BLOCKS);
 
@@ -246,7 +247,7 @@ public class GUIManager {
 
                 inventory.addItem(e -> {
                     target.closeInventory();
-                    new PlayerInput(true, target, s -> {
+                    new PlayerInput(target, true, s -> {
                         if (!MineManager.isValidMineName(s)) {
                             TranslatableLine.SYSTEM_INVALID_MINE_NAME.send(target);
                         } else if (rm.getMineManager().getMine(s) != null) {
@@ -301,7 +302,7 @@ public class GUIManager {
 
                 inventory.addItem(e -> {
                     target.closeInventory();
-                    new PlayerInput(false, target, s -> {
+                    new PlayerInput(target, false, s -> {
                         m.setDisplayName(s);
                         rm.getGUIManager().openMine(m, target);
                     }, s -> rm.getGUIManager().openMine(m, target));

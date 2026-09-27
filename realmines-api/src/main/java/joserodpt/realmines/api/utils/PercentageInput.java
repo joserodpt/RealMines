@@ -13,6 +13,8 @@ package joserodpt.realmines.api.utils;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;

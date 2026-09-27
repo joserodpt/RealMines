@@ -20,8 +20,9 @@ import joserodpt.realmines.api.database.RMPlayerStats;
 import joserodpt.realmines.api.event.RealMinesPlayerUnlockAchievementEvent;
 import joserodpt.realmines.api.managers.DatabaseManagerAPI;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.utils.Format;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -199,7 +200,7 @@ public class RMAchievement {
             //the bar takes ints, and a goal can be configured beyond what one holds
             final int barGoal = (int) Math.min(this.goal, Integer.MAX_VALUE);
             final int barProgress = (int) Math.min(progress, barGoal);
-            final String bar = Text.getProgressBar(barProgress, barGoal, 20, '|', ChatColor.GREEN, ChatColor.GRAY);
+            final String bar = Format.getProgressBar(barProgress, barGoal, 20, '|', ChatColor.GREEN, ChatColor.GRAY);
             for (final String line : RMLanguageConfig.file().getStringList("GUI.Items.Achievement-Locked.Description")) {
                 lore.add(Text.color(line
                         .replace("%bar%", bar)

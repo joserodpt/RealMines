@@ -13,7 +13,7 @@ package joserodpt.realmines.api.config;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.utils.Text;
+import joserodpt.realutils.text.Text;
 import org.bukkit.command.CommandSender;
 
 import java.util.LinkedHashMap;

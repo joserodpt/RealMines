@@ -16,8 +16,9 @@ package joserodpt.realmines.api.mine.components.actions;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.RMineSettings;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.utils.Format;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -74,7 +75,7 @@ public class MineActionMoney extends MineAction {
 
     @Override
     public ItemStack getIcon() {
-        return Items.createItem(Material.EMERALD, 1, getType().getDisplayName() + " &r&f- " + Text.formatPercentages(super.getChance() / 100) + "%", Arrays.asList("&fAmount: &b" + Text.formatNumber(this.money), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the amount.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
+        return Items.createItem(Material.EMERALD, 1, getType().getDisplayName() + " &r&f- " + Format.formatPercentages(super.getChance() / 100) + "%", Arrays.asList("&fAmount: &b" + Text.formatNumber(this.money), "", "&b&nLeft-Click&r&f to change the chance.", "&e&nRight-Click&r&f to change the amount.", "&c&nQ (Drop)&r&f to remove this action.", "&8ID: " + getID()));
     }
 
     public void setAmount(Double d) {

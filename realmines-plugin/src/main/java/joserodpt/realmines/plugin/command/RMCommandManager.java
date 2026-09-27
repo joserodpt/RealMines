@@ -13,10 +13,12 @@ package joserodpt.realmines.plugin.command;
  * @link https://github.com/joserodpt/RealMines
  */
 
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.converters.RMSupportedConverters;
 import joserodpt.realmines.api.managers.PrivateMineTemplate;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.plugin.RealMines;
+import joserodpt.realutils.command.LampExceptionHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import revxrsal.commands.Lamp;
@@ -47,9 +49,13 @@ public final class RMCommandManager {
         //Brigadier stays on. Lamp's own matcher treats leftover input as merely a worse match, so
         //`/rm reload junk` would quietly fall back to the bare `/rm` handler; Brigadier's tree
         //refuses it outright. Where it can't attach (Spigot on 1.19.1+) Lamp falls back on its own
-        //and RMExceptionHandler's @Usage messages are what players see instead.
+        //and the exception handler's @Usage messages are what players see instead.
         this.lamp = BukkitLamp.builder(rm.getPlugin())
-                .exceptionHandler(new RMExceptionHandler())
+                .exceptionHandler(new LampExceptionHandler(
+                        TranslatableLine.SYSTEM_ERROR_COMMAND::send,
+                        TranslatableLine.SYSTEM_ERROR_PERMISSION::send,
+                        TranslatableLine.SYSTEM_PLAYER_ONLY::send,
+                        TranslatableLine.SYSTEM_ERROR_USAGE::get))
                 .suggestionProviders(providers -> providers.addProviderForAnnotation(
                         SuggestFrom.class, annotation -> suggestions.get(annotation.value())))
                 .build();

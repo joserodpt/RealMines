@@ -16,10 +16,10 @@ package joserodpt.realmines.plugin.gui;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.MineIcon;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.Pagination;
-import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.utils.Format;
 import joserodpt.realmines.plugin.RealMines;
+import joserodpt.realutils.gui.Pagination;
+import joserodpt.realutils.item.Items;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -65,7 +65,7 @@ public class MineListGUI {
     public MineListGUI(final RealMines rm, final Player as, final MineListSort so) {
         this.rm = rm;
         this.uuid = as.getUniqueId();
-        this.inv = Bukkit.getServer().createInventory(null, 54, Text.pluginPrefix);
+        this.inv = Bukkit.getServer().createInventory(null, 54, Format.pluginPrefix);
 
         this.load(so);
 

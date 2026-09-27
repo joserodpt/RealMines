@@ -13,7 +13,7 @@ package joserodpt.realmines.api.mine.components.actions;
  * @link https://github.com/joserodpt/RealMines
  */
 
-import joserodpt.realmines.api.utils.Items;
+import joserodpt.realutils.item.Items;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

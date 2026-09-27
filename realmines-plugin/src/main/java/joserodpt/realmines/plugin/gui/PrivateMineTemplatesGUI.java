@@ -14,11 +14,11 @@ package joserodpt.realmines.plugin.gui;
  */
 
 import joserodpt.realmines.api.managers.PrivateMineTemplate;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.Pagination;
-import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realmines.plugin.command.PrivateMineCMD;
+import joserodpt.realutils.gui.Pagination;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;

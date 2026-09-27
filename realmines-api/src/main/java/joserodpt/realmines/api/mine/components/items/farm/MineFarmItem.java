@@ -18,8 +18,9 @@ import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.types.farm.FarmItem;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.utils.Format;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -70,7 +71,7 @@ public class MineFarmItem extends MineItem {
     public ItemStack getItem() {
         return Items.createItem(super.getMaterial(), 1, TranslatableLine.GUI_FARM_ITEM_NAME.with(MATERIAL, Text.beautifyMaterialName(this.fi.getIcon())).with(AGE, String.valueOf(this.getAge())).get() + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), RMLanguageConfig.file().getStringList("GUI.Items.Farm-Item.Description")
                 .stream()
-                .map(s -> Text.color(s.replaceAll("%percentage%", Text.formatPercentages(super.getPercentage()))))
+                .map(s -> Text.color(s.replaceAll("%percentage%", Format.formatPercentages(super.getPercentage()))))
                 .collect(Collectors.toList()));
     }
 

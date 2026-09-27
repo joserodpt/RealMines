@@ -16,12 +16,13 @@ package joserodpt.realmines.plugin.gui;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.PlayerInput;
-import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.utils.Format;
 import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realutils.dialog.SettingsDialog;
 import joserodpt.realutils.dialog.SettingsStore;
+import joserodpt.realutils.input.PlayerInput;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -129,7 +130,7 @@ public class SettingsGUI {
         }
 
         //selection items
-        this.inv.setItem(10, Items.createItem(Material.ENDER_CHEST, 1, Text.pluginPrefix));
+        this.inv.setItem(10, Items.createItem(Material.ENDER_CHEST, 1, Format.pluginPrefix));
         this.inv.setItem(19, Items.createItem(Material.PLAYER_HEAD, 1, "&b&lPlayers"));
 
         switch (def) {
@@ -203,7 +204,7 @@ public class SettingsGUI {
                             case 13:
                                 p.closeInventory();
 
-                                new PlayerInput(false, p, input -> {
+                                new PlayerInput(p, false, input -> {
                                     RMConfig.file().set("RealMines.Prefix", input);
                                     RMConfig.save();
                                     Text.send(p, "The plugin's prefix is now " + input);

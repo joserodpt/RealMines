@@ -18,13 +18,14 @@ import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.items.MineItem;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.Pagination;
+import joserodpt.realmines.api.utils.Format;
 import joserodpt.realmines.api.utils.PercentageInput;
-import joserodpt.realmines.api.utils.PlayerInput;
-import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realutils.dialog.DialogForm;
+import joserodpt.realutils.gui.Pagination;
+import joserodpt.realutils.input.PlayerInput;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -137,7 +138,7 @@ public class MineDepthGUI {
         }
 
         return Items.createItem(mineItem.getMaterial(), 1, "&3&l" + Text.beautifyMaterialName(mineItem.getMaterial()), Arrays.asList(
-                "&fSpawns between &b" + Text.formatPercentages(mineItem.getDepthMin()) + "% &fand &b" + Text.formatPercentages(mineItem.getDepthMax()) + "% &fdepth.",
+                "&fSpawns between &b" + Format.formatPercentages(mineItem.getDepthMin()) + "% &fand &b" + Format.formatPercentages(mineItem.getDepthMax()) + "% &fdepth.",
                 "&6",
                 "&a&nLeft-Click&r&f to edit the minimum depth.",
                 "&e&nRight-Click&r&f to edit the maximum depth.",
@@ -266,7 +267,7 @@ public class MineDepthGUI {
         //the icons first, as a key to the sliders under them: a dialog always draws its fields last
         for (final MineItem block : blocks) {
             form.icon(block.getMaterial(), "&f" + Text.beautifyMaterialName(block.getMaterial()) + " &7- &b"
-                    + Text.formatPercentages(block.getDepthMin()) + "% &7to &b" + Text.formatPercentages(block.getDepthMax()) + "%");
+                    + Format.formatPercentages(block.getDepthMin()) + "% &7to &b" + Format.formatPercentages(block.getDepthMax()) + "%");
         }
         for (final MineItem block : blocks) {
             final String name = Text.beautifyMaterialName(block.getMaterial());
@@ -291,7 +292,7 @@ public class MineDepthGUI {
                 block.setDepthRange(min == null ? block.getDepthMin() : min / 100, max == null ? block.getDepthMax() : max / 100);
                 changed++;
                 Text.send(p, "&fDepth of &b" + Text.beautifyMaterialName(block.getMaterial()) + " &fset to &b"
-                        + Text.formatPercentages(block.getDepthMin()) + "% &f- &b" + Text.formatPercentages(block.getDepthMax()) + "%&f.");
+                        + Format.formatPercentages(block.getDepthMin()) + "% &f- &b" + Format.formatPercentages(block.getDepthMax()) + "%&f.");
             }
             if (changed > 0) {
                 this.mine.saveData(RMine.MineData.BLOCKS);
@@ -310,7 +311,7 @@ public class MineDepthGUI {
             pi.openInventory(p);
         } else {
             Text.send(p, minimum ? "&fInput in the chat the &aminimum &fdepth for this block (0-100%):" : "&fInput in the chat the &emaximum &fdepth for this block (0-100%):");
-            new PlayerInput(true, p, s -> {
+            new PlayerInput(p, true, s -> {
                 final double d;
                 try {
                     d = Double.parseDouble(s.replace("%", ""));
@@ -348,7 +349,7 @@ public class MineDepthGUI {
 
         this.mine.saveData(RMine.MineData.BLOCKS);
 
-        Text.send(p, "&fDepth of &b" + Text.beautifyMaterialName(mineItem.getMaterial()) + " &fset to &b" + Text.formatPercentages(mineItem.getDepthMin()) + "% &f- &b" + Text.formatPercentages(mineItem.getDepthMax()) + "%&f.");
+        Text.send(p, "&fDepth of &b" + Text.beautifyMaterialName(mineItem.getMaterial()) + " &fset to &b" + Format.formatPercentages(mineItem.getDepthMin()) + "% &f- &b" + Format.formatPercentages(mineItem.getDepthMax()) + "%&f.");
 
         this.reopen(p);
     }

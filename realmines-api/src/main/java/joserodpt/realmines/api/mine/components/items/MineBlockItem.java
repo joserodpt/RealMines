@@ -16,8 +16,9 @@ package joserodpt.realmines.api.mine.components.items;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.actions.MineAction;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.utils.Format;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
@@ -45,17 +46,17 @@ public class MineBlockItem extends MineItem {
     public ItemStack getItem() {
         List<String> description = RMLanguageConfig.file().getStringList("GUI.Items.Mine-Block.Block.Description")
                 .stream()
-                .map(s -> Text.color(s.replaceAll("%percentage%", Text.formatPercentages(super.getPercentage()))))
+                .map(s -> Text.color(s.replaceAll("%percentage%", Format.formatPercentages(super.getPercentage()))))
                 .collect(Collectors.toList());
 
         if (super.hasDepthRange()) {
             description.add(Math.min(1, description.size()), Text.color(RMLanguageConfig.file().getString("GUI.Items.Mine-Block.Block.Depth", "&fDepth: &b%min%% &f- &b%max%%")
-                    .replaceAll("%min%", Text.formatPercentages(super.getDepthMin()))
-                    .replaceAll("%max%", Text.formatPercentages(super.getDepthMax()))));
+                    .replaceAll("%min%", Format.formatPercentages(super.getDepthMin()))
+                    .replaceAll("%max%", Format.formatPercentages(super.getDepthMax()))));
         }
 
         ItemStack i = Items.createItem(super.getMaterial(), 1, TranslatableLine.GUI_MINE_BLOCK_NAME.with(MATERIAL, Text.beautifyMaterialName(super.getMaterial())).get() + (super.areVanillaDropsDisabled() ? " &c&lNo-DROP" : "") + (super.isBlockMiningDisabled() ? " &c&lUnbreakable" : ""), description);
-        return super.getBreakActions().isEmpty() ? i : Items.addBreakActionsLore(i, super.getBreakActionsTextList());
+        return super.getBreakActions().isEmpty() ? i : Format.addBreakActionsLore(i, super.getBreakActionsTextList());
     }
 
     @Override

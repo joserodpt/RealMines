@@ -18,12 +18,12 @@ import joserodpt.realmines.api.managers.PrivateMineTemplate;
 import joserodpt.realmines.api.managers.PrivateMinesManagerAPI.ClaimResult;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.PrivateMineData;
-import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.PlayerHeads;
-import joserodpt.realmines.api.utils.PlayerInput;
-import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realmines.plugin.command.PrivateMineCMD;
+import joserodpt.realutils.input.PlayerInput;
+import joserodpt.realutils.item.Items;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
@@ -272,7 +272,7 @@ public class PrivateMineManageGUI {
                     return;
                 }
 
-                new PlayerInput(true, p, input -> {
+                new PlayerInput(p, true, input -> {
                     //the mine can be released or expire while the owner is typing the name
                     if (current.rm.getMineManager().getMine(current.mine.getName()) != current.mine) {
                         TranslatableLine.PRIVATE_MINE_NO_MINE.send(p);

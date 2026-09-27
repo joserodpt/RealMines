@@ -15,7 +15,7 @@ package joserodpt.realmines.plugin.events;
 
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.TranslatableLine;
-import joserodpt.realmines.api.utils.Text;
+import joserodpt.realutils.text.Text;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;

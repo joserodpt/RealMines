@@ -17,9 +17,9 @@ import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.components.RMFailedToLoadException;
-import joserodpt.realmines.api.utils.Items;
-import joserodpt.realmines.api.utils.Pagination;
-import joserodpt.realmines.api.utils.Text;
+import joserodpt.realmines.api.utils.Format;
+import joserodpt.realutils.gui.Pagination;
+import joserodpt.realutils.item.Items;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
@@ -258,7 +258,7 @@ public class DirectoryBrowserGUI {
         for (final ItemStack i : this.inv.getContents()) {
             if (i == null && !items.isEmpty()) {
                 final File s = items.get(0);
-                this.inv.setItem(slot, Items.createItem(s.isDirectory() ? Material.CHEST : (s.getName().endsWith(".schem") || s.getName().endsWith(".schematic")) ? Material.FILLED_MAP : Material.MAP, 1, (s.isDirectory() ? "&f&l" : "&f") + s.getName(), Arrays.asList("&7Last modified: " + Text.formatEpoch(s.lastModified()), s.isDirectory() ? "&7Click to open." : "&7Click to select.")));
+                this.inv.setItem(slot, Items.createItem(s.isDirectory() ? Material.CHEST : (s.getName().endsWith(".schem") || s.getName().endsWith(".schematic")) ? Material.FILLED_MAP : Material.MAP, 1, (s.isDirectory() ? "&f&l" : "&f") + s.getName(), Arrays.asList("&7Last modified: " + Format.formatEpoch(s.lastModified()), s.isDirectory() ? "&7Click to open." : "&7Click to select.")));
                 this.display.put(slot, s);
                 items.remove(0);
             }

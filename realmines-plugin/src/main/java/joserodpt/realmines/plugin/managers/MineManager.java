@@ -39,9 +39,9 @@ import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.mine.types.SchematicMine;
 import joserodpt.realmines.api.mine.types.farm.FarmItem;
 import joserodpt.realmines.api.mine.types.farm.FarmMine;
-import joserodpt.realmines.api.utils.PlayerInput;
-import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.gui.DirectoryBrowserGUI;
+import joserodpt.realutils.input.PlayerInput;
+import joserodpt.realutils.text.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -200,7 +200,7 @@ public class MineManager extends MineManagerAPI {
                     mat.forEach(material -> Text.send(p, " &7> &f" + material.name()));
                     TranslatableLine.SYSTEM_BLOCK_COUNT.with(COUNT, String.valueOf(mat.size())).send(p);
 
-                    new PlayerInput(true, p, input -> {
+                    new PlayerInput(p, true, input -> {
                         if (input.equalsIgnoreCase("yes")) {
                             mat.forEach(material -> m.addItem("default", new MineBlockItem(material, 0.1D)));
                             TranslatableLine.SYSTEM_BLOCKS_ADDED.with(COUNT, String.valueOf(mat.size())).send(p);
@@ -245,7 +245,7 @@ public class MineManager extends MineManagerAPI {
                     mat.forEach(material -> Text.send(p, " &7> &f" + material.name()));
                     TranslatableLine.SYSTEM_BLOCK_COUNT.with(COUNT, String.valueOf(mat.size())).send(p);
 
-                    new PlayerInput(true, p, input -> {
+                    new PlayerInput(p, true, input -> {
                         if (input.equalsIgnoreCase("yes")) {
                             mat.forEach(material -> m.addFarmItem("default", new MineFarmItem(FarmItem.valueOf(Material.WHEAT))));
                             TranslatableLine.SYSTEM_BLOCKS_ADDED.with(COUNT, String.valueOf(mat.size())).send(p);
