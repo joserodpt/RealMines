@@ -283,6 +283,13 @@
             <artifactId>bstats-bukkit</artifactId>
             <version>${bstats.version}</version>
         </dependency>
+        <!-- Pinned to bstats-bukkit's version: FastAsyncWorldEdit brings an older bstats-base
+             that would otherwise be shaded instead, and fail to enable with a NoSuchMethodError. -->
+        <dependency>
+            <groupId>org.bstats</groupId>
+            <artifactId>bstats-base</artifactId>
+            <version>${bstats.version}</version>
+        </dependency>
         <dependency>
             <groupId>com.github.MilkBowl</groupId>
             <artifactId>VaultAPI</artifactId>
