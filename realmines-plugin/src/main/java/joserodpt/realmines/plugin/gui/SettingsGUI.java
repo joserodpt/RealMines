@@ -16,11 +16,14 @@ package joserodpt.realmines.plugin.gui;
 import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
+import joserodpt.realmines.api.utils.DialogForm;
+import joserodpt.realmines.api.utils.DialogMenu;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.RealMines;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.Player;
@@ -33,10 +36,14 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryView;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 public class SettingsGUI {
 
@@ -50,6 +57,152 @@ public class SettingsGUI {
     public enum Setting {REALM, PLAYERS}
 
     private Setting def = Setting.REALM;
+
+    private static final String TITLE = "&f&lReal&9&lMines &8| &fSettings";
+
+    /** One page of the settings dialog: the fields it shows, and how it writes them back. */
+    private static final class Category {
+        private final String name;
+        private final String tooltip;
+        private final Consumer<DialogForm> fields;
+        private final BiConsumer<Player, DialogForm.Answers> save;
+
+        private Category(final String name, final String tooltip, final Consumer<DialogForm> fields,
+                         final BiConsumer<Player, DialogForm.Answers> save) {
+            this.name = name;
+            this.tooltip = tooltip;
+            this.fields = fields;
+            this.save = save;
+        }
+    }
+
+    /** Every setting in config.yml, by what it is about. Keys are paths under {@code RealMines.}. */
+    private static final List<Category> CATEGORIES = Arrays.asList(
+            new Category("&eGeneral", "&7Prefix, messages and menus", form -> {
+                form.text("Prefix", "&ePlugin prefix", RMConfig.file().getString("RealMines.Prefix"), 64);
+                toggle(form, "actionbarMessages", "Action bar messages");
+                toggle(form, "useButtonGUIForPercentages", "Use the button selector for percentages");
+            }, (p, answers) -> {
+                RMConfig.file().set("RealMines.Prefix", answers.text("Prefix", RMConfig.file().getString("RealMines.Prefix")));
+                saveToggles(answers, "actionbarMessages", "useButtonGUIForPercentages");
+            }),
+            new Category("&bPlayers", "&7Teleporting, mined items and the default location", form -> {
+                toggle(form, "teleportPlayers", "Teleport players out of a mine when it resets");
+                toggle(form, "teleportMessage", "Tell players when they are teleported");
+                toggle(form, "sendMinedItemsToInventory", "Send mined items straight to the inventory");
+                form.text("Default-Location", "&eWhere players are sent when a mine goes &7(world;x;y;z;yaw;pitch, empty for spawn)",
+                                RMConfig.file().getString(RMConfig.DEFAULT_LOCATION, ""), 256)
+                        .toggle("Default-Location-Here", "&eSet the default location to where I am standing", false);
+            }, (p, answers) -> {
+                saveToggles(answers, "teleportPlayers", "teleportMessage", "sendMinedItemsToInventory");
+                if (answers.toggle("Default-Location-Here", false)) {
+                    RMConfig.file().set(RMConfig.DEFAULT_LOCATION, locationOf(p));
+                } else {
+                    RMConfig.file().set(RMConfig.DEFAULT_LOCATION,
+                            answers.text("Default-Location", RMConfig.file().getString(RMConfig.DEFAULT_LOCATION, "")).trim());
+                }
+            }),
+            new Category("&cResets", "&7When mines reset and who hears about it", form -> {
+                form.text("announceTimes", "&eSeconds before a reset to announce it &7(comma separated)",
+                        String.join(", ", RMConfig.file().getStringList("RealMines.announceTimes")), 256);
+                toggle(form, "broadcastResetMessageOnlyInWorld", "Broadcast reset messages only in the mine's world");
+                toggle(form, "resetMinesWhenNoPlayers", "Reset mines with no players online");
+                toggle(form, "disableMineResetOnServerStart", "Don't reset mines when the server starts");
+                toggle(form, "disableMineClearingWhenDeleting", "Don't clear a mine's blocks when deleting it");
+            }, (p, answers) -> {
+                //whatever in the list is a number, so a stray word does not throw the rest away
+                final String announce = answers.text("announceTimes", null);
+                if (announce != null) {
+                    final List<Integer> times = new ArrayList<>();
+                    for (final String part : announce.split("[,\\s]+")) {
+                        try {
+                            times.add(Integer.parseInt(part.trim()));
+                        } catch (final NumberFormatException ignored) {
+                            //not a number of seconds
+                        }
+                    }
+                    RMConfig.file().set("RealMines.announceTimes", times);
+                }
+                saveToggles(answers, "broadcastResetMessageOnlyInWorld", "resetMinesWhenNoPlayers",
+                        "disableMineResetOnServerStart", "disableMineClearingWhenDeleting");
+            }),
+            new Category("&6Block Placement", "&7WorldEdit, schematics and farms", form -> {
+                toggle(form, "useWorldEditForBlockPlacement", "Use WorldEdit to place blocks");
+                toggle(form, "ignoreAirBlocksSchematicPasting", "Skip air blocks when pasting schematics");
+                toggle(form, "placeFarmLandBelowCrop", "Place farmland below crops");
+            }, (p, answers) -> saveToggles(answers, "useWorldEditForBlockPlacement", "ignoreAirBlocksSchematicPasting",
+                    "placeFarmLandBelowCrop")),
+            new Category("&aStats", "&7Mining stats and the leaderboards", form -> {
+                toggle(form, "Stats.Enabled", "Track mining stats");
+                form.slider("Stats.Leaderboard-Size", "&eLeaderboard size", 1, 100, 1,
+                                RMConfig.file().getInt("RealMines.Stats.Leaderboard-Size", 28))
+                        .slider("Stats.Flush-Interval-Seconds", "&eSeconds between stats saves &7(after a restart)", 5, 600, 5,
+                                RMConfig.file().getInt("RealMines.Stats.Flush-Interval-Seconds", 60));
+            }, (p, answers) -> {
+                saveToggles(answers, "Stats.Enabled");
+                for (final String number : new String[]{"Stats.Leaderboard-Size", "Stats.Flush-Interval-Seconds"}) {
+                    final String path = "RealMines." + number;
+                    RMConfig.file().set(path, answers.number(number, RMConfig.file().getInt(path)));
+                }
+            }));
+
+    private static void toggle(final DialogForm form, final String key, final String label) {
+        form.toggle(key, "&e" + label, RMConfig.file().getBoolean("RealMines." + key));
+    }
+
+    private static void saveToggles(final DialogForm.Answers answers, final String... keys) {
+        for (final String key : keys) {
+            final String path = "RealMines." + key;
+            RMConfig.file().set(path, answers.toggle(key, RMConfig.file().getBoolean(path)));
+        }
+    }
+
+    /** The same format {@link RMConfig#setDefaultLocation} writes, set here so it is saved with the rest. */
+    private static String locationOf(final Player p) {
+        final Location loc = p.getLocation();
+        return loc.getWorld().getName() + ";" + loc.getX() + ";" + loc.getY() + ";" + loc.getZ() + ";"
+                + loc.getYaw() + ";" + loc.getPitch();
+    }
+
+    /**
+     * Opens the settings: on servers that have dialogs, a menu of the categories above, each its own
+     * dialog; the inventory editor everywhere else.
+     */
+    public static void open(final Player p, final RealMines rm) {
+        final DialogMenu menu = new DialogMenu(TITLE, "")
+                .icon(Material.COMMAND_BLOCK)
+                .close("&cClose");
+        for (final Category category : CATEGORIES) {
+            menu.option(category.name, category.tooltip, () -> openCategory(p, rm, category));
+        }
+
+        if (!menu.open(p, () -> { }, () -> openInventoryEditor(p, rm))) {
+            openInventoryEditor(p, rm);
+        }
+    }
+
+    /** One category's dialog. Saving and going back both return to the menu. */
+    private static void openCategory(final Player p, final RealMines rm, final Category category) {
+        final DialogForm form = new DialogForm(TITLE + " &8> " + category.name,
+                "&7Changes are written to config.yml when you save.");
+        category.fields.accept(form);
+        form.buttons("&aSave", "&7Back");
+
+        final boolean shown = form.open(p, answers -> {
+            category.save.accept(p, answers);
+            RMConfig.save();
+            TranslatableLine.SYSTEM_SETTINGS_SAVED.send(p);
+            open(p, rm);
+        }, () -> open(p, rm), () -> openInventoryEditor(p, rm));
+
+        if (!shown) {
+            openInventoryEditor(p, rm);
+        }
+    }
+
+    private static void openInventoryEditor(final Player p, final RealMines rm) {
+        new SettingsGUI(p, rm).openInventory(p);
+    }
 
     public SettingsGUI(Player as, RealMines rm) {
         this.rm = rm;

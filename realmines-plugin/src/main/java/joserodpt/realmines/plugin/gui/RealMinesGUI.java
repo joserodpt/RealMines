@@ -107,8 +107,7 @@ public class RealMinesGUI {
                                 break;
                             case 15:
                                 p.closeInventory();
-                                final SettingsGUI v2 = new SettingsGUI(p, current.rm);
-                                v2.openInventory(p);
+                                SettingsGUI.open(p, current.rm);
                                 break;
                         }
                     }

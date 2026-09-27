@@ -166,8 +166,7 @@ public class MineCMD {
     @Usage("&c/mine settings")
     @SuppressWarnings("unused")
     public void settingscmd(final Player p) {
-        final SettingsGUI v2 = new SettingsGUI(p, rm);
-        v2.openInventory(p);
+        SettingsGUI.open(p, rm);
     }
 
     @Subcommand("settp")

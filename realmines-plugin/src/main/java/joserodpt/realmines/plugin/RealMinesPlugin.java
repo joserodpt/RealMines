@@ -26,6 +26,7 @@ import joserodpt.realmines.api.managers.PrivateMinesWorld;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.GUIBuilder;
 import joserodpt.realmines.api.utils.PercentageInput;
+import joserodpt.realmines.api.utils.DialogForm;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.command.RMCommandManager;
@@ -139,6 +140,8 @@ public class RealMinesPlugin extends JavaPlugin {
                 DirectoryBrowserGUI.getListener(),
                 PlayerInput.getListener()
         ).forEach(listener -> this.pm.registerEvents(listener, this));
+        //typed input and the settings are asked for in dialogs on servers that have them
+        DialogForm.setup(this);
 
         //vault hook
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
@@ -270,6 +273,7 @@ public class RealMinesPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        DialogForm.shutdown();
         if (this.mineHighlight != null) {
             this.mineHighlight.cancel();
         }

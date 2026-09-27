@@ -18,6 +18,7 @@ import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.mine.components.items.MineItem;
+import joserodpt.realmines.api.utils.DialogForm;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Pagination;
 import joserodpt.realmines.api.utils.PercentageInput;
@@ -238,7 +239,61 @@ public class MineDepthGUI {
         };
     }
 
+    /** Where the depth sliders stop: the same whole percents the button selector adds. */
+    private static final float DEPTH_STEP = 1F;
+
     protected void editDepth(final Player p, final MineItem mineItem, final boolean minimum) {
+        //every block's range at once, on servers with dialogs; the button selector or chat elsewhere
+        if (!this.editDepthsInDialog(p, mineItem, minimum)) {
+            this.editDepthClassic(p, mineItem, minimum);
+        }
+    }
+
+    /**
+     * Every block in the block set, with a minimum and a maximum depth slider each.
+     *
+     * @return false if dialogs are not supported, and nothing was shown
+     */
+    private boolean editDepthsInDialog(final Player p, final MineItem clicked, final boolean minimum) {
+        final List<MineItem> blocks = new ArrayList<>(this.mine.getMineItemsOfSet(this.selectedBlockSet).values());
+        if (blocks.isEmpty()) {
+            return false;
+        }
+
+        final DialogForm form = new DialogForm("&9" + this.mine.getDisplayName() + " &8| &fBlock depths",
+                "&7Where in the mine each block appears: &b0% &7is the &e" + this.mine.getDepthDirection().name()
+                        + " &7face, &b100% &7the opposite one.");
+        for (final MineItem block : blocks) {
+            final String name = Text.beautifyMaterialName(block.getMaterial());
+            form.slider(block.getMaterial().name() + "_min", "&f" + name + " &7minimum (%)",
+                            0F, 100F, DEPTH_STEP, (float) (block.getDepthMin() * 100))
+                    .slider(block.getMaterial().name() + "_max", "&f" + name + " &7maximum (%)",
+                            0F, 100F, DEPTH_STEP, (float) (block.getDepthMax() * 100));
+        }
+        form.buttons("&aSave", "&7Back");
+
+        return form.open(p, answers -> {
+            int changed = 0;
+            for (final MineItem block : blocks) {
+                final Double min = answers.moved(block.getMaterial().name() + "_min", block.getDepthMin() * 100, DEPTH_STEP);
+                final Double max = answers.moved(block.getMaterial().name() + "_max", block.getDepthMax() * 100, DEPTH_STEP);
+                if (min == null && max == null) {
+                    continue;
+                }
+                //setDepthRange puts the two the right way round if they were dragged past each other
+                block.setDepthRange(min == null ? block.getDepthMin() : min / 100, max == null ? block.getDepthMax() : max / 100);
+                changed++;
+                Text.send(p, "&fDepth of &b" + Text.beautifyMaterialName(block.getMaterial()) + " &fset to &b"
+                        + Text.formatPercentages(block.getDepthMin()) + "% &f- &b" + Text.formatPercentages(block.getDepthMax()) + "%&f.");
+            }
+            if (changed > 0) {
+                this.mine.saveData(RMine.MineData.BLOCKS);
+            }
+            this.reopen(p);
+        }, () -> this.reopen(p), () -> this.editDepthClassic(p, clicked, minimum));
+    }
+
+    private void editDepthClassic(final Player p, final MineItem mineItem, final boolean minimum) {
         p.closeInventory();
 
         final int current = (int) Math.round((minimum ? mineItem.getDepthMin() : mineItem.getDepthMax()) * 100);
@@ -254,19 +309,19 @@ public class MineDepthGUI {
                     d = Double.parseDouble(s.replace("%", ""));
                 } catch (final Exception ex) {
                     TranslatableLine.SYSTEM_INPUT_PERCENTAGE_ERROR.send(p);
-                    this.editDepth(p, mineItem, minimum);
+                    this.editDepthClassic(p, mineItem, minimum);
                     return;
                 }
 
                 if (d < 0D) {
                     TranslatableLine.SYSTEM_INPUT_PERCENTAGE_ERROR_GREATER.send(p);
-                    this.editDepth(p, mineItem, minimum);
+                    this.editDepthClassic(p, mineItem, minimum);
                     return;
                 }
 
                 if (d > 100D) {
                     TranslatableLine.SYSTEM_INPUT_PERCENTAGE_ERROR_LOWER.send(p);
-                    this.editDepth(p, mineItem, minimum);
+                    this.editDepthClassic(p, mineItem, minimum);
                     return;
                 }
 

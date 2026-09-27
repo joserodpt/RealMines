@@ -24,6 +24,7 @@ import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.api.mine.components.items.farm.MineFarmItem;
 import joserodpt.realmines.api.mine.types.BlockMine;
 import joserodpt.realmines.api.mine.types.farm.FarmMine;
+import joserodpt.realmines.api.utils.DialogForm;
 import joserodpt.realmines.api.utils.Items;
 import joserodpt.realmines.api.utils.Pagination;
 import joserodpt.realmines.api.utils.PercentageInput;
@@ -497,7 +498,58 @@ public class MineItemsGUI {
         }
     }
 
+    /** Where the percentage sliders stop: the same whole percents the button selector adds. */
+    private static final float PERCENTAGE_STEP = 1F;
+
     protected void editPercentage(final Player p, final MineItem a, final MineItemsGUI current) {
+        //every block in the set at once, on servers with dialogs; the button selector or chat elsewhere
+        if (!this.editPercentagesInDialog(p, a, current)) {
+            this.editPercentageClassic(p, a, current);
+        }
+    }
+
+    /**
+     * Every block in the block set, a slider each, so the whole mix can be balanced on one screen.
+     *
+     * @return false if dialogs are not supported, and nothing was shown
+     */
+    private boolean editPercentagesInDialog(final Player p, final MineItem clicked, final MineItemsGUI current) {
+        final List<MineItem> blocks = current.mine.getMineItemsOfSet(current.selectedBlockSet).values().stream()
+                .sorted(Comparator.comparingDouble(MineItem::getPercentage).reversed())
+                .collect(Collectors.toList());
+        if (blocks.isEmpty()) {
+            return false;
+        }
+
+        final double total = blocks.stream().mapToDouble(MineItem::getPercentage).sum();
+        final DialogForm form = new DialogForm("&9" + current.mine.getDisplayName() + " &8| &fBlock percentages",
+                "&7Currently adds up to &b" + Text.formatPercentages(total) + "%&7.");
+        for (final MineItem block : blocks) {
+            form.slider(block.getMaterial().name(), "&f" + Text.beautifyMaterialName(block.getMaterial()) + " &7(%)",
+                    0F, 100F, PERCENTAGE_STEP, (float) (block.getPercentage() * 100));
+        }
+        form.buttons("&aSave", "&7Back");
+
+        return form.open(p, answers -> {
+            int changed = 0;
+            for (final MineItem block : blocks) {
+                final Double value = answers.moved(block.getMaterial().name(), block.getPercentage() * 100, PERCENTAGE_STEP);
+                if (value != null) {
+                    block.setPercentage(value / 100);
+                    changed++;
+                    Text.send(p, "&fPercentage of &b" + Text.beautifyMaterialName(block.getMaterial()) + " &fset to &b"
+                            + Text.formatPercentages(value / 100) + "%&f.");
+                }
+            }
+            if (changed > 0) {
+                current.mine.saveData(RMine.MineData.BLOCKS);
+            }
+            new MineItemsGUI(current.rm, p, current.mine, current.selectedBlockSet).openInventory(p);
+        }, () -> new MineItemsGUI(current.rm, p, current.mine, current.selectedBlockSet).openInventory(p),
+                () -> this.editPercentageClassic(p, clicked, current));
+    }
+
+    private void editPercentageClassic(final Player p, final MineItem a, final MineItemsGUI current) {
         p.closeInventory();
 
         if (RMConfig.file().getBoolean("RealMines.useButtonGUIForPercentages")) {
@@ -518,19 +570,19 @@ public class MineItemsGUI {
                     d = Double.parseDouble(s.replace("%", ""));
                 } catch (final Exception ex) {
                     TranslatableLine.SYSTEM_INPUT_PERCENTAGE_ERROR.send(p);
-                    this.editPercentage(p, a, current);
+                    this.editPercentageClassic(p, a, current);
                     return;
                 }
 
                 if (d < 0D) {
                     TranslatableLine.SYSTEM_INPUT_PERCENTAGE_ERROR_GREATER.send(p);
-                    this.editPercentage(p, a, current);
+                    this.editPercentageClassic(p, a, current);
                     return;
                 }
 
                 if (d > 100D) {
                     TranslatableLine.SYSTEM_INPUT_PERCENTAGE_ERROR_LOWER.send(p);
-                    this.editPercentage(p, a, current);
+                    this.editPercentageClassic(p, a, current);
                     return;
                 }
 

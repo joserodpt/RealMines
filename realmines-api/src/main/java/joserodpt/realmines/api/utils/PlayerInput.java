@@ -36,6 +36,7 @@ public class PlayerInput implements Listener {
 
     //read and taken from the async chat thread, written from the main thread
     private static final Map<UUID, PlayerInput> inputs = new ConcurrentHashMap<>();
+    private static final String FIELD = "input";
     private final UUID uuid;
 
     private final List<String> texts = Text
@@ -43,22 +44,77 @@ public class PlayerInput implements Listener {
 
     private final InputRunnable runGo;
     private final InputRunnable runCancel;
-    private final BukkitTask taskId;
+    /** The title reminder, or null while the question is asked in a dialog instead. */
+    private BukkitTask taskId;
     private boolean clearInput = true;
 
     public PlayerInput(final boolean clearInput, final Player p, final InputRunnable correct, final InputRunnable cancel) {
+        this(clearInput, p, RMLanguageConfig.file().getStringList("System.Type-Input-Dialog"), correct, cancel);
+    }
+
+    /**
+     * Waits for the player to type something in chat, with the two title lines from
+     * {@code System.Type-Input} on screen.
+     *
+     * <p>On a server with dialogs (1.21.6 and up) the question is asked in a text box instead,
+     * titled and described by {@code dialog}; the chat still answers it if the box cannot be shown.</p>
+     *
+     * @param dialog the text box's title and description, or null to always ask in chat
+     */
+    public PlayerInput(final boolean clearInput, final Player p, final List<String> dialog,
+                       final InputRunnable correct, final InputRunnable cancel) {
         this.uuid = p.getUniqueId();
         p.closeInventory();
         this.runGo = correct;
         this.runCancel = cancel;
         this.clearInput = clearInput;
+        this.register();
+
+        final boolean asked = dialog != null && dialog.size() >= 2 && new DialogForm(dialog.get(0), dialog.get(1))
+                .text(FIELD, "", "", 256)
+                //Escape would close it without telling the server, leaving the prompt waiting forever
+                .closeWithEscape(false)
+                .open(p, answers -> this.answered(p, answers.text(FIELD, "")), () -> this.cancelled(p), () -> {
+                    //shown in chat instead, unless it has been answered or replaced since
+                    if (inputs.get(this.uuid) == this) {
+                        this.startTitles(p);
+                    }
+                });
+        if (!asked) {
+            this.startTitles(p);
+        }
+    }
+
+    private void startTitles(final Player p) {
         this.taskId = new BukkitRunnable() {
             public void run() {
                 p.getPlayer().sendTitle(PlayerInput.this.texts.get(0), PlayerInput.this.texts.get(1), 0, 21, 0);
             }
         }.runTaskTimer(RealMinesAPI.getInstance().getPlugin(), 0L, 20);
+    }
 
-        this.register();
+    /** Stops whatever is asking the question: the title reminder, or the text box. */
+    private void stop() {
+        if (this.taskId != null) {
+            this.taskId.cancel();
+        }
+        DialogForm.close(this.uuid);
+    }
+
+    /** What was typed in the text box, answered as if it had been typed in chat. */
+    private void answered(final Player p, final String input) {
+        //only while this is still the prompt waiting, not one a newer prompt replaced
+        if (inputs.remove(this.uuid, this)) {
+            handlePlayerInput(p, input, this);
+        }
+    }
+
+    private void cancelled(final Player p) {
+        if (inputs.remove(this.uuid, this)) {
+            this.stop();
+            TranslatableLine.SYSTEM_INPUT_CANCELLED.send(p);
+            Bukkit.getScheduler().scheduleSyncDelayedTask(RealMinesAPI.getInstance().getPlugin(), () -> this.runCancel.run(""), 3);
+        }
     }
 
     public static Listener getListener() {
@@ -84,7 +140,7 @@ public class PlayerInput implements Listener {
                 //a prompt from a previous session
                 final PlayerInput current = inputs.remove(event.getPlayer().getUniqueId());
                 if (current != null) {
-                    current.taskId.cancel();
+                    current.stop();
                 }
             }
         };
@@ -96,7 +152,7 @@ public class PlayerInput implements Listener {
         }
 
         try {
-            current.taskId.cancel();
+            current.stop();
             p.sendTitle("", "", 0, 1, 0);
             String cleanInput = ChatColor.stripColor(Text.color(input));
             if (input.equalsIgnoreCase("cancel")) {
@@ -115,7 +171,7 @@ public class PlayerInput implements Listener {
         final PlayerInput previous = inputs.put(this.uuid, this);
         //a new prompt replaces an unanswered one, whose title task would otherwise never stop
         if (previous != null) {
-            previous.taskId.cancel();
+            previous.stop();
         }
     }
 

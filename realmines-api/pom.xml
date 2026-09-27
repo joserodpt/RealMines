@@ -129,6 +129,15 @@
             <version>7.3.17</version>
             <scope>provided</scope>
         </dependency>
+        <!-- Dialogs. Only the platform-neutral interfaces are compiled against; the Spigot and
+             Paper backends are picked at runtime and shaded by realmines-plugin. Optional, so the
+             API's own users are not handed it. -->
+        <dependency>
+            <groupId>io.github.projectunified</groupId>
+            <artifactId>uni-dialog-core</artifactId>
+            <version>${unidialog.version}</version>
+            <optional>true</optional>
+        </dependency>
         <dependency>
             <groupId>dev.dejvokep</groupId>
             <artifactId>boosted-yaml</artifactId>

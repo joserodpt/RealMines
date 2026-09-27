@@ -12,6 +12,8 @@
     <properties>
         <revision>1.7</revision>
         <maven.compiler.release>16</maven.compiler.release>
+        <!-- Dialogs for typed input and the settings on 1.21.6+. Built for Java 21, so only ever loaded on a server that has them. -->
+        <unidialog.version>1.6.0</unidialog.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
     <modules>
