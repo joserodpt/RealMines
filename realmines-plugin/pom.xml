@@ -72,6 +72,7 @@
                                     <include>joserodpt:RealMinesAPI</include>
                                     <include>com.j256.ormlite:ormlite-core</include>
                                     <include>com.j256.ormlite:ormlite-jdbc</include>
+                                    <include>com.github.joserodpt:RealUtils</include>
                                     <include>io.github.projectunified:*</include>
                                 </includes>
                             </artifactSet>
@@ -90,7 +91,11 @@
                                     <shadedPattern>joserodpt.realmines.shaded.boostedyaml</shadedPattern>
                                 </relocation>
 
-                                <!-- Also rewrites the manager class names DialogInput loads by name. -->
+                                <relocation>
+                                    <pattern>joserodpt.realutils</pattern>
+                                    <shadedPattern>joserodpt.realmines.shaded.realutils</shadedPattern>
+                                </relocation>
+                                <!-- Also rewrites the manager class names RealUtils loads by name. -->
                                 <relocation>
                                     <pattern>io.github.projectunified.unidialog</pattern>
                                     <shadedPattern>joserodpt.realmines.shaded.unidialog</shadedPattern>
@@ -122,7 +127,13 @@
                                         <include>**</include>
                                     </includes>
                                 </filter>
-                                <!-- The Spigot and Paper dialog managers are only ever loaded by name. -->
+                                <!-- The dialog managers and RealUtils' Paper text are only ever loaded by name. -->
+                                <filter>
+                                    <artifact>com.github.joserodpt:RealUtils</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
                                 <filter>
                                     <artifact>io.github.projectunified:*</artifact>
                                     <includes>
@@ -253,19 +264,12 @@
             <artifactId>RealMinesAPI</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!-- Both dialog backends, chosen between at runtime. They bring the core and the
-             Bungee/Adventure layers with them; the server supplies the APIs those sit on. -->
+        <!-- Dialogs and the chat prompt, shaded and relocated below. It brings UniDialog's Spigot and
+             Paper backends with it, picked between at runtime. -->
         <dependency>
-            <groupId>io.github.projectunified</groupId>
-            <artifactId>uni-dialog-spigot</artifactId>
-            <version>${unidialog.version}</version>
-            <scope>runtime</scope>
-        </dependency>
-        <dependency>
-            <groupId>io.github.projectunified</groupId>
-            <artifactId>uni-dialog-paper</artifactId>
-            <version>${unidialog.version}</version>
-            <scope>runtime</scope>
+            <groupId>com.github.joserodpt</groupId>
+            <artifactId>RealUtils</artifactId>
+            <version>${realutils.version}</version>
         </dependency>
         <dependency>
             <groupId>com.github.MilkBowl</groupId>

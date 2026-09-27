@@ -16,6 +16,7 @@ package joserodpt.realmines.plugin;
 import joserodpt.realmines.api.RealMinesAPI;
 import joserodpt.realmines.api.config.RMAchievementsConfig;
 import joserodpt.realmines.api.config.RMConfig;
+import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.config.RMLanguageConfig;
 import joserodpt.realmines.api.config.RMMinesOldConfig;
 import joserodpt.realmines.api.config.RMPrivateMinesConfig;
@@ -26,7 +27,6 @@ import joserodpt.realmines.api.managers.PrivateMinesWorld;
 import joserodpt.realmines.api.mine.RMine;
 import joserodpt.realmines.api.utils.GUIBuilder;
 import joserodpt.realmines.api.utils.PercentageInput;
-import joserodpt.realmines.api.utils.DialogForm;
 import joserodpt.realmines.api.utils.PlayerInput;
 import joserodpt.realmines.api.utils.Text;
 import joserodpt.realmines.plugin.command.RMCommandManager;
@@ -50,6 +50,7 @@ import joserodpt.realmines.plugin.gui.PrivateMinesGUI;
 import joserodpt.realmines.plugin.gui.MineResetGUI;
 import joserodpt.realmines.plugin.gui.RealMinesGUI;
 import joserodpt.realmines.plugin.gui.SettingsGUI;
+import joserodpt.realutils.dialog.Dialogs;
 import joserodpt.realpermissions.api.RealPermissionsAPI;
 import joserodpt.realpermissions.api.pluginhook.ExternalPlugin;
 import joserodpt.realpermissions.api.pluginhook.ExternalPluginPermission;
@@ -141,7 +142,9 @@ public class RealMinesPlugin extends JavaPlugin {
                 PlayerInput.getListener()
         ).forEach(listener -> this.pm.registerEvents(listener, this));
         //typed input and the settings are asked for in dialogs on servers that have them
-        DialogForm.setup(this);
+        Dialogs.setup(this, () -> RMConfig.file().getBoolean("RealMines.useDialogs", true));
+        Dialogs.labels(TranslatableLine.SYSTEM_DIALOG_CONFIRM.get(), TranslatableLine.SYSTEM_DIALOG_CANCEL.get(), null, null, null);
+        PlayerInput.setup(this);
 
         //vault hook
         if (getServer().getPluginManager().getPlugin("Vault") != null) {
@@ -273,7 +276,7 @@ public class RealMinesPlugin extends JavaPlugin {
 
     @Override
     public void onDisable() {
-        DialogForm.shutdown();
+        Dialogs.shutdown();
         if (this.mineHighlight != null) {
             this.mineHighlight.cancel();
         }
