@@ -64,12 +64,7 @@ public class MineCMD {
     @CommandPlaceholder
     @SuppressWarnings("unused")
     public void defaultCommand(final CommandSender commandSender) {
-        Text.sendList(commandSender,
-                Arrays.asList("         &fReal&9Mines", "         &7Release &a" + rm.getPlugin().getDescription().getVersion()));
-        if (!(commandSender instanceof Player)) {
-            Text.sendRaw(commandSender, "         &7Built &a" + BuildInfo.time(rm.getPlugin()));
-            Text.sendRaw(commandSender, "         &7RealUtils &a" + BuildInfo.realUtilsVersion(rm.getPlugin()));
-        }
+        BuildInfo.sendAbout(commandSender, rm.getPlugin(), "&fReal&9Mines");
         if (commandSender instanceof Player) {
             Player p = (Player) commandSender;
             if (p.hasPermission("realmines.admin") || p.isOp()) {
