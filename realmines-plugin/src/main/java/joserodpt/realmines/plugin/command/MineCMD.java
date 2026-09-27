@@ -27,6 +27,7 @@ import joserodpt.realmines.plugin.gui.MineItemsGUI;
 import joserodpt.realmines.plugin.gui.MineListGUI;
 import joserodpt.realmines.plugin.gui.RealMinesGUI;
 import joserodpt.realmines.plugin.gui.SettingsGUI;
+import joserodpt.realutils.text.LanguageMessage;
 import joserodpt.realutils.text.Text;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -223,7 +224,7 @@ public class MineCMD {
         if (m != null) {
             boolean success = m.resetCountdown(true);
             if (success) {
-                final TranslatableLine.Message line = TranslatableLine.MINE_COUNTDOWN_SET.with(MINE, m.getDisplayName());
+                final LanguageMessage line = TranslatableLine.MINE_COUNTDOWN_SET.with(MINE, m.getDisplayName());
                 Integer countdown = m.getCountdown();
                 if (countdown != null) {
                     line.with(TIME, String.valueOf(countdown));
