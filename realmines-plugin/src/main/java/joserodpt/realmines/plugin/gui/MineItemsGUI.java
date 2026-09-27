@@ -148,7 +148,10 @@ public class MineItemsGUI {
         this.inv.setItem(38, mine.getType() == RMine.Type.BLOCKS ? Items.createItem(Material.LADDER, 1, "&e&lDepth Layers", Arrays.asList("&fMake materials only spawn at a certain depth.", "&7Depth 0% is at the &f" + mine.getDepthDirection().name() + " &7face.", "&6", "&fClick here to edit the depth of each block.")) : placeholder);
         this.inv.setItem(39, mine.getType() == RMine.Type.SCHEMATIC ? placeholder : Items.createItem(Material.LEVER, 1, "&fCurrent block set mode: " + mine.getBlockSetMode().getDisplayName(), List.of("&7Next: " + mine.getBlockSetMode().next().getDisplayName(), "&fClick here to change the block set mode.")));
         this.inv.setItem(40, mine.getType() == RMine.Type.SCHEMATIC ? close : addSet);
-        this.inv.setItem(41, mine.getType() == RMine.Type.SCHEMATIC ? placeholder : close);
+        this.inv.setItem(41, Items.createItem(Material.CHEST, 1, "&e&lSend Mined Items to Inventory", Arrays.asList("&fClick here to toggle sending the mined", "&fitems directly to the player's inventory.", "&7Always on while the global option is on.", "&7State: " + (this.mine.getSettingBool(RMineSettings.SEND_MINED_ITEMS_TO_INVENTORY) ? "&a&lON" : "&c&lOFF"))));
+        if (mine.getType() != RMine.Type.SCHEMATIC) {
+            this.inv.setItem(42, close);
+        }
 
         int slot = 0;
         for (final ItemStack i : this.inv.getContents()) {
@@ -228,6 +231,10 @@ public class MineItemsGUI {
                                 current.load();
                                 break;
                             case 41:
+                                current.mine.setSettingBool(RMineSettings.SEND_MINED_ITEMS_TO_INVENTORY, !current.mine.getSettingBool(RMineSettings.SEND_MINED_ITEMS_TO_INVENTORY));
+                                current.load();
+                                break;
+                            case 42:
                                 if (current.mine.getType() == RMine.Type.SCHEMATIC) {
                                     return;
                                 }

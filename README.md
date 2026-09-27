@@ -637,7 +637,7 @@ A few toggles worth knowing about:
 | Setting | Effect |
 |---|---|
 | `teleportPlayers` | Teleport players out of a mine before it refills |
-| `sendMinedItemsToInventory` | Send drops straight to the player's inventory instead of the ground |
+| `sendMinedItemsToInventory` | Send drops straight to the player's inventory instead of the ground, in every mine. A single mine can turn it on with its own `Send mined items to inventory` toggle in the mine's block GUI |
 | `resetMinesWhenNoPlayers` | Keep reset timers running when the server is empty |
 | `useWorldEditForBlockPlacement` | Use WorldEdit to fill mines — much faster on large mines |
 | `ignoreAirBlocksSchematicPasting` | Skip air blocks when pasting schematic mines |

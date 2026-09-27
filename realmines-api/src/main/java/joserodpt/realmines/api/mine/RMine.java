@@ -685,6 +685,7 @@ public abstract class RMine {
 
         this.config.set(RMineSettings.BREAK_PERMISSION.getConfigKey(), false);
         this.config.set(RMineSettings.DISCARD_BREAK_ACTION_MESSAGES.getConfigKey(), false);
+        this.config.set(RMineSettings.SEND_MINED_ITEMS_TO_INVENTORY.getConfigKey(), false);
         this.config.set(RMineSettings.BLOCK_SETS_MODE.getConfigKey(), this.getBlockSetMode().name());
         this.config.set(RMineSettings.DEPTH_DIRECTION.getConfigKey(), this.getDepthDirection().name());
 

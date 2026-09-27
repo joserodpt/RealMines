@@ -19,6 +19,7 @@ import joserodpt.realmines.api.config.TranslatableLine;
 import joserodpt.realmines.api.event.RealMinesBlockBreakEvent;
 import joserodpt.realmines.api.managers.PrivateMinesWorld;
 import joserodpt.realmines.api.mine.RMine;
+import joserodpt.realmines.api.mine.components.RMineSettings;
 import joserodpt.realmines.api.mine.components.items.MineItem;
 import joserodpt.realmines.plugin.RealMines;
 import joserodpt.realmines.plugin.managers.PrivateMinesManager;
@@ -223,8 +224,13 @@ public class BlockEvents implements Listener {
     @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
     public void onBlockBroken(final BlockBreakEvent e) {
         //isDropItems is already false when the mine item disabled vanilla drops
-        if (e.isDropItems() && RMConfig.file().getBoolean("RealMines.sendMinedItemsToInventory")
-                && rm.getMineManager().getMineWithBlock(e.getBlock()) != null) {
+        if (!e.isDropItems()) {
+            return;
+        }
+        final RMine mine = rm.getMineManager().getMineWithBlock(e.getBlock());
+        //the global option turns it on for every mine, the per-mine setting for just that one
+        if (mine != null && (RMConfig.file().getBoolean("RealMines.sendMinedItemsToInventory")
+                || mine.getSettingBool(RMineSettings.SEND_MINED_ITEMS_TO_INVENTORY))) {
             sendDropsToInventory(e.getPlayer(), e);
         }
     }

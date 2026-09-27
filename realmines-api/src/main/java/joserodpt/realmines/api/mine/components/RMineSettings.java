@@ -3,6 +3,7 @@ package joserodpt.realmines.api.mine.components;
 public enum RMineSettings {
     BREAK_PERMISSION("settings.break-permission", "Mine break permission"),
     DISCARD_BREAK_ACTION_MESSAGES("settings.discard-break-action-messages", "Discard break action messages"),
+    SEND_MINED_ITEMS_TO_INVENTORY("settings.send-mined-items-to-inventory", "Send mined items to inventory"),
     BLOCK_SETS_MODE("settings.block-sets-mode", "Block sets mode"),
     DEPTH_DIRECTION("settings.depth-direction", "Depth origin face"),
     ;
