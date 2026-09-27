@@ -28,6 +28,7 @@ import joserodpt.realmines.plugin.gui.MineListGUI;
 import joserodpt.realmines.plugin.gui.RealMinesGUI;
 import joserodpt.realmines.plugin.gui.SettingsGUI;
 import joserodpt.realutils.text.LanguageMessage;
+import joserodpt.realutils.BuildInfo;
 import joserodpt.realutils.text.Text;
 import org.bukkit.Material;
 import org.bukkit.command.CommandSender;
@@ -65,6 +66,10 @@ public class MineCMD {
     public void defaultCommand(final CommandSender commandSender) {
         Text.sendList(commandSender,
                 Arrays.asList("         &fReal&9Mines", "         &7Release &a" + rm.getPlugin().getDescription().getVersion()));
+        if (!(commandSender instanceof Player)) {
+            Text.sendRaw(commandSender, "         &7Built &a" + BuildInfo.time(rm.getPlugin()));
+            Text.sendRaw(commandSender, "         &7RealUtils &a" + BuildInfo.realUtilsVersion(rm.getPlugin()));
+        }
         if (commandSender instanceof Player) {
             Player p = (Player) commandSender;
             if (p.hasPermission("realmines.admin") || p.isOp()) {
