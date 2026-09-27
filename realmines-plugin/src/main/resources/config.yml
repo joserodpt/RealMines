@@ -13,6 +13,9 @@ RealMines:
   resetMinesWhenNoPlayers: false
   broadcastResetMessageOnlyInWorld: false
   useButtonGUIForPercentages: true
+  # On servers that have dialogs (1.21.6 and up), ask for typed input, the settings and block
+  # percentages in dialogs instead of the chat and inventory menus. Other servers ignore this.
+  useDialogs: true
   useWorldEditForBlockPlacement: true
   ignoreAirBlocksSchematicPasting: true
   disableMineResetOnServerStart: false
@@ -36,4 +39,4 @@ RealMines:
     Flush-Interval-Seconds: 60
     # How many entries the leaderboard GUI shows.
     Leaderboard-Size: 28
-Version: 13
+Version: 14

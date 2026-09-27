@@ -39,6 +39,7 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -68,6 +69,10 @@ final class DialogInput {
     private static Plugin owner;
     /** Paper's backend rather than Spigot's, which cannot show items. */
     private static boolean paper;
+    /** Whether text can hold sprites: Paper on 1.21.9 and up. */
+    private static boolean sprites;
+    /** Whether item textures are in an atlas of their own, as they are from 1.21.11. */
+    private static boolean itemsAtlas;
     private static Logger logger;
 
     private static final class Pending {
@@ -98,8 +103,21 @@ final class DialogInput {
         }
 
         try {
-            @SuppressWarnings("rawtypes") final DialogManager created = (DialogManager) Class.forName(managerClass)
-                    .getConstructor(Plugin.class).newInstance(plugin);
+            paper = managerClass.equals(PAPER_MANAGER);
+            sprites = paper && hasClass("net.kyori.adventure.text.object.ObjectContents");
+            itemsAtlas = hasField("net.minecraft.data.AtlasIds", "ITEMS");
+
+            @SuppressWarnings("rawtypes") final DialogManager created;
+            if (sprites) {
+                //Paper's text goes through PaperText, which draws the sprites; loaded by name like
+                //the manager, since it is built on Paper's own classes
+                final Object text = Class.forName(DialogInput.class.getPackage().getName() + ".PaperText")
+                        .getDeclaredConstructor().newInstance();
+                created = (DialogManager) Class.forName(managerClass)
+                        .getConstructor(Plugin.class, Function.class).newInstance(plugin, text);
+            } else {
+                created = (DialogManager) Class.forName(managerClass).getConstructor(Plugin.class).newInstance(plugin);
+            }
             created.registerCustomAction(SUBMIT, (BiConsumer<UUID, Map<String, String>>) (uuid, values) -> answer(uuid, values, false));
             created.registerCustomAction(CANCEL, (BiConsumer<UUID, Map<String, String>>) (uuid, values) -> answer(uuid, values, true));
             for (int i = 0; i < DialogMenu.MAX_OPTIONS; i++) {
@@ -108,7 +126,6 @@ final class DialogInput {
             }
             created.register();
             manager = created;
-            paper = managerClass.equals(PAPER_MANAGER);
             return true;
         } catch (final Throwable e) {
             //a LinkageError too: a server whose dialog API is not the one UniDialog was built for
@@ -219,6 +236,21 @@ final class DialogInput {
                     text.text(form.description);
                 });
             }
+            if (paper) {
+                for (final DialogForm.Icon icon : form.icons) {
+                    //air, water and the like have no item to show
+                    if (!icon.material.isItem() || icon.material.isAir()) {
+                        continue;
+                    }
+                    dialog.body((Consumer<DialogBodyBuilder>) body -> {
+                        final ItemBody item = body.item();
+                        item.item(new ItemStack(icon.material));
+                        //always given: the Paper backend passes a missing one on as null
+                        item.description((Consumer<TextBody<?>>) text -> text.text(icon.caption));
+                        item.showTooltip(false);
+                    });
+                }
+            }
             for (final DialogForm.Field field : form.fields) {
                 dialog.input(inputName(field.key), (Consumer<DialogInputBuilder>) input -> build(input, field));
             }
@@ -273,24 +305,34 @@ final class DialogInput {
         return answers;
     }
 
+    /** The field's label, with its sprite in front where the server can draw one. */
+    private static String label(final DialogForm.Field field) {
+        if (!sprites || field.sprite == null || !field.sprite.isItem() || field.sprite.isAir()) {
+            return field.label;
+        }
+        final String texture = DialogSprites.texture(field.sprite);
+        return DialogSprites.marker(DialogSprites.atlas(texture, itemsAtlas), texture) + " " + field.label;
+    }
+
     private static void build(final DialogInputBuilder input, final DialogForm.Field field) {
+        final String label = label(field);
         switch (field.kind) {
             case TEXT: {
                 final TextInput<?> text = input.textInput();
-                text.label(field.label);
+                text.label(label);
                 text.initial(field.text);
                 text.maxLength(field.maxLength);
                 break;
             }
             case TOGGLE: {
                 final BooleanInput<?> toggle = input.booleanInput();
-                toggle.label(field.label);
+                toggle.label(label);
                 toggle.initial(field.toggled);
                 break;
             }
             case SLIDER: {
                 final NumberRangeInput<?> slider = input.numberRangeInput();
-                slider.label(field.label);
+                slider.label(label);
                 slider.start(field.min);
                 slider.end(field.max);
                 //both set, never left null: the same Paper backend passes those straight through
@@ -318,6 +360,15 @@ final class DialogInput {
         if (manager != null) {
             manager.unregister();
             manager = null;
+        }
+    }
+
+    private static boolean hasField(final String className, final String field) {
+        try {
+            Class.forName(className, false, DialogInput.class.getClassLoader()).getField(field);
+            return true;
+        } catch (final Throwable e) {
+            return false;
         }
     }
 

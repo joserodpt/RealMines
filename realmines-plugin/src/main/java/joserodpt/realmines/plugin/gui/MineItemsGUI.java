@@ -524,9 +524,15 @@ public class MineItemsGUI {
         final double total = blocks.stream().mapToDouble(MineItem::getPercentage).sum();
         final DialogForm form = new DialogForm("&9" + current.mine.getDisplayName() + " &8| &fBlock percentages",
                 "&7Currently adds up to &b" + Text.formatPercentages(total) + "%&7.");
+        //the icons first, as a key to the sliders under them: a dialog always draws its fields last
+        for (final MineItem block : blocks) {
+            form.icon(block.getMaterial(), "&f" + Text.beautifyMaterialName(block.getMaterial())
+                    + " &7- &b" + Text.formatPercentages(block.getPercentage()) + "%");
+        }
         for (final MineItem block : blocks) {
             form.slider(block.getMaterial().name(), "&f" + Text.beautifyMaterialName(block.getMaterial()) + " &7(%)",
-                    0F, 100F, PERCENTAGE_STEP, (float) (block.getPercentage() * 100));
+                            0F, 100F, PERCENTAGE_STEP, (float) (block.getPercentage() * 100))
+                    .sprite(block.getMaterial());
         }
         form.buttons("&aSave", "&7Back");
 

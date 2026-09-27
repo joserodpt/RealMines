@@ -263,12 +263,19 @@ public class MineDepthGUI {
         final DialogForm form = new DialogForm("&9" + this.mine.getDisplayName() + " &8| &fBlock depths",
                 "&7Where in the mine each block appears: &b0% &7is the &e" + this.mine.getDepthDirection().name()
                         + " &7face, &b100% &7the opposite one.");
+        //the icons first, as a key to the sliders under them: a dialog always draws its fields last
+        for (final MineItem block : blocks) {
+            form.icon(block.getMaterial(), "&f" + Text.beautifyMaterialName(block.getMaterial()) + " &7- &b"
+                    + Text.formatPercentages(block.getDepthMin()) + "% &7to &b" + Text.formatPercentages(block.getDepthMax()) + "%");
+        }
         for (final MineItem block : blocks) {
             final String name = Text.beautifyMaterialName(block.getMaterial());
             form.slider(block.getMaterial().name() + "_min", "&f" + name + " &7minimum (%)",
                             0F, 100F, DEPTH_STEP, (float) (block.getDepthMin() * 100))
+                    .sprite(block.getMaterial())
                     .slider(block.getMaterial().name() + "_max", "&f" + name + " &7maximum (%)",
-                            0F, 100F, DEPTH_STEP, (float) (block.getDepthMax() * 100));
+                            0F, 100F, DEPTH_STEP, (float) (block.getDepthMax() * 100))
+                    .sprite(block.getMaterial());
         }
         form.buttons("&aSave", "&7Back");
 

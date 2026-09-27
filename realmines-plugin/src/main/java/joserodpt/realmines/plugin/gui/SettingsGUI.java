@@ -82,9 +82,10 @@ public class SettingsGUI {
                 form.text("Prefix", "&ePlugin prefix", RMConfig.file().getString("RealMines.Prefix"), 64);
                 toggle(form, "actionbarMessages", "Action bar messages");
                 toggle(form, "useButtonGUIForPercentages", "Use the button selector for percentages");
+                toggle(form, "useDialogs", "Use dialogs &7(off: chat and inventory menus)");
             }, (p, answers) -> {
                 RMConfig.file().set("RealMines.Prefix", answers.text("Prefix", RMConfig.file().getString("RealMines.Prefix")));
-                saveToggles(answers, "actionbarMessages", "useButtonGUIForPercentages");
+                saveToggles(answers, "actionbarMessages", "useButtonGUIForPercentages", "useDialogs");
             }),
             new Category("&bPlayers", "&7Teleporting, mined items and the default location", form -> {
                 toggle(form, "teleportPlayers", "Teleport players out of a mine when it resets");
@@ -228,6 +229,8 @@ public class SettingsGUI {
                 this.inv.setItem(13, Items.createItem(Material.WRITABLE_BOOK, 1, "&ePlugin Prefix", Arrays.asList("&fCurrent: &r" + Text.getPrefix(), "", "&fClick here to change the plugin's prefix.")));
                 this.inv.setItem(14, Items.createItem(Material.GRASS_BLOCK, 1, "&ePlace Farm Land Below Crop " + (RMConfig.file().getBoolean("RealMines.placeFarmLandBelowCrop") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
                 this.inv.setItem(15, Items.createItem(Material.OAK_SIGN, 1, "&eBroadcast Reset Message Only In World " + (RMConfig.file().getBoolean("RealMines.broadcastResetMessageOnlyInWorld") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle this setting.")));
+                //here too, since with dialogs off this is the only settings screen left to turn them back on
+                this.inv.setItem(16, Items.createItem(Material.COMMAND_BLOCK, 1, "&eUse Dialogs " + (RMConfig.file().getBoolean("RealMines.useDialogs", true) ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fOn servers with dialogs (1.21.6+), ask for input,", "&fthe settings and percentages in dialogs.", "&fClick here to toggle this setting.")));
                 break;
             case PLAYERS:
                 this.inv.setItem(22, Items.createItem(Material.ENDER_PEARL, 1, "&eTeleport Players " + (RMConfig.file().getBoolean("RealMines.teleportPlayers") ? "&a&lON" : "&c&lOFF"), Arrays.asList("", "&fClick here to toggle player teleportation.")));
@@ -276,7 +279,9 @@ public class SettingsGUI {
 
                         switch (e.getRawSlot()) {
                             case 16:
-                                p.closeInventory();
+                                if (current.def == Setting.REALM) {
+                                    toggle("useDialogs", current);
+                                }
                                 break;
                             case 10:
                                 current.def = Setting.REALM;

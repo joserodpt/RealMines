@@ -14,7 +14,9 @@ package joserodpt.realmines.api.utils;
  */
 
 import joserodpt.realmines.api.RealMinesAPI;
+import joserodpt.realmines.api.config.RMConfig;
 import joserodpt.realmines.api.config.TranslatableLine;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -54,6 +56,8 @@ public final class DialogForm {
         final float max;
         final float step;
         final float value;
+        /** Drawn at the start of the label where the server can, or nothing when null. */
+        Material sprite;
 
         private Field(final Kind kind, final String key, final String label, final String text, final boolean toggled,
                       final int maxLength, final float min, final float max, final float step, final float value) {
@@ -73,9 +77,21 @@ public final class DialogForm {
     final String title;
     final String description;
     final List<Field> fields = new ArrayList<>();
+    final List<Icon> icons = new ArrayList<>();
     String confirm = TranslatableLine.SYSTEM_DIALOG_CONFIRM.get();
     String cancel = TranslatableLine.SYSTEM_DIALOG_CANCEL.get();
     boolean closeWithEscape = true;
+
+    /** One row of the icon list: an item, with its caption beside it. */
+    static final class Icon {
+        final Material material;
+        final String caption;
+
+        private Icon(final Material material, final String caption) {
+            this.material = material;
+            this.caption = caption;
+        }
+    }
 
     public DialogForm(final String title, final String description) {
         this.title = Text.color(title);
@@ -105,6 +121,27 @@ public final class DialogForm {
         return this;
     }
 
+    /**
+     * Draws a small sprite of {@code material} at the start of the last field's label. Paper on
+     * 1.21.9 and up only; elsewhere the label shows as it is.
+     */
+    public DialogForm sprite(final Material material) {
+        if (!this.fields.isEmpty()) {
+            this.fields.get(this.fields.size() - 1).sprite = material;
+        }
+        return this;
+    }
+
+    /**
+     * A row under the description: the item's icon, with {@code caption} beside it. Rows come
+     * before every field - a dialog always draws those last. Paper only; Spigot's dialogs cannot
+     * show items, so there the rows are left out.
+     */
+    public DialogForm icon(final Material material, final String caption) {
+        this.icons.add(new Icon(material, Text.color(caption)));
+        return this;
+    }
+
     public DialogForm buttons(final String confirm, final String cancel) {
         this.confirm = Text.color(confirm);
         this.cancel = Text.color(cancel);
@@ -129,7 +166,7 @@ public final class DialogForm {
      * @return false if dialogs are not supported, in which case nothing is shown and nothing is run
      */
     public boolean open(final Player p, final Consumer<Answers> confirmed, final Runnable cancelled, final Runnable failed) {
-        if (!supported) {
+        if (!isSupported()) {
             return false;
         }
         p.closeInventory();
@@ -148,8 +185,12 @@ public final class DialogForm {
         }
     }
 
+    /**
+     * Whether dialogs can be shown: the server has them, and {@code RealMines.useDialogs} has not
+     * turned them off. Read each time, so the setting applies without a restart.
+     */
     public static boolean isSupported() {
-        return supported;
+        return supported && RMConfig.file().getBoolean("RealMines.useDialogs", true);
     }
 
     /** Uses dialogs from here on if the server has them. Called once the plugin is enabled. */
